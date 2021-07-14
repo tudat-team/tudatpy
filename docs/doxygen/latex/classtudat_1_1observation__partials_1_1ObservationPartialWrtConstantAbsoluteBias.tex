@@ -1,0 +1,94 @@
+\hypertarget{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias}{}\doxysection{tudat\+::observation\+\_\+partials\+::Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias$<$ Observation\+Size $>$ Class Template Reference}
+\label{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias}\index{tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$}}
+
+
+Class for computing the derivative of any observable w.\+r.\+t. a constant absolute observation bias.  
+
+
+
+
+{\ttfamily \#include $<$observation\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias$<$ Observation\+Size $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_a92f4471efe6f12d7a721ae2c77e466f7}{Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias}} (const observation\+\_\+models\+::\+Observable\+Type observable\+Type, const observation\+\_\+models\+::\+Link\+Ends \&link\+Ends)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_a9c8b44d6b6ed0dae7699d4ae51d62f14}\label{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_a9c8b44d6b6ed0dae7699d4ae51d62f14}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_a9c8b44d6b6ed0dae7699d4ae51d62f14}{$\sim$\+Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, Observation\+Size, Eigen\+::\+Dynamic $>$, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_ab9fd21b903e220210e42e7e3f2a2ad18}{calculate\+Partial}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Of\+Fixed\+Time=observation\+\_\+models\+::receiver, const Eigen\+::\+Matrix$<$ double, Observation\+Size, 1 $>$ \&current\+Observation=Eigen\+::\+Matrix$<$ double, Observation\+Size, 1 $>$\+::Zero())
+\begin{DoxyCompactList}\small\item\em Function to calculate the observation partial w.\+r.\+t. constant absolute bias. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$int Observation\+Size$>$\newline
+class tudat\+::observation\+\_\+partials\+::\+Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias$<$ Observation\+Size $>$}
+
+Class for computing the derivative of any observable w.\+r.\+t. a constant absolute observation bias. 
+
+Class for computing the derivative of any observable w.\+r.\+t. a constant absolute observation bias. Note that this partial is distinct from most other \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}} partial derived classes, as its implementation is based on the parameter (constant observation bias), not the type of observable\+: the implementation is identical for each observable. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_a92f4471efe6f12d7a721ae2c77e466f7}\label{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_a92f4471efe6f12d7a721ae2c77e466f7}} 
+\index{tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$}!ObservationPartialWrtConstantAbsoluteBias@{ObservationPartialWrtConstantAbsoluteBias}}
+\index{ObservationPartialWrtConstantAbsoluteBias@{ObservationPartialWrtConstantAbsoluteBias}!tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$}}
+\doxysubsubsection{\texorpdfstring{ObservationPartialWrtConstantAbsoluteBias()}{ObservationPartialWrtConstantAbsoluteBias()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size$>$ \\
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias}}$<$ Observation\+Size $>$\+::\mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias}{Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias}} (\begin{DoxyParamCaption}\item[{const observation\+\_\+models\+::\+Observable\+Type}]{observable\+Type,  }\item[{const observation\+\_\+models\+::\+Link\+Ends \&}]{link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em observable\+Type} & Observable type for which the bias is active. \\
+\hline
+{\em link\+Ends} & Observation link ends for which the bias is active. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_ab9fd21b903e220210e42e7e3f2a2ad18}\label{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_ab9fd21b903e220210e42e7e3f2a2ad18}} 
+\index{tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$}!calculatePartial@{calculatePartial}}
+\index{calculatePartial@{calculatePartial}!tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartialWrtConstantAbsoluteBias$<$ ObservationSize $>$}}
+\doxysubsubsection{\texorpdfstring{calculatePartial()}{calculatePartial()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size$>$ \\
+std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, Observation\+Size, Eigen\+::\+Dynamic $>$, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias}}$<$ Observation\+Size $>$\+::calculate\+Partial (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Of\+Fixed\+Time = {\ttfamily observation\+\_\+models\+:\+:receiver},  }\item[{const Eigen\+::\+Matrix$<$ double, Observation\+Size, 1 $>$ \&}]{current\+Observation = {\ttfamily Eigen\+:\+:Matrix$<$~double,~ObservationSize,~1~$>$\+:\+:Zero(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to calculate the observation partial w.\+r.\+t. constant absolute bias. 
+
+Function to calculate the observation partial w.\+r.\+t. constant absolute bias. Note that output is independent of input. Associated time defined at times\mbox{[} 0 \mbox{]}. 
+\begin{DoxyParams}{Parameters}
+{\em states} & Link end states (unused). \\
+\hline
+{\em times} & Link end times (unused). \\
+\hline
+{\em link\+End\+Of\+Fixed\+Time} & Link end that is kept fixed when computing the observable (unused). \\
+\hline
+{\em current\+Observation} & Value of the observation for which the partial is to be computed (unused). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of pairs containing partial values and associated times. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial_a85e94e334ea8136b11eba24e10a85849}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial$<$ Observation\+Size $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/observation\+Partial.\+h\end{DoxyCompactItemize}

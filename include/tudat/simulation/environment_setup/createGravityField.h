@@ -277,7 +277,6 @@ std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonic
 
 //! Derived class of SphericalHarmonicsGravityFieldSettings defining settings of spherical harmonic gravity
 //! field representation to be loaded from a spherical harmonics model file.
-//! @get_docstring(FromFileSphericalHarmonicsGravityFieldSettings.__docstring__)
 class FromFileSphericalHarmonicsGravityFieldSettings: public SphericalHarmonicsGravityFieldSettings
 {
 public:

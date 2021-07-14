@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1root__finders_1_1TerminationCondition" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::root_finders::TerminationCondition</compoundname>
+    <includes refid="terminationConditions_8h" local="no">terminationConditions.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ScalarType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1root__finders_1_1TerminationCondition_1a7e5a2e0b3948c40e379d496b8bb6f781" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::root_finders::TerminationCondition&lt; ScalarType &gt;::~TerminationCondition</definition>
+        <argsstring>()</argsstring>
+        <name>~TerminationCondition</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/terminationConditions.h" line="141" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/terminationConditions.h" bodystart="141" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1root__finders_1_1TerminationCondition_1a30ea1b5811f2ec46f1e328a1e7d2d5e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::root_finders::TerminationCondition&lt; ScalarType &gt;::checkTerminationCondition</definition>
+        <argsstring>(const ScalarType currentRootGuess, const ScalarType previousRootGuess, const ScalarType currentRootFunctionValue, const ScalarType previousRootFunctionValue, const unsigned int numberOfIterations)=0</argsstring>
+        <name>checkTerminationCondition</name>
+        <param>
+          <type>const ScalarType</type>
+          <declname>currentRootGuess</declname>
+        </param>
+        <param>
+          <type>const ScalarType</type>
+          <declname>previousRootGuess</declname>
+        </param>
+        <param>
+          <type>const ScalarType</type>
+          <declname>currentRootFunctionValue</declname>
+        </param>
+        <param>
+          <type>const ScalarType</type>
+          <declname>previousRootFunctionValue</declname>
+        </param>
+        <param>
+          <type>const unsigned int</type>
+          <declname>numberOfIterations</declname>
+        </param>
+        <briefdescription>
+<para>Check termination condition. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks termination condition with standard input arguments passed on by root-finder that this function is used in. This function returns a flag indicating whether the termination condition has been reached (true if the termination condition is achieved, indicating that the root-finder should stop its search). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentRootGuess</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current root value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>previousRootGuess</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Previous root value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentRootFunctionValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current root function value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>previousRootFunctionValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Previous root function value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfIterations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of iterations that have been completed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Flag indicating if termination condition has been reached. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/terminationConditions.h" line="156" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Termination condition base class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This base class should be used for all termination condition classes, as it specifies the <ref refid="classtudat_1_1root__finders_1_1TerminationCondition_1a30ea1b5811f2ec46f1e328a1e7d2d5e3" kindref="member">checkTerminationCondition()</ref>-function used by the root-finders in Tudat. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/terminationConditions.h" line="136" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/terminationConditions.h" bodystart="137" bodyend="161"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1root__finders_1_1TerminationCondition_1a30ea1b5811f2ec46f1e328a1e7d2d5e3" prot="public" virt="pure-virtual"><scope>tudat::root_finders::TerminationCondition</scope><name>checkTerminationCondition</name></member>
+      <member refid="classtudat_1_1root__finders_1_1TerminationCondition_1a7e5a2e0b3948c40e379d496b8bb6f781" prot="public" virt="virtual"><scope>tudat::root_finders::TerminationCondition</scope><name>~TerminationCondition</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

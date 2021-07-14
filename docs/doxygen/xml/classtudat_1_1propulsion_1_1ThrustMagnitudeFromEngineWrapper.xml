@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</compoundname>
+    <basecompoundref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" prot="public" virt="non-virtual">tudat::propulsion::ThrustMagnitudeWrapper</basecompoundref>
+    <includes refid="thrustMagnitudeWrapper_8h" local="no">thrustMagnitudeWrapper.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1EngineModel" kindref="compound">system_models::EngineModel</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; system_models::EngineModel &gt; &gt; tudat::propulsion::ThrustMagnitudeFromEngineWrapper::engineModels_</definition>
+        <argsstring></argsstring>
+        <name>engineModels_</name>
+        <briefdescription>
+<para>List of engine models used to compute thrust/mass rate. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="518" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="518" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propulsion::ThrustMagnitudeFromEngineWrapper::currentThrust_</definition>
+        <argsstring></argsstring>
+        <name>currentThrust_</name>
+        <briefdescription>
+<para>Current thrust magnitude, as computed by last call to update member function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="521" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="521" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propulsion::ThrustMagnitudeFromEngineWrapper::currentMassRate_</definition>
+        <argsstring></argsstring>
+        <name>currentMassRate_</name>
+        <briefdescription>
+<para>Current mass rate, as computed by last call to update member function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="524" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="524" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1aa84600fa7d3d2a2d7f2611832464e746" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::ThrustMagnitudeFromEngineWrapper::ThrustMagnitudeFromEngineWrapper</definition>
+        <argsstring>(const std::shared_ptr&lt; system_models::EngineModel &gt; engineModel)</argsstring>
+        <name>ThrustMagnitudeFromEngineWrapper</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1EngineModel" kindref="compound">system_models::EngineModel</ref> &gt;</type>
+          <declname>engineModel</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for single engine used for thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for single engine used for thrust <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>engineModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Engine model used to compute thrust/mass rate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="446" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="446" bodyend="451"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a6d829586f0cc43a20687e684574af0cd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::ThrustMagnitudeFromEngineWrapper::ThrustMagnitudeFromEngineWrapper</definition>
+        <argsstring>(const std::vector&lt; std::shared_ptr&lt; system_models::EngineModel &gt; &gt; engineModels)</argsstring>
+        <name>ThrustMagnitudeFromEngineWrapper</name>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1EngineModel" kindref="compound">system_models::EngineModel</ref> &gt; &gt;</type>
+          <declname>engineModels</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for multiple engines used for thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for multiple engines used for thrust <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>engineModels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of engine models used to compute thrust/mass rate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="458" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="458" bodyend="461"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ad217c8d2a8cc9a231b0ecebea503539e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::ThrustMagnitudeFromEngineWrapper::~ThrustMagnitudeFromEngineWrapper</definition>
+        <argsstring>()</argsstring>
+        <name>~ThrustMagnitudeFromEngineWrapper</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="464" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="464" bodyend="464"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a54420ac820119f526d5f33d7d6380fb7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propulsion::ThrustMagnitudeFromEngineWrapper::update</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>update</name>
+        <reimplements refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a6a515296199563f2fcece10923d6dcca">update</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to update the thrust magnitude to the current time from the engine models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the thrust magnitude to the current time from the engine models <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which the model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="472" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="472" bodyend="493"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1afc91cb58c14ddb83956db4c51f0ded54" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::propulsion::ThrustMagnitudeFromEngineWrapper::getCurrentThrustMagnitude</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentThrustMagnitude</name>
+        <reimplements refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a303af8ecc94a8e0151a58711700dafe2">getCurrentThrustMagnitude</reimplements>
+        <briefdescription>
+<para>Function to return the current thrust magnitude. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current thrust magnitude, as computed by last call to update member function. <simplesect kind="return"><para>Current thrust magnitude </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="500" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="500" bodyend="503"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1aa79a92ce41bfd5aeacb59bcc675180a0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::propulsion::ThrustMagnitudeFromEngineWrapper::getCurrentMassRate</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentMassRate</name>
+        <reimplements refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1abea551383a711c4fe3e04a77df3d3c0c">getCurrentMassRate</reimplements>
+        <briefdescription>
+<para>Function to return the current mass rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current mass rate, as computed by last call to update member function. <simplesect kind="return"><para>Current mass rate </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="510" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="510" bodyend="513"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to compute the engine thrust and mass rate from EngineModel object(s). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</label>
+        <link refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propulsion::ThrustMagnitudeWrapper</label>
+        <link refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</label>
+        <link refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propulsion::ThrustMagnitudeWrapper</label>
+        <link refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="437" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="438" bodyend="525"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" prot="protected" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>currentMassRate_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" prot="protected" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>currentThrust_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" prot="protected" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" prot="protected" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>engineModels_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1aa79a92ce41bfd5aeacb59bcc675180a0" prot="public" virt="virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>getCurrentMassRate</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1afc91cb58c14ddb83956db4c51f0ded54" prot="public" virt="virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>getCurrentThrustMagnitude</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a53398012b76013f2d10b0471847a8f24" prot="public" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>resetCurrentTime</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1acece32d609bb4946504acc94ec86504b" prot="public" virt="virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>resetDerivedClassCurrentTime</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1aa84600fa7d3d2a2d7f2611832464e746" prot="public" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>ThrustMagnitudeFromEngineWrapper</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a6d829586f0cc43a20687e684574af0cd" prot="public" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>ThrustMagnitudeFromEngineWrapper</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a0126b90dd3bef583db2e9eef56039e23" prot="public" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>ThrustMagnitudeWrapper</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a54420ac820119f526d5f33d7d6380fb7" prot="public" virt="virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>update</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ad217c8d2a8cc9a231b0ecebea503539e" prot="public" virt="non-virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>~ThrustMagnitudeFromEngineWrapper</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a971baaa499be4e44e1573a3eaf07fe07" prot="public" virt="virtual"><scope>tudat::propulsion::ThrustMagnitudeFromEngineWrapper</scope><name>~ThrustMagnitudeWrapper</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

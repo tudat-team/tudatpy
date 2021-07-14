@@ -1,0 +1,305 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::interpolators::PiecewiseConstantInterpolator</compoundname>
+    <basecompoundref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" prot="public" virt="non-virtual">tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</basecompoundref>
+    <includes refid="piecewiseConstantInterpolator_8h" local="no">piecewiseConstantInterpolator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+      <param>
+        <type>typename DependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a532fa829fa246e34aea1e29daced97c4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::PiecewiseConstantInterpolator</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; independentVariables, const std::vector&lt; DependentVariableType &gt; dependentVariables, const AvailableLookupScheme selectedLookupScheme=huntingAlgorithm, const BoundaryInterpolationType boundaryHandling=extrapolate_at_boundary, const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;defaultExtrapolationValue=std::make_pair(IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;(), IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;()))</argsstring>
+        <name>PiecewiseConstantInterpolator</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt;</type>
+          <declname>dependentVariables</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+          <defval>huntingAlgorithm</defval>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+          <defval>extrapolate_at_boundary</defval>
+        </param>
+        <param>
+          <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval>std::make_pair(<ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;(), <ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;())</defval>
+        </param>
+        <briefdescription>
+<para>Constructor from vectors of independent/dependent data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This constructor initializes the interpolator from two vectors containing the independent variables and dependent variables. A look-up scheme can be provided to override the given default. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of values of independent variables that are used, must be sorted in ascending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of values of dependent variables that are used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of lookupscheme from enum. This algorithm is used to find the nearest lower data point in the independent variables when requesting interpolation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method, in case the independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of default values to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" line="56" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" bodystart="56" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1afbafe35e71cd416d8d12cf34714ad835" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::PiecewiseConstantInterpolator</definition>
+        <argsstring>(const std::map&lt; IndependentVariableType, DependentVariableType &gt; dataMap, const AvailableLookupScheme selectedLookupScheme=huntingAlgorithm, const BoundaryInterpolationType boundaryHandling=extrapolate_at_boundary, const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;defaultExtrapolationValue=std::make_pair(IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;(), IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;()))</argsstring>
+        <name>PiecewiseConstantInterpolator</name>
+        <param>
+          <type>const std::map&lt; IndependentVariableType, DependentVariableType &gt;</type>
+          <declname>dataMap</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+          <defval>huntingAlgorithm</defval>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+          <defval>extrapolate_at_boundary</defval>
+        </param>
+        <param>
+          <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval>std::make_pair(<ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;(), <ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;())</defval>
+        </param>
+        <briefdescription>
+<para>Constructor from map of independent/dependent data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This constructor initializes the interpolator from a map containing independent variables as key and dependent variables as value. A look-up scheme can be provided to override the given default. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map containing independent variables as key and dependent variables as value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of lookupscheme from enum. This algorithm is used to find the nearest lower data point in the independent variables when requesting interpolation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method, in case the independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of default values to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" line="93" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" bodystart="93" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a9d627db642fbbb7fe33c1d1583d13382" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::~PiecewiseConstantInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>~PiecewiseConstantInterpolator</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" line="126" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" bodystart="126" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a74b0575d1afe7c135a834c80bd23043d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::interpolate</definition>
+        <argsstring>(const IndependentVariableType targetIndependentVariableValue)</argsstring>
+        <name>interpolate</name>
+        <reimplements refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1756cce160465357493e18221aa49dee">interpolate</reimplements>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>targetIndependentVariableValue</declname>
+        </param>
+        <briefdescription>
+<para>Function interpolates dependent variable value at given independent variable value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function interpolates dependent variable value at given independent variable value using piecewise constant algorithm. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>targetIndependentVariableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable at which interpolation is to take place. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value of dependent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" line="134" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" bodystart="134" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a1d6a36175f3b8b1f2766f05bfd90dba7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::resetDependentValues</definition>
+        <argsstring>(const std::vector&lt; DependentVariableType &gt; &amp;dependentValues)</argsstring>
+        <name>resetDependentValues</name>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>dependentValues</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the values of dependent variables used by interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the values of dependent variables used by interpolator <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dependentValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New list of values of dependent variables. List must be of same size as original list </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" line="169" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" bodystart="169" bodyend="178"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Piecewise constant interpolator class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class is used to perform piecewise constant interpolation in a single dimension from a set of data in independent and dependent variables. The interpolated values is equal to the dependent variable at the nearest lower neighbour at a given independent variable. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="1">
+        <label>tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="1">
+        <label>tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" line="30" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/piecewiseConstantInterpolator.h" bodystart="31" bodyend="184"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a5667535e45f5768ae46dd3b7d8895434" prot="protected" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>boundaryHandling_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae6db7b6475e9c91eeaa00a0d3e546977" prot="protected" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>checkBoundaryCase</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad81400f48dbbc749680975d4ba4ae0de" prot="protected" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>checkInterpolationBoundary</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a0cf25b829669d7e1bede2ea4f0677bcd" prot="protected" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>defaultExtrapolationValue_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" prot="protected" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>dependentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad0b73292c984422f5dd2164d3dbda3ff" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>getDependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ab6b15e16220ddf2f5896c37afb1d1e05" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>getIndependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae2f2a3c4a9838b33add5dac14f69f86f" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>getLookUpScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a149d4201dc4869276bd2961d17e5acdd" prot="public" virt="virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>getNumberOfDimensions</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" prot="protected" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>independentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a74b0575d1afe7c135a834c80bd23043d" prot="public" virt="virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aaf340e39d13f8b31cab6887b48427918" prot="public" virt="virtual" ambiguityscope="tudat::interpolators::OneDimensionalInterpolator::"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1c2938974e40dd7b48bc6fd42cc7a1cb" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>interpolateNonConst</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1f1471fffc3f6f0b33f8ca44108e9dec" prot="protected" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>lookUpScheme_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1abc218f1803c7f54fad3e0e71d625c764" prot="protected" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>makeLookupScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a49ff8a3d4870f4651d576abe48654ed2" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a83cc44f27902300df59e43ad9bb04e37" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a532fa829fa246e34aea1e29daced97c4" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>PiecewiseConstantInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1afbafe35e71cd416d8d12cf34714ad835" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>PiecewiseConstantInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a1d6a36175f3b8b1f2766f05bfd90dba7" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>resetDependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1Interpolator_1ac6359fc3104b07fb6cac0b3b3221cc3d" prot="public" virt="virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>~Interpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad359d0d7a6f229fb9f65260cb3bd2779" prot="public" virt="virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>~OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a9d627db642fbbb7fe33c1d1583d13382" prot="public" virt="non-virtual"><scope>tudat::interpolators::PiecewiseConstantInterpolator</scope><name>~PiecewiseConstantInterpolator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

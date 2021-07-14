@@ -1,0 +1,101 @@
+\hypertarget{classtudat_1_1interpolators_1_1BinarySearchLookupScheme}{}\doxysection{tudat\+::interpolators\+::Binary\+Search\+Lookup\+Scheme$<$ Independent\+Variable\+Type $>$ Class Template Reference}
+\label{classtudat_1_1interpolators_1_1BinarySearchLookupScheme}\index{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$@{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$}}
+
+
+Look-\/up scheme class for nearest left neighbour search using binary search algorithm.  
+
+
+
+
+{\ttfamily \#include $<$lookup\+Scheme.\+h$>$}
+
+Inheritance diagram for tudat\+::interpolators\+::Binary\+Search\+Lookup\+Scheme$<$ Independent\+Variable\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1interpolators_1_1BinarySearchLookupScheme}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_aa2ef6246aeee011cb6ab3786d0386481}{Binary\+Search\+Lookup\+Scheme}} (const std\+::vector$<$ Independent\+Variable\+Type $>$ \&independent\+Variable\+Values)
+\begin{DoxyCompactList}\small\item\em Constructor, used to set data vector. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_ae0a878950e354c57efb3fac7d402a47e}{$\sim$\+Binary\+Search\+Lookup\+Scheme}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_a9c91bd06d198e6a5dc2a15ad7314c91f}{find\+Nearest\+Lower\+Neighbour}} (const Independent\+Variable\+Type value\+To\+Lookup)
+\begin{DoxyCompactList}\small\item\em Find nearest left neighbour. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type$>$\newline
+class tudat\+::interpolators\+::\+Binary\+Search\+Lookup\+Scheme$<$ Independent\+Variable\+Type $>$}
+
+Look-\/up scheme class for nearest left neighbour search using binary search algorithm. 
+
+Look-\/up scheme class for nearest left neighbour search using binary search algorithm. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Independent\+Variable\+Type} & Type of entries of vector in which lookup is to be performed. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_aa2ef6246aeee011cb6ab3786d0386481}\label{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_aa2ef6246aeee011cb6ab3786d0386481}} 
+\index{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$@{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$}!BinarySearchLookupScheme@{BinarySearchLookupScheme}}
+\index{BinarySearchLookupScheme@{BinarySearchLookupScheme}!tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$@{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{BinarySearchLookupScheme()}{BinarySearchLookupScheme()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1BinarySearchLookupScheme}{tudat\+::interpolators\+::\+Binary\+Search\+Lookup\+Scheme}}$<$ Independent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1interpolators_1_1BinarySearchLookupScheme}{Binary\+Search\+Lookup\+Scheme}} (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Independent\+Variable\+Type $>$ \&}]{independent\+Variable\+Values }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, used to set data vector. 
+
+Constructor, used to set data vector. 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variable\+Values} & vector of independent variable values in which to perform lookup procedure. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_ae0a878950e354c57efb3fac7d402a47e}\label{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_ae0a878950e354c57efb3fac7d402a47e}} 
+\index{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$@{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$}!````~BinarySearchLookupScheme@{$\sim$BinarySearchLookupScheme}}
+\index{````~BinarySearchLookupScheme@{$\sim$BinarySearchLookupScheme}!tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$@{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{$\sim$BinarySearchLookupScheme()}{~BinarySearchLookupScheme()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1BinarySearchLookupScheme}{tudat\+::interpolators\+::\+Binary\+Search\+Lookup\+Scheme}}$<$ Independent\+Variable\+Type $>$\+::$\sim$\mbox{\hyperlink{classtudat_1_1interpolators_1_1BinarySearchLookupScheme}{Binary\+Search\+Lookup\+Scheme}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default destructor. 
+
+Default destructor 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_a9c91bd06d198e6a5dc2a15ad7314c91f}\label{classtudat_1_1interpolators_1_1BinarySearchLookupScheme_a9c91bd06d198e6a5dc2a15ad7314c91f}} 
+\index{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$@{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$}!findNearestLowerNeighbour@{findNearestLowerNeighbour}}
+\index{findNearestLowerNeighbour@{findNearestLowerNeighbour}!tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$@{tudat::interpolators::BinarySearchLookupScheme$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{findNearestLowerNeighbour()}{findNearestLowerNeighbour()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+int \mbox{\hyperlink{classtudat_1_1interpolators_1_1BinarySearchLookupScheme}{tudat\+::interpolators\+::\+Binary\+Search\+Lookup\+Scheme}}$<$ Independent\+Variable\+Type $>$\+::find\+Nearest\+Lower\+Neighbour (\begin{DoxyParamCaption}\item[{const Independent\+Variable\+Type}]{value\+To\+Lookup }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Find nearest left neighbour. 
+
+Function finds nearest left neighbour of given value in independent\+Variable\+Values\+\_\+. 
+\begin{DoxyParams}{Parameters}
+{\em value\+To\+Lookup} & Value of which nearest neaighbour is to be determined. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Index of entry in independent\+Variable\+Values\+\_\+ vector which is nearest lower neighbour to value\+To\+Lookup. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme_a7749ee1bb2df25690a6e040a3e61f646}{tudat\+::interpolators\+::\+Look\+Up\+Scheme$<$ Independent\+Variable\+Type $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/interpolators/lookup\+Scheme.\+h\end{DoxyCompactItemize}

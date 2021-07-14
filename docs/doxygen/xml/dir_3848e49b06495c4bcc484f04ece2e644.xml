@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_3848e49b06495c4bcc484f04ece2e644" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/estimation_setup</compoundname>
+    <innerfile refid="createAccelerationPartials_8cpp">createAccelerationPartials.cpp</innerfile>
+    <innerfile refid="createAngularPositionPartials_8cpp">createAngularPositionPartials.cpp</innerfile>
+    <innerfile refid="createCartesianStatePartials_8cpp">createCartesianStatePartials.cpp</innerfile>
+    <innerfile refid="createDifferencedOneWayRangeRatePartials_8cpp">createDifferencedOneWayRangeRatePartials.cpp</innerfile>
+    <innerfile refid="createDopplerPartials_8cpp">createDopplerPartials.cpp</innerfile>
+    <innerfile refid="createEstimatableParameters_8cpp">createEstimatableParameters.cpp</innerfile>
+    <innerfile refid="createEulerAngleObservationPartials_8cpp">createEulerAngleObservationPartials.cpp</innerfile>
+    <innerfile refid="createLightTimeCorrection_8cpp">createLightTimeCorrection.cpp</innerfile>
+    <innerfile refid="createLightTimeCorrectionPartials_8cpp">createLightTimeCorrectionPartials.cpp</innerfile>
+    <innerfile refid="createNumericalSimulator_8cpp">createNumericalSimulator.cpp</innerfile>
+    <innerfile refid="createObservationManager_8cpp">createObservationManager.cpp</innerfile>
+    <innerfile refid="createObservationModel_8cpp">createObservationModel.cpp</innerfile>
+    <innerfile refid="createOneWayRangePartials_8cpp">createOneWayRangePartials.cpp</innerfile>
+    <innerfile refid="createStateDerivativePartials_8cpp">createStateDerivativePartials.cpp</innerfile>
+    <innerfile refid="createTorquePartials_8cpp">createTorquePartials.cpp</innerfile>
+    <innerfile refid="orbitDeterminationManager_8cpp">orbitDeterminationManager.cpp</innerfile>
+    <innerfile refid="orbitDeterminationTestCases_8cpp">orbitDeterminationTestCases.cpp</innerfile>
+    <innerfile refid="variationalEquationsSolver_8cpp">variationalEquationsSolver.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/estimation_setup/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,238 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::SingleDependentVariableSaveSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1VariableSettings" prot="public" virt="non-virtual">tudat::propagators::VariableSettings</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings" prot="public" virt="non-virtual">tudat::propagators::AccelerationPartialWrtStateSaveSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1BodyAerodynamicAngleVariableSaveSettings" prot="public" virt="non-virtual">tudat::propagators::BodyAerodynamicAngleVariableSaveSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings" prot="public" virt="non-virtual">tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1SingleAccelerationDependentVariableSaveSettings" prot="public" virt="non-virtual">tudat::propagators::SingleAccelerationDependentVariableSaveSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings" prot="public" virt="non-virtual">tudat::propagators::SingleTorqueDependentVariableSaveSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings" prot="public" virt="non-virtual">tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1SingleVariationSphericalHarmonicAccelerationSaveSettings" prot="public" virt="non-virtual">tudat::propagators::SingleVariationSphericalHarmonicAccelerationSaveSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings" prot="public" virt="non-virtual">tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings</derivedcompoundref>
+    <includes refid="propagationOutputSettings_8h" local="no">propagationOutputSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1ac9d4da0711fb2550e3478452a1259cf0" prot="public" static="no" mutable="no">
+        <type>PropagationDependentVariables</type>
+        <definition>PropagationDependentVariables tudat::propagators::SingleDependentVariableSaveSettings::dependentVariableType_</definition>
+        <argsstring></argsstring>
+        <name>dependentVariableType_</name>
+        <briefdescription>
+<para>Type of dependent variable that is to be saved. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="152" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1a75122aa26880a97151b0caa4cc54f786" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::propagators::SingleDependentVariableSaveSettings::associatedBody_</definition>
+        <argsstring></argsstring>
+        <name>associatedBody_</name>
+        <briefdescription>
+<para>Body associated with variable. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="155" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1ae753de13467b2d1b065651f3ba7c0633" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::propagators::SingleDependentVariableSaveSettings::secondaryBody_</definition>
+        <argsstring></argsstring>
+        <name>secondaryBody_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative position, velocity etc. is defined of associatedBody w.r.t. secondaryBody). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="159" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1a70571bf244f86184b51cf3d35d729ce2" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::propagators::SingleDependentVariableSaveSettings::componentIndex_</definition>
+        <argsstring></argsstring>
+        <name>componentIndex_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Index of the component to be saved. Only applicable to vectorial dependent variables. If negative, all the components of the vector are saved. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="164" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1aab1f0f83270f9007d5ffee52568358f9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::SingleDependentVariableSaveSettings::SingleDependentVariableSaveSettings</definition>
+        <argsstring>(const PropagationDependentVariables dependentVariableType, const std::string &amp;associatedBody, const std::string &amp;secondaryBody=&quot;&quot;, const int componentIndex=-1)</argsstring>
+        <name>SingleDependentVariableSaveSettings</name>
+        <param>
+          <type>const PropagationDependentVariables</type>
+          <declname>dependentVariableType</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>secondaryBody</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>componentIndex</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of dependent variable that is to be saved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body associated with dependent variable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative position, velocity etc. is defined of associatedBody w.r.t. secondaryBody). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>componentIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of the component to be saved. Only applicable to vectorial dependent variables. By default -1, i.e. all the components are saved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="140" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="140" bodyend="149"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Functional base class for defining settings for dependent variables that are to be saved during propagation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Functional base class for defining settings for dependent variables that are to be saved during propagation. Any dependent variable that requires additional information in addition to what can be provided here, should be defined by a dedicated derived class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="10">
+        <label>tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::VariableSettings</label>
+        <link refid="classtudat_1_1propagators_1_1VariableSettings"/>
+      </node>
+      <node id="8">
+        <label>tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat::propagators::SingleTorqueDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat::propagators::SingleAccelerationDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleAccelerationDependentVariableSaveSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::propagators::BodyAerodynamicAngleVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1BodyAerodynamicAngleVariableSaveSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>tudat::propagators::SingleVariationSphericalHarmonicAccelerationSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleVariationSphericalHarmonicAccelerationSaveSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::SingleDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::propagators::AccelerationPartialWrtStateSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propagators::VariableSettings</label>
+        <link refid="classtudat_1_1propagators_1_1VariableSettings"/>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::SingleDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>associatedBody_</edgelabel>
+          <edgelabel>secondaryBody_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="126" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="127" bodyend="166"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1a75122aa26880a97151b0caa4cc54f786" prot="public" virt="non-virtual"><scope>tudat::propagators::SingleDependentVariableSaveSettings</scope><name>associatedBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1a70571bf244f86184b51cf3d35d729ce2" prot="public" virt="non-virtual"><scope>tudat::propagators::SingleDependentVariableSaveSettings</scope><name>componentIndex_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1ac9d4da0711fb2550e3478452a1259cf0" prot="public" virt="non-virtual"><scope>tudat::propagators::SingleDependentVariableSaveSettings</scope><name>dependentVariableType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1ae753de13467b2d1b065651f3ba7c0633" prot="public" virt="non-virtual"><scope>tudat::propagators::SingleDependentVariableSaveSettings</scope><name>secondaryBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1aab1f0f83270f9007d5ffee52568358f9" prot="public" virt="non-virtual"><scope>tudat::propagators::SingleDependentVariableSaveSettings</scope><name>SingleDependentVariableSaveSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1af61b6a0eef072c45660f5ea1989c2363" prot="public" virt="non-virtual"><scope>tudat::propagators::SingleDependentVariableSaveSettings</scope><name>VariableSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1a976fc230d756ed3251ea04ee48fc1994" prot="public" virt="non-virtual"><scope>tudat::propagators::SingleDependentVariableSaveSettings</scope><name>variableType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1a93ead6417aadfc5ba47e87cf38d89997" prot="public" virt="virtual"><scope>tudat::propagators::SingleDependentVariableSaveSettings</scope><name>~VariableSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

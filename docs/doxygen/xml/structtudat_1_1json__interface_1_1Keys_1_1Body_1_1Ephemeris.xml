@@ -1,0 +1,315 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Body::Ephemeris</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a6041a3061f336750f32308ec0285e6f9" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <initializer>= &quot;type&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="148" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1aec250c23b2d791afa14921009808d324" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::frameOrigin</definition>
+        <argsstring></argsstring>
+        <name>frameOrigin</name>
+        <initializer>= &quot;frameOrigin&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="149" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a11cfe0fa74eb509b9a8d9e44c40b801b" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::frameOrientation</definition>
+        <argsstring></argsstring>
+        <name>frameOrientation</name>
+        <initializer>= &quot;frameOrientation&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="150" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1af0345cd4db5c2d13fd7450492f7ae423" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::correctForStellarAberration</definition>
+        <argsstring></argsstring>
+        <name>correctForStellarAberration</name>
+        <initializer>= &quot;correctForStellarAberration&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="152" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1ac9be7ad1c1d2720111cdd5e6733b2aa1" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::correctForLightTimeAberration</definition>
+        <argsstring></argsstring>
+        <name>correctForLightTimeAberration</name>
+        <initializer>= &quot;correctForLightTimeAberration&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="153" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a603a7628daec62b58b678d96e342e66f" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::convergeLighTimeAberration</definition>
+        <argsstring></argsstring>
+        <name>convergeLighTimeAberration</name>
+        <initializer>= &quot;convergeLighTimeAberration&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="154" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a146f238502f9d41c6df005c7ca7dadc5" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::initialTime</definition>
+        <argsstring></argsstring>
+        <name>initialTime</name>
+        <initializer>= &quot;initialTime&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="155" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1ad2bccb6e8ba712c9e574021434e1890d" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::finalTime</definition>
+        <argsstring></argsstring>
+        <name>finalTime</name>
+        <initializer>= &quot;finalTime&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="156" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a6848e7d0f0838203526a5eaeec2b448c" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::timeStep</definition>
+        <argsstring></argsstring>
+        <name>timeStep</name>
+        <initializer>= &quot;timeStep&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="157" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a6638031f577cc6682da5bd8fa9c08c33" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::interpolator</definition>
+        <argsstring></argsstring>
+        <name>interpolator</name>
+        <initializer>= &quot;interpolator&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="158" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a3606283fcce0f6c7d2887f597a4c5e40" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::useLongDoubleStates</definition>
+        <argsstring></argsstring>
+        <name>useLongDoubleStates</name>
+        <initializer>= &quot;useLongDoubleStates&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="159" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a25737e19856325e9db6c40d9ebcca1c9" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::bodyIdentifier</definition>
+        <argsstring></argsstring>
+        <name>bodyIdentifier</name>
+        <initializer>= &quot;bodyIdentifier&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="160" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a3520dab3453175ff9151e46a73042df1" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::useCircularCoplanarApproximation</definition>
+        <argsstring></argsstring>
+        <name>useCircularCoplanarApproximation</name>
+        <initializer>= &quot;useCircularCoplanarApproximation&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="161" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a208c477462a919f0a60e75d479960f19" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::constantState</definition>
+        <argsstring></argsstring>
+        <name>constantState</name>
+        <initializer>= &quot;constantState&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="162" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1ab5fbaae6eaeaca98e6ea3dd3d0579d62" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::initialStateInKeplerianElements</definition>
+        <argsstring></argsstring>
+        <name>initialStateInKeplerianElements</name>
+        <initializer>= &quot;initialStateInKeplerianElements&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="164" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a0f96a60c9711e7ece95a3829643e411e" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::epochOfInitialState</definition>
+        <argsstring></argsstring>
+        <name>epochOfInitialState</name>
+        <initializer>= &quot;epochOfInitialState&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="165" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a0b42c29811b9a838c05e47b213afda49" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::centralBodyGravitationalParameter</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameter</name>
+        <initializer>= &quot;centralBodyGravitationalParameter&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="166" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a0c4814c2bf2b7978e1216c80a2363321" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::rootFinderAbsoluteTolerance</definition>
+        <argsstring></argsstring>
+        <name>rootFinderAbsoluteTolerance</name>
+        <initializer>= &quot;rootFinderAbsoluteTolerance&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="167" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="167" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a1a7b845c27e7ffb347723e505d9bbdec" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::rootFinderMaximumNumberOfIterations</definition>
+        <argsstring></argsstring>
+        <name>rootFinderMaximumNumberOfIterations</name>
+        <initializer>= &quot;rootFinderMaximumNumberOfIterations&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="168" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a1c91e3a4099f506b08d468c4e6c18418" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Ephemeris::bodyStateHistory</definition>
+        <argsstring></argsstring>
+        <name>bodyStateHistory</name>
+        <initializer>= &quot;bodyStateHistory&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="169" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="146" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="147" bodyend="170"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a25737e19856325e9db6c40d9ebcca1c9" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>bodyIdentifier</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a1c91e3a4099f506b08d468c4e6c18418" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>bodyStateHistory</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a0b42c29811b9a838c05e47b213afda49" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>centralBodyGravitationalParameter</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a208c477462a919f0a60e75d479960f19" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>constantState</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a603a7628daec62b58b678d96e342e66f" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>convergeLighTimeAberration</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1ac9be7ad1c1d2720111cdd5e6733b2aa1" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>correctForLightTimeAberration</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1af0345cd4db5c2d13fd7450492f7ae423" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>correctForStellarAberration</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a0f96a60c9711e7ece95a3829643e411e" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>epochOfInitialState</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1ad2bccb6e8ba712c9e574021434e1890d" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>finalTime</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a11cfe0fa74eb509b9a8d9e44c40b801b" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>frameOrientation</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1aec250c23b2d791afa14921009808d324" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>frameOrigin</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1ab5fbaae6eaeaca98e6ea3dd3d0579d62" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>initialStateInKeplerianElements</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a146f238502f9d41c6df005c7ca7dadc5" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>initialTime</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a6638031f577cc6682da5bd8fa9c08c33" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>interpolator</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a0c4814c2bf2b7978e1216c80a2363321" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>rootFinderAbsoluteTolerance</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a1a7b845c27e7ffb347723e505d9bbdec" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>rootFinderMaximumNumberOfIterations</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a6848e7d0f0838203526a5eaeec2b448c" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>timeStep</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a6041a3061f336750f32308ec0285e6f9" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>type</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a3520dab3453175ff9151e46a73042df1" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>useCircularCoplanarApproximation</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris_1a3606283fcce0f6c7d2887f597a4c5e40" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Ephemeris</scope><name>useLongDoubleStates</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

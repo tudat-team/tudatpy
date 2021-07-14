@@ -1,0 +1,295 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::low_thrust_trajectories::HodographicShapingLegSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings" prot="public" virt="non-virtual">tudat::low_thrust_trajectories::LowThrustLegSettings</basecompoundref>
+    <includes refid="lowThrustLegSettings_8h" local="no">lowThrustLegSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1ade3dc12ade13f7d18e6e989f09b5d831" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::low_thrust_trajectories::HodographicShapingLegSettings::numberOfRevolutions_</definition>
+        <argsstring></argsstring>
+        <name>numberOfRevolutions_</name>
+        <briefdescription>
+<para>Number of revolutions for the shape-based trajectory. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="121" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a54308e088430e94100e4c4c9aad4067e" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::low_thrust_trajectories::HodographicShapingLegSettings::centralBodyGravitationalParameter_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameter_</name>
+        <briefdescription>
+<para>Gravitational parameter of the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="124" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1aba865fc0fc967057d5638425d79c4b1c" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; tudat::low_thrust_trajectories::HodographicShapingLegSettings::radialVelocityFunctionComponents_</definition>
+        <argsstring></argsstring>
+        <name>radialVelocityFunctionComponents_</name>
+        <briefdescription>
+<para>Base components for radial velocity function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="127" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1ad38193078b3d6107eb56ec09569ac863" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; tudat::low_thrust_trajectories::HodographicShapingLegSettings::normalVelocityFunctionComponents_</definition>
+        <argsstring></argsstring>
+        <name>normalVelocityFunctionComponents_</name>
+        <briefdescription>
+<para>Base components for normal velocity function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="130" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a74117cdc5813da99529e57cd700bd23e" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; tudat::low_thrust_trajectories::HodographicShapingLegSettings::axialVelocityFunctionComponents_</definition>
+        <argsstring></argsstring>
+        <name>axialVelocityFunctionComponents_</name>
+        <briefdescription>
+<para>Base components for axial velocity function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="133" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1ad4964793d1a579430fad25b4c5969c22" prot="public" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::low_thrust_trajectories::HodographicShapingLegSettings::freeCoefficientsRadialVelocityFunction_</definition>
+        <argsstring></argsstring>
+        <name>freeCoefficientsRadialVelocityFunction_</name>
+        <briefdescription>
+<para>Vector containing the coefficients of the radial function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="136" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a3648396265a84ced269d29375ff57ea3" prot="public" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::low_thrust_trajectories::HodographicShapingLegSettings::freeCoefficientsNormalVelocityFunction_</definition>
+        <argsstring></argsstring>
+        <name>freeCoefficientsNormalVelocityFunction_</name>
+        <briefdescription>
+<para>Vector containing the coefficients of the normal function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="139" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a09e0bd1dcecf168642810089bcb6c8ba" prot="public" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::low_thrust_trajectories::HodographicShapingLegSettings::freeCoefficientsAxialVelocityFunction_</definition>
+        <argsstring></argsstring>
+        <name>freeCoefficientsAxialVelocityFunction_</name>
+        <briefdescription>
+<para>Vector containing the coefficients of the axial function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="142" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a0250b118c63ec7665f324dafae384404" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::low_thrust_trajectories::HodographicShapingLegSettings::HodographicShapingLegSettings</definition>
+        <argsstring>(const int numberOfRevolutions, const double centralBodyGravitationalParameter, std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;radialVelocityFunctionComponents, std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;normalVelocityFunctionComponents, std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;axialVelocityFunctionComponents, const Eigen::VectorXd freeCoefficientsRadialVelocityFunction, const Eigen::VectorXd freeCoefficientsNormalVelocityFunction, const Eigen::VectorXd freeCoefficientsAxialVelocityFunction)</argsstring>
+        <name>HodographicShapingLegSettings</name>
+        <param>
+          <type>const int</type>
+          <declname>numberOfRevolutions</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>radialVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>normalVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>axialVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>freeCoefficientsRadialVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>freeCoefficientsNormalVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>freeCoefficientsAxialVelocityFunction</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>numberOfRevolutions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of revolutions of the shape-based trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of the central body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radialVelocityFunctionComponents</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base components of the radial velocity function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalVelocityFunctionComponents</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base components of the normal velocity function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axialVelocityFunctionComponents</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base components of the axial velocity function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radialVelocityFunctionComponents</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficients vector for the components of the radial velocity function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radialVelocityFunctionComponents</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficients vector for the components of the normal velocity function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radialVelocityFunctionComponents</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficients vector for the components of the axial velocity function. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="98" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="98" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1ab627f37d5c28b3693b2b347ac465298b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::low_thrust_trajectories::HodographicShapingLegSettings::~HodographicShapingLegSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~HodographicShapingLegSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="118" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="118" bodyend="118"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Low-thrust leg settings for hodographic shaping method. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::low_thrust_trajectories::LowThrustLegSettings</label>
+        <link refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::low_thrust_trajectories::HodographicShapingLegSettings</label>
+        <link refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::low_thrust_trajectories::LowThrustLegSettings</label>
+        <link refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::low_thrust_trajectories::HodographicShapingLegSettings</label>
+        <link refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="82" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="83" bodyend="144"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a74117cdc5813da99529e57cd700bd23e" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>axialVelocityFunctionComponents_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a54308e088430e94100e4c4c9aad4067e" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>centralBodyGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a09e0bd1dcecf168642810089bcb6c8ba" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>freeCoefficientsAxialVelocityFunction_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a3648396265a84ced269d29375ff57ea3" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>freeCoefficientsNormalVelocityFunction_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1ad4964793d1a579430fad25b4c5969c22" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>freeCoefficientsRadialVelocityFunction_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1a0250b118c63ec7665f324dafae384404" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>HodographicShapingLegSettings</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1a35d942e8113fda4ecae3b15938d2ad91" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>LowThrustLegSettings</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1a73b5e01f5c8ab215227c54e7850ab306" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>lowThrustLegType_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1ad38193078b3d6107eb56ec09569ac863" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>normalVelocityFunctionComponents_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1ade3dc12ade13f7d18e6e989f09b5d831" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>numberOfRevolutions_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1aba865fc0fc967057d5638425d79c4b1c" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>radialVelocityFunctionComponents_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings_1ab627f37d5c28b3693b2b347ac465298b" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>~HodographicShapingLegSettings</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1abd9885eafca1b3bc61f6d3f765e5fb05" prot="public" virt="virtual"><scope>tudat::low_thrust_trajectories::HodographicShapingLegSettings</scope><name>~LowThrustLegSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

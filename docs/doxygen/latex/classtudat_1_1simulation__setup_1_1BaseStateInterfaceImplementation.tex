@@ -1,0 +1,166 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Base\+State\+Interface\+Implementation$<$ Time\+Type, State\+Scalar\+Type $>$ Class Template Reference}
+\label{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}\index{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}}
+
+
+Class used for the determination of the inertial state of a \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}}\textquotesingle{}s ephemeris origin.  
+
+
+
+
+{\ttfamily \#include $<$body.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Base\+State\+Interface\+Implementation$<$ Time\+Type, State\+Scalar\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_ae2929519aa3006a2f36e13b182f25eeb}{Base\+State\+Interface\+Implementation}} (const std\+::string base\+Frame\+Id, const std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$(const Time\+Type)$>$ state\+Function, const bool subtract\+State\+Function=0)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a7f082ae2a3552dcdf8cdfccb7f9454e3}\label{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a7f082ae2a3552dcdf8cdfccb7f9454e3}} 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a7f082ae2a3552dcdf8cdfccb7f9454e3}{$\sim$\+Base\+State\+Interface\+Implementation}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+Eigen\+::\+Matrix$<$ double, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_aba73247c64840695efc8b8171078d811}{get\+Base\+Frame\+Double\+State}} (const double time)
+\begin{DoxyCompactList}\small\item\em Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ long double, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a65bfb8d9925c93926bebac63a73dd2b5}{get\+Base\+Frame\+Long\+Double\+State}} (const double time)
+\begin{DoxyCompactList}\small\item\em Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a054ae402930b3e97930c51baa2da525a}{get\+Base\+Frame\+Double\+State}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time)
+\begin{DoxyCompactList}\small\item\em Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ long double, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a400243d985c985f2791dad8b7eec1d13}{get\+Base\+Frame\+Long\+Double\+State}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time)
+\begin{DoxyCompactList}\small\item\em Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Time\+Type, typename State\+Scalar\+Type$>$\newline
+class tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface\+Implementation$<$ Time\+Type, State\+Scalar\+Type $>$}
+
+Class used for the determination of the inertial state of a \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}}\textquotesingle{}s ephemeris origin. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_ae2929519aa3006a2f36e13b182f25eeb}\label{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_ae2929519aa3006a2f36e13b182f25eeb}} 
+\index{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}!BaseStateInterfaceImplementation@{BaseStateInterfaceImplementation}}
+\index{BaseStateInterfaceImplementation@{BaseStateInterfaceImplementation}!tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{BaseStateInterfaceImplementation()}{BaseStateInterfaceImplementation()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type , typename State\+Scalar\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface\+Implementation}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}{Base\+State\+Interface\+Implementation}} (\begin{DoxyParamCaption}\item[{const std\+::string}]{base\+Frame\+Id,  }\item[{const std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$(const Time\+Type)$>$}]{state\+Function,  }\item[{const bool}]{subtract\+State\+Function = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em base\+Frame\+Id} & Name of frame origin for which inertial state is computed by this class \\
+\hline
+{\em state\+Function} & Function returning frame\textquotesingle{}s inertial state as a function of time. \\
+\hline
+{\em subtract\+State\+Function} & Boolean denoting whether to subtract or add the state function (i.\+e. whether to multiply result of state\+Function by -\/1). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_aba73247c64840695efc8b8171078d811}\label{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_aba73247c64840695efc8b8171078d811}} 
+\index{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}!getBaseFrameDoubleState@{getBaseFrameDoubleState}}
+\index{getBaseFrameDoubleState@{getBaseFrameDoubleState}!tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getBaseFrameDoubleState()}{getBaseFrameDoubleState()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Time\+Type , typename State\+Scalar\+Type $>$ \\
+Eigen\+::\+Matrix$<$double, 6, 1$>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface\+Implementation}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::get\+Base\+Frame\+Double\+State (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined. 
+
+Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined (double time and double state scalar). 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which state is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Inertial state of frame origin at requested time 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterface_a82280d56b9ede9dbcbf3359f0089635e}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a054ae402930b3e97930c51baa2da525a}\label{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a054ae402930b3e97930c51baa2da525a}} 
+\index{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}!getBaseFrameDoubleState@{getBaseFrameDoubleState}}
+\index{getBaseFrameDoubleState@{getBaseFrameDoubleState}!tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getBaseFrameDoubleState()}{getBaseFrameDoubleState()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Time\+Type , typename State\+Scalar\+Type $>$ \\
+Eigen\+::\+Matrix$<$double, 6, 1$>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface\+Implementation}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::get\+Base\+Frame\+Double\+State (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined. 
+
+Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined (\mbox{\hyperlink{classtudat_1_1Time}{Time}} object time and double state scalar). 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which state is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Inertial state of frame origin at requested time 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterface_ab13c4e402362995b12e0740c6a160d66}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a65bfb8d9925c93926bebac63a73dd2b5}\label{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a65bfb8d9925c93926bebac63a73dd2b5}} 
+\index{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}!getBaseFrameLongDoubleState@{getBaseFrameLongDoubleState}}
+\index{getBaseFrameLongDoubleState@{getBaseFrameLongDoubleState}!tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getBaseFrameLongDoubleState()}{getBaseFrameLongDoubleState()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Time\+Type , typename State\+Scalar\+Type $>$ \\
+Eigen\+::\+Matrix$<$long double, 6, 1$>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface\+Implementation}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::get\+Base\+Frame\+Long\+Double\+State (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined. 
+
+Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined (double time and double long state scalar). 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which state is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Inertial state of frame origin at requested time 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterface_a52d33e7bc9e7dde9727c73de16ed4710}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a400243d985c985f2791dad8b7eec1d13}\label{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_a400243d985c985f2791dad8b7eec1d13}} 
+\index{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}!getBaseFrameLongDoubleState@{getBaseFrameLongDoubleState}}
+\index{getBaseFrameLongDoubleState@{getBaseFrameLongDoubleState}!tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$@{tudat::simulation\_setup::BaseStateInterfaceImplementation$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getBaseFrameLongDoubleState()}{getBaseFrameLongDoubleState()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Time\+Type , typename State\+Scalar\+Type $>$ \\
+Eigen\+::\+Matrix$<$long double, 6, 1$>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface\+Implementation}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::get\+Base\+Frame\+Long\+Double\+State (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined. 
+
+Function through which the state of base\+Frame\+Id\+\_\+ in the inertial frame can be determined (\mbox{\hyperlink{classtudat_1_1Time}{Time}} object time and long double state scalar). 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which state is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Inertial state of frame origin at requested time 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BaseStateInterface_ac94ad90d8870309a6bba98b2e3c88aae}{tudat\+::simulation\+\_\+setup\+::\+Base\+State\+Interface}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/body.\+h\end{DoxyCompactItemize}

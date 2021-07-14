@@ -1,0 +1,303 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1ground__stations" kind="namespace" language="C++">
+    <compoundname>tudat::ground_stations</compoundname>
+    <innerclass refid="classtudat_1_1ground__stations_1_1GroundStation" prot="public">tudat::ground_stations::GroundStation</innerclass>
+    <innerclass refid="classtudat_1_1ground__stations_1_1GroundStationState" prot="public">tudat::ground_stations::GroundStationState</innerclass>
+    <innerclass refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator" prot="public">tudat::ground_stations::PointingAnglesCalculator</innerclass>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="groundStations_8h_1a2368b866f1966c1c0d826ea701f7fb44" prot="public" static="yes" mutable="no">
+        <type>std::map&lt; coordinate_conversions::PositionElementTypes, std::string &gt;</type>
+        <definition>std::map&lt; coordinate_conversions::PositionElementTypes, std::string &gt; tudat::ground_stations::positionElementTypes</definition>
+        <argsstring></argsstring>
+        <name>positionElementTypes</name>
+        <initializer>=
+{
+    { coordinate_conversions::cartesian_position, &quot;cartesianPosition&quot; },
+    { coordinate_conversions::spherical_position, &quot;sphericalPosition&quot; },
+    { coordinate_conversions::geodetic_position, &quot;geodeticPosition&quot; }
+}</initializer>
+        <briefdescription>
+<para>Map of <computeroutput>PositionElementTypes</computeroutput> string representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h" line="25" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="groundStations_8h_1a26750a64bb8283032f42f902db401e01" prot="public" static="yes" mutable="no">
+        <type>std::vector&lt; coordinate_conversions::PositionElementTypes &gt;</type>
+        <definition>std::vector&lt; coordinate_conversions::PositionElementTypes &gt; tudat::ground_stations::unsupportedPositionElementTypes</definition>
+        <argsstring></argsstring>
+        <name>unsupportedPositionElementTypes</name>
+        <initializer>=
+{
+}</initializer>
+        <briefdescription>
+<para><computeroutput>PositionElementTypes</computeroutput> not supported by <computeroutput>json_interface</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h" line="33" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="groundStation_8h_1a5efe42a9490a55b9c0ce1607b1bc234d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::ground_stations::isTargetInView</definition>
+        <argsstring>(const double time, const Eigen::Vector3d targetRelativeState, const std::shared_ptr&lt; PointingAnglesCalculator &gt; pointingAngleCalculator, const double minimumElevationAngle)</argsstring>
+        <name>isTargetInView</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>targetRelativeState</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator" kindref="compound">PointingAnglesCalculator</ref> &gt;</type>
+          <declname>pointingAngleCalculator</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumElevationAngle</declname>
+        </param>
+        <briefdescription>
+<para>Function to check whether a target is visible from a ground station, based on minimum allowed elevation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to check whether a target is visible from a ground station, based on minimum allowed elevation angle, and the vector from ground station to target expressed in inertial coordinates <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which visibility is to be checked. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetRelativeState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Inertial state vector from ground station to target </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pointingAngleCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object that computes the pointing angles (azimuth/elevation) for a given ground station </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumElevationAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum elevation angle above which the target is considered &apos;visible&apos; </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if target is visible, false if not. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/groundStation.cpp" line="21" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/groundStation.cpp" bodystart="21" bodyend="37" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/groundStation.h" declline="114" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="groundStationState_8h_1a1009d40ff22107143c8f0fe9744a5402" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Vector3d &gt; tudat::ground_stations::getGeocentricLocalUnitVectors</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;topocentricToPlanetFixedFrameMatrix)</argsstring>
+        <name>getGeocentricLocalUnitVectors</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>topocentricToPlanetFixedFrameMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Function to generate unit vectors of topocentric frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to generate unit vectors of topocentric frame. The set of unit vectors of topocentric frame is expressed in body-fixed frame, in ENU (Earth-North-Up) order. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>topocentricToPlanetFixedFrameMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix from topocentric to body-fixed frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unit vectors of topocentric frame, expressed in body-fixed frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/groundStationState.cpp" line="26" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/groundStationState.cpp" bodystart="26" bodyend="35" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/groundStationState.h" declline="33" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="groundStationState_8h_1aa60477796e40b5590e3b81e00c06bfd6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Vector3d &gt; tudat::ground_stations::getGeocentricLocalUnitVectors</definition>
+        <argsstring>(const double latitude, const double longitude)</argsstring>
+        <name>getGeocentricLocalUnitVectors</name>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <briefdescription>
+<para>Function to generate unit vectors of topocentric frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to generate unit vectors of topocentric frame. The set of unit vectors of topocentric frame is expressed in body-fixed frame, in ENU (Earth-North-Up) order. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude of point for which topocentric frame is to be created. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude of point for which topocentric frame is to be created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unit vectors of topocentric frame, expressed in body-fixed frame </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/groundStationState.cpp" line="39" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/groundStationState.cpp" bodystart="39" bodyend="45" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/groundStationState.h" declline="44" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="groundStationState_8h_1a22e85de805a2c5760a38b4bf55848fb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::ground_stations::getRotationQuaternionFromBodyFixedToTopocentricFrame</definition>
+        <argsstring>(const std::shared_ptr&lt; basic_astrodynamics::BodyShapeModel &gt; bodyShapeModel, const double geocentricLatitude, const double geocentricLongitude, const Eigen::Vector3d localPoint)</argsstring>
+        <name>getRotationQuaternionFromBodyFixedToTopocentricFrame</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel" kindref="compound">basic_astrodynamics::BodyShapeModel</ref> &gt;</type>
+          <declname>bodyShapeModel</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>geocentricLatitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>geocentricLongitude</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>localPoint</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the rotation from a body-fixed to a topocentric frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the rotation from a body-fixed to a topocentric frame at a given point (localPoint), based on the geocentric latitude and longitude (i.e. angles based on line from center of body to localPoint. The topocentric calculation differs per type of body shape wrt which the point is located. The rotation is calculated by concatenating the unit vectors of the topocentric frame, expresse in the body-fixed frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyShapeModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shape model of body on which point is located. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>geocentricLatitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geocentric latitude of point, i.e. angle between equatorial planet and line from center of body to localPoint </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>geocentricLongitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geocentric longitude of point, i.e. angle between positive x-axis and line from center of body to localPoint, projected on equatorial plane, measured positive in +y direction </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>localPoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position of point in body-fixed frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The rotation from the body-fixed to the topocentric frame at localPoint. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/groundStationState.cpp" line="103" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/groundStationState.cpp" bodystart="103" bodyend="160" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/groundStationState.h" declline="257" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="groundStations_8h_1a38817f4d2f4af5d49d6f52a0d92a171a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::ground_stations::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const coordinate_conversions::PositionElementTypes &amp;positionElementType)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const coordinate_conversions::PositionElementTypes &amp;</type>
+          <declname>positionElementType</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>PositionElementTypes</computeroutput> to <computeroutput>json</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h" line="39" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h" bodystart="39" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="groundStations_8h_1ad4da6de48f05d18cc92f392226cbe47c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::ground_stations::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, coordinate_conversions::PositionElementTypes &amp;positionElementType)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>coordinate_conversions::PositionElementTypes &amp;</type>
+          <declname>positionElementType</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>json</computeroutput> to <computeroutput>PositionElementTypes</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h" line="45" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h" bodystart="45" bodyend="48"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/groundStation.h" line="25" column="1"/>
+  </compounddef>
+</doxygen>

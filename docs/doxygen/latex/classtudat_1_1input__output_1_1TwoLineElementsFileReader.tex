@@ -1,0 +1,214 @@
+\hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader}{}\doxysection{tudat\+::input\+\_\+output\+::Two\+Line\+Elements\+File\+Reader Class Reference}
+\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader}\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+
+
+Two-\/\+Line Elements (TLE) file reader class.  
+
+
+
+
+{\ttfamily \#include $<$two\+Line\+Elements\+File\+Reader.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a393e59fb3bb326d928b73b87a5fc7542}{Two\+Line\+Elements\+File\+Reader}} (std\+::string \&file\+Name, std\+::string \&absolute\+Directory\+Path, unsigned int number\+Of\+Header\+Lines=0, std\+::string line\+Comment\+Char=\char`\"{}\#\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_aef5294617b5090b0753ec3b835581b7d}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_aef5294617b5090b0753ec3b835581b7d}} 
+virtual \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_aef5294617b5090b0753ec3b835581b7d}{$\sim$\+Two\+Line\+Elements\+File\+Reader}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a3307260fb1bacc5ac83067ab7c9c025b}{set\+Absolute\+Directory\+Path}} (std\+::string \&absolute\+Directory\+Path)
+\begin{DoxyCompactList}\small\item\em Set absolute directory path. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a24049a1020046cf3c636c3e3fe8f6069}{set\+Relative\+Directory\+Path}} (std\+::string relative\+Directory\+Path)
+\begin{DoxyCompactList}\small\item\em Set relative directory path. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_aa4ef75b70a1ae7b4e7bc7f0f440e24f4}{set\+File\+Name}} (std\+::string file\+Name)
+\begin{DoxyCompactList}\small\item\em Set file name. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad8bf353b2e890c1c292588c53851d534}{open\+File}} ()
+\begin{DoxyCompactList}\small\item\em Open data file. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a8247405340d53a8e28820a57065a8790}{set\+Number\+Of\+Header\+Lines}} (unsigned int number\+Of\+Header\+Lines)
+\begin{DoxyCompactList}\small\item\em Set number of lines for file header. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a01715e9fb6be7bd20a8d0bbdedd94815}{read\+And\+Store\+Data}} ()
+\begin{DoxyCompactList}\small\item\em Read and store data from data file. \end{DoxyCompactList}\item 
+unsigned int \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_add94f101b51726d2169ade6e7a91cbdd}{get\+Number\+Of\+Objects}} ()
+\begin{DoxyCompactList}\small\item\em Get number of objects. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_aa4c59e9942135ab2ad9c0f703a245c9b}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_aa4c59e9942135ab2ad9c0f703a245c9b}} 
+std\+::map$<$ std\+::string, std\+::string $>$ {\bfseries get\+Tle\+Map} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a79148644b718d94644ebd51102838b8c}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a79148644b718d94644ebd51102838b8c}} 
+unsigned int \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a79148644b718d94644ebd51102838b8c}{number\+Of\+Header\+Lines\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of header lines. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a467d67eabe5cae5730d47b06a1abb015}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a467d67eabe5cae5730d47b06a1abb015}} 
+std\+::ifstream \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a467d67eabe5cae5730d47b06a1abb015}{data\+File\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Data file stream. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ab88309f6cb23a98893a9da0361efe1ad}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ab88309f6cb23a98893a9da0361efe1ad}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ab88309f6cb23a98893a9da0361efe1ad}{file\+Name\+\_\+}}
+\begin{DoxyCompactList}\small\item\em File name. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a484c9eeb2e72e99c39521b288cc35dcc}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a484c9eeb2e72e99c39521b288cc35dcc}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a484c9eeb2e72e99c39521b288cc35dcc}{string\+Of\+Data\+\_\+}}
+\begin{DoxyCompactList}\small\item\em String of data. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad0012b2fb8cdaf12a59865ad79d1167d}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad0012b2fb8cdaf12a59865ad79d1167d}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad0012b2fb8cdaf12a59865ad79d1167d}{absolute\+File\+Path\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Absolute path to data file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_abb8c8a5f14c6e0f7800756483e094689}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_abb8c8a5f14c6e0f7800756483e094689}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_abb8c8a5f14c6e0f7800756483e094689}{absolute\+Directory\+Path\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Absolute path to directory containing data file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_acb2b077b9061347178b72e704e127073}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_acb2b077b9061347178b72e704e127073}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_acb2b077b9061347178b72e704e127073}{relative\+Directory\+Path\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Relative path to directory containing data file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_af0ee320fc0b55b1ea3c2d52e09d8d5a0}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_af0ee320fc0b55b1ea3c2d52e09d8d5a0}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_af0ee320fc0b55b1ea3c2d52e09d8d5a0}{line\+Comment\+Char\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Starting character used by the skip\+Lines\+Starting\+With\+Character( ) function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a754dfde361f7208272f7dd5805b01ecb}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a754dfde361f7208272f7dd5805b01ecb}} 
+std\+::map$<$ std\+::string, std\+::string $>$ {\bfseries tle\+Pairs\+\_\+}
+\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad7be6f3a7049f59a6cf6a2d802428321}{header\+Lines\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Container of header data from file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Two-\/\+Line Elements (TLE) file reader class. 
+
+Definition of TLE file reader class. Reads and parses a TLE data file (in the same formatting as files from the Celes\+Trak website) into a map with the name of the satellite as the key and the concatenated two lines with the elements as the value.
+
+Usage\+: create an instantiation of the class using the constructor (provide file name and absolute path); then call the \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad8bf353b2e890c1c292588c53851d534}{open\+File( )}} function to open the file. To process the file and store its content in the map, call \mbox{\hyperlink{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a01715e9fb6be7bd20a8d0bbdedd94815}{read\+And\+Store\+Data( )}}. Finally, the map can then be retrieved by calling 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a393e59fb3bb326d928b73b87a5fc7542}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a393e59fb3bb326d928b73b87a5fc7542}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!TwoLineElementsFileReader@{TwoLineElementsFileReader}}
+\index{TwoLineElementsFileReader@{TwoLineElementsFileReader}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{TwoLineElementsFileReader()}{TwoLineElementsFileReader()}}
+{\footnotesize\ttfamily tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::\+Two\+Line\+Elements\+File\+Reader (\begin{DoxyParamCaption}\item[{std\+::string \&}]{file\+Name,  }\item[{std\+::string \&}]{absolute\+Directory\+Path,  }\item[{unsigned int}]{number\+Of\+Header\+Lines = {\ttfamily 0},  }\item[{std\+::string}]{line\+Comment\+Char = {\ttfamily \char`\"{}\#\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor from file name and absolute directory path. 
+\begin{DoxyParams}{Parameters}
+{\em file\+Name} & Name of the file including extension. \\
+\hline
+{\em absolute\+Directory\+Path} & String containing the path of the file to be read, including trailing (back)slash. \\
+\hline
+{\em number\+Of\+Header\+Lines} & Number of header lines in the file (default\+: 0). \\
+\hline
+{\em line\+Comment\+Char} & Character that indicates that a line is a comment and should be skipped. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_add94f101b51726d2169ade6e7a91cbdd}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_add94f101b51726d2169ade6e7a91cbdd}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!getNumberOfObjects@{getNumberOfObjects}}
+\index{getNumberOfObjects@{getNumberOfObjects}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{getNumberOfObjects()}{getNumberOfObjects()}}
+{\footnotesize\ttfamily unsigned int tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::get\+Number\+Of\+Objects (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get number of objects. 
+
+\begin{DoxyReturn}{Returns}
+Number of objects in TLE data file. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad8bf353b2e890c1c292588c53851d534}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad8bf353b2e890c1c292588c53851d534}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!openFile@{openFile}}
+\index{openFile@{openFile}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{openFile()}{openFile()}}
+{\footnotesize\ttfamily void tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::open\+File (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Open data file. 
+
+Opens data file. \mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a01715e9fb6be7bd20a8d0bbdedd94815}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a01715e9fb6be7bd20a8d0bbdedd94815}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!readAndStoreData@{readAndStoreData}}
+\index{readAndStoreData@{readAndStoreData}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{readAndStoreData()}{readAndStoreData()}}
+{\footnotesize\ttfamily void tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::read\+And\+Store\+Data (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read and store data from data file. 
+
+Read and store data. \mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a3307260fb1bacc5ac83067ab7c9c025b}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a3307260fb1bacc5ac83067ab7c9c025b}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!setAbsoluteDirectoryPath@{setAbsoluteDirectoryPath}}
+\index{setAbsoluteDirectoryPath@{setAbsoluteDirectoryPath}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{setAbsoluteDirectoryPath()}{setAbsoluteDirectoryPath()}}
+{\footnotesize\ttfamily void tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::set\+Absolute\+Directory\+Path (\begin{DoxyParamCaption}\item[{std\+::string \&}]{absolute\+Directory\+Path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set absolute directory path. 
+
+Sets absolute path to directory containing data file. If this is set, the relative path will be cleared. 
+\begin{DoxyParams}{Parameters}
+{\em absolute\+Directory\+Path} & Absolute path to directory containing data file. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_aa4ef75b70a1ae7b4e7bc7f0f440e24f4}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_aa4ef75b70a1ae7b4e7bc7f0f440e24f4}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!setFileName@{setFileName}}
+\index{setFileName@{setFileName}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{setFileName()}{setFileName()}}
+{\footnotesize\ttfamily void tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::set\+File\+Name (\begin{DoxyParamCaption}\item[{std\+::string}]{file\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set file name. 
+
+Sets file name of data file. 
+\begin{DoxyParams}{Parameters}
+{\em file\+Name} & File name. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a8247405340d53a8e28820a57065a8790}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a8247405340d53a8e28820a57065a8790}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!setNumberOfHeaderLines@{setNumberOfHeaderLines}}
+\index{setNumberOfHeaderLines@{setNumberOfHeaderLines}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{setNumberOfHeaderLines()}{setNumberOfHeaderLines()}}
+{\footnotesize\ttfamily void tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::set\+Number\+Of\+Header\+Lines (\begin{DoxyParamCaption}\item[{unsigned int}]{number\+Of\+Header\+Lines }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set number of lines for file header. 
+
+Sets number of lines for file header. This function defines the number of lines of the file header, starting from the beginning of the file. This function cannot be used in combination with the skip\+Lines( ), skip\+Lines\+Starting\+With\+Character( ), and skip\+Lines\+With\+Keyword( ) functions. 
+\begin{DoxyParams}{Parameters}
+{\em number\+Of\+Header\+Lines} & Number of lines for file header. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a24049a1020046cf3c636c3e3fe8f6069}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_a24049a1020046cf3c636c3e3fe8f6069}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!setRelativeDirectoryPath@{setRelativeDirectoryPath}}
+\index{setRelativeDirectoryPath@{setRelativeDirectoryPath}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{setRelativeDirectoryPath()}{setRelativeDirectoryPath()}}
+{\footnotesize\ttfamily void tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::set\+Relative\+Directory\+Path (\begin{DoxyParamCaption}\item[{std\+::string}]{relative\+Directory\+Path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set relative directory path. 
+
+Sets relative path to directory containing data file, with respect to root directory of Tudat library. If this is set, the absolute path will be cleared. 
+\begin{DoxyParams}{Parameters}
+{\em relative\+Directory\+Path} & Relative directory path. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad7be6f3a7049f59a6cf6a2d802428321}\label{classtudat_1_1input__output_1_1TwoLineElementsFileReader_ad7be6f3a7049f59a6cf6a2d802428321}} 
+\index{tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}!headerLines\_@{headerLines\_}}
+\index{headerLines\_@{headerLines\_}!tudat::input\_output::TwoLineElementsFileReader@{tudat::input\_output::TwoLineElementsFileReader}}
+\doxysubsubsection{\texorpdfstring{headerLines\_}{headerLines\_}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::string $>$ tudat\+::input\+\_\+output\+::\+Two\+Line\+Elements\+File\+Reader\+::header\+Lines\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Container of header data from file. 
+
+Map container of string header data from data file, obtained by reading each line of header data from file using the getline( ) function. The key is the line number from the file and the value is header line data. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/io/two\+Line\+Elements\+File\+Reader.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/io/two\+Line\+Elements\+File\+Reader.\+cpp\end{DoxyCompactItemize}

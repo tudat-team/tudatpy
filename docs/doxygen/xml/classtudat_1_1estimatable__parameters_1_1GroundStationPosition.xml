@@ -1,0 +1,206 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1GroundStationPosition" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::GroundStationPosition</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</basecompoundref>
+    <includes refid="groundStationPosition_8h" local="no">groundStationPosition.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a91fc6cf57a5495bc69fc7fea18295f88" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1GroundStationState" kindref="compound">ground_stations::GroundStationState</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ground_stations::GroundStationState &gt; tudat::estimatable_parameters::GroundStationPosition::groundStationState_</definition>
+        <argsstring></argsstring>
+        <name>groundStationState_</name>
+        <briefdescription>
+<para>Object that represents state of ground stations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" line="89" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1aff2bd51ce957231279226822e1842ac2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::GroundStationPosition::GroundStationPosition</definition>
+        <argsstring>(const std::shared_ptr&lt; ground_stations::GroundStationState &gt; groundStationState, const std::string &amp;associatedBody, const std::string &amp;associatedStation)</argsstring>
+        <name>GroundStationPosition</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1GroundStationState" kindref="compound">ground_stations::GroundStationState</ref> &gt;</type>
+          <declname>groundStationState</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedStation</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>groundStationState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object that represents state of ground station </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body on which station is located </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>associatedStation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of station </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" bodystart="45" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a8330e5eaef901f6aa35cb9a7e698d3ad" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::GroundStationPosition::~GroundStationPosition</definition>
+        <argsstring>()</argsstring>
+        <name>~GroundStationPosition</name>
+        <briefdescription>
+<para>Destructor <linebreak/>
+ </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" line="52" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" bodystart="52" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a3b972d18c791d4da8009d8a76e69b39c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::estimatable_parameters::GroundStationPosition::getParameterValue</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a63413b914f9e8b68705aba7048780200">getParameterValue</reimplements>
+        <briefdescription>
+<para>Get values (Cartesian x,y,z position) of ground station position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get values (Cartesian x,y,z position) of ground station position <simplesect kind="return"><para>Values (Cartesian x,y,z position) of ground station position </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" line="59" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" bodystart="59" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a02250330b056d7d1767eb4a2234fe4c3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::GroundStationPosition::setParameterValue</definition>
+        <argsstring>(Eigen::VectorXd parameterValue)</argsstring>
+        <name>setParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5df35bde257a6db401ca3c3613056554">setParameterValue</reimplements>
+        <param>
+          <type>Eigen::VectorXd</type>
+          <declname>parameterValue</declname>
+        </param>
+        <briefdescription>
+<para>Reset values (Cartesian x,y,z position) of ground station position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reset values (Cartesian x,y,z position) of ground station position <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New values (Cartesian x,y,z position) of ground station position </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" line="69" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" bodystart="69" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1ab7f862c3bed081deb13c6f70f7aa80ba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::GroundStationPosition::getParameterSize</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterSize</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a989d54bab5c5e09ab6f1b709755b22e8">getParameterSize</reimplements>
+        <briefdescription>
+<para>Function to retrieve the size of the parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the size of the parameter <simplesect kind="return"><para>Size of parameter value, 3 for this parameter </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" line="79" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" bodystart="79" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for estimating constant position of a ground station. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for estimating constant position of a ground station. Specific parameter is Cartesian x,y and z component of station in body-fixed frame. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::GroundStationPosition</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::GroundStationPosition</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/groundStationPosition.h" bodystart="34" bodyend="90"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a4012bde7f5f26c5c590c0a149283dd4d" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1adc670898ad79d02d23cfcf82b5578ed0" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>getConstraintRightHandSide</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1af7db7b4da27ca2787b0090c409087cd7" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>getConstraintSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a9c6c6514f75b2efdbd30cc2292fa3d0f" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>getConstraintStateMultipler</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5c264285d7e3ce9ce1452928ad8e7425" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>getParameterDescription</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a23de3d6116f1414d5bb905f1b523cfdc" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>getParameterName</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1ab7f862c3bed081deb13c6f70f7aa80ba" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>getParameterSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a3b972d18c791d4da8009d8a76e69b39c" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>getParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1ae97f1a8ef867dcaf72ceeb5050e64629" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1aff2bd51ce957231279226822e1842ac2" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>GroundStationPosition</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a91fc6cf57a5495bc69fc7fea18295f88" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>groundStationState_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a3d43d2db730c707b789768dad4de5ae6" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>parameterName_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a02250330b056d7d1767eb4a2234fe4c3" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>setParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a211a379e14476e36a7693f43be29cb11" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>~EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a8330e5eaef901f6aa35cb9a7e698d3ad" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::GroundStationPosition</scope><name>~GroundStationPosition</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

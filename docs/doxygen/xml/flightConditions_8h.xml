@@ -1,0 +1,1791 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="flightConditions_8h" kind="file" language="C++">
+    <compoundname>flightConditions.h</compoundname>
+    <includes local="no">vector</includes>
+    <includes local="no">functional</includes>
+    <includes local="no">boost/bind.hpp</includes>
+    <includes refid="trimOrientation_8h" local="yes">tudat/astro/aerodynamics/trimOrientation.h</includes>
+    <includes refid="aerodynamicCoefficientInterface_8h" local="yes">tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h</includes>
+    <includes refid="atmosphereModel_8h" local="yes">tudat/astro/aerodynamics/atmosphereModel.h</includes>
+    <includes refid="bodyShapeModel_8h" local="yes">tudat/astro/basic_astro/bodyShapeModel.h</includes>
+    <includes refid="aerodynamicAngleCalculator_8h" local="yes">tudat/astro/reference_frames/aerodynamicAngleCalculator.h</includes>
+    <includes refid="basicTypedefs_8h" local="yes">tudat/basics/basicTypedefs.h</includes>
+    <includedby refid="astro_2aerodynamics_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics.h</includedby>
+    <includedby refid="aerodynamicAccelerationPartial_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h</includedby>
+    <includedby refid="simulation_2environment__setup_2body_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h</includedby>
+    <includedby refid="createFlightConditions_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createFlightConditions.h</includedby>
+    <includedby refid="flightConditions_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/flightConditions.cpp</includedby>
+    <includedby refid="createAccelerationModels_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/propagation_setup/createAccelerationModels.cpp</includedby>
+    <incdepgraph>
+      <node id="33">
+        <label>boost/lambda/lambda.hpp</label>
+      </node>
+      <node id="3">
+        <label>functional</label>
+      </node>
+      <node id="32">
+        <label>tudat/astro/reference_frames/aerodynamicAngleCalculator.h</label>
+        <link refid="aerodynamicAngleCalculator_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>limits</label>
+      </node>
+      <node id="21">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>boost/date_time/gregorian/gregorian.hpp</label>
+      </node>
+      <node id="13">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="14">
+        <label>cmath</label>
+      </node>
+      <node id="24">
+        <label>stdexcept</label>
+      </node>
+      <node id="7">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="34">
+        <label>tudat/astro/ephemerides/rotationalEphemeris.h</label>
+        <link refid="rotationalEphemeris_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>string</label>
+      </node>
+      <node id="42">
+        <label>tudat/astro/reference_frames/dependentOrientationCalculator.h</label>
+        <link refid="dependentOrientationCalculator_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>map</label>
+      </node>
+      <node id="28">
+        <label>tudat/astro/reference_frames/referenceFrameTransformations.h</label>
+        <link refid="referenceFrameTransformations_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h</label>
+        <link refid="flightConditions_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>tudat/astro/basic_astro/bodyShapeModel.h</label>
+        <link refid="bodyShapeModel_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="38">
+        <label>tudat/math/basic/linearAlgebra.h</label>
+        <link refid="linearAlgebra_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h</label>
+        <link refid="aerodynamicCoefficientInterface_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>tudat/astro/basic_astro/timeConversions.h</label>
+        <link refid="timeConversions_8h_source"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat/astro/aerodynamics/trimOrientation.h</label>
+        <link refid="trimOrientation_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>vector</label>
+      </node>
+      <node id="40">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>tudat/basics/utilities.h</label>
+        <link refid="basics_2utilities_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h</label>
+        <link refid="controlSurfaceAerodynamicCoefficientInterface_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/astro/aerodynamics/atmosphereModel.h</label>
+        <link refid="atmosphereModel_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>iostream</label>
+      </node>
+      <node id="15">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/astro/aerodynamics/aerodynamics.h</label>
+        <link refid="astro_2aerodynamics_2aerodynamics_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>tudat/astro/aerodynamics/windModel.h</label>
+        <link refid="windModel_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="39">
+        <label>Eigen/SVD</label>
+      </node>
+      <node id="20">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="16">
+        <label>complex</label>
+      </node>
+      <node id="41">
+        <label>algorithm</label>
+      </node>
+      <node id="6">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="92">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createLightTimeCalculator.h</label>
+        <link refid="createLightTimeCalculator_8h_source"/>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="74">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h</label>
+        <link refid="createGravityFieldVariations_8h_source"/>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="98">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createTorqueModel.h</label>
+        <link refid="createTorqueModel_8h_source"/>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h</label>
+        <link refid="dynamicsSimulator_8h_source"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="79">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h</label>
+        <link refid="createRadiationPressureInterface_8h_source"/>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="95">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createLightTimeCorrection.h</label>
+        <link refid="createLightTimeCorrection_8h_source"/>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h</label>
+        <link refid="propagationTermination_8h_source"/>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutput.h</label>
+        <link refid="propagationOutput_8h_source"/>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="77">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h</label>
+        <link refid="createGroundStations_8h_source"/>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="68">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/acceleration.h</label>
+        <link refid="acceleration_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/dynamicsStateDerivativeModel.h</label>
+        <link refid="dynamicsStateDerivativeModel_8h_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="78">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/groundStations.h</label>
+        <link refid="groundStations_8h_source"/>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h</label>
+        <link refid="aerodynamicAccelerationPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/getZeroProperModeRotationalInitialState.h</label>
+        <link refid="getZeroProperModeRotationalInitialState_8h_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="83">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createCartesianStatePartials.h</label>
+        <link refid="createCartesianStatePartials_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationLowThrustProblem.h</label>
+        <link refid="propagationLowThrustProblem_8h_source"/>
+      </node>
+      <node id="47">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/defaultBodies.h</label>
+        <link refid="defaultBodies_8h_source"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="88">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createOneWayRangePartials.h</label>
+        <link refid="createOneWayRangePartials_8h_source"/>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodyShapeModel.h</label>
+        <link refid="createBodyShapeModel_8h_source"/>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createStateDerivativeModel.h</label>
+        <link refid="createStateDerivativeModel_8h_source"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h</label>
+        <link refid="createBodies_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/freeCoreNutationRate.h</label>
+        <link refid="freeCoreNutationRate_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="70">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createAccelerationModels.h</label>
+        <link refid="createAccelerationModels_8h_source"/>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h</label>
+        <link refid="propagationSettings_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createTorquePartials.h</label>
+        <link refid="createTorquePartials_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination.h</label>
+        <link refid="orbit__determination_8h_source"/>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators.h</label>
+        <link refid="propagators_8h_source"/>
+      </node>
+      <node id="64">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/shapeModel.h</label>
+        <link refid="shapeModel_8h_source"/>
+      </node>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/state.h</label>
+        <link refid="state_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h</label>
+        <link refid="rotationalMotionStateDerivative_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNumericalSimulator.h</label>
+        <link refid="createNumericalSimulator_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/export.h</label>
+        <link refid="export_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createFlightConditions.h</label>
+        <link refid="createFlightConditions_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="66">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createThrustModelGuidance.h</label>
+        <link refid="createThrustModelGuidance_8h_source"/>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="69">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/thrust.h</label>
+        <link refid="thrust_8h_source"/>
+      </node>
+      <node id="27">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createAccelerationPartials.h</label>
+        <link refid="createAccelerationPartials_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h</label>
+        <link refid="flightConditions_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="62">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h</label>
+        <link refid="setNumericallyIntegratedStates_8h_source"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/unitTestSupport.h</label>
+        <link refid="unitTestSupport_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="89">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h</label>
+        <link refid="createDifferencedOneWayRangeRatePartials_8h_source"/>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h</label>
+        <link refid="propagationLambertTargeterFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="72">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h</label>
+        <link refid="createGravityField_8h_source"/>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h</label>
+        <link refid="gravityFieldVariation_8h_source"/>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="67">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h</label>
+        <link refid="accelerationSettings_8h_source"/>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionQuaternionsStateDerivative.h</label>
+        <link refid="rotationalMotionQuaternionsStateDerivative_8h_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="96">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createMassRateModels.h</label>
+        <link refid="createMassRateModels_8h_source"/>
+        <childnode refid="97" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="81">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h</label>
+        <link refid="createRotationModel_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/periodicSpinVariation.h</label>
+        <link refid="periodicSpinVariation_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="86">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationManager.h</label>
+        <link refid="createObservationManager_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup.h</label>
+        <link refid="environment__setup_8h_source"/>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="94">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/estimation/observation.h</label>
+        <link refid="observation_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="97">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/massRateModel.h</label>
+        <link refid="interface_2json_2propagation_2massRateModel_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="73">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityField.h</label>
+        <link refid="gravityField_8h_source"/>
+      </node>
+      <node id="30">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h</label>
+        <link refid="variationalEquationsSolver_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="87">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createDopplerPartials.h</label>
+        <link refid="createDopplerPartials_8h_source"/>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="82">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/rotationModel.h</label>
+        <link refid="rotationModel_8h_source"/>
+      </node>
+      <node id="71">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h</label>
+        <link refid="thrustSettings_8h_source"/>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/radiationPressure.h</label>
+        <link refid="radiationPressure_8h_source"/>
+      </node>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="53">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionExponentialMapStateDerivative.h</label>
+        <link refid="rotationalMotionExponentialMapStateDerivative_8h_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h</label>
+        <link refid="simulation_2environment__setup_2body_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+        <childnode refid="79" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="96" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="98" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="93">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h</label>
+        <link refid="createObservationModel_8h_source"/>
+        <childnode refid="94" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/polarMotionAmplitude.h</label>
+        <link refid="polarMotionAmplitude_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="35">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createEstimatableParameters.h</label>
+        <link refid="createEstimatableParameters_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createStateDerivativePartials.h</label>
+        <link refid="createStateDerivativePartials_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="91">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h</label>
+        <link refid="createEulerAngleObservationPartials_8h_source"/>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/coreFactor.h</label>
+        <link refid="coreFactor_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="76">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/interpolation.h</label>
+        <link refid="interpolation_8h_source"/>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createAngularPositionPartials.h</label>
+        <link refid="createAngularPositionPartials_8h_source"/>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createEnvironmentUpdater.h</label>
+        <link refid="createEnvironmentUpdater_8h_source"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/body.h</label>
+        <link refid="interface_2json_2environment_2body_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/environmentUpdater.h</label>
+        <link refid="environmentUpdater_8h_source"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h</label>
+        <link refid="integrateEquations_8h_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics.h</label>
+        <link refid="astro_2aerodynamics_8h_source"/>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+      <node id="90">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNWayRangePartials.h</label>
+        <link refid="createNWayRangePartials_8h_source"/>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionModifiedRodriguesParametersStateDerivative.h</label>
+        <link refid="rotationalMotionModifiedRodriguesParametersStateDerivative_8h_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="85">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationPartials.h</label>
+        <link refid="createObservationPartials_8h_source"/>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1aerodynamics_1_1FlightConditions" prot="public">tudat::aerodynamics::FlightConditions</innerclass>
+    <innerclass refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions" prot="public">tudat::aerodynamics::AtmosphericFlightConditions</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1aerodynamics">tudat::aerodynamics</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_FLIGHTCONDITIONS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_FLIGHTCONDITIONS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;functional&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/bind.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/aerodynamics/trimOrientation.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/aerodynamics/atmosphereModel.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/bodyShapeModel.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/reference_frames/aerodynamicAngleCalculator.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/basics/basicTypedefs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">aerodynamics</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="classtudat_1_1aerodynamics_1_1FlightConditions" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions" kindref="compound">FlightConditions</ref></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130" kindref="member">FlightConditionVariables</ref></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>altitude_flight_condition,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>density_flight_condition,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pressure_flight_condition,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temperature_flight_condition,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>latitude_flight_condition,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>longitude_flight_condition,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mach_number_flight_condition,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>speed_of_sound_flight_condition,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>airspeed_flight_condition,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>geodetic_latitude_condition,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dynamic_pressure_condition,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>aerodynamic_heat_rate</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a06392e6969cecb9820d576692ec63cbc" kindref="member">FlightConditions</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>basic_astrodynamics::BodyShapeModel<sp/>&gt;<sp/>shapeModel,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>reference_frames::AerodynamicAngleCalculator<sp/>&gt;<sp/>aerodynamicAngleCalculator<sp/>=</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>reference_frames::AerodynamicAngleCalculator<sp/>&gt;(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a050b14f7b5f87dbd89a36223e0cf21ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a050b14f7b5f87dbd89a36223e0cf21ce" kindref="member">~FlightConditions</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aadc4e2d6d38dc4b57f944c73b18060c7" kindref="member">updateConditions</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9be363eadc6441e9f83ede3110f7399e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9be363eadc6441e9f83ede3110f7399e" kindref="member">getCurrentAltitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>altitude_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a8b3125276b2cad52f6dc1a3637cdde77" kindref="member">computeAltitude</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>altitude_flight_condition<sp/>);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a53d791899c971ee86afa6f43edaa9751" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a53d791899c971ee86afa6f43edaa9751" kindref="member">getCurrentLongitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>longitude_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c97faccccf8986d91746864bfa0e35" kindref="member">computeLatitudeAndLongitude</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>longitude_flight_condition<sp/>);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a61e90cedd2518bf5dc83498a46743a0a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a61e90cedd2518bf5dc83498a46743a0a" kindref="member">getCurrentGeodeticLatitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>geodetic_latitude_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a7be91e9c1ad0b6902d75e10e7ba4bb6a" kindref="member">computeGeodeticLatitude</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>geodetic_latitude_condition<sp/>);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a0be39dd2b49d03fe576e73c3faa28ee8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a0be39dd2b49d03fe576e73c3faa28ee8" kindref="member">getCurrentTime</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1af6eea8c3d4bdc2d27d9856fcb1ee2637" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1af6eea8c3d4bdc2d27d9856fcb1ee2637" kindref="member">setAerodynamicAngleCalculator</ref>(</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>reference_frames::AerodynamicAngleCalculator<sp/>&gt;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>aerodynamicAngleCalculator<sp/>)</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" kindref="member">aerodynamicAngleCalculator_</ref><sp/>=<sp/>aerodynamicAngleCalculator;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1af9c922fffee4ed037dfc465eaaecde06" kindref="member">bodyCenteredPseudoBodyFixedStateFunction_</ref><sp/>=<sp/>std::bind(</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;<ref refid="classtudat_1_1reference__frames_1_1AerodynamicAngleCalculator_1a9e91195dfdd0a2d1e28af2745c238fb8" kindref="member">reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState</ref>,<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" kindref="member">aerodynamicAngleCalculator_</ref><sp/>);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>reference_frames::AerodynamicAngleCalculator<sp/>&gt;</highlight></codeline>
+<codeline lineno="159" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c498316cfdd113f7f6064a6434e20e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c498316cfdd113f7f6064a6434e20e" kindref="member">getAerodynamicAngleCalculator</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" kindref="member">aerodynamicAngleCalculator_</ref>;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1ae2739f6b39850dbfa65a3438adc714e7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1ae2739f6b39850dbfa65a3438adc714e7" kindref="member">resetCurrentTime</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref><sp/>=<sp/>currentTime;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.clear(<sp/>);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a30e6565083db5d2d8a3d8e7fd093ab97" kindref="member">isLatitudeAndLongitudeSet_</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" kindref="member">aerodynamicAngleCalculator_</ref>-&gt;resetCurrentTime(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref><sp/>);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a52bb2cc9d5748b7f1c0f96ad9d2de54e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector6d<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a52bb2cc9d5748b7f1c0f96ad9d2de54e" kindref="member">getCurrentBodyCenteredBodyFixedState</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a3b48382d6fd7670bd43332bc8d73ff8a" kindref="member">currentBodyCenteredAirspeedBasedBodyFixedState_</ref>;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c97faccccf8986d91746864bfa0e35" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c97faccccf8986d91746864bfa0e35" kindref="member">computeLatitudeAndLongitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>latitude_flight_condition<sp/>]<sp/>=<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" kindref="member">aerodynamicAngleCalculator_</ref>-&gt;getAerodynamicAngle(</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>reference_frames::latitude_angle<sp/>);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>longitude_flight_condition<sp/>]<sp/>=<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" kindref="member">aerodynamicAngleCalculator_</ref>-&gt;getAerodynamicAngle(</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>reference_frames::longitude_angle<sp/>);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a30e6565083db5d2d8a3d8e7fd093ab97" kindref="member">isLatitudeAndLongitudeSet_</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a8b3125276b2cad52f6dc1a3637cdde77" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a8b3125276b2cad52f6dc1a3637cdde77" kindref="member">computeAltitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>altitude_flight_condition<sp/>]<sp/>=</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a232b24777af3e2add15d4a2d2cf80cd0" kindref="member">shapeModel_</ref>-&gt;getAltitude(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a3b48382d6fd7670bd43332bc8d73ff8a" kindref="member">currentBodyCenteredAirspeedBasedBodyFixedState_</ref>.segment(<sp/>0,<sp/>3<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a7be91e9c1ad0b6902d75e10e7ba4bb6a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a7be91e9c1ad0b6902d75e10e7ba4bb6a" kindref="member">computeGeodeticLatitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aad0f7372159d4b8304de543158322e0f" kindref="member">geodeticLatitudeFunction_</ref><sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal"><sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>geodetic_latitude_condition<sp/>]<sp/>=<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aad0f7372159d4b8304de543158322e0f" kindref="member">geodeticLatitudeFunction_</ref>(</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a3b48382d6fd7670bd43332bc8d73ff8a" kindref="member">currentBodyCenteredAirspeedBasedBodyFixedState_</ref>.segment(<sp/>0,<sp/>3<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>latitude_flight_condition<sp/>)<sp/>==<sp/>0<sp/>||<sp/>!<ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a30e6565083db5d2d8a3d8e7fd093ab97" kindref="member">isLatitudeAndLongitudeSet_</ref><sp/>)</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c97faccccf8986d91746864bfa0e35" kindref="member">computeLatitudeAndLongitude</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>geodetic_latitude_condition<sp/>]<sp/>=<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>latitude_flight_condition<sp/>]<sp/>;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a8c058ab5c613d4c92e9af6c65e4fb54a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a8c058ab5c613d4c92e9af6c65e4fb54a" kindref="member">centralBody_</ref>;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a232b24777af3e2add15d4a2d2cf80cd0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>basic_astrodynamics::BodyShapeModel<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a232b24777af3e2add15d4a2d2cf80cd0" kindref="member">shapeModel_</ref>;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>reference_frames::AerodynamicAngleCalculator<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" kindref="member">aerodynamicAngleCalculator_</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1af9c922fffee4ed037dfc465eaaecde06" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>Eigen::Vector6d(<sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1af9c922fffee4ed037dfc465eaaecde06" kindref="member">bodyCenteredPseudoBodyFixedStateFunction_</ref>;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa878d4e2bf79ab5ba234f1abd30ce910" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector6d<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa878d4e2bf79ab5ba234f1abd30ce910" kindref="member">currentBodyCenteredState_</ref>;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a3b48382d6fd7670bd43332bc8d73ff8a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector6d<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a3b48382d6fd7670bd43332bc8d73ff8a" kindref="member">currentBodyCenteredAirspeedBasedBodyFixedState_</ref>;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref>;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a30e6565083db5d2d8a3d8e7fd093ab97" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a30e6565083db5d2d8a3d8e7fd093ab97" kindref="member">isLatitudeAndLongitudeSet_</ref>;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>FlightConditionVariables,<sp/>double<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256" refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aad0f7372159d4b8304de543158322e0f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d&amp;<sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aad0f7372159d4b8304de543158322e0f" kindref="member">geodeticLatitudeFunction_</ref>;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions" kindref="compound">AtmosphericFlightConditions</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions" kindref="compound">FlightConditions</ref></highlight></codeline>
+<codeline lineno="269"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aa8eae5aa3bb61bf3a1f4a91e7c5ed88f" kindref="member">AtmosphericFlightConditions</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>aerodynamics::AtmosphereModel<sp/>&gt;<sp/>atmosphereModel,</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>basic_astrodynamics::BodyShapeModel<sp/>&gt;<sp/>shapeModel,</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AerodynamicCoefficientInterface<sp/>&gt;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>aerodynamicCoefficientInterface,</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>reference_frames::AerodynamicAngleCalculator<sp/>&gt;</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>aerodynamicAngleCalculator<sp/>=</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>reference_frames::AerodynamicAngleCalculator<sp/>&gt;(<sp/>),</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>)&gt;<sp/>controlSurfaceDeflectionFunction<sp/>=</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>)&gt;(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a67283bc0963f74b7e84e279b7a4f9b4d" kindref="member">updateConditions</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>);</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight></codeline>
+<codeline lineno="310" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae6ba948782e267fcd7984b363d5923f0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae6ba948782e267fcd7984b363d5923f0" kindref="member">getCurrentDensity</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>density_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>computeDensity(<sp/>);</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>density_flight_condition<sp/>);</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="324" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae5f659f6c05f72c6e271b8146392e28c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae5f659f6c05f72c6e271b8146392e28c" kindref="member">getCurrentFreestreamTemperature</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>temperature_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>computeTemperature(<sp/>);</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>temperature_flight_condition<sp/>);</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a8a78cfab8d68f42a0f1f61f8ce383c3c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a8a78cfab8d68f42a0f1f61f8ce383c3c" kindref="member">getCurrentDynamicPressure</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>dynamic_pressure_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>computeDynamicPressure(<sp/>);</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>dynamic_pressure_condition<sp/>);</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="352" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6d2e974477f5c83abe4ca6b79865a5d5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6d2e974477f5c83abe4ca6b79865a5d5" kindref="member">getCurrentAerodynamicHeatRate</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>aerodynamic_heat_rate<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>computeAerodynamicHeatRate(<sp/>);</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>aerodynamic_heat_rate<sp/>);</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal"></highlight></codeline>
+<codeline lineno="366" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a9817a8f731adafef75410eeeec43bfe0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a9817a8f731adafef75410eeeec43bfe0" kindref="member">getCurrentPressure</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>pressure_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>computeFreestreamPressure(<sp/>);</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>pressure_flight_condition<sp/>);</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"></highlight></codeline>
+<codeline lineno="379" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a94ad66e44aa0318ca8c0cb781842a3dc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a94ad66e44aa0318ca8c0cb781842a3dc" kindref="member">getCurrentAirspeed</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>airspeed_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>computeAirspeed(<sp/>);</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>airspeed_flight_condition<sp/>);</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal"></highlight></codeline>
+<codeline lineno="393" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c7526fcbf68413c6ca60214fd5f8a62" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c7526fcbf68413c6ca60214fd5f8a62" kindref="member">getCurrentSpeedOfSound</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>speed_of_sound_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>computeSpeedOfSound(<sp/>);</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>speed_of_sound_flight_condition<sp/>);</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight></codeline>
+<codeline lineno="407" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a54034ad6e87dcc5239262526b4c1f343" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a54034ad6e87dcc5239262526b4c1f343" kindref="member">getCurrentMachNumber</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>mach_number_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>computeMachNumber(<sp/>);</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>mach_number_flight_condition<sp/>);</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"></highlight></codeline>
+<codeline lineno="417"><highlight class="normal"></highlight></codeline>
+<codeline lineno="421" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a7ea15328010f6a339d7113a826dc35a3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>aerodynamics::AtmosphereModel<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a7ea15328010f6a339d7113a826dc35a3" kindref="member">getAtmosphereModel</ref>(<sp/>)</highlight><highlight class="keyword"><sp/>const</highlight></codeline>
+<codeline lineno="422"><highlight class="keyword"><sp/><sp/><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>atmosphereModel_;</highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"></highlight></codeline>
+<codeline lineno="427"><highlight class="normal"></highlight></codeline>
+<codeline lineno="434"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a0f31dc9dfc8dbb96c65302e3aa7829fa" kindref="member">setAerodynamicCoefficientsIndependentVariableFunction</ref>(</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>AerodynamicCoefficientsIndependentVariables<sp/>independentVariable,</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/>)<sp/>&gt;<sp/>coefficientDependency<sp/>);</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="443" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c3fdf6fb1273cc2ccd31a9626ce488a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c3fdf6fb1273cc2ccd31a9626ce488a" kindref="member">getCurrentAirspeedBasedVelocity</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="444"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a3b48382d6fd7670bd43332bc8d73ff8a" kindref="member">currentBodyCenteredAirspeedBasedBodyFixedState_</ref>.segment(<sp/>3,<sp/>3<sp/>);</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"></highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight></codeline>
+<codeline lineno="453" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a060150fde7aba5655ec061287b1cdb2a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>AerodynamicCoefficientInterface<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a060150fde7aba5655ec061287b1cdb2a" kindref="member">getAerodynamicCoefficientInterface</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="455"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>aerodynamicCoefficientInterface_;</highlight></codeline>
+<codeline lineno="456"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="457"><highlight class="normal"></highlight></codeline>
+<codeline lineno="459"><highlight class="normal"></highlight></codeline>
+<codeline lineno="463" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6f75b45f23194cf71040bf22750c218e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6f75b45f23194cf71040bf22750c218e" kindref="member">getAerodynamicCoefficientIndependentVariables</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>aerodynamicCoefficientIndependentVariables_.size(<sp/>)<sp/>!=</highlight></codeline>
+<codeline lineno="466"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>aerodynamicCoefficientInterface_-&gt;getNumberOfIndependentVariables(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="467"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="468"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>updateAerodynamicCoefficientInput(<sp/>);</highlight></codeline>
+<codeline lineno="469"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="470"><highlight class="normal"></highlight></codeline>
+<codeline lineno="471"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>aerodynamicCoefficientIndependentVariables_;</highlight></codeline>
+<codeline lineno="472"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"></highlight></codeline>
+<codeline lineno="475"><highlight class="normal"></highlight></codeline>
+<codeline lineno="480" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a2d1d09f0afd1ab1d31880f532d94e9df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::string,<sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a2d1d09f0afd1ab1d31880f532d94e9df" kindref="member">getControlSurfaceAerodynamicCoefficientIndependentVariables</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="481"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>controlSurfaceAerodynamicCoefficientIndependentVariables_.size(<sp/>)<sp/>!=</highlight></codeline>
+<codeline lineno="483"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>aerodynamicCoefficientInterface_-&gt;getNumberOfControlSurfaces(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>updateAerodynamicCoefficientInput(<sp/>);</highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="487"><highlight class="normal"></highlight></codeline>
+<codeline lineno="488"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>controlSurfaceAerodynamicCoefficientIndependentVariables_;</highlight></codeline>
+<codeline lineno="489"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="490"><highlight class="normal"></highlight></codeline>
+<codeline lineno="492"><highlight class="normal"></highlight></codeline>
+<codeline lineno="497" refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a742c4fbd647f1538094bb38c7fb15a4f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a742c4fbd647f1538094bb38c7fb15a4f" kindref="member">resetCurrentTime</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref><sp/>=<sp/>currentTime;</highlight></codeline>
+<codeline lineno="500"><highlight class="normal"></highlight></codeline>
+<codeline lineno="501"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.clear(<sp/>);</highlight></codeline>
+<codeline lineno="502"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a30e6565083db5d2d8a3d8e7fd093ab97" kindref="member">isLatitudeAndLongitudeSet_</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="503"><highlight class="normal"></highlight></codeline>
+<codeline lineno="504"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" kindref="member">aerodynamicAngleCalculator_</ref>-&gt;resetCurrentTime(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref><sp/>);</highlight></codeline>
+<codeline lineno="505"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>aerodynamicCoefficientIndependentVariables_.clear(<sp/>);</highlight></codeline>
+<codeline lineno="506"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>controlSurfaceAerodynamicCoefficientIndependentVariables_.clear(<sp/>);</highlight></codeline>
+<codeline lineno="507"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="508"><highlight class="normal"></highlight></codeline>
+<codeline lineno="509"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="510"><highlight class="normal"></highlight></codeline>
+<codeline lineno="512"><highlight class="normal"></highlight></codeline>
+<codeline lineno="518"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>getAerodynamicCoefficientIndependentVariable(</highlight></codeline>
+<codeline lineno="519"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>AerodynamicCoefficientsIndependentVariables<sp/>independentVariableType,</highlight></codeline>
+<codeline lineno="520"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>secondaryIdentifier<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="521"><highlight class="normal"></highlight></codeline>
+<codeline lineno="523"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>updateAtmosphereInput(<sp/>)</highlight></codeline>
+<codeline lineno="524"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>latitude_flight_condition<sp/>)<sp/>==<sp/>0<sp/>||</highlight></codeline>
+<codeline lineno="526"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>longitude_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="527"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="528"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>updateLatitudeAndLongitudeForAtmosphere_<sp/>)</highlight></codeline>
+<codeline lineno="529"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="530"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c97faccccf8986d91746864bfa0e35" kindref="member">computeLatitudeAndLongitude</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="534"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>latitude_flight_condition<sp/>]<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>longitude_flight_condition<sp/>]<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="537"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"></highlight></codeline>
+<codeline lineno="539"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.count(<sp/>altitude_flight_condition<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="540"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="541"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a8b3125276b2cad52f6dc1a3637cdde77" kindref="member">computeAltitude</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="542"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="543"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="544"><highlight class="normal"></highlight></codeline>
+<codeline lineno="546"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeDensity(<sp/>)</highlight></codeline>
+<codeline lineno="547"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="548"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>updateAtmosphereInput(<sp/>);</highlight></codeline>
+<codeline lineno="549"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>density_flight_condition<sp/>]<sp/>=</highlight></codeline>
+<codeline lineno="550"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atmosphereModel_-&gt;getDensity(</highlight></codeline>
+<codeline lineno="551"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>altitude_flight_condition<sp/>),</highlight></codeline>
+<codeline lineno="552"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>longitude_flight_condition<sp/>),</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>latitude_flight_condition<sp/>),<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref><sp/>);</highlight></codeline>
+<codeline lineno="554"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"></highlight></codeline>
+<codeline lineno="557"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeTemperature(<sp/>)</highlight></codeline>
+<codeline lineno="558"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>updateAtmosphereInput(<sp/>);</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>temperature_flight_condition<sp/>]<sp/>=</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atmosphereModel_-&gt;getTemperature(</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>altitude_flight_condition<sp/>),</highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>longitude_flight_condition<sp/>),</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>latitude_flight_condition<sp/>),<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref><sp/>);</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="566"><highlight class="normal"></highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeFreestreamPressure(<sp/>)</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>updateAtmosphereInput(<sp/>);</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>pressure_flight_condition<sp/>]<sp/>=</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atmosphereModel_-&gt;getPressure(</highlight></codeline>
+<codeline lineno="573"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>altitude_flight_condition<sp/>),</highlight></codeline>
+<codeline lineno="574"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>longitude_flight_condition<sp/>),</highlight></codeline>
+<codeline lineno="575"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>latitude_flight_condition<sp/>),<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref><sp/>);</highlight></codeline>
+<codeline lineno="576"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="577"><highlight class="normal"></highlight></codeline>
+<codeline lineno="578"><highlight class="normal"></highlight></codeline>
+<codeline lineno="580"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeSpeedOfSound(<sp/>)</highlight></codeline>
+<codeline lineno="581"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="582"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>updateAtmosphereInput(<sp/>);</highlight></codeline>
+<codeline lineno="583"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>speed_of_sound_flight_condition<sp/>]<sp/><sp/>=</highlight></codeline>
+<codeline lineno="584"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atmosphereModel_-&gt;getSpeedOfSound(</highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>altitude_flight_condition<sp/>),</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>longitude_flight_condition<sp/>),</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>.at(<sp/>latitude_flight_condition<sp/>),<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" kindref="member">currentTime_</ref><sp/>);</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"></highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeAirspeed(<sp/>)</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>airspeed_flight_condition<sp/>]<sp/>=<sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a3b48382d6fd7670bd43332bc8d73ff8a" kindref="member">currentBodyCenteredAirspeedBasedBodyFixedState_</ref>.segment(<sp/>3,<sp/>3<sp/>).norm(<sp/>);</highlight></codeline>
+<codeline lineno="594"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="595"><highlight class="normal"></highlight></codeline>
+<codeline lineno="597"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeDynamicPressure(<sp/>)</highlight></codeline>
+<codeline lineno="598"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="599"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentAirspeed<sp/>=<sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a94ad66e44aa0318ca8c0cb781842a3dc" kindref="member">getCurrentAirspeed</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="600"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>dynamic_pressure_condition<sp/>]<sp/>=<sp/>0.5<sp/>*</highlight></codeline>
+<codeline lineno="601"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae6ba948782e267fcd7984b363d5923f0" kindref="member">getCurrentDensity</ref>(<sp/>)<sp/>*<sp/>currentAirspeed<sp/>*<sp/>currentAirspeed;</highlight></codeline>
+<codeline lineno="602"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="603"><highlight class="normal"></highlight></codeline>
+<codeline lineno="605"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeAerodynamicHeatRate(<sp/>)</highlight></codeline>
+<codeline lineno="606"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="607"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentAirspeed<sp/>=<sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a94ad66e44aa0318ca8c0cb781842a3dc" kindref="member">getCurrentAirspeed</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="608"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>aerodynamic_heat_rate<sp/>]<sp/>=<sp/>0.5<sp/>*</highlight></codeline>
+<codeline lineno="609"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae6ba948782e267fcd7984b363d5923f0" kindref="member">getCurrentDensity</ref>(<sp/>)<sp/>*<sp/>currentAirspeed<sp/>*<sp/>currentAirspeed<sp/>*<sp/>currentAirspeed;</highlight></codeline>
+<codeline lineno="610"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="611"><highlight class="normal"></highlight></codeline>
+<codeline lineno="613"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>computeMachNumber(<sp/>)</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" kindref="member">scalarFlightConditions_</ref>[<sp/>mach_number_flight_condition<sp/>]<sp/>=</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a94ad66e44aa0318ca8c0cb781842a3dc" kindref="member">getCurrentAirspeed</ref>(<sp/>)<sp/>/<sp/><ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c7526fcbf68413c6ca60214fd5f8a62" kindref="member">getCurrentSpeedOfSound</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"></highlight></codeline>
+<codeline lineno="620"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>updateAerodynamicCoefficientInput(<sp/>);</highlight></codeline>
+<codeline lineno="621"><highlight class="normal"></highlight></codeline>
+<codeline lineno="622"><highlight class="normal"></highlight></codeline>
+<codeline lineno="624"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>aerodynamics::AtmosphereModel<sp/>&gt;<sp/>atmosphereModel_;</highlight></codeline>
+<codeline lineno="625"><highlight class="normal"></highlight></codeline>
+<codeline lineno="627"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>AerodynamicCoefficientInterface<sp/>&gt;<sp/>aerodynamicCoefficientInterface_;</highlight></codeline>
+<codeline lineno="628"><highlight class="normal"></highlight></codeline>
+<codeline lineno="630"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>)<sp/>&gt;<sp/>controlSurfaceDeflectionFunction_;</highlight></codeline>
+<codeline lineno="631"><highlight class="normal"></highlight></codeline>
+<codeline lineno="632"><highlight class="normal"></highlight></codeline>
+<codeline lineno="634"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>AerodynamicCoefficientsIndependentVariables,<sp/>std::function&lt;<sp/>double(<sp/>)<sp/>&gt;<sp/>&gt;<sp/>customCoefficientDependencies_;</highlight></codeline>
+<codeline lineno="635"><highlight class="normal"></highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>updateLatitudeAndLongitudeForAtmosphere_;</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"></highlight></codeline>
+<codeline lineno="639"><highlight class="normal"></highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>aerodynamicCoefficientIndependentVariables_;</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"></highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::string,<sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/>controlSurfaceAerodynamicCoefficientIndependentVariables_;</highlight></codeline>
+<codeline lineno="646"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"></highlight></codeline>
+<codeline lineno="648"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>aerodynamics</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="649"><highlight class="normal"></highlight></codeline>
+<codeline lineno="650"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="651"><highlight class="normal"></highlight></codeline>
+<codeline lineno="652"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_FLIGHTCONDITIONS_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h"/>
+  </compounddef>
+</doxygen>

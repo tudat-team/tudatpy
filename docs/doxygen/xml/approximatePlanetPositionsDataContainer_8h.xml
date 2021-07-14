@@ -1,0 +1,430 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="approximatePlanetPositionsDataContainer_8h" kind="file" language="C++">
+    <compoundname>approximatePlanetPositionsDataContainer.h</compoundname>
+    <includes local="no">iostream</includes>
+    <includes local="no">string</includes>
+    <includes local="no">memory</includes>
+    <includedby refid="approximatePlanetPositionsBase_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsBase.h</includedby>
+    <includedby refid="ephemerides_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsDataContainer.h</label>
+        <link refid="approximatePlanetPositionsDataContainer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>iostream</label>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h</label>
+        <link refid="createEphemeris_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsCircularCoplanar.h</label>
+        <link refid="approximatePlanetPositionsCircularCoplanar_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsBase.h</label>
+        <link refid="approximatePlanetPositionsBase_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/defaultBodies.h</label>
+        <link refid="defaultBodies_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design.h</label>
+        <link refid="trajectory__design_8h_source"/>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h</label>
+        <link refid="interface_2json_2environment_2ephemeris_8h_source"/>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h</label>
+        <link refid="approximatePlanetPositions_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h</label>
+        <link refid="createBodies_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/state.h</label>
+        <link refid="state_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup.h</label>
+        <link refid="environment__setup_8h_source"/>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="32">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/planetTrajectory.h</label>
+        <link refid="planetTrajectory_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsDataContainer.h</label>
+        <link refid="approximatePlanetPositionsDataContainer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="30">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides.h</label>
+        <link refid="ephemerides_8h_source"/>
+      </node>
+      <node id="28">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/body.h</label>
+        <link refid="interface_2json_2environment_2body_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer" prot="public">tudat::ephemerides::ApproximatePlanetPositionsDataContainer</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1ephemerides">tudat::ephemerides</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>References</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Standish,<sp/>E.M.<sp/>Keplerian<sp/>Elements<sp/>for<sp/>Approximate<sp/>Positions<sp/>of<sp/>the<sp/>Major<sp/>Planets,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf,<sp/>last<sp/>accessed:<sp/>24<sp/>February,<sp/>2011.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_APPROXIMATE_PLANET_POSITIONS_DATA_CONTAINER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_APPROXIMATE_PLANET_POSITIONS_DATA_CONTAINER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="25"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">ephemerides</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer" kindref="compound">ApproximatePlanetPositionsDataContainer</ref></highlight></codeline>
+<codeline lineno="34"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a687ec166207da1954e50eccbc7bf4583" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a687ec166207da1954e50eccbc7bf4583" kindref="member">ApproximatePlanetPositionsDataContainer</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac08c9711d1912974f96721ec8a66f576" kindref="member">semiMajorAxis_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1af47f7d417c91a106312eae9e86e7c044" kindref="member">eccentricity_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1aab4e267bda985e1e9ce56aabffc94246" kindref="member">inclination_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a825a60052373aa68c2ffd30cb3c07c50" kindref="member">meanLongitude_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adbbfbfbce7f44d3291c6ea71255f4757" kindref="member">longitudeOfPerihelion_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1acdc92f2358fb6d9ebbedbd6f694c3bc1" kindref="member">longitudeOfAscendingNode_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a1c8272dc9e033bf670258943b159bfed" kindref="member">rateOfChangeOfSemiMajorAxis_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ad791c01b09d1abc2195ebc421bcb5430" kindref="member">rateOfChangeOfEccentricity_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1addace5b4d9c07f45bf7b468734a3d624" kindref="member">rateOfChangeOfInclination_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac7ea2134ba05e1025d387e637a2fc72b" kindref="member">rateOfChangeOfMeanLongitude_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a9cc926b0ec785d207bf3dc9b9ac011bd" kindref="member">rateOfChangeOfLongitudeOfPerihelion_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a6ff272075cdadb6cbe5268ace4cfb79b" kindref="member">rateOfChangeOfLongitudeOfAscendingNode_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a447ede4724a8672f110ea685fd8a7ea5" kindref="member">additionalTermB_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a5b45c04ec7348046da355253127bf936" kindref="member">additionalTermC_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adf8e8ebd02b232dbc34b00a576aec60d" kindref="member">additionalTermS_</ref>(<sp/>-0.0<sp/>),</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a66a6e79e153d59f4d2ef1e6e6e7bbd36" kindref="member">additionalTermF_</ref>(<sp/>-0.0<sp/>)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a17869ed932a229807f45d799c2d83913" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/>std::ostream&amp;<sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a17869ed932a229807f45d799c2d83913" kindref="member">operator &lt;&lt; </ref>(<sp/>std::ostream&amp;<sp/>stream,</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer" kindref="compound">ApproximatePlanetPositionsDataContainer</ref>&amp;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>approximatePlanetPositionsDataContainer<sp/>)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;This<sp/>is<sp/>an<sp/>ApproximatePlanetPositionsDataContainer<sp/>object.<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>data<sp/>corresponds<sp/>to<sp/>the<sp/>table<sp/>entry<sp/>for<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a6bd2333695968c346ca1844b54eb5729" kindref="member">planetName_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>semi-major<sp/>axis<sp/>in<sp/>AU<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac08c9711d1912974f96721ec8a66f576" kindref="member">semiMajorAxis_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>eccentricity<sp/>in<sp/>radians<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1af47f7d417c91a106312eae9e86e7c044" kindref="member">eccentricity_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>inclination<sp/>in<sp/>degrees<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1aab4e267bda985e1e9ce56aabffc94246" kindref="member">inclination_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>mean<sp/>longitude<sp/>in<sp/>degrees<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a825a60052373aa68c2ffd30cb3c07c50" kindref="member">meanLongitude_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>longitude<sp/>of<sp/>perihelion<sp/>in<sp/>degrees<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adbbfbfbce7f44d3291c6ea71255f4757" kindref="member">longitudeOfPerihelion_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>longitude<sp/>of<sp/>the<sp/>ascending<sp/>node<sp/>in<sp/>degrees<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1acdc92f2358fb6d9ebbedbd6f694c3bc1" kindref="member">longitudeOfAscendingNode_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>rate<sp/>of<sp/>change<sp/>of<sp/>semi-major<sp/>axis<sp/>AU<sp/>per<sp/>century<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a1c8272dc9e033bf670258943b159bfed" kindref="member">rateOfChangeOfSemiMajorAxis_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>rate<sp/>of<sp/>change<sp/>of<sp/>eccentricity<sp/>in<sp/>radians<sp/>per<sp/>century<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ad791c01b09d1abc2195ebc421bcb5430" kindref="member">rateOfChangeOfEccentricity_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>rate<sp/>of<sp/>change<sp/>of<sp/>inclination<sp/>in<sp/>degrees<sp/>per<sp/>century<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1addace5b4d9c07f45bf7b468734a3d624" kindref="member">rateOfChangeOfInclination_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>rate<sp/>of<sp/>change<sp/>of<sp/>mean<sp/>longitude<sp/>in<sp/>degrees<sp/>per<sp/>century<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac7ea2134ba05e1025d387e637a2fc72b" kindref="member">rateOfChangeOfMeanLongitude_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>rate<sp/>of<sp/>change<sp/>of<sp/>longitude<sp/>of<sp/>perihelion<sp/>in<sp/>degrees<sp/>per<sp/>century<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a9cc926b0ec785d207bf3dc9b9ac011bd" kindref="member">rateOfChangeOfLongitudeOfPerihelion_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>rate<sp/>of<sp/>change<sp/>of<sp/>longitude<sp/>of<sp/>ascending<sp/>node<sp/>in<sp/>degrees<sp/>per<sp/>century<sp/>is<sp/>set<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;to:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a6ff272075cdadb6cbe5268ace4cfb79b" kindref="member">rateOfChangeOfLongitudeOfAscendingNode_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>if<sp/>additional<sp/>terms<sp/>are<sp/>defined<sp/>for<sp/>outer<sp/>planets.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a447ede4724a8672f110ea685fd8a7ea5" kindref="member">additionalTermB_</ref><sp/>!=<sp/>-0.0<sp/>)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>additional<sp/>term<sp/>B<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a447ede4724a8672f110ea685fd8a7ea5" kindref="member">additionalTermB_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>additional<sp/>term<sp/>C<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a5b45c04ec7348046da355253127bf936" kindref="member">additionalTermC_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>additional<sp/>term<sp/>S<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adf8e8ebd02b232dbc34b00a576aec60d" kindref="member">additionalTermS_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>additional<sp/>term<sp/>F<sp/>is<sp/>set<sp/>to:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>approximatePlanetPositionsDataContainer<sp/>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a66a6e79e153d59f4d2ef1e6e6e7bbd36" kindref="member">additionalTermF_</ref><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Return<sp/>stream.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>stream;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a6bd2333695968c346ca1844b54eb5729" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a6bd2333695968c346ca1844b54eb5729" kindref="member">planetName_</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac08c9711d1912974f96721ec8a66f576" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac08c9711d1912974f96721ec8a66f576" kindref="member">semiMajorAxis_</ref>;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1af47f7d417c91a106312eae9e86e7c044" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1af47f7d417c91a106312eae9e86e7c044" kindref="member">eccentricity_</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1aab4e267bda985e1e9ce56aabffc94246" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1aab4e267bda985e1e9ce56aabffc94246" kindref="member">inclination_</ref>;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a825a60052373aa68c2ffd30cb3c07c50" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a825a60052373aa68c2ffd30cb3c07c50" kindref="member">meanLongitude_</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adbbfbfbce7f44d3291c6ea71255f4757" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adbbfbfbce7f44d3291c6ea71255f4757" kindref="member">longitudeOfPerihelion_</ref>;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1acdc92f2358fb6d9ebbedbd6f694c3bc1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1acdc92f2358fb6d9ebbedbd6f694c3bc1" kindref="member">longitudeOfAscendingNode_</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a1c8272dc9e033bf670258943b159bfed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a1c8272dc9e033bf670258943b159bfed" kindref="member">rateOfChangeOfSemiMajorAxis_</ref>;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ad791c01b09d1abc2195ebc421bcb5430" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ad791c01b09d1abc2195ebc421bcb5430" kindref="member">rateOfChangeOfEccentricity_</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1addace5b4d9c07f45bf7b468734a3d624" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1addace5b4d9c07f45bf7b468734a3d624" kindref="member">rateOfChangeOfInclination_</ref>;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac7ea2134ba05e1025d387e637a2fc72b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac7ea2134ba05e1025d387e637a2fc72b" kindref="member">rateOfChangeOfMeanLongitude_</ref>;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a9cc926b0ec785d207bf3dc9b9ac011bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a9cc926b0ec785d207bf3dc9b9ac011bd" kindref="member">rateOfChangeOfLongitudeOfPerihelion_</ref>;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a6ff272075cdadb6cbe5268ace4cfb79b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a6ff272075cdadb6cbe5268ace4cfb79b" kindref="member">rateOfChangeOfLongitudeOfAscendingNode_</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a447ede4724a8672f110ea685fd8a7ea5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a447ede4724a8672f110ea685fd8a7ea5" kindref="member">additionalTermB_</ref>;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a5b45c04ec7348046da355253127bf936" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a5b45c04ec7348046da355253127bf936" kindref="member">additionalTermC_</ref>;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adf8e8ebd02b232dbc34b00a576aec60d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adf8e8ebd02b232dbc34b00a576aec60d" kindref="member">additionalTermS_</ref>;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225" refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a66a6e79e153d59f4d2ef1e6e6e7bbd36" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a66a6e79e153d59f4d2ef1e6e6e7bbd36" kindref="member">additionalTermF_</ref>;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="230"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ApproximatePlanetPositionsDataContainer<sp/>&gt;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">ApproximatePlanetPositionsDataContainerPointer;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>ephemerides</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_APPROXIMATE_PLANET_POSITIONS_DATA_CONTAINER_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsDataContainer.h"/>
+  </compounddef>
+</doxygen>

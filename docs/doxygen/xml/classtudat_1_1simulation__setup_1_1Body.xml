@@ -1,0 +1,2470 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1Body" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::Body</compoundname>
+    <includes refid="simulation_2environment__setup_2body_8h" local="no">body.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a82711e18c5a133fafaa1d1e87d564dc5" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::Body::bodyIsGlobalFrameOrigin_</definition>
+        <argsstring></argsstring>
+        <name>bodyIsGlobalFrameOrigin_</name>
+        <briefdescription>
+<para>Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1178" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a42671533290d255a4e2b67e78ff2497b" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::simulation_setup::Body::currentState_</definition>
+        <argsstring></argsstring>
+        <name>currentState_</name>
+        <briefdescription>
+<para>Current state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1181" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1181" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a5d6af8ee59f1114f0cb72218d1f79f87" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;long double, 6, 1&gt; tudat::simulation_setup::Body::currentLongState_</definition>
+        <argsstring></argsstring>
+        <name>currentLongState_</name>
+        <briefdescription>
+<para>Current state with long double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1184" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a0ec1a8150811a10e7ca27b0885511df4" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::simulation_setup::Body::currentBarycentricState_</definition>
+        <argsstring></argsstring>
+        <name>currentBarycentricState_</name>
+        <briefdescription>
+<para>Current state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1187" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1187" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a0d4319b1ef155e51430e3f31e5a8376d" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;long double, 6, 1&gt; tudat::simulation_setup::Body::currentBarycentricLongState_</definition>
+        <argsstring></argsstring>
+        <name>currentBarycentricLongState_</name>
+        <briefdescription>
+<para>Current state with long double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1190" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1af55597f48cd188ce7a47d4228dedd7a1" prot="private" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1Time" kindref="compound">Time</ref></type>
+        <definition>Time tudat::simulation_setup::Body::timeOfCurrentState_</definition>
+        <argsstring></argsstring>
+        <name>timeOfCurrentState_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state was last set from ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1193" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a14ff6fa613fb4febdcf4cffdeedf64b9" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1BaseStateInterface" kindref="compound">BaseStateInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;BaseStateInterface&gt; tudat::simulation_setup::Body::ephemerisFrameToBaseFrame_</definition>
+        <argsstring></argsstring>
+        <name>ephemerisFrameToBaseFrame_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Class returning the state of this body&apos;s ephemeris origin w.r.t. the global origin (as typically created by setGlobalFrameBodyEphemerides function). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1197" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1197" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a664a6a38f29bbc976c394a9afc291d52" prot="private" static="no" mutable="no">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::simulation_setup::Body::currentRotationToLocalFrame_</definition>
+        <argsstring></argsstring>
+        <name>currentRotationToLocalFrame_</name>
+        <briefdescription>
+<para>Current rotation from the global to the body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1200" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1200" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a7ad57fa75070473b40cdf54dde1acbb9" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::simulation_setup::Body::currentRotationToLocalFrameDerivative_</definition>
+        <argsstring></argsstring>
+        <name>currentRotationToLocalFrameDerivative_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Current first derivative w.r.t. time of the rotation matrix from the global to the body-fixed frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1204" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1abc8f784401832fc59230776a6f01c1d3" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::Body::currentAngularVelocityVectorInGlobalFrame_</definition>
+        <argsstring></argsstring>
+        <name>currentAngularVelocityVectorInGlobalFrame_</name>
+        <briefdescription>
+<para>Current angular velocity vector for body&apos;s rotation, expressed in the global frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1207" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a83972090d54efd308fb5e340b52787c0" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::Body::currentAngularVelocityVectorInLocalFrame_</definition>
+        <argsstring></argsstring>
+        <name>currentAngularVelocityVectorInLocalFrame_</name>
+        <briefdescription>
+<para>Current angular velocity vector for body&apos;s rotation, expressed in the body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1210" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1aefd57d30df8968948593f9538344e714" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::Body::currentMass_</definition>
+        <argsstring></argsstring>
+        <name>currentMass_</name>
+        <briefdescription>
+<para>Mass of body (default set to zero, calculated from GravityFieldModel when it is set). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1213" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1213" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1acde6ac8f9c236ee3f9e850dd7122c7ed" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double)&gt;</type>
+        <definition>std::function&lt;double(const double)&gt; tudat::simulation_setup::Body::bodyMassFunction_</definition>
+        <argsstring></argsstring>
+        <name>bodyMassFunction_</name>
+        <briefdescription>
+<para>Function returning body mass as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1216" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1ad79920645c54a70e978d7c13cda96b9c" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::simulation_setup::Body::bodyInertiaTensor_</definition>
+        <argsstring></argsstring>
+        <name>bodyInertiaTensor_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> moment-of-inertia tensor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1219" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1219" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1ab5ae5f76767d99d54e2496535174e2fc" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::Body::scaledMeanMomentOfInertia_</definition>
+        <argsstring></argsstring>
+        <name>scaledMeanMomentOfInertia_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> scaled mean moment of inertia. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1222" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1222" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a7f518bff4fc97f8d11d3a5ed9fd70365" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">ephemerides::Ephemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ephemerides::Ephemeris&gt; tudat::simulation_setup::Body::bodyEphemeris_</definition>
+        <argsstring></argsstring>
+        <name>bodyEphemeris_</name>
+        <briefdescription>
+<para>Ephemeris of body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1225" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1225" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1abd767850a24434ad2b451d89f272a66f" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldModel" kindref="compound">gravitation::GravityFieldModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;gravitation::GravityFieldModel&gt; tudat::simulation_setup::Body::gravityFieldModel_</definition>
+        <argsstring></argsstring>
+        <name>gravityFieldModel_</name>
+        <briefdescription>
+<para>Gravity field model of body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1228" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1228" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1ad10333addff5ca60ed0754b4b250e9d2" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariationsSet" kindref="compound">gravitation::GravityFieldVariationsSet</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;gravitation::GravityFieldVariationsSet&gt; tudat::simulation_setup::Body::gravityFieldVariationSet_</definition>
+        <argsstring></argsstring>
+        <name>gravityFieldVariationSet_</name>
+        <briefdescription>
+<para>Object containing all variations in the gravity field of this body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1231" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1231" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a788a8323a7e3a78ab4b7ec87a377188d" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AtmosphereModel" kindref="compound">aerodynamics::AtmosphereModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;aerodynamics::AtmosphereModel&gt; tudat::simulation_setup::Body::atmosphereModel_</definition>
+        <argsstring></argsstring>
+        <name>atmosphereModel_</name>
+        <briefdescription>
+<para>Atmosphere model of body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1234" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1234" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a6af33c9c4edc6fb6885e615eee0b7017" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel" kindref="compound">basic_astrodynamics::BodyShapeModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;basic_astrodynamics::BodyShapeModel&gt; tudat::simulation_setup::Body::shapeModel_</definition>
+        <argsstring></argsstring>
+        <name>shapeModel_</name>
+        <briefdescription>
+<para>Shape model of body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1237" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1237" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1aeb58b0fc7d5ff1ae72b5525c46bb4f45" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">aerodynamics::AerodynamicCoefficientInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;aerodynamics::AerodynamicCoefficientInterface&gt; tudat::simulation_setup::Body::aerodynamicCoefficientInterface_</definition>
+        <argsstring></argsstring>
+        <name>aerodynamicCoefficientInterface_</name>
+        <briefdescription>
+<para>Aerodynamic coefficient model of body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1240" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1240" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a5ed7d26313cf92e82c869c3cc8e63c9f" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1FlightConditions" kindref="compound">aerodynamics::FlightConditions</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;aerodynamics::FlightConditions&gt; tudat::simulation_setup::Body::aerodynamicFlightConditions_</definition>
+        <argsstring></argsstring>
+        <name>aerodynamicFlightConditions_</name>
+        <briefdescription>
+<para>Object used for calculating current aerodynamic angles, altitude, etc. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1243" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1243" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a9b007be0ca77b717a173c4e5c3afe428" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">ephemerides::RotationalEphemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ephemerides::RotationalEphemeris&gt; tudat::simulation_setup::Body::rotationalEphemeris_</definition>
+        <argsstring></argsstring>
+        <name>rotationalEphemeris_</name>
+        <briefdescription>
+<para>Rotation model of body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1246" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1246" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a263da8949bf9560588fe4db6d5ae62a9" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator" kindref="compound">reference_frames::DependentOrientationCalculator</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;reference_frames::DependentOrientationCalculator&gt; tudat::simulation_setup::Body::dependentOrientationCalculator_</definition>
+        <argsstring></argsstring>
+        <name>dependentOrientationCalculator_</name>
+        <briefdescription>
+<para>Model to compute the rotation of the body based on the current state of the environment, only valid during propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1249" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1249" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1ab45fa27eae19569d815b125e6dc9dcb2" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" kindref="compound">electromagnetism::RadiationPressureInterface</ref> &gt; &gt;</type>
+        <definition>std::map&lt;std::string, std::shared_ptr&lt;electromagnetism::RadiationPressureInterface&gt; &gt; tudat::simulation_setup::Body::radiationPressureInterfaces_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureInterfaces_</name>
+        <briefdescription>
+<para>List of radiation pressure models for the body, with the sources bodies as key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1253" column="7" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1253" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1ad3308bdf3c60b76a487f3f3740b38655" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" kindref="compound">electromagnetism::RadiationPressureInterface</ref> &gt; &gt;::iterator</type>
+        <definition>std::map&lt;std::string, std::shared_ptr&lt;electromagnetism::RadiationPressureInterface&gt; &gt;::iterator tudat::simulation_setup::Body::radiationPressureIterator_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureIterator_</name>
+        <briefdescription>
+<para>Predefined iterator for efficiency purposes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1258" column="7" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1258" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1ad246dd206d9aad2e943b10b03826104a" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1GroundStation" kindref="compound">ground_stations::GroundStation</ref> &gt; &gt;</type>
+        <definition>std::map&lt;std::string, std::shared_ptr&lt;ground_stations::GroundStation&gt; &gt; tudat::simulation_setup::Body::groundStationMap</definition>
+        <argsstring></argsstring>
+        <name>groundStationMap</name>
+        <briefdescription>
+<para>List of ground station objects on <ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1261" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1261" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a26a5c36708eca4684313861fd1035af1" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1VehicleSystems" kindref="compound">system_models::VehicleSystems</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;system_models::VehicleSystems&gt; tudat::simulation_setup::Body::vehicleSystems_</definition>
+        <argsstring></argsstring>
+        <name>vehicleSystems_</name>
+        <briefdescription>
+<para>Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1264" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1264" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a9f4ea1f2de808e4832376983ea514e53" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::Body::isBodyInPropagation_</definition>
+        <argsstring></argsstring>
+        <name>isBodyInPropagation_</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+<para>Boolean defining whether the body is currently being propagated, or not. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1267" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1267" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a0929154c5a11731af677ee5da36b8c9d" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::Body::suppressDependentOrientationCalculatorWarning_</definition>
+        <argsstring></argsstring>
+        <name>suppressDependentOrientationCalculatorWarning_</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1269" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1269" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1aff3ff91a8b9cd25fdf228917ae1b1fbd" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::Body::bodyName_</definition>
+        <argsstring></argsstring>
+        <name>bodyName_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1271" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1271" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1Body_1a964e68ca0d5d47959abcb4c658cba859" prot="private" static="no" mutable="no">
+        <type>std::function&lt; void() &gt;</type>
+        <definition>std::function&lt; void( ) &gt; tudat::simulation_setup::Body::resetBaseFrames_</definition>
+        <argsstring></argsstring>
+        <name>resetBaseFrames_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1273" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1273" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a802232493506b5fc4956779e74468f06" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::Body::Body</definition>
+        <argsstring>(const Eigen::Vector6d &amp;state=Eigen::Vector6d::Zero())</argsstring>
+        <name>Body</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>state</declname>
+          <defval>Eigen::Vector6d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for a body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for a body, sets current state (with zero default value). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current state of body at initialization (default = zeroes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="205" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="205" bodyend="220"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1abcf57fbca79df53f0bca97b4ab6ce199" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1BaseStateInterface" kindref="compound">BaseStateInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;BaseStateInterface&gt; tudat::simulation_setup::Body::getEphemerisFrameToBaseFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getEphemerisFrameToBaseFrame</name>
+        <briefdescription>
+<para>Function to retrieve the class returning the state of this body&apos;s ephemeris origin w.r.t. the global origin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the class returning the state of this body&apos;s ephemeris origin w.r.t. the global origin <simplesect kind="return"><para>Class returning the state of this body&apos;s ephemeris origin w.r.t. the global origin </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="227" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="227" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1acdc775081e911ed11a5a881fcf2cf820" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setEphemerisFrameToBaseFrame</definition>
+        <argsstring>(const std::shared_ptr&lt; BaseStateInterface &gt; ephemerisFrameToBaseFrame)</argsstring>
+        <name>setEphemerisFrameToBaseFrame</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1BaseStateInterface" kindref="compound">BaseStateInterface</ref> &gt;</type>
+          <declname>ephemerisFrameToBaseFrame</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the class returning the state of this body&apos;s ephemeris origin w.r.t. the global origin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the class returning the state of this body&apos;s ephemeris origin w.r.t. the global origin <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemerisFrameToBaseFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Class returning the state of this body&apos;s ephemeris origin w.r.t. the global origin </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="236" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="236" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ae4541711e56e09272916448030882fc9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::simulation_setup::Body::getState</definition>
+        <argsstring>()</argsstring>
+        <name>getState</name>
+        <briefdescription>
+<para>Get current state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the internally stored current state vector. <simplesect kind="return"><para>Current state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="245" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="245" bodyend="245"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a157e498e30d7c90dd7a4b73c719fd5d5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setState</definition>
+        <argsstring>(const Eigen::Vector6d &amp;state)</argsstring>
+        <name>setState</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Set current state of body manually. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Set current state of body manually, which must be in the global frame. Note that this function does not set the currentLongState_, use the setLongState when needing the use of the long precision current state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current state of the body that is set. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="254" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="254" bodyend="256"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ae5f634a6c751ad8922dc6e6662f6a502" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setLongState</definition>
+        <argsstring>(const Eigen::Matrix&lt; long double, 6, 1 &gt; &amp;longState)</argsstring>
+        <name>setLongState</name>
+        <param>
+          <type>const Eigen::Matrix&lt; long double, 6, 1 &gt; &amp;</type>
+          <declname>longState</declname>
+        </param>
+        <briefdescription>
+<para>Set current state of body manually in long double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Set current state of body manually in long double precision. State must be in the global frame. Note that this function sets both the currentState_ and currentLongState_ variables (currentLongState_ directly and currentState_ by casting the input to double entries). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current state of the body that is set, in long double precision. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="265" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="265" bodyend="268"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ab56fa0e8697fbb2dab1943d36fb7d493" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setTemplatedState</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;state)</argsstring>
+        <name>setTemplatedState</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Templated function to set the state manually. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Templated function to set the state manually, calls either setState or setLongState function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current state of the body that is set, with StateScalarType precision. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="276" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a2f2cfc32c8e5b257b352809d623b2985" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setStateFromEphemeris</definition>
+        <argsstring>(const TimeType &amp;time)</argsstring>
+        <name>setStateFromEphemeris</name>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Templated function to set the current state of the body from its ephemeris and global-to-ephemeris-frame function.</para>
+<para>Templated function to set the current state of the body from its ephemeris and global-to-ephemeris-frame function. It sets both the currentState_ and currentLongState_ variables. F FUndamental coputation is done on state with StateScalarType precision as a function of TimeType time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the global state is to be set. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="287" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="287" bodyend="321"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aa50331011b36e708280c9b8675eb57db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;StateScalarType, 6, 1&gt; tudat::simulation_setup::Body::getStateInBaseFrameFromEphemeris</definition>
+        <argsstring>(const TimeType time)</argsstring>
+        <name>getStateInBaseFrameFromEphemeris</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Templated function to get the current state of the body from its ephemeris and global-to-ephemeris-frame function.</para>
+<para>Templated function to get the current state of the body from its ephemeris and global-to-ephemeris-frame function. It calls the setStateFromEphemeris state, resetting the currentState_ / currentLongState_ variables, and returning the state with the requested precision <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which to evaluate states. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State at requested time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="335" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="335" bodyend="342"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1abeec11ad7cfd50ef61f12c0a5b5eed4a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;StateScalarType, 6, 1&gt; tudat::simulation_setup::Body::getGlobalFrameOriginBarycentricStateFromEphemeris</definition>
+        <argsstring>(const TimeType time)</argsstring>
+        <name>getGlobalFrameOriginBarycentricStateFromEphemeris</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Templated function to get the current berycentric state of the body from its ephemeris andcglobal-to-ephemeris-frame function.</para>
+<para>Templated function to get the current berycentric state of the body from its ephemeris andcglobal-to-ephemeris-frame function. It calls the setStateFromEphemeris state, resetting the currentBarycentricState_ / currentBarycentricLongState_ variables, and returning the state with the requested precision. This function can ONLY be called if this body is the global frame origin, otherwise an exception is thrown <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which to evaluate states. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Barycentric State at requested time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="355" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="355" bodyend="367"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a62cc3dd5922b48d53f9c25f533c87b19" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector7d</type>
+        <definition>Eigen::Vector7d tudat::simulation_setup::Body::getRotationalStateVector</definition>
+        <argsstring>()</argsstring>
+        <name>getRotationalStateVector</name>
+        <briefdescription>
+<para>Get current rotational state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the internally stored current rotational state vector. <simplesect kind="return"><para>Current rotational state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="374" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="374" bodyend="381"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a595498359521268dbeedc902953a0633" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::Body::getPosition</definition>
+        <argsstring>()</argsstring>
+        <name>getPosition</name>
+        <briefdescription>
+<para>Get current position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the internally stored current position vector. <simplesect kind="return"><para>Current position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="388" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="388" bodyend="388"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ad043093286bc331c63cefbeba4fa17d8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::Body::getVelocity</definition>
+        <argsstring>()</argsstring>
+        <name>getVelocity</name>
+        <briefdescription>
+<para>Get current velocity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the internally stored current velocity vector. <simplesect kind="return"><para>Current velocity. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="395" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="395" bodyend="395"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a29e6c50543005a855744b7ba7e47a3a2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;long double, 6, 1&gt; tudat::simulation_setup::Body::getLongState</definition>
+        <argsstring>()</argsstring>
+        <name>getLongState</name>
+        <briefdescription>
+<para>Get current state, in long double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the internally stored current state vector, in long double precision <simplesect kind="return"><para>Current state, in long double precisio </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="402" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="402" bodyend="402"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a4afb398a0a04489f12b903e592878724" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; long double, 3, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;long double, 3, 1&gt; tudat::simulation_setup::Body::getLongPosition</definition>
+        <argsstring>()</argsstring>
+        <name>getLongPosition</name>
+        <briefdescription>
+<para>Get current position, in long double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the internally stored current position vector, in long double precision <simplesect kind="return"><para>Current position, in long double precision </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="409" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="409" bodyend="409"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a20f5b807d707c9fa410bc91314a25dab" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; long double, 3, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;long double, 3, 1&gt; tudat::simulation_setup::Body::getLongVelocity</definition>
+        <argsstring>()</argsstring>
+        <name>getLongVelocity</name>
+        <briefdescription>
+<para>Get current velocity, in long double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the internally stored current velocity vector. <simplesect kind="return"><para>Current velocity, in long double precision </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="416" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="416" bodyend="416"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ab6e60b9b4c35edb6921506d72fa362b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarStateType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; ScalarStateType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;ScalarStateType, 6, 1&gt; tudat::simulation_setup::Body::getTemplatedState</definition>
+        <argsstring>()</argsstring>
+        <name>getTemplatedState</name>
+        <briefdescription>
+<para>Templated function to retrieve the state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Templated function to retrieve the state, calls either getState or getLongState function. <simplesect kind="return"><para>Current state of the body, with StateScalarType precision. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="424" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a06605a2e4d471743ab9ff19feb6f3431" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setCurrentRotationToLocalFrameFromEphemeris</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>setCurrentRotationToLocalFrameFromEphemeris</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the rotation from global to body-fixed frame at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the rotation from global to body-fixed frame at given time, using the rotationalEphemeris_ member object <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the rotation is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="432" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="432" bodyend="441"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a352f45d815d365b742e55e94e0ec8f4c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setCurrentRotationToLocalFrameDerivativeFromEphemeris</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>setCurrentRotationToLocalFrameDerivativeFromEphemeris</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the rotation matrix derivative from global to body-fixed frame at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the rotation matrix derivative from global to body-fixed frame at given time, using the rotationalEphemeris_ member object <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the rotation matrix derivative is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="449" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="449" bodyend="458"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a61a6e3eccaed8d438c22003516d8009f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setCurrentAngularVelocityVectorInGlobalFrame</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>setCurrentAngularVelocityVectorInGlobalFrame</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the angular velocity vector in the global frame at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the angular velocity vector in the global frame at given time, using the rotationalEphemeris_ member object <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the angular velocity vector in the global frame is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="466" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="466" bodyend="478"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aa12b1ec8e9e1a04ab1111e21e2bf772c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setCurrentRotationalStateToLocalFrameFromEphemeris</definition>
+        <argsstring>(const TimeType time)</argsstring>
+        <name>setCurrentRotationalStateToLocalFrameFromEphemeris</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the full rotational state at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the full rotational state at (rotation from global to body-fixed frame rotation matrix derivative from global to body-fixed frame and angular velocity vector in the global frame) at given time, using the rotationalEphemeris_ member object. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the angular velocity vector in the global frame is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="488" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="488" bodyend="503"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a3f2ca5729d99a47634742aa3be08e66c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setCurrentRotationalStateToLocalFrame</definition>
+        <argsstring>(const Eigen::Vector7d currentRotationalStateFromLocalToGlobalFrame)</argsstring>
+        <name>setCurrentRotationalStateToLocalFrame</name>
+        <param>
+          <type>const Eigen::Vector7d</type>
+          <declname>currentRotationalStateFromLocalToGlobalFrame</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the full rotational state directly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the full rotational state directly (rotation from global to body-fixed frame rotation matrix derivative from global to body-fixed frame and angular velocity vector in the global frame) directly, by providing the current rotational state as input. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentRotationalStateFromLocalToGlobalFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quaternion from body-fixed to propagation frame (in vector form) and the body&apos;s angular velocity vector in body-fixed frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="513" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="513" bodyend="530"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a4c6c29c88751b36dbb09348115c436e2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::simulation_setup::Body::getCurrentRotationToGlobalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRotationToGlobalFrame</name>
+        <briefdescription>
+<para>Get current rotation from body-fixed to inertial frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get current rotation from body-fixed to inertial frame, as set from the rotationalEphemeris_ by the setCurrentRotationalStateToLocalFrameFromEphemeris or setCurrentRotationToLocalFrameFromEphemeris function. If body has no rotational ephemeris, an identity quaternion (no rotation) is returned. <simplesect kind="return"><para>Current rotation from body-fixed to inertial frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="540" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="540" bodyend="542"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a7eaf728cdc11cf98ac7e7b75e38b62ca" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::simulation_setup::Body::getCurrentRotationToLocalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRotationToLocalFrame</name>
+        <briefdescription>
+<para>Get current rotation from inertial to body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get current rotation from inertial to body-fixed frame, as set from the rotationalEphemeris_ by the setCurrentRotationalStateToLocalFrameFromEphemeris or setCurrentRotationToLocalFrameFromEphemeris function. If body has no rotational ephemeris, an identity quaternion (no rotation) is returned. <simplesect kind="return"><para>Current rotation from inertial to body-fixed frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="552" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="552" bodyend="554"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a8aaef8db0f5fe1525149eea9508d060a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::simulation_setup::Body::getCurrentRotationMatrixToGlobalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRotationMatrixToGlobalFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="557" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="557" bodyend="559"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a0025d4c9abd9b208fdf050f6d3823297" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::simulation_setup::Body::getCurrentRotationMatrixToLocalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRotationMatrixToLocalFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="561" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="561" bodyend="563"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a4f22674d684b95c651f11fb89916ecfe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector7d</type>
+        <definition>Eigen::Vector7d tudat::simulation_setup::Body::getCurrentRotationalState</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRotationalState</name>
+        <briefdescription>
+<para>Get current rotational state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get current rotational state, expressed as a quaternion from global to body-fixed frame (in vector form) and the body&apos;s angular velocity vector in inertial frame. <simplesect kind="return"><para>Current rotational state in quaternions and rotational velocity. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="571" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="571" bodyend="575"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a0946c1b5fa661abd9935041ca7bc37ac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::simulation_setup::Body::getCurrentRotationMatrixDerivativeToGlobalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRotationMatrixDerivativeToGlobalFrame</name>
+        <briefdescription>
+<para>Get current rotation matrix derivative from body-fixed to global frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get current rotation matrix derivative from body-fixed frame to global, as set from the rotationalEphemeris_ by the setCurrentRotationalStateToLocalFrameFromEphemeris or setCurrentRotationToLocalFrameDerivativeFromEphemeris function. If body has no rotational ephemeris, an zero matrix (no rotation) is returned. <simplesect kind="return"><para>Current otation matrix derivative from global to body-fixed frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="585" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="585" bodyend="587"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a0cd33824b4bbd33c4ca120098a5bebd4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::simulation_setup::Body::getCurrentRotationMatrixDerivativeToLocalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRotationMatrixDerivativeToLocalFrame</name>
+        <briefdescription>
+<para>Get current rotation matrix derivative from global to body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get current rotation matrix derivative from global to body-fixed frame, as set from the rotationalEphemeris_ by the setCurrentRotationalStateToLocalFrameFromEphemeris or setCurrentRotationToLocalFrameDerivativeFromEphemeris function. If body has no rotational ephemeris, an zero matrix (no rotation) is returned. <simplesect kind="return"><para>Current otation matrix derivative from global to body-fixed frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="597" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="597" bodyend="599"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a4842639c5c21effaaaf34805a3969a89" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::Body::getCurrentAngularVelocityVectorInGlobalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentAngularVelocityVectorInGlobalFrame</name>
+        <briefdescription>
+<para>Get current angular velocity vector for body&apos;s rotation, expressed in the global frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get current angular velocity vector for body&apos;s rotation, expressed in the global frame. <simplesect kind="return"><para>Current angular velocity vector for body&apos;s rotation, expressed in the global frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="606" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="606" bodyend="608"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a613664a03b95ba6f61e6c4e229b83585" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::Body::getCurrentAngularVelocityVectorInLocalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentAngularVelocityVectorInLocalFrame</name>
+        <briefdescription>
+<para>Get current angular velocity vector for body&apos;s rotation, expressed in the local frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get current angular velocity vector for body&apos;s rotation, expressed in the local frame. Transformation from the global to the local frame is done by rotating the vector with the current quaternion to local frame. <simplesect kind="return"><para>Current angular velocity vector for body&apos;s rotation, expressed in the local frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="617" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="617" bodyend="619"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a72b0a3a40ba5fc0680351ec6c85c5194" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setEphemeris</definition>
+        <argsstring>(const std::shared_ptr&lt; ephemerides::Ephemeris &gt; bodyEphemeris)</argsstring>
+        <name>setEphemeris</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">ephemerides::Ephemeris</ref> &gt;</type>
+          <declname>bodyEphemeris</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the ephemeris of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the ephemeris of the body, which is used to represent the (a priori) state history of the body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyEphemeris</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New ephemeris of the body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="627" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="627" bodyend="634"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ae58b116d2d3609ac5992e6dfb48b907b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setGravityFieldModel</definition>
+        <argsstring>(const std::shared_ptr&lt; gravitation::GravityFieldModel &gt; gravityFieldModel)</argsstring>
+        <name>setGravityFieldModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldModel" kindref="compound">gravitation::GravityFieldModel</ref> &gt;</type>
+          <declname>gravityFieldModel</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the gravity field of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the gravity field of the body; input is also used to (re)set the mass of the body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravityFieldModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New gravity field of the body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="642" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="642" bodyend="655"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a849159791308cc51e674be25cebc7595" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setAtmosphereModel</definition>
+        <argsstring>(const std::shared_ptr&lt; aerodynamics::AtmosphereModel &gt; atmosphereModel)</argsstring>
+        <name>setAtmosphereModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AtmosphereModel" kindref="compound">aerodynamics::AtmosphereModel</ref> &gt;</type>
+          <declname>atmosphereModel</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the atmosphere model of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the atmosphere model of the body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>atmosphereModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Atmosphere model of the body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="662" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="662" bodyend="665"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a34ac04cf1de2cd1af5311219f9c0a4d8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setRotationalEphemeris</definition>
+        <argsstring>(const std::shared_ptr&lt; ephemerides::RotationalEphemeris &gt; rotationalEphemeris)</argsstring>
+        <name>setRotationalEphemeris</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">ephemerides::RotationalEphemeris</ref> &gt;</type>
+          <declname>rotationalEphemeris</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the rotation model of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the rotation model of the body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationalEphemeris</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation model of the body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="672" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="672" bodyend="678"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a09a210f5dc08f62dc8940496afbb1657" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setDependentOrientationCalculator</definition>
+        <argsstring>(const std::shared_ptr&lt; reference_frames::DependentOrientationCalculator &gt; dependentOrientationCalculator)</argsstring>
+        <name>setDependentOrientationCalculator</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator" kindref="compound">reference_frames::DependentOrientationCalculator</ref> &gt;</type>
+          <declname>dependentOrientationCalculator</declname>
+        </param>
+        <briefdescription>
+<para>Function to set a rotation model that is only valid during numerical propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set a rotation model that is only valid during numerical propagation, as it depends on the full state of the environment <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dependentOrientationCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object from which the orientation is computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="686" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="686" bodyend="725"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a44fa49ba4c1817c4ff5ba8a254d0559b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setShapeModel</definition>
+        <argsstring>(const std::shared_ptr&lt; basic_astrodynamics::BodyShapeModel &gt; shapeModel)</argsstring>
+        <name>setShapeModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel" kindref="compound">basic_astrodynamics::BodyShapeModel</ref> &gt;</type>
+          <declname>shapeModel</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the shape model of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the shape model of the body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>shapeModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shape model of the body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="732" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="732" bodyend="734"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a3bb42832e0f8d72977be1ced6bd17cf3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setAerodynamicCoefficientInterface</definition>
+        <argsstring>(const std::shared_ptr&lt; aerodynamics::AerodynamicCoefficientInterface &gt; aerodynamicCoefficientInterface)</argsstring>
+        <name>setAerodynamicCoefficientInterface</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">aerodynamics::AerodynamicCoefficientInterface</ref> &gt;</type>
+          <declname>aerodynamicCoefficientInterface</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the aerodynamic coefficient interface of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the aerodynamic coefficient interface of the body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aerodynamicCoefficientInterface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Aerodynamic coefficient interface of the body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="741" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="741" bodyend="745"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aedb42ad8f7d2f25b5ef7a037775012c0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setFlightConditions</definition>
+        <argsstring>(const std::shared_ptr&lt; aerodynamics::FlightConditions &gt; aerodynamicFlightConditions)</argsstring>
+        <name>setFlightConditions</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1FlightConditions" kindref="compound">aerodynamics::FlightConditions</ref> &gt;</type>
+          <declname>aerodynamicFlightConditions</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the body flight conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the body flight conditions, which calculates current aerodynamic angles, altitude, etc. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aerodynamicFlightConditions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> flight conditions </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="753" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="753" bodyend="770"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ab5429c3969aa229d9617295a0ff8d55d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setRadiationPressureInterface</definition>
+        <argsstring>(const std::string &amp;radiatingBody, const std::shared_ptr&lt; electromagnetism::RadiationPressureInterface &gt; radiationPressureInterface)</argsstring>
+        <name>setRadiationPressureInterface</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>radiatingBody</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" kindref="compound">electromagnetism::RadiationPressureInterface</ref> &gt;</type>
+          <declname>radiationPressureInterface</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the radiation pressure interface of the body, for a single radiation source. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the radiation pressure interface of the body, for a single radiation source <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radiatingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body that is the source of the radiation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressureInterface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radiation pressure interface of the body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="778" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="778" bodyend="783"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ac9afff8710ba98ede18a1b1f3c7bd228" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setGravityFieldVariationSet</definition>
+        <argsstring>(const std::shared_ptr&lt; gravitation::GravityFieldVariationsSet &gt; gravityFieldVariationSet)</argsstring>
+        <name>setGravityFieldVariationSet</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariationsSet" kindref="compound">gravitation::GravityFieldVariationsSet</ref> &gt;</type>
+          <declname>gravityFieldVariationSet</declname>
+        </param>
+        <briefdescription>
+<para>Function to set object containing all variations in the gravity field of this body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set object containing all variations in the gravity field of this body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravityFieldVariationSet</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object containing all variations in the gravity field of this body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="790" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="790" bodyend="794"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a6a5ece48357234bc2cd471245c77a0df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldModel" kindref="compound">gravitation::GravityFieldModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;gravitation::GravityFieldModel&gt; tudat::simulation_setup::Body::getGravityFieldModel</definition>
+        <argsstring>()</argsstring>
+        <name>getGravityFieldModel</name>
+        <briefdescription>
+<para>Function to get the gravity field model of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the gravity field model of the body. <simplesect kind="return"><para>Gravity field model of the body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="801" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="801" bodyend="803"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a65a9f900750814e32f3f77ff3f3b6ce9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::Body::getGravitationalParameter</definition>
+        <argsstring>()</argsstring>
+        <name>getGravitationalParameter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="805" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="805" bodyend="813"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1af1d637a29a69af0694358ec7ace51767" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">ephemerides::Ephemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ephemerides::Ephemeris&gt; tudat::simulation_setup::Body::getEphemeris</definition>
+        <argsstring>()</argsstring>
+        <name>getEphemeris</name>
+        <briefdescription>
+<para>Function to get the ephemeris of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the ephemeris of the body. <simplesect kind="return"><para>Ephemeris of the body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="820" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="820" bodyend="822"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a4fc9bc79b1a409b0038b960ce9c93706" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AtmosphereModel" kindref="compound">aerodynamics::AtmosphereModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;aerodynamics::AtmosphereModel&gt; tudat::simulation_setup::Body::getAtmosphereModel</definition>
+        <argsstring>()</argsstring>
+        <name>getAtmosphereModel</name>
+        <briefdescription>
+<para>Function to get the atmosphere model of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the atmosphere model of the body. <simplesect kind="return"><para>Atmosphere model of the body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="829" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="829" bodyend="831"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aa043461fea14ef28d5f39efd15dd2f19" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">ephemerides::RotationalEphemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ephemerides::RotationalEphemeris&gt; tudat::simulation_setup::Body::getRotationalEphemeris</definition>
+        <argsstring>()</argsstring>
+        <name>getRotationalEphemeris</name>
+        <briefdescription>
+<para>Function to get the rotation model of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the rotation model of the body. <simplesect kind="return"><para>Rotation model of the body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="838" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="838" bodyend="840"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a90077f7ef0838aa0882bd149a2069cae" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator" kindref="compound">reference_frames::DependentOrientationCalculator</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;reference_frames::DependentOrientationCalculator&gt; tudat::simulation_setup::Body::getDependentOrientationCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getDependentOrientationCalculator</name>
+        <briefdescription>
+<para>Function to retrieve the model to compute the rotation of the body based on the current state of the environment. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the model to compute the rotation of the body based on the current state of the environment (model is only valid during propagation). <simplesect kind="return"><para>Model to compute the rotation of the body based on the current state of the environment </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="848" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="848" bodyend="850"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a295e603784acfabfb8217cfad3e9b85b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel" kindref="compound">basic_astrodynamics::BodyShapeModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;basic_astrodynamics::BodyShapeModel&gt; tudat::simulation_setup::Body::getShapeModel</definition>
+        <argsstring>()</argsstring>
+        <name>getShapeModel</name>
+        <briefdescription>
+<para>Function to retrieve the shape model of body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the shape model of body. <simplesect kind="return"><para>Shape model of body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="857" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="857" bodyend="859"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a9858d3613ac03719b0d12613d601cb79" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">aerodynamics::AerodynamicCoefficientInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;aerodynamics::AerodynamicCoefficientInterface&gt; tudat::simulation_setup::Body::getAerodynamicCoefficientInterface</definition>
+        <argsstring>()</argsstring>
+        <name>getAerodynamicCoefficientInterface</name>
+        <briefdescription>
+<para>Function to retrieve the aerodynamic coefficient model of body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the body aerodynamic coefficient model of body. <simplesect kind="return"><para>Aerodynamic coefficient model of body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="867" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="867" bodyend="869"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ac1594ec8cb301e16f73a1e3976629e0e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1FlightConditions" kindref="compound">aerodynamics::FlightConditions</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;aerodynamics::FlightConditions&gt; tudat::simulation_setup::Body::getFlightConditions</definition>
+        <argsstring>()</argsstring>
+        <name>getFlightConditions</name>
+        <briefdescription>
+<para>Function to retrieve the body flight conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the body flight conditions, which calculates current aerodynamic angles, altitude, etc. <simplesect kind="return"><para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> flight conditions </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="877" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="877" bodyend="879"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a78b56cdd1daae1929f484f59bba8f09b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" kindref="compound">electromagnetism::RadiationPressureInterface</ref> &gt; &gt;</type>
+        <definition>std::map&lt;std::string, std::shared_ptr&lt;electromagnetism::RadiationPressureInterface&gt; &gt; tudat::simulation_setup::Body::getRadiationPressureInterfaces</definition>
+        <argsstring>()</argsstring>
+        <name>getRadiationPressureInterfaces</name>
+        <briefdescription>
+<para>Function to retrieve the shape model of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the shape model of the body. <simplesect kind="return"><para>Shape model of the body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="887" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="887" bodyend="889"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a5a2d030799be8c55263f2fdc1763f482" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::pair&lt; bool, std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations" kindref="compound">gravitation::GravityFieldVariations</ref> &gt; &gt;</type>
+        <definition>std::pair&lt;bool, std::shared_ptr&lt;gravitation::GravityFieldVariations&gt; &gt; tudat::simulation_setup::Body::getGravityFieldVariation</definition>
+        <argsstring>(const gravitation::BodyDeformationTypes &amp;deformationType, const std::string identifier=&quot;&quot;)</argsstring>
+        <name>getGravityFieldVariation</name>
+        <param>
+          <type>const gravitation::BodyDeformationTypes &amp;</type>
+          <declname>deformationType</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>identifier</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Function to retrieve a single object describing variation in the gravity field of this body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a single object describing variation in the gravity field of this body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>deformationType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of gravity field variation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>identifier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of gravity field variation that is to be retrieved (empty by default; only required if multiple variations of same type are present) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Object describing requested variation in the gravity field of this body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="900" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="900" bodyend="904"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1acf1af7c9e73ca1209f0798acd8708806" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariationsSet" kindref="compound">gravitation::GravityFieldVariationsSet</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;gravitation::GravityFieldVariationsSet&gt; tudat::simulation_setup::Body::getGravityFieldVariationSet</definition>
+        <argsstring>()</argsstring>
+        <name>getGravityFieldVariationSet</name>
+        <briefdescription>
+<para>Function to retrieve object containing all variations in the gravity field of this body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve object containing all variations in the gravity field of this body. <simplesect kind="return"><para>Object containing all variations in the gravity field of this body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="911" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="911" bodyend="913"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1afd88672f32cc0231540a6c5fcb7f1433" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1VehicleSystems" kindref="compound">system_models::VehicleSystems</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;system_models::VehicleSystems&gt; tudat::simulation_setup::Body::getVehicleSystems</definition>
+        <argsstring>()</argsstring>
+        <name>getVehicleSystems</name>
+        <briefdescription>
+<para>Function to retrieve container object with hardware systems present on/in body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve container object with hardware systems present on/in body. <simplesect kind="return"><para>Container object with hardware systems present on/in body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="920" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="920" bodyend="922"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a002114c76cbb066e9ec5c65f76b2d25f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setVehicleSystems</definition>
+        <argsstring>(const std::shared_ptr&lt; system_models::VehicleSystems &gt; vehicleSystems)</argsstring>
+        <name>setVehicleSystems</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1VehicleSystems" kindref="compound">system_models::VehicleSystems</ref> &gt;</type>
+          <declname>vehicleSystems</declname>
+        </param>
+        <briefdescription>
+<para>Function to set container object with hardware systems present on/in body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set container object with hardware systems present on/in body (typically only non-nullptr for a vehicle). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vehicleSystems</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Container object with hardware systems present on/in body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="929" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="929" bodyend="931"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a78bd83834a1583de0ab87f18d3ee441d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setBodyMassFunction</definition>
+        <argsstring>(const std::function&lt; double(const double)&gt; bodyMassFunction)</argsstring>
+        <name>setBodyMassFunction</name>
+        <param>
+          <type>const std::function&lt; double(const double)&gt;</type>
+          <declname>bodyMassFunction</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the function returning body mass as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the function returning body mass as a function of time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyMassFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning body mass as a function of time </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="938" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="938" bodyend="940"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a0e311bb19378807ecf05302073337a07" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setConstantBodyMass</definition>
+        <argsstring>(const double bodyMass)</argsstring>
+        <name>setConstantBodyMass</name>
+        <param>
+          <type>const double</type>
+          <declname>bodyMass</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the body mass as being constant (i.e. time-independent) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the body mass as being constant (i.e. time-independent) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyMass</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New constant body mass </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="947" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="947" bodyend="950"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a878153f674781b850b49c983b9a4503a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double(const double)&gt;</type>
+        <definition>std::function&lt;double(const double)&gt; tudat::simulation_setup::Body::getBodyMassFunction</definition>
+        <argsstring>()</argsstring>
+        <name>getBodyMassFunction</name>
+        <briefdescription>
+<para>Function to get the function returning body mass as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the function returning body mass as a function of time <simplesect kind="return"><para>Function returning body mass as a function of time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="957" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="957" bodyend="959"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aee9b25e036b5196abf916ef67f219fab" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::updateMass</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>updateMass</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to update the body mass to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the body mass to the current time, using the bodyMassFunction_ function <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="966" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="966" bodyend="972"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a94f591d02b553b3450ad78172e50350d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::Body::getBodyMass</definition>
+        <argsstring>()</argsstring>
+        <name>getBodyMass</name>
+        <briefdescription>
+<para>Function to retrieve the current body mass. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current body mass <simplesect kind="return"><para>Current body mass. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="979" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="979" bodyend="981"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a5b662055a640522a62a7da0bebd32ec3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::simulation_setup::Body::getBodyInertiaTensor</definition>
+        <argsstring>()</argsstring>
+        <name>getBodyInertiaTensor</name>
+        <briefdescription>
+<para>Function to retrieve the body moment-of-inertia tensor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the body moment-of-inertia tensor. <simplesect kind="return"><para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> moment-of-inertia tensor. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="988" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="988" bodyend="990"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a9c2a9b2a182441dc7d0ee94398d22d9a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::Body::getScaledMeanMomentOfInertia</definition>
+        <argsstring>()</argsstring>
+        <name>getScaledMeanMomentOfInertia</name>
+        <briefdescription>
+<para>Function to retrieve body scaled mean moment of inertia. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve body scaled mean moment of inertia <simplesect kind="return"><para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> scaled mean moment of inertia </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="997" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="997" bodyend="999"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a567715119eb675dd492eb2c0d3183791" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setScaledMeanMomentOfInertia</definition>
+        <argsstring>(const double scaledMeanMomentOfInertia)</argsstring>
+        <name>setScaledMeanMomentOfInertia</name>
+        <param>
+          <type>const double</type>
+          <declname>scaledMeanMomentOfInertia</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset body scaled mean moment of inertia. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset body scaled mean moment of inertia, and update associated inertia tensor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scaledMeanMomentOfInertia</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New body scaled mean moment of inertia </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1006" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1006" bodyend="1015"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ada0c867b820afc3dafaaad5aff9ceec5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setBodyInertiaTensor</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;bodyInertiaTensor)</argsstring>
+        <name>setBodyInertiaTensor</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>bodyInertiaTensor</declname>
+        </param>
+        <briefdescription>
+<para>Function to (re)set the body moment-of-inertia tensor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to (re)set the body moment-of-inertia tensor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyInertiaTensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> moment-of-inertia tensor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1022" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1022" bodyend="1024"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a93e61a2c3f62eec76c7e7a9f153b5644" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setBodyInertiaTensor</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;bodyInertiaTensor, const double scaledMeanMomentOfInertia)</argsstring>
+        <name>setBodyInertiaTensor</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>bodyInertiaTensor</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>scaledMeanMomentOfInertia</declname>
+        </param>
+        <briefdescription>
+<para>Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyInertiaTensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> moment-of-inertia tensor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scaledMeanMomentOfInertia</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> scaled mean-moment of inertia </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1031" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1031" bodyend="1034"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a9e500549e1a3afc203fd6dff2c407a15" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setBodyInertiaTensorFromGravityField</definition>
+        <argsstring>(const double scaledMeanMomentOfInertia)</argsstring>
+        <name>setBodyInertiaTensorFromGravityField</name>
+        <param>
+          <type>const double</type>
+          <declname>scaledMeanMomentOfInertia</declname>
+        </param>
+        <briefdescription>
+<para>Function to (re)set the body moment-of-inertia tensor from the gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to (re)set the body moment-of-inertia tensor from the gravity field, requires only a mean moment of inertia (scaled by mass times reference radius squared). Other data are taken from this body&apos;s spherical harmonic gravity field <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scaledMeanMomentOfInertia</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mean moment of inertial, divided by (M*R^2), with M the mass of the body and R the reference radius of the gravity field. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1043" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1043" bodyend="1052"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a72f9cb4185608dbbfff631923bb5b26b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment</definition>
+        <argsstring>(const bool printWarningIfNotSet=true)</argsstring>
+        <name>setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment</name>
+        <param>
+          <type>const bool</type>
+          <declname>printWarningIfNotSet</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>printWarningIfNotSet</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether a warning is to be printed if scaled mean moment is not defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1059" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1059" bodyend="1077"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1adac3a1f3c1b0a8d9e09cc65d2da9e515" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::addGroundStation</definition>
+        <argsstring>(const std::string &amp;stationName, const std::shared_ptr&lt; ground_stations::GroundStation &gt; &amp;station)</argsstring>
+        <name>addGroundStation</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>stationName</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1GroundStation" kindref="compound">ground_stations::GroundStation</ref> &gt; &amp;</type>
+          <declname>station</declname>
+        </param>
+        <briefdescription>
+<para>Function to add a ground station to the body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to add a ground station to the body <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stationName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of ground station </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>station</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ground station object that is to be set </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1085" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1085" bodyend="1088"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aef29904e5d362049ec3ea8f7cdc5e58c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1GroundStation" kindref="compound">ground_stations::GroundStation</ref> &gt;</type>
+        <definition>std::shared_ptr&lt;ground_stations::GroundStation&gt; tudat::simulation_setup::Body::getGroundStation</definition>
+        <argsstring>(const std::string &amp;stationName) const</argsstring>
+        <name>getGroundStation</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>stationName</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve a ground station. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a ground station <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stationName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of ground station </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Ground station object that is retrieved </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1096" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1096" bodyend="1102"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a656532f653ea3475d4c69c9dca7cf96c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1GroundStation" kindref="compound">ground_stations::GroundStation</ref> &gt; &gt;</type>
+        <definition>std::map&lt;std::string, std::shared_ptr&lt;ground_stations::GroundStation&gt; &gt; tudat::simulation_setup::Body::getGroundStationMap</definition>
+        <argsstring>() const</argsstring>
+        <name>getGroundStationMap</name>
+        <briefdescription>
+<para>Function to retrieve full list of ground stations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve full list of ground stations <simplesect kind="return"><para>Full list of ground stations </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1109" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1109" bodyend="1111"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a0c2cbfb00a1d2291e8277ac7538536eb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::updateConstantEphemerisDependentMemberQuantities</definition>
+        <argsstring>()</argsstring>
+        <name>updateConstantEphemerisDependentMemberQuantities</name>
+        <briefdescription>
+<para>Function to recompute the internal variables of member variables that depend on the ephemerides bodies. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to recompute the internal variables of member variables that depend on the ephemerides of this and other bodies. This function is typically called after equations of motion have been computed and set in environment to ensure full model consistency. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1119" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1119" bodyend="1127"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a397a8d10e8da91cac860d4978784b963" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::recomputeStateOnNextCall</definition>
+        <argsstring>()</argsstring>
+        <name>recomputeStateOnNextCall</name>
+        <briefdescription>
+<para>Function to indicate that the state needs to be recomputed on next call to setStateFromEphemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the time to which the state was last updated using setStateFromEphemeris function to nan, thereby singalling that it needs to be recomputed upon next call. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1134" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1134" bodyend="1136"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aaf4ed1270e9b52ec62f6d756f7098699" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::Body::getIsBodyGlobalFrameOrigin</definition>
+        <argsstring>()</argsstring>
+        <name>getIsBodyGlobalFrameOrigin</name>
+        <briefdescription>
+<para>Function to retrieve variable denoting whether this body is the global frame origin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve variable denoting whether this body is the global frame origin <simplesect kind="return"><para>Variable denoting whether this body is the global frame origin </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1143" column="7" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1143" bodyend="1145"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1ad8d0967ac71eee4a9b3040e99529b42b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setIsBodyGlobalFrameOrigin</definition>
+        <argsstring>(const int bodyIsGlobalFrameOrigin)</argsstring>
+        <name>setIsBodyGlobalFrameOrigin</name>
+        <param>
+          <type>const int</type>
+          <declname>bodyIsGlobalFrameOrigin</declname>
+        </param>
+        <briefdescription>
+<para>Function to set variable denoting whether this body is the global frame origin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set variable denoting whether this body is the global frame origin <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyIsGlobalFrameOrigin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether this body is the global frame origin </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1152" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1152" bodyend="1154"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a18e3642f7af74fa3f78a201c352052da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setIsBodyInPropagation</definition>
+        <argsstring>(const bool isBodyInPropagation)</argsstring>
+        <name>setIsBodyInPropagation</name>
+        <param>
+          <type>const bool</type>
+          <declname>isBodyInPropagation</declname>
+        </param>
+        <briefdescription>
+<para>Function to define whether the body is currently being propagated, or not. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to define whether the body is currently being propagated, or not <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>isBodyInPropagation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean defining whether the body is currently being propagated, or not </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1161" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/body.cpp" bodystart="86" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a4400321888dcfad2391fc9fa815afc57" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setSuppressDependentOrientationCalculatorWarning</definition>
+        <argsstring>(const bool suppressDependentOrientationCalculatorWarning)</argsstring>
+        <name>setSuppressDependentOrientationCalculatorWarning</name>
+        <param>
+          <type>const bool</type>
+          <declname>suppressDependentOrientationCalculatorWarning</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1163" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1163" bodyend="1165"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a49b10d5a2128bf00ab4d173265e11492" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::Body::getBodyName</definition>
+        <argsstring>()</argsstring>
+        <name>getBodyName</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1167" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1167" bodyend="1167"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1af16724db5fb925d71a5c47bd02ee3d70" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setBodyName</definition>
+        <argsstring>(const std::string bodyName)</argsstring>
+        <name>setBodyName</name>
+        <param>
+          <type>const std::string</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1169" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1169" bodyend="1169"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1adaa82fdbf92b9d043d381da834d13e51" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setBaseFrameFunction</definition>
+        <argsstring>(const std::function&lt; void() &gt; resetBaseFrames)</argsstring>
+        <name>setBaseFrameFunction</name>
+        <param>
+          <type>const std::function&lt; void() &gt;</type>
+          <declname>resetBaseFrames</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="1171" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="1171" bodyend="1174"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aa0d27be87a92ac3004608d1ecf7b9fd3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; long double, 6, 1 &gt; tudat::simulation_setup::Body::getTemplatedState</definition>
+        <argsstring>()</argsstring>
+        <name>getTemplatedState</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/body.cpp" line="59" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/body.cpp" bodystart="59" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1aa857b1713489c0e596297e579051a1d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setTemplatedState</definition>
+        <argsstring>(const Eigen::Matrix&lt; double, 6, 1 &gt; &amp;state)</argsstring>
+        <name>setTemplatedState</name>
+        <param>
+          <type>const Eigen::Matrix&lt; double, 6, 1 &gt; &amp;</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Templated function to set the state manually. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/body.cpp" line="72" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/body.cpp" bodystart="72" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1Body_1a78d1bb0d438e8e6aff3a1462e0c41222" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::simulation_setup::Body::setTemplatedState</definition>
+        <argsstring>(const Eigen::Matrix&lt; long double, 6, 1 &gt; &amp;state)</argsstring>
+        <name>setTemplatedState</name>
+        <param>
+          <type>const Eigen::Matrix&lt; long double, 6, 1 &gt; &amp;</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Templated function to set the state manually. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/body.cpp" line="79" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/body.cpp" bodystart="79" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> class representing the properties of a celestial body (natural or artificial). </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> class representing the properties of a celestial body (natural or artificial). By storing all properties of bodies (ephemeris, rotation, gravity, etc.) in a set of body objects, the simulation environment can be defined in a clear and modular way. To create body objects, the <ref refid="createBodies_8h_source" kindref="compound">createBodies.h</ref> function provides a range of functionality. The <ref refid="createAccelerationModels_8h_source" kindref="compound">createAccelerationModels.h</ref> file provides functions to use body objects to create acceleration objects. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="198" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="198" bodyend="1274"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1adac3a1f3c1b0a8d9e09cc65d2da9e515" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>addGroundStation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aeb58b0fc7d5ff1ae72b5525c46bb4f45" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>aerodynamicCoefficientInterface_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a5ed7d26313cf92e82c869c3cc8e63c9f" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>aerodynamicFlightConditions_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a788a8323a7e3a78ab4b7ec87a377188d" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>atmosphereModel_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a802232493506b5fc4956779e74468f06" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>Body</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a7f518bff4fc97f8d11d3a5ed9fd70365" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>bodyEphemeris_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ad79920645c54a70e978d7c13cda96b9c" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>bodyInertiaTensor_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a82711e18c5a133fafaa1d1e87d564dc5" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>bodyIsGlobalFrameOrigin_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1acde6ac8f9c236ee3f9e850dd7122c7ed" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>bodyMassFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aff3ff91a8b9cd25fdf228917ae1b1fbd" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>bodyName_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1abc8f784401832fc59230776a6f01c1d3" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentAngularVelocityVectorInGlobalFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a83972090d54efd308fb5e340b52787c0" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentAngularVelocityVectorInLocalFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a0d4319b1ef155e51430e3f31e5a8376d" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentBarycentricLongState_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a0ec1a8150811a10e7ca27b0885511df4" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentBarycentricState_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a5d6af8ee59f1114f0cb72218d1f79f87" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentLongState_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aefd57d30df8968948593f9538344e714" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentMass_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a664a6a38f29bbc976c394a9afc291d52" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentRotationToLocalFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a7ad57fa75070473b40cdf54dde1acbb9" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentRotationToLocalFrameDerivative_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a42671533290d255a4e2b67e78ff2497b" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>currentState_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a263da8949bf9560588fe4db6d5ae62a9" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>dependentOrientationCalculator_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a14ff6fa613fb4febdcf4cffdeedf64b9" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>ephemerisFrameToBaseFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a9858d3613ac03719b0d12613d601cb79" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getAerodynamicCoefficientInterface</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a4fc9bc79b1a409b0038b960ce9c93706" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getAtmosphereModel</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a5b662055a640522a62a7da0bebd32ec3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getBodyInertiaTensor</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a94f591d02b553b3450ad78172e50350d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getBodyMass</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a878153f674781b850b49c983b9a4503a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getBodyMassFunction</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a49b10d5a2128bf00ab4d173265e11492" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getBodyName</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a4842639c5c21effaaaf34805a3969a89" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentAngularVelocityVectorInGlobalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a613664a03b95ba6f61e6c4e229b83585" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentAngularVelocityVectorInLocalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a4f22674d684b95c651f11fb89916ecfe" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentRotationalState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a0946c1b5fa661abd9935041ca7bc37ac" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentRotationMatrixDerivativeToGlobalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a0cd33824b4bbd33c4ca120098a5bebd4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentRotationMatrixDerivativeToLocalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a8aaef8db0f5fe1525149eea9508d060a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentRotationMatrixToGlobalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a0025d4c9abd9b208fdf050f6d3823297" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentRotationMatrixToLocalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a4c6c29c88751b36dbb09348115c436e2" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentRotationToGlobalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a7eaf728cdc11cf98ac7e7b75e38b62ca" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getCurrentRotationToLocalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a90077f7ef0838aa0882bd149a2069cae" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getDependentOrientationCalculator</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1af1d637a29a69af0694358ec7ace51767" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1abcf57fbca79df53f0bca97b4ab6ce199" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getEphemerisFrameToBaseFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ac1594ec8cb301e16f73a1e3976629e0e" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getFlightConditions</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1abeec11ad7cfd50ef61f12c0a5b5eed4a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getGlobalFrameOriginBarycentricStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a65a9f900750814e32f3f77ff3f3b6ce9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getGravitationalParameter</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a6a5ece48357234bc2cd471245c77a0df" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getGravityFieldModel</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a5a2d030799be8c55263f2fdc1763f482" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getGravityFieldVariation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1acf1af7c9e73ca1209f0798acd8708806" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getGravityFieldVariationSet</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aef29904e5d362049ec3ea8f7cdc5e58c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getGroundStation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a656532f653ea3475d4c69c9dca7cf96c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getGroundStationMap</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aaf4ed1270e9b52ec62f6d756f7098699" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getIsBodyGlobalFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a4afb398a0a04489f12b903e592878724" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getLongPosition</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a29e6c50543005a855744b7ba7e47a3a2" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getLongState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a20f5b807d707c9fa410bc91314a25dab" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getLongVelocity</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a595498359521268dbeedc902953a0633" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getPosition</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a78b56cdd1daae1929f484f59bba8f09b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getRadiationPressureInterfaces</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aa043461fea14ef28d5f39efd15dd2f19" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getRotationalEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a62cc3dd5922b48d53f9c25f533c87b19" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getRotationalStateVector</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a9c2a9b2a182441dc7d0ee94398d22d9a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getScaledMeanMomentOfInertia</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a295e603784acfabfb8217cfad3e9b85b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getShapeModel</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ae4541711e56e09272916448030882fc9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aa50331011b36e708280c9b8675eb57db" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getStateInBaseFrameFromEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ab6e60b9b4c35edb6921506d72fa362b7" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getTemplatedState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aa0d27be87a92ac3004608d1ecf7b9fd3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getTemplatedState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1afd88672f32cc0231540a6c5fcb7f1433" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getVehicleSystems</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ad043093286bc331c63cefbeba4fa17d8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>getVelocity</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1abd767850a24434ad2b451d89f272a66f" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>gravityFieldModel_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ad10333addff5ca60ed0754b4b250e9d2" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>gravityFieldVariationSet_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ad246dd206d9aad2e943b10b03826104a" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>groundStationMap</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a9f4ea1f2de808e4832376983ea514e53" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>isBodyInPropagation_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ab45fa27eae19569d815b125e6dc9dcb2" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>radiationPressureInterfaces_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ad3308bdf3c60b76a487f3f3740b38655" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>radiationPressureIterator_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a397a8d10e8da91cac860d4978784b963" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>recomputeStateOnNextCall</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a964e68ca0d5d47959abcb4c658cba859" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>resetBaseFrames_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a9b007be0ca77b717a173c4e5c3afe428" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>rotationalEphemeris_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ab5ae5f76767d99d54e2496535174e2fc" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>scaledMeanMomentOfInertia_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a3bb42832e0f8d72977be1ced6bd17cf3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setAerodynamicCoefficientInterface</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a849159791308cc51e674be25cebc7595" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setAtmosphereModel</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1adaa82fdbf92b9d043d381da834d13e51" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setBaseFrameFunction</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ada0c867b820afc3dafaaad5aff9ceec5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setBodyInertiaTensor</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a93e61a2c3f62eec76c7e7a9f153b5644" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setBodyInertiaTensor</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a9e500549e1a3afc203fd6dff2c407a15" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setBodyInertiaTensorFromGravityField</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a72f9cb4185608dbbfff631923bb5b26b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a78bd83834a1583de0ab87f18d3ee441d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setBodyMassFunction</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1af16724db5fb925d71a5c47bd02ee3d70" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setBodyName</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a0e311bb19378807ecf05302073337a07" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setConstantBodyMass</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a61a6e3eccaed8d438c22003516d8009f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setCurrentAngularVelocityVectorInGlobalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a3f2ca5729d99a47634742aa3be08e66c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setCurrentRotationalStateToLocalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aa12b1ec8e9e1a04ab1111e21e2bf772c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setCurrentRotationalStateToLocalFrameFromEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a352f45d815d365b742e55e94e0ec8f4c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setCurrentRotationToLocalFrameDerivativeFromEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a06605a2e4d471743ab9ff19feb6f3431" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setCurrentRotationToLocalFrameFromEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a09a210f5dc08f62dc8940496afbb1657" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setDependentOrientationCalculator</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a72b0a3a40ba5fc0680351ec6c85c5194" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1acdc775081e911ed11a5a881fcf2cf820" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setEphemerisFrameToBaseFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aedb42ad8f7d2f25b5ef7a037775012c0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setFlightConditions</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ae58b116d2d3609ac5992e6dfb48b907b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setGravityFieldModel</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ac9afff8710ba98ede18a1b1f3c7bd228" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setGravityFieldVariationSet</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ad8d0967ac71eee4a9b3040e99529b42b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setIsBodyGlobalFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a18e3642f7af74fa3f78a201c352052da" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setIsBodyInPropagation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ae5f634a6c751ad8922dc6e6662f6a502" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setLongState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ab5429c3969aa229d9617295a0ff8d55d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setRadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a34ac04cf1de2cd1af5311219f9c0a4d8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setRotationalEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a567715119eb675dd492eb2c0d3183791" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setScaledMeanMomentOfInertia</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a44fa49ba4c1817c4ff5ba8a254d0559b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setShapeModel</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a157e498e30d7c90dd7a4b73c719fd5d5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a2f2cfc32c8e5b257b352809d623b2985" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a4400321888dcfad2391fc9fa815afc57" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setSuppressDependentOrientationCalculatorWarning</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1ab56fa0e8697fbb2dab1943d36fb7d493" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setTemplatedState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aa857b1713489c0e596297e579051a1d2" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setTemplatedState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a78d1bb0d438e8e6aff3a1462e0c41222" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setTemplatedState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a002114c76cbb066e9ec5c65f76b2d25f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>setVehicleSystems</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a6af33c9c4edc6fb6885e615eee0b7017" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>shapeModel_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a0929154c5a11731af677ee5da36b8c9d" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>suppressDependentOrientationCalculatorWarning_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1af55597f48cd188ce7a47d4228dedd7a1" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>timeOfCurrentState_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a0c2cbfb00a1d2291e8277ac7538536eb" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>updateConstantEphemerisDependentMemberQuantities</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1aee9b25e036b5196abf916ef67f219fab" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>updateMass</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1Body_1a26a5c36708eca4684313861fd1035af1" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::Body</scope><name>vehicleSystems_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

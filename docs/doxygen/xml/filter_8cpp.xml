@@ -1,0 +1,383 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="filter_8cpp" kind="file" language="C++">
+    <compoundname>filter.cpp</compoundname>
+    <includes refid="filter_8h" local="yes">tudat/math/filters/filter.h</includes>
+    <incdepgraph>
+      <node id="11">
+        <label>functional</label>
+      </node>
+      <node id="4">
+        <label>limits</label>
+      </node>
+      <node id="22">
+        <label>tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h</label>
+        <link refid="bulirschStoerVariableStepsizeIntegrator_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Eigen/LU</label>
+      </node>
+      <node id="17">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="39">
+        <label>tudat/math/statistics/boostProbabilityDistributions.h</label>
+        <link refid="boostProbabilityDistributions_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>tudat/math/integrators/rungeKutta4Integrator.h</label>
+        <link refid="rungeKutta4Integrator_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="44">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>tudat/math/statistics/randomVariableGenerator.h</label>
+        <link refid="randomVariableGenerator_8h_source"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>cmath</label>
+      </node>
+      <node id="6">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="15">
+        <label>tudat/math/integrators/createNumericalIntegrator.h</label>
+        <link refid="createNumericalIntegrator_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>unsupported/Eigen/MatrixFunctions</label>
+      </node>
+      <node id="3">
+        <label>map</label>
+      </node>
+      <node id="33">
+        <label>tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h</label>
+        <link refid="rungeKuttaVariableStepSizeIntegrator_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="42">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>tudat/math/integrators/numericalIntegrator.h</label>
+        <link refid="numericalIntegrator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>ctime</label>
+      </node>
+      <node id="40">
+        <label>boost/math/distributions.hpp</label>
+      </node>
+      <node id="23">
+        <label>boost/assign/std/vector.hpp</label>
+      </node>
+      <node id="35">
+        <label>vector</label>
+      </node>
+      <node id="29">
+        <label>tudat/math/integrators/euler.h</label>
+        <link refid="euler_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="18">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>tudat/math/statistics/continuousProbabilityDistributions.h</label>
+        <link refid="continuousProbabilityDistributions_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>tudat/basics/utilities.h</label>
+        <link refid="basics_2utilities_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>iostream</label>
+      </node>
+      <node id="2">
+        <label>tudat/math/filters/filter.h</label>
+        <link refid="filter_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>deque</label>
+      </node>
+      <node id="34">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="30">
+        <label>tudat/math/integrators/adamsBashforthMoultonIntegrator.h</label>
+        <link refid="adamsBashforthMoultonIntegrator_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/filters/filter.cpp</label>
+        <link refid="filter_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>type_traits</label>
+      </node>
+      <node id="16">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="32">
+        <label>tudat/math/integrators/rungeKuttaCoefficients.h</label>
+        <link refid="rungeKuttaCoefficients_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="38">
+        <label>boost/random.hpp</label>
+      </node>
+      <node id="13">
+        <label>complex</label>
+      </node>
+      <node id="19">
+        <label>algorithm</label>
+      </node>
+      <node id="28">
+        <label>tudat/math/integrators/reinitializableNumericalIntegrator.h</label>
+        <link refid="reinitializableNumericalIntegrator_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;tudat/math/filters/filter.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>FILE<sp/>INCLUDED<sp/>FOR<sp/>COMPATIBILITY<sp/>(MUST<sp/>HAVE<sp/>.CPP<sp/>FILE<sp/>ON<sp/>SOME<sp/>SYSTEMS)</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/filters/filter.cpp"/>
+  </compounddef>
+</doxygen>

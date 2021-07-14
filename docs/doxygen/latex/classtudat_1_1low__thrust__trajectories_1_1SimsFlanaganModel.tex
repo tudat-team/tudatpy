@@ -1,0 +1,134 @@
+\hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel}{}\doxysection{tudat\+::low\+\_\+thrust\+\_\+trajectories\+::Sims\+Flanagan\+Model Class Reference}
+\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel}\index{tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_af2e714aa6efac50f91a73419857729f5}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_af2e714aa6efac50f91a73419857729f5}} 
+\mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_af2e714aa6efac50f91a73419857729f5}{Sims\+Flanagan\+Model}} (const Eigen\+::\+Vector6d \&state\+At\+Departure, const Eigen\+::\+Vector6d \&state\+At\+Arrival, const double central\+Body\+Gravitational\+Parameter, const double initial\+Spacecraft\+Mass, const double maximum\+Thrust, const std\+::function$<$ double(const double) $>$ specific\+Impulse\+Function, const double time\+Of\+Flight, std\+::vector$<$ Eigen\+::\+Vector3d $>$ \&throttles)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aaa5da288bea6b90f817b277b309ed360}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aaa5da288bea6b90f817b277b309ed360}} 
+\mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aaa5da288bea6b90f817b277b309ed360}{$\sim$\+Sims\+Flanagan\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ad6a906fd76919859908cdda9f8e738c8}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ad6a906fd76919859908cdda9f8e738c8}} 
+void \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ad6a906fd76919859908cdda9f8e738c8}{propagate\+Forward\+From\+Departure\+To\+Match\+Point}} ()
+\begin{DoxyCompactList}\small\item\em Propagate the spacecraft trajectory from departure to match point (forward propagation). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_acf2ac0d186d9dcec49cfd11ef68b61c0}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_acf2ac0d186d9dcec49cfd11ef68b61c0}} 
+void \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_acf2ac0d186d9dcec49cfd11ef68b61c0}{propagate\+Backward\+From\+Arrival\+To\+Match\+Point}} ()
+\begin{DoxyCompactList}\small\item\em Propagate the spacecraft trajectory from arrival to match point (backward propagation). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a7a5c7a6a247c9dbdb487147eed31b458}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a7a5c7a6a247c9dbdb487147eed31b458}} 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a7a5c7a6a247c9dbdb487147eed31b458}{get\+State\+At\+Leg\+Departure}} ()
+\begin{DoxyCompactList}\small\item\em Returns initial state at leg departure. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ab8caa1e5e4607987f879095017b66f1b}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ab8caa1e5e4607987f879095017b66f1b}} 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ab8caa1e5e4607987f879095017b66f1b}{get\+State\+At\+Leg\+Arrival}} ()
+\begin{DoxyCompactList}\small\item\em Returns final state at leg arrival. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3044519214a0de826c22a3fbf3c0868b}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3044519214a0de826c22a3fbf3c0868b}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3044519214a0de826c22a3fbf3c0868b}{get\+Maximum\+Thrust\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Returns maximum allowed thrust. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aca13555a28f4b006f431bdb81d324ed8}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aca13555a28f4b006f431bdb81d324ed8}} 
+int \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aca13555a28f4b006f431bdb81d324ed8}{get\+Number\+Of\+Segments}} ()
+\begin{DoxyCompactList}\small\item\em Returns number of segments into which the leg is subdivided. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a8c7041451799ff1b74d6ea3dfa0eae7e}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a8c7041451799ff1b74d6ea3dfa0eae7e}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a8c7041451799ff1b74d6ea3dfa0eae7e}{get\+Time\+Of\+Flight}} ()
+\begin{DoxyCompactList}\small\item\em Returns time of flight. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a6d22054d633c1807cc47934bc1452cf5}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a6d22054d633c1807cc47934bc1452cf5}} 
+std\+::vector$<$ Eigen\+::\+Vector3d $>$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a6d22054d633c1807cc47934bc1452cf5}{get\+Throttles}} ()
+\begin{DoxyCompactList}\small\item\em Return vector of throttles. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a57ed14e105256bf8b1984247377a1a44}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a57ed14e105256bf8b1984247377a1a44}} 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a57ed14e105256bf8b1984247377a1a44}{get\+State\+At\+Match\+Point\+Forward\+Propagation}} ()
+\begin{DoxyCompactList}\small\item\em Return state vector at match point from forward propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ae14c2b350d78dde4bad0d839a64033ea}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ae14c2b350d78dde4bad0d839a64033ea}} 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ae14c2b350d78dde4bad0d839a64033ea}{get\+State\+At\+Match\+Point\+Backward\+Propagation}} ()
+\begin{DoxyCompactList}\small\item\em Return state vector at match point from backward propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_adb5338f31fb6023d39c45c9b51a5e08a}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_adb5338f31fb6023d39c45c9b51a5e08a}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_adb5338f31fb6023d39c45c9b51a5e08a}{get\+Total\+DeltaV}} ()
+\begin{DoxyCompactList}\small\item\em Return total deltaV required by the trajectory. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a769637ca7734823325a0be832636aae2}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a769637ca7734823325a0be832636aae2}} 
+basic\+\_\+astrodynamics\+::\+Acceleration\+Map {\bfseries get\+Low\+Thrust\+Trajectory\+Acceleration\+Map} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies, const std\+::string \&body\+To\+Propagate, const std\+::string \&central\+Body)
+\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ad6832ec53e71c710007832eabc5dabdc}{propagate\+Trajectory\+Forward}} (double initial\+Time, double final\+Time, Eigen\+::\+Vector6d initial\+State, double segment\+Duration)
+\begin{DoxyCompactList}\small\item\em Propagate the trajectory to given time. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3d3d39e9af975f5126754cb5dd192d1d}{propagate\+Trajectory\+Backward}} (double initial\+Time, double final\+Time, Eigen\+::\+Vector6d initial\+State, double segment\+Duration)
+\begin{DoxyCompactList}\small\item\em Propagate the trajectory to given time. \end{DoxyCompactList}\item 
+std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a33f9f45529a8aa8c0a60e9aa7f1acf40}{propagate\+Trajectory\+Forward}} (std\+::vector$<$ double $>$ epochs, std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&propagated\+Trajectory, double segment\+Duration)
+\begin{DoxyCompactList}\small\item\em Propagate the trajectory to set of epochs (forward propagation). \end{DoxyCompactList}\item 
+std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ab8e226ce218d6e03bc9682344333d4a5}{propagate\+Trajectory\+Backward}} (std\+::vector$<$ double $>$ epochs, std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&propagated\+Trajectory, double segment\+Duration)
+\begin{DoxyCompactList}\small\item\em Propagate the trajectory to set of epochs (backward propagation). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a5da3e1d21e3b3f726f13a4a135a57d44}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a5da3e1d21e3b3f726f13a4a135a57d44}} 
+void \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a5da3e1d21e3b3f726f13a4a135a57d44}{propagate\+Trajectory}} (std\+::vector$<$ double $>$ epochs, std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&propagated\+Trajectory)
+\begin{DoxyCompactList}\small\item\em Propagate the trajectory to set of epochs. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aa1d9e828950199ad5546583d05781e8c}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aa1d9e828950199ad5546583d05781e8c}} 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aa1d9e828950199ad5546583d05781e8c}{propagate\+Inside\+Forward\+Segment}} (double initial\+Time, double final\+Time, double segment\+Duration, Eigen\+::\+Vector6d initial\+State)
+\begin{DoxyCompactList}\small\item\em Propagate the trajectory inside one segment. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aab0bc62926728091894779b91261ad4d}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aab0bc62926728091894779b91261ad4d}} 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_aab0bc62926728091894779b91261ad4d}{propagate\+Inside\+Backward\+Segment}} (double initial\+Time, double final\+Time, double segment\+Duration, Eigen\+::\+Vector6d initial\+State)
+\begin{DoxyCompactList}\small\item\em Propagate the trajectory inside one segment. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3386c31169ba8cd190d29cd6a956806f}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3386c31169ba8cd190d29cd6a956806f}} 
+void \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3386c31169ba8cd190d29cd6a956806f}{propagate\+Mass\+To\+Segments}} ()
+\begin{DoxyCompactList}\small\item\em Propagate the mass from departure to a given segment. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a4352f1c986c1c14f2d0e423941d971e4}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a4352f1c986c1c14f2d0e423941d971e4}} 
+int {\bfseries convert\+Time\+To\+Leg\+Segment} (double current\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a647b7841d6ee89795ca46935df41c440}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a647b7841d6ee89795ca46935df41c440}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings}{simulation\+\_\+setup\+::\+Thrust\+Acceleration\+Settings}} $>$ {\bfseries get\+Thrust\+Acceleration\+Settings\+Full\+Leg} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies)
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a21123166470b443413cdb0165883cca1}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a21123166470b443413cdb0165883cca1}} 
+double {\bfseries get\+Mass\+At\+Segment} (const int segment)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a11d14ae04243eb834b1d613229ad0285}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a11d14ae04243eb834b1d613229ad0285}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings}{simulation\+\_\+setup\+::\+Thrust\+Acceleration\+Settings}} $>$ {\bfseries get\+Constant\+Thrust\+Acceleration\+Settings\+Per\+Segment} (unsigned int index\+Segment)
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ade0ea25bd76d7c9c14509521825ea1a8}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ade0ea25bd76d7c9c14509521825ea1a8}} 
+basic\+\_\+astrodynamics\+::\+Acceleration\+Map {\bfseries get\+Acceleration\+Model\+Per\+Segment} (const unsigned int index\+Segment, const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies, const std\+::string \&body\+To\+Propagate, const std\+::string \&central\+Body)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3d3d39e9af975f5126754cb5dd192d1d}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a3d3d39e9af975f5126754cb5dd192d1d}} 
+\index{tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}!propagateTrajectoryBackward@{propagateTrajectoryBackward}}
+\index{propagateTrajectoryBackward@{propagateTrajectoryBackward}!tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}}
+\doxysubsubsection{\texorpdfstring{propagateTrajectoryBackward()}{propagateTrajectoryBackward()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Sims\+Flanagan\+Model\+::propagate\+Trajectory\+Backward (\begin{DoxyParamCaption}\item[{double}]{initial\+Time,  }\item[{double}]{final\+Time,  }\item[{Eigen\+::\+Vector6d}]{initial\+State,  }\item[{double}]{segment\+Duration }\end{DoxyParamCaption})}
+
+
+
+Propagate the trajectory to given time. 
+
+Propagate the trajectory backward to given time. \mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ab8e226ce218d6e03bc9682344333d4a5}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ab8e226ce218d6e03bc9682344333d4a5}} 
+\index{tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}!propagateTrajectoryBackward@{propagateTrajectoryBackward}}
+\index{propagateTrajectoryBackward@{propagateTrajectoryBackward}!tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}}
+\doxysubsubsection{\texorpdfstring{propagateTrajectoryBackward()}{propagateTrajectoryBackward()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::map$<$ double, Eigen\+::\+Vector6d $>$ tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Sims\+Flanagan\+Model\+::propagate\+Trajectory\+Backward (\begin{DoxyParamCaption}\item[{std\+::vector$<$ double $>$}]{epochs,  }\item[{std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&}]{propagated\+Trajectory,  }\item[{double}]{segment\+Duration }\end{DoxyParamCaption})}
+
+
+
+Propagate the trajectory to set of epochs (backward propagation). 
+
+Propagate the trajectory to set of epochs. \mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ad6832ec53e71c710007832eabc5dabdc}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_ad6832ec53e71c710007832eabc5dabdc}} 
+\index{tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}!propagateTrajectoryForward@{propagateTrajectoryForward}}
+\index{propagateTrajectoryForward@{propagateTrajectoryForward}!tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}}
+\doxysubsubsection{\texorpdfstring{propagateTrajectoryForward()}{propagateTrajectoryForward()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Sims\+Flanagan\+Model\+::propagate\+Trajectory\+Forward (\begin{DoxyParamCaption}\item[{double}]{initial\+Time,  }\item[{double}]{final\+Time,  }\item[{Eigen\+::\+Vector6d}]{initial\+State,  }\item[{double}]{segment\+Duration }\end{DoxyParamCaption})}
+
+
+
+Propagate the trajectory to given time. 
+
+Propagate the trajectory forward to given time. \mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a33f9f45529a8aa8c0a60e9aa7f1acf40}\label{classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_a33f9f45529a8aa8c0a60e9aa7f1acf40}} 
+\index{tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}!propagateTrajectoryForward@{propagateTrajectoryForward}}
+\index{propagateTrajectoryForward@{propagateTrajectoryForward}!tudat::low\_thrust\_trajectories::SimsFlanaganModel@{tudat::low\_thrust\_trajectories::SimsFlanaganModel}}
+\doxysubsubsection{\texorpdfstring{propagateTrajectoryForward()}{propagateTrajectoryForward()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::map$<$ double, Eigen\+::\+Vector6d $>$ tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Sims\+Flanagan\+Model\+::propagate\+Trajectory\+Forward (\begin{DoxyParamCaption}\item[{std\+::vector$<$ double $>$}]{epochs,  }\item[{std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&}]{propagated\+Trajectory,  }\item[{double}]{segment\+Duration }\end{DoxyParamCaption})}
+
+
+
+Propagate the trajectory to set of epochs (forward propagation). 
+
+Propagate the trajectory to set of epochs. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/sims\+Flanagan\+Model.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/sims\+Flanagan\+Model.\+cpp\end{DoxyCompactItemize}

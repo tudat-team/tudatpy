@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::ConstantObservationBiasSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationBiasSettings" prot="public" virt="non-virtual">tudat::observation_models::ObservationBiasSettings</basecompoundref>
+    <includes refid="createObservationModel_8h" local="no">createObservationModel.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings_1a9008b9d0c44d9f554770f56a51bc43fb" prot="public" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::observation_models::ConstantObservationBiasSettings::observationBias_</definition>
+        <argsstring></argsstring>
+        <name>observationBias_</name>
+        <briefdescription>
+<para>Constant bias that is to be added to the observable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constant bias that is to be added to the observable. The size of this vector must be equal to the size of the observable to which it is assigned. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="117" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings_1a83f0536d3eea3d18a410f4c0294a9323" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::observation_models::ConstantObservationBiasSettings::useAbsoluteBias_</definition>
+        <argsstring></argsstring>
+        <name>useAbsoluteBias_</name>
+        <briefdescription>
+<para>Boolean to denote whether an absolute or relative bias is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="120" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings_1a8ecad8ac65293d3552899390ec2256b2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ConstantObservationBiasSettings::ConstantObservationBiasSettings</definition>
+        <argsstring>(const Eigen::VectorXd &amp;observationBias, const bool useAbsoluteBias)</argsstring>
+        <name>ConstantObservationBiasSettings</name>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>observationBias</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useAbsoluteBias</declname>
+        </param>
+        <briefdescription>
+<para>Constuctor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constuctor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationBias</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant bias that is to be added to the observable. The size of this vector must be equal to the size of the observable to which it is assigned. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useAbsoluteBias</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether an absolute or relative bias is to be created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="103" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="103" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings_1a9d0308f7f5ec577f2bf56b323c763e51" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ConstantObservationBiasSettings::~ConstantObservationBiasSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~ConstantObservationBiasSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="110" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="110" bodyend="110"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for defining settings for the creation of a constant absolute or relative observation bias model. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationBiasSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationBiasSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::ConstantObservationBiasSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationBiasSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationBiasSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::ConstantObservationBiasSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="92" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="93" bodyend="121"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings_1a8ecad8ac65293d3552899390ec2256b2" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBiasSettings</scope><name>ConstantObservationBiasSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings_1a9008b9d0c44d9f554770f56a51bc43fb" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBiasSettings</scope><name>observationBias_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBiasSettings_1a8891d0de2b295dfdcf7c90658b330ff8" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBiasSettings</scope><name>ObservationBiasSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBiasSettings_1a266bee2fa0cb992dcba900c518c1141c" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBiasSettings</scope><name>observationBiasType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings_1a83f0536d3eea3d18a410f4c0294a9323" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBiasSettings</scope><name>useAbsoluteBias_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBiasSettings_1a9d0308f7f5ec577f2bf56b323c763e51" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBiasSettings</scope><name>~ConstantObservationBiasSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBiasSettings_1a38745c948766019a40516c791613445b" prot="public" virt="virtual"><scope>tudat::observation_models::ConstantObservationBiasSettings</scope><name>~ObservationBiasSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

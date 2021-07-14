@@ -1,0 +1,281 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__mathematics_1_1BasicFunction" kind="class" language="C++" prot="public">
+    <compoundname>tudat::basic_mathematics::BasicFunction</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__mathematics_1_1Function" prot="public" virt="non-virtual">tudat::basic_mathematics::Function&lt; double, double &gt;</basecompoundref>
+    <includes refid="basicFunction_8h" local="no">basicFunction.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariable</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename DependentVariable</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classtudat_1_1basic__mathematics_1_1BasicFunction_1a64e21694a564a7468d278df48f33620f" prot="private" static="no">
+        <type><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref>&lt; IndependentVariable, DependentVariable &gt;</type>
+        <definition>typedef Function&lt; IndependentVariable, DependentVariable &gt; tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;::Parent</definition>
+        <argsstring></argsstring>
+        <name>Parent</name>
+        <briefdescription>
+<para>typedef for a <ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> that relates a Dependent Variable to an IndependentVariable. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="124" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1BasicFunction_1ae29d47c0ba66688c59c793805c920386" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;::integrationSteps</definition>
+        <argsstring></argsstring>
+        <name>integrationSteps</name>
+        <briefdescription>
+<para>Number of steps to take when performing numerical integration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="48" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-static-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1BasicFunction_1a9d9d85a5dd2bb72ec73619c126593f0d" prot="protected" static="yes" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;::sqrt_epsilon_double</definition>
+        <argsstring></argsstring>
+        <name>sqrt_epsilon_double</name>
+        <initializer>= std::numeric_limits&lt; double &gt;::epsilon( )</initializer>
+        <briefdescription>
+<para>Square root of double precision, used to scale the step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The reason not to scale with epsilon itself is to limit the error due to floating point arithmetic with super small numbers: = sqrt(std::numeric_limits&lt;double&gt;::epsilon()). TODO: Remove when using external derivative code. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="119" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1BasicFunction_1a6db9f3a2a2b5be0e10132e2b9b648132" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;::BasicFunction</definition>
+        <argsstring>(unsigned int numberOfIntegrationSteps=1000)</argsstring>
+        <name>BasicFunction</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>numberOfIntegrationSteps</declname>
+          <defval>1000</defval>
+        </param>
+        <briefdescription>
+<para>Constructor with definition of the number of steps. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="51" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="51" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1BasicFunction_1a752b82484f0acb5f8ec1c55ea2dc731b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;::~BasicFunction</definition>
+        <argsstring>()</argsstring>
+        <name>~BasicFunction</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="56" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="56" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1BasicFunction_1ae0a0844b6c72c55ef059039eb147453b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>DependentVariable</type>
+        <definition>virtual DependentVariable tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;::computeDerivative</definition>
+        <argsstring>(const unsigned int order, const IndependentVariable independentVariable)</argsstring>
+        <name>computeDerivative</name>
+        <reimplementedby refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ad9ffdd736006317e21ee414936234f45">computeDerivative</reimplementedby>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Derivative (of a given order) of a function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Generic calculation of the derivative of a function using numerical techniques. <simplesect kind="see"><para>Function::derivative </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The Order of the derivative </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The independent variable with respect to which the derivative is taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The numerical derivative of the function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="66" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="66" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1BasicFunction_1a629836ffd0ff73670ea1e3182e1ac717" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>DependentVariable</type>
+        <definition>DependentVariable tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;::computeDefiniteIntegralMock</definition>
+        <argsstring>(const unsigned int order, const IndependentVariable lowerBound, const IndependentVariable upperbound, const DependentVariable placeHolder)</argsstring>
+        <name>computeDefiniteIntegralMock</name>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>lowerBound</declname>
+        </param>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>upperbound</declname>
+        </param>
+        <param>
+          <type>const DependentVariable</type>
+          <declname>placeHolder</declname>
+        </param>
+        <briefdescription>
+<para>Alias for computeDefiniteIntegral, but with an extra variable. Should not be used! </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="86" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="86" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1BasicFunction_1a9ff1a3c03832150f34c06c86317c2ac7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>DependentVariable</type>
+        <definition>virtual DependentVariable tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;::computeDefiniteIntegral</definition>
+        <argsstring>(const unsigned int order, const IndependentVariable lowerBound, const IndependentVariable upperbound)</argsstring>
+        <name>computeDefiniteIntegral</name>
+        <reimplementedby refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a3efc47b6ff79b80092e35c21e242f557">computeDefiniteIntegral</reimplementedby>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>lowerBound</declname>
+        </param>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>upperbound</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Integral (of a given order) of a function from a given lower bound to upper bound (without constants).</para>
+<para>Generic calculation of the function integral using numerical techniques. TODO: Fix this code, as it doesnt work. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of integral (i.e. integrate n times, with n = order ) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lowerBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lower integration bound </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>upperbound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Upper integration bound </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Nothing as yet; function not yet implemented </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classtudat_1_1basic__mathematics_1_1Function_1a74c5639b8c6288471368e65312569e52" kindref="member">Function::computeDefiniteIntegral</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="104" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="104" bodyend="109"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> with basic implementations for derivatives and integrals. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class fills in the computeDerivative and computeDefiniteIntegral functionality using numerical differentiation and integration. These are slower than their analytical counterparts, but useful when a closed form expression is available. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1BasicFunction"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_mathematics::Function&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::basic_mathematics::BasicFunction&lt; IndependentVariable, DependentVariable &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1BasicFunction"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_mathematics::Function&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="43" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="44" bodyend="128"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a6db9f3a2a2b5be0e10132e2b9b648132" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>BasicFunction</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a9ff1a3c03832150f34c06c86317c2ac7" prot="public" virt="virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>computeDefiniteIntegral</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a74c5639b8c6288471368e65312569e52" prot="public" virt="pure-virtual" ambiguityscope="Function&lt; double, double &gt;::"><scope>tudat::basic_mathematics::BasicFunction</scope><name>computeDefiniteIntegral</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a629836ffd0ff73670ea1e3182e1ac717" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>computeDefiniteIntegralMock</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1ae0a0844b6c72c55ef059039eb147453b" prot="public" virt="virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>computeDerivative</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a0929cfbeb90a6cbc85d50455fd01d75f" prot="public" virt="pure-virtual" ambiguityscope="Function&lt; double, double &gt;::"><scope>tudat::basic_mathematics::BasicFunction</scope><name>computeDerivative</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a69b59769da9784abaaa8a0a309d16de8" prot="public" virt="pure-virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>evaluate</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1ae29d47c0ba66688c59c793805c920386" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>integrationSteps</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a4b135236b9531d0329c151afeef8a2d8" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a64e21694a564a7468d278df48f33620f" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>Parent</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a9d9d85a5dd2bb72ec73619c126593f0d" prot="protected" virt="non-virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>sqrt_epsilon_double</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a752b82484f0acb5f8ec1c55ea2dc731b" prot="public" virt="virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>~BasicFunction</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1ae438d4c770503bfdf34c812e4f47cf09" prot="public" virt="virtual"><scope>tudat::basic_mathematics::BasicFunction</scope><name>~Function</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

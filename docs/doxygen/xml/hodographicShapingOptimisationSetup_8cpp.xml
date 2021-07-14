@@ -1,0 +1,1074 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="hodographicShapingOptimisationSetup_8cpp" kind="file" language="C++">
+    <compoundname>hodographicShapingOptimisationSetup.cpp</compoundname>
+    <includes refid="hodographicShapingOptimisationSetup_8h" local="yes">tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h</includes>
+    <incdepgraph>
+      <node id="71">
+        <label>boost/algorithm/string.hpp</label>
+      </node>
+      <node id="57">
+        <label>tudat/config.hpp</label>
+      </node>
+      <node id="48">
+        <label>tudat/io/streamFilters.h</label>
+        <link refid="streamFilters_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>system_error</label>
+      </node>
+      <node id="46">
+        <label>iomanip</label>
+      </node>
+      <node id="18">
+        <label>functional</label>
+      </node>
+      <node id="7">
+        <label>boost/shared_ptr.hpp</label>
+      </node>
+      <node id="5">
+        <label>limits</label>
+      </node>
+      <node id="87">
+        <label>tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h</label>
+        <link refid="bulirschStoerVariableStepsizeIntegrator_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>boost/iostreams/device/back_inserter.hpp</label>
+      </node>
+      <node id="64">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="59">
+        <label>tudat/astro/low_thrust/shape_based/shapeBasedMethod.h</label>
+        <link refid="shapeBasedMethod_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>boost/math/special_functions/atanh.hpp</label>
+      </node>
+      <node id="90">
+        <label>tudat/math/integrators/rungeKutta4Integrator.h</label>
+        <link refid="rungeKutta4Integrator_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>boost/iostreams/copy.hpp</label>
+      </node>
+      <node id="15">
+        <label>boost/test/unit_test.hpp</label>
+      </node>
+      <node id="54">
+        <label>stdlib.h</label>
+      </node>
+      <node id="20">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="81">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+      </node>
+      <node id="101">
+        <label>pagmo/rng.hpp</label>
+      </node>
+      <node id="14">
+        <label>boost/format.hpp</label>
+      </node>
+      <node id="9">
+        <label>cmath</label>
+      </node>
+      <node id="36">
+        <label>tudat/math/root_finders/newtonRaphson.h</label>
+        <link refid="newtonRaphson_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>stdexcept</label>
+      </node>
+      <node id="13">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="86">
+        <label>tudat/math/integrators/createNumericalIntegrator.h</label>
+        <link refid="createNumericalIntegrator_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="96" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>string</label>
+      </node>
+      <node id="17">
+        <label>tudat/astro/basic_astro/orbitalElementConversions.h</label>
+        <link refid="orbitalElementConversions_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>tudat/io/basicInputOutput.h</label>
+        <link refid="basicInputOutput_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>map</label>
+      </node>
+      <node id="72">
+        <label>boost/algorithm/string/trim.hpp</label>
+      </node>
+      <node id="12">
+        <label>tudat/basics/testMacros.h</label>
+        <link refid="testMacros_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>boost/iostreams/stream_buffer.hpp</label>
+      </node>
+      <node id="96">
+        <label>tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h</label>
+        <link refid="rungeKuttaVariableStepSizeIntegrator_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>tudat/math/quadrature/gaussianQuadrature.h</label>
+        <link refid="gaussianQuadrature_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+      </node>
+      <node id="73">
+        <label>boost/algorithm/string/trim_all.hpp</label>
+      </node>
+      <node id="78">
+        <label>tudat/math/quadrature/trapezoidQuadrature.h</label>
+        <link refid="trapezoidQuadrature_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="79" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>tudat/math/basic/functionProxy.h</label>
+        <link refid="functionProxy_8h_source"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.cpp</label>
+        <link refid="hodographicShapingOptimisationSetup_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>fstream</label>
+      </node>
+      <node id="28">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/math/root_finders/createRootFinder.h</label>
+        <link refid="createRootFinder_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>tudat/math/quadrature/createNumericalQuadrature.h</label>
+        <link refid="createNumericalQuadrature_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="56">
+        <label>tudat/resource/resource.h</label>
+      </node>
+      <node id="16">
+        <label>tudat/astro/basic_astro/unitConversions.h</label>
+        <link refid="unitConversions_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="99">
+        <label>pagmo/io.hpp</label>
+      </node>
+      <node id="97">
+        <label>random</label>
+      </node>
+      <node id="60">
+        <label>Eigen/Dense</label>
+      </node>
+      <node id="74">
+        <label>boost/iostreams/device/file.hpp</label>
+      </node>
+      <node id="21">
+        <label>tudat/astro/basic_astro/stateVectorIndices.h</label>
+        <link refid="stateVectorIndices_8h_source"/>
+      </node>
+      <node id="79">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="89">
+        <label>tudat/math/integrators/numericalIntegrator.h</label>
+        <link refid="numericalIntegrator_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>tudat/math/root_finders/halleyRootFinder.h</label>
+        <link refid="halleyRootFinder_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="68">
+        <label>tudat/math/quadrature/numericalQuadrature.h</label>
+        <link refid="numericalQuadrature_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h</label>
+        <link refid="baseFunctionsHodographicShaping_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>boost/math/special_functions/asinh.hpp</label>
+      </node>
+      <node id="85">
+        <label>tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h</label>
+        <link refid="compositeFunctionHodographicShaping_8h_source"/>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="88">
+        <label>boost/assign/std/vector.hpp</label>
+      </node>
+      <node id="3">
+        <label>vector</label>
+      </node>
+      <node id="98">
+        <label>pagmo/island.hpp</label>
+      </node>
+      <node id="49">
+        <label>boost/iostreams/filter/line.hpp</label>
+      </node>
+      <node id="53">
+        <label>tudat/paths.hpp</label>
+        <link refid="paths_8hpp_source"/>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>boost/filesystem.hpp</label>
+      </node>
+      <node id="92">
+        <label>tudat/math/integrators/euler.h</label>
+        <link refid="euler_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>tudat/math/root_finders/bisection.h</label>
+        <link refid="bisection_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="43">
+        <label>tudat/math/basic/basicFunction.h</label>
+        <link refid="basicFunction_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>utility</label>
+      </node>
+      <node id="70">
+        <label>sstream</label>
+      </node>
+      <node id="37">
+        <label>tudat/math/basic/convergenceException.h</label>
+        <link refid="convergenceException_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="82">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="66">
+        <label>tudat/basics/utilities.h</label>
+        <link refid="basics_2utilities_8h_source"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="62">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>iostream</label>
+      </node>
+      <node id="10">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="94">
+        <label>deque</label>
+      </node>
+      <node id="2">
+        <label>tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h</label>
+        <link refid="hodographicShapingOptimisationSetup_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="97" relation="include">
+        </childnode>
+        <childnode refid="98" relation="include">
+        </childnode>
+        <childnode refid="99" relation="include">
+        </childnode>
+        <childnode refid="100" relation="include">
+        </childnode>
+        <childnode refid="101" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="69">
+        <label>tudat/io/mapTextFileReader.h</label>
+        <link refid="mapTextFileReader_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>tudat/astro/low_thrust/shape_based/hodographicShaping.h</label>
+        <link refid="hodographicShaping_8h_source"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="22">
+        <label>tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h</label>
+        <link refid="convertMeanToEccentricAnomalies_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="93">
+        <label>tudat/math/integrators/adamsBashforthMoultonIntegrator.h</label>
+        <link refid="adamsBashforthMoultonIntegrator_8h_source"/>
+        <childnode refid="94" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+        <childnode refid="96" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>boost/regex.hpp</label>
+      </node>
+      <node id="61">
+        <label>tudat/astro/low_thrust/lowThrustLeg.h</label>
+        <link refid="lowThrustLeg_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+      </node>
+      <node id="77">
+        <label>tudat/io/matrixTextFileReader.h</label>
+        <link refid="matrixTextFileReader_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>tudat/math/root_finders/secantRootFinder.h</label>
+        <link refid="secantRootFinder_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>type_traits</label>
+      </node>
+      <node id="6">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="95">
+        <label>tudat/math/integrators/rungeKuttaCoefficients.h</label>
+        <link refid="rungeKuttaCoefficients_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="67">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="76">
+        <label>boost/iostreams/filtering_stream.hpp</label>
+      </node>
+      <node id="11">
+        <label>complex</label>
+      </node>
+      <node id="83">
+        <label>algorithm</label>
+      </node>
+      <node id="91">
+        <label>tudat/math/integrators/reinitializableNumericalIntegrator.h</label>
+        <link refid="reinitializableNumericalIntegrator_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+      </node>
+      <node id="100">
+        <label>pagmo/problem.hpp</label>
+      </node>
+      <node id="24">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1shape__based__methods">tudat::shape_based_methods</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">tudat::ephemerides;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">tudat::basic_astrodynamics;</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">tudat::orbital_element_conversions;</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">tudat::basic_mathematics;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">tudat::input_output;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">tudat::low_thrust_trajectories;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">pagmo;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">shape_based_methods</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Calculates<sp/>the<sp/>fitness</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal">std::vector&lt;<sp/>double<sp/>&gt;<sp/>FixedTimeHodographicShapingOptimisationProblem::fitness(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>&amp;x<sp/>)</highlight><highlight class="keyword"><sp/>const</highlight></codeline>
+<codeline lineno="28"><highlight class="keyword"></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberFreeCoefficientsRadialFunction<sp/>=<sp/>radialVelocityFunctionComponents_.size(<sp/>)<sp/>-<sp/>3;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberFreeCoefficientsNormalFunction<sp/>=<sp/>normalVelocityFunctionComponents_.size(<sp/>)<sp/>-<sp/>3;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberFreeCoefficientsAxialFunction<sp/>=<sp/>axialVelocityFunctionComponents_.size(<sp/>)<sp/>-<sp/>3;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>numberFreeCoefficientsRadialFunction<sp/>+<sp/>numberFreeCoefficientsNormalFunction<sp/>+<sp/>numberFreeCoefficientsAxialFunction<sp/>!=</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>x.size(<sp/>)<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error,<sp/>size<sp/>of<sp/>design<sp/>variables<sp/>vector<sp/>unconsistent<sp/>with<sp/>number<sp/>of<sp/>base<sp/>function<sp/>components&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;when<sp/>making<sp/>a<sp/>hodographic<sp/>shaping<sp/>optimisation<sp/>problem.&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>freeCoefficientsRadialVelocityFunction(<sp/>numberFreeCoefficientsRadialFunction<sp/>);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>freeCoefficientsNormalVelocityFunction(<sp/>numberFreeCoefficientsNormalFunction<sp/>);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>freeCoefficientsAxialVelocityFunction(<sp/>numberFreeCoefficientsAxialFunction<sp/>);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0<sp/>;<sp/>i<sp/>&lt;<sp/>numberFreeCoefficientsRadialFunction<sp/>;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsRadialVelocityFunction[<sp/>i<sp/>]<sp/>=<sp/>x[<sp/>i<sp/>];</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0<sp/>;<sp/>i<sp/>&lt;<sp/>numberFreeCoefficientsNormalFunction<sp/>;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsNormalVelocityFunction[<sp/>i<sp/>]<sp/>=<sp/>x[<sp/>i<sp/>+<sp/>numberFreeCoefficientsRadialFunction<sp/>];</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0<sp/>;<sp/>i<sp/>&lt;<sp/>numberFreeCoefficientsAxialFunction<sp/>;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsAxialVelocityFunction[<sp/>i<sp/>]<sp/>=<sp/>x[<sp/>i<sp/>+<sp/>numberFreeCoefficientsRadialFunction<sp/>+<sp/>numberFreeCoefficientsNormalFunction<sp/>];</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>HodographicShaping<sp/>hodographicShaping<sp/>=<sp/>HodographicShaping(</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>initialState_,<sp/>finalState_,<sp/>timeOfFlight_,<sp/>centralBodyGravitationalParameter_,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>numberOfRevolutions_,<sp/>radialVelocityFunctionComponents_,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>normalVelocityFunctionComponents_,<sp/>axialVelocityFunctionComponents_,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsRadialVelocityFunction,<sp/>freeCoefficientsNormalVelocityFunction,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsAxialVelocityFunction<sp/>);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>fitnessVector;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>fitnessVector.push_back(<sp/>hodographicShaping.computeDeltaV(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>fitnessVector;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Calculates<sp/>the<sp/>fitness</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal">std::vector&lt;<sp/>double<sp/>&gt;<sp/>HodographicShapingOptimisationProblem::fitness(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>&amp;x<sp/>)</highlight><highlight class="keyword"><sp/>const</highlight></codeline>
+<codeline lineno="73"><highlight class="keyword"></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>departureTime<sp/>=<sp/>x.at(<sp/>0<sp/>);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeOfFlight<sp/>=<sp/>x.at(<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>arrivalTime<sp/>=<sp/>departureTime<sp/>+<sp/>timeOfFlight;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>BaseFunctionVector<sp/>&gt;<sp/>basisFunctions<sp/>=<sp/>basisFunctionsFunction_(<sp/>timeOfFlight<sp/>);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>BaseFunctionVector<sp/>radialVelocityFunctionComponents<sp/>=<sp/>basisFunctions.at(<sp/>0<sp/>);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>BaseFunctionVector<sp/>normalVelocityFunctionComponents<sp/>=<sp/>basisFunctions.at(<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>BaseFunctionVector<sp/>axialVelocityFunctionComponents<sp/>=<sp/>basisFunctions.at(<sp/>2<sp/>);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberFreeCoefficientsRadialFunction<sp/>=<sp/>radialVelocityFunctionComponents.size(<sp/>)<sp/>-<sp/>3;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberFreeCoefficientsNormalFunction<sp/>=<sp/>normalVelocityFunctionComponents.size(<sp/>)<sp/>-<sp/>3;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberFreeCoefficientsAxialFunction<sp/>=<sp/>axialVelocityFunctionComponents.size(<sp/>)<sp/>-<sp/>3;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>numberFreeCoefficientsRadialFunction<sp/>+<sp/>numberFreeCoefficientsNormalFunction<sp/>+<sp/>numberFreeCoefficientsAxialFunction<sp/>+<sp/>5<sp/>!=</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>x.size(<sp/>)<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error,<sp/>size<sp/>of<sp/>design<sp/>variables<sp/>vector<sp/>unconsistent<sp/>with<sp/>number<sp/>of<sp/>base<sp/>function<sp/>components&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;when<sp/>making<sp/>a<sp/>hodographic<sp/>shaping<sp/>optimisation<sp/>problem.&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>freeCoefficientsRadialVelocityFunction(<sp/>numberFreeCoefficientsRadialFunction<sp/>);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>freeCoefficientsNormalVelocityFunction(<sp/>numberFreeCoefficientsNormalFunction<sp/>);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>freeCoefficientsAxialVelocityFunction(<sp/>numberFreeCoefficientsAxialFunction<sp/>);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0<sp/>;<sp/>i<sp/>&lt;<sp/>numberFreeCoefficientsRadialFunction<sp/>;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsRadialVelocityFunction[<sp/>i<sp/>]<sp/>=<sp/>x[<sp/>i<sp/>+<sp/>2<sp/>];</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0<sp/>;<sp/>i<sp/>&lt;<sp/>numberFreeCoefficientsNormalFunction<sp/>;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsNormalVelocityFunction[<sp/>i<sp/>]<sp/>=<sp/>x[<sp/>i<sp/>+<sp/>2<sp/>+<sp/>numberFreeCoefficientsRadialFunction<sp/>];</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0<sp/>;<sp/>i<sp/>&lt;<sp/>numberFreeCoefficientsAxialFunction<sp/>;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsAxialVelocityFunction[<sp/>i<sp/>]<sp/>=<sp/>x[<sp/>i<sp/>+<sp/>2<sp/>+<sp/>numberFreeCoefficientsRadialFunction<sp/>+<sp/>numberFreeCoefficientsNormalFunction<sp/>];</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector6d<sp/>departureState<sp/>=<sp/>initialStateFunction_(<sp/>departureTime<sp/>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>departureState(<sp/>3<sp/>)<sp/>+=<sp/>x.at(<sp/>2<sp/>+<sp/>numberFreeCoefficientsRadialFunction<sp/>+<sp/>numberFreeCoefficientsNormalFunction<sp/>+<sp/>numberFreeCoefficientsAxialFunction<sp/>);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>departureState(<sp/>4<sp/>)<sp/>+=<sp/>x.at(<sp/>2<sp/>+<sp/>numberFreeCoefficientsRadialFunction<sp/>+<sp/>numberFreeCoefficientsNormalFunction<sp/>+<sp/>numberFreeCoefficientsAxialFunction<sp/>+<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>departureState(<sp/>5<sp/>)<sp/>+=<sp/>x.at(<sp/>2<sp/>+<sp/>numberFreeCoefficientsRadialFunction<sp/>+<sp/>numberFreeCoefficientsNormalFunction<sp/>+<sp/>numberFreeCoefficientsAxialFunction<sp/>+<sp/>2<sp/>);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>HodographicShaping<sp/>hodographicShaping<sp/>=<sp/>HodographicShaping(</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>departureState,<sp/>finalStateFunction_(<sp/>arrivalTime<sp/>),</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>timeOfFlight,<sp/>centralBodyGravitationalParameter_,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>numberOfRevolutions_,<sp/>radialVelocityFunctionComponents,</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>normalVelocityFunctionComponents,<sp/>axialVelocityFunctionComponents,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsRadialVelocityFunction,<sp/>freeCoefficientsNormalVelocityFunction,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>freeCoefficientsAxialVelocityFunction,<sp/>initialMass_<sp/>);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>fitnessVector;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>fitnessVector.push_back(<sp/>hodographicShaping.computeDeltaV(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>minimizeMaximumThrust_<sp/>)</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>epochsVector<sp/>=<sp/>Eigen::VectorXd::LinSpaced(<sp/>100,<sp/>0,<sp/>timeOfFlight<sp/>);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>maximumAcceleration<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>epochsVector.rows(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentAcceleration<sp/>=</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hodographicShaping.computeCurrentThrustAccelerationMagnitude(<sp/>epochsVector(<sp/>i<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>maximumAcceleration<sp/>&lt;<sp/>currentAcceleration<sp/>)</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>maximumAcceleration<sp/>=<sp/>currentAcceleration;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fitnessVector.push_back(<sp/>maximumAcceleration<sp/>);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>fitnessVector;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shape_based_methods</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.cpp"/>
+  </compounddef>
+</doxygen>

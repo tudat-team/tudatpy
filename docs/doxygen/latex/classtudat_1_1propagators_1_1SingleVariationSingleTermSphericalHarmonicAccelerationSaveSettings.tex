@@ -1,0 +1,95 @@
+\hypertarget{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}{}\doxysection{tudat\+::propagators\+::Single\+Variation\+Single\+Term\+Spherical\+Harmonic\+Acceleration\+Save\+Settings Class Reference}
+\label{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}\index{tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}}
+
+
+Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Output\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Single\+Variation\+Single\+Term\+Spherical\+Harmonic\+Acceleration\+Save\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a29222636c04b8a743ba035d617b1e7bb}{Single\+Variation\+Single\+Term\+Spherical\+Harmonic\+Acceleration\+Save\+Settings}} (const std\+::string \&body\+Undergoing\+Acceleration, const std\+::string \&body\+Exerting\+Acceleration, const std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&component\+Indices, const gravitation\+::\+Body\+Deformation\+Types deformation\+Type, const std\+::string \&identifier=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a27b4a640a62db8b3880c4535c43e3cc7}{Single\+Variation\+Single\+Term\+Spherical\+Harmonic\+Acceleration\+Save\+Settings}} (const std\+::string \&body\+Undergoing\+Acceleration, const std\+::string \&body\+Exerting\+Acceleration, const int maximum\+Degree, const int maximum\+Order, const gravitation\+::\+Body\+Deformation\+Types deformation\+Type, const std\+::string \&identifier=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_ab330625b71f6dad3e12bfd21cfd57416}\label{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_ab330625b71f6dad3e12bfd21cfd57416}} 
+std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_ab330625b71f6dad3e12bfd21cfd57416}{component\+Indices\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Degrees and orders for which to computed contribution. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a6ca24190efbc14cd34c123218782f10d}\label{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a6ca24190efbc14cd34c123218782f10d}} 
+gravitation\+::\+Body\+Deformation\+Types \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a6ca24190efbc14cd34c123218782f10d}{deformation\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of gravity field variation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a0d9fccb5d4ca6890eb25ae72d1f23d2c}\label{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a0d9fccb5d4ca6890eb25ae72d1f23d2c}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a0d9fccb5d4ca6890eb25ae72d1f23d2c}{identifier\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Identifier for gravity field variation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a29222636c04b8a743ba035d617b1e7bb}\label{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a29222636c04b8a743ba035d617b1e7bb}} 
+\index{tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}!SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}}
+\index{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}!tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}}
+\doxysubsubsection{\texorpdfstring{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings()}{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Single\+Variation\+Single\+Term\+Spherical\+Harmonic\+Acceleration\+Save\+Settings\+::\+Single\+Variation\+Single\+Term\+Spherical\+Harmonic\+Acceleration\+Save\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Undergoing\+Acceleration,  }\item[{const std\+::string \&}]{body\+Exerting\+Acceleration,  }\item[{const std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&}]{component\+Indices,  }\item[{const gravitation\+::\+Body\+Deformation\+Types}]{deformation\+Type,  }\item[{const std\+::string \&}]{identifier = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Undergoing\+Acceleration} & Body undergoing acceleration. \\
+\hline
+{\em body\+Exerting\+Acceleration} & Body exerting acceleration. \\
+\hline
+{\em component\+Indices} & Degrees and orders for which to computed contribution. \\
+\hline
+{\em deformation\+Type} & Type of gravity field variation. \\
+\hline
+{\em identifier} & Identifier for gravity field variation. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a27b4a640a62db8b3880c4535c43e3cc7}\label{classtudat_1_1propagators_1_1SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings_a27b4a640a62db8b3880c4535c43e3cc7}} 
+\index{tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}!SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}}
+\index{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}!tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings@{tudat::propagators::SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings}}
+\doxysubsubsection{\texorpdfstring{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings()}{SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Single\+Variation\+Single\+Term\+Spherical\+Harmonic\+Acceleration\+Save\+Settings\+::\+Single\+Variation\+Single\+Term\+Spherical\+Harmonic\+Acceleration\+Save\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Undergoing\+Acceleration,  }\item[{const std\+::string \&}]{body\+Exerting\+Acceleration,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order,  }\item[{const gravitation\+::\+Body\+Deformation\+Types}]{deformation\+Type,  }\item[{const std\+::string \&}]{identifier = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Undergoing\+Acceleration} & Body undergoing acceleration. \\
+\hline
+{\em body\+Exerting\+Acceleration} & Body exerting acceleration. \\
+\hline
+{\em maximum\+Degree} & Maximum degree for which to computed contribution. \\
+\hline
+{\em maximum\+Order} & Maximum order for which to computed contribution. \\
+\hline
+{\em deformation\+Type} & Type of gravity field variation. \\
+\hline
+{\em identifier} & Identifier for gravity field variation. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Output\+Settings.\+h\end{DoxyCompactItemize}

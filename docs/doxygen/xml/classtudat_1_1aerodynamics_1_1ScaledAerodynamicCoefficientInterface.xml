@@ -1,0 +1,208 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface" kind="class" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</compoundname>
+    <basecompoundref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" prot="public" virt="non-virtual">tudat::aerodynamics::AerodynamicCoefficientInterface</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1ad37072c7c97f1e1f159c715ffbb5ef0a" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">AerodynamicCoefficientInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AerodynamicCoefficientInterface &gt; tudat::aerodynamics::ScaledAerodynamicCoefficientInterface::baseCoefficientInterface_</definition>
+        <argsstring></argsstring>
+        <name>baseCoefficientInterface_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" line="508" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" bodystart="508" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1a7b6eed6f311ea82415009bac150bedbf" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::aerodynamics::ScaledAerodynamicCoefficientInterface::forceCoefficientScalingFunction_</definition>
+        <argsstring></argsstring>
+        <name>forceCoefficientScalingFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" line="510" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" bodystart="510" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1a9dd22a195caac0ee384dadaf7ffc180a" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::aerodynamics::ScaledAerodynamicCoefficientInterface::momentCoefficientScalingFunction_</definition>
+        <argsstring></argsstring>
+        <name>momentCoefficientScalingFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" line="512" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" bodystart="512" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1a0c300bde32e7b0e6ed9e4e6080e03058" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::aerodynamics::ScaledAerodynamicCoefficientInterface::isScalingRelative_</definition>
+        <argsstring></argsstring>
+        <name>isScalingRelative_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" line="514" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" bodystart="514" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1ab400269b41186d9318d7eedde525ff87" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface::ScaledAerodynamicCoefficientInterface</definition>
+        <argsstring>(const std::shared_ptr&lt; AerodynamicCoefficientInterface &gt; baseCoefficientInterface, const std::function&lt; Eigen::Vector3d(const double) &gt; forceCoefficientScalingFunction, const std::function&lt; Eigen::Vector3d(const double) &gt; momentCoefficientScalingFunction, const bool isScalingRelative=true)</argsstring>
+        <name>ScaledAerodynamicCoefficientInterface</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">AerodynamicCoefficientInterface</ref> &gt;</type>
+          <declname>baseCoefficientInterface</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>forceCoefficientScalingFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>momentCoefficientScalingFunction</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isScalingRelative</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" line="466" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" bodystart="466" bodyend="482"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1a327b9fd37c20e5bf4184af116667b51d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::ScaledAerodynamicCoefficientInterface::updateCurrentCoefficients</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;independentVariables, const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateCurrentCoefficients</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a368494b2f082a82d39f83d1eb9ce103f">updateCurrentCoefficients</reimplements>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Compute the aerodynamic coefficients of the body itself (without control surfaces) at current flight condition. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the current force and moment coefficients of the body itself (without control surfaces) and is to be implemented in derived classes. Input is a set of independent variables (doubles) which represent the variables from which the coefficients are calculated <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variables of force and moment coefficient determination implemented by derived class </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which coefficients are to be updated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" line="484" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" bodystart="484" bodyend="504"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::AerodynamicCoefficientInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::AerodynamicCoefficientInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" line="463" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h" bodystart="464" bodyend="516"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1afcf63dcf774ca65e91ce8449f3e22d74" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>AerodynamicCoefficientInterface</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a29e32be7cec1045dba10c7a60182ad05" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>areCoefficientsInAerodynamicFrame_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a6ede4ceff6ef3a4eb91e4061750e5c19" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>areCoefficientsInNegativeAxisDirection_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1ad37072c7c97f1e1f159c715ffbb5ef0a" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>baseCoefficientInterface_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a904ec19864b2a25cd1db606bbb22aa81" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>controlSurfaceIncrementInterfaces_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab14a77a9c578c1153ec128fc927fc4f9" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>controlSurfaceNames_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ac2e2b9a55f0269a611599a652a556c9a" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>currentForceCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a421867bb3bd06711019c80621ac75473" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>currentMomentCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1a7b6eed6f311ea82415009bac150bedbf" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>forceCoefficientScalingFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1acc664214ae5fee886b3a2ffa22dce2d9" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getAreCoefficientsInAerodynamicFrame</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a55875655a4a678eaa5fdb80cb4827e9f" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getAreCoefficientsInNegativeAxisDirection</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ad5c005acfa80f3761f20850a855d1644" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getControlSurfaceIndependentVariableName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a63f2ffc4d03a6902e0760f93b1931b5a" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getControlSurfaceIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a69a2aa883a2fba8bc918dcd60a654eb9" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getControlSurfaceName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a6b2eee400f93606c83e0429ab8b974d6" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getCurrentAerodynamicCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a1d482f3c4cba5a2354d12610319aa7af" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getCurrentForceCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a81b6c6f36bea4e10bdde1d67f95740d7" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getCurrentMomentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a91798427fd03d66a696f97f9c01292c4" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getIndependentVariableName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a605d78a84519402354ac1551e7eb2d0d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getIndependentVariableNames</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ac340c18b6cb008955c8dc426c31d6adb" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getLateralReferenceLength</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab940adb9ffb34d7910bdb11ca06143f6" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getMomentReferencePoint</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a1ca99957277b60ca79aaf4eb48e3f003" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getNumberOfControlSurfaceIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aeec44dc3a056968cb685dd3f0642bf5d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getNumberOfControlSurfaces</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af10cc21f485df4f2c877f827c7a38493" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getNumberOfIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aaf0325453208d06cfbf8aa7a854d6875" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getReferenceArea</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a8bf7126281dbe7017490e77768e23670" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getReferenceLength</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a116a427562ff47a5cfb717fc5931171b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>getReferenceLengths</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a5e0570c4a1562fa17fde2fa5c5e2b3a8" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>independentVariableNames_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1a0c300bde32e7b0e6ed9e4e6080e03058" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>isScalingRelative_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1addb200a9776750fdc60ae9d5f9291fc8" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>lateralReferenceLength_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1a9dd22a195caac0ee384dadaf7ffc180a" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>momentCoefficientScalingFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a88e4085f5377db07dece01f46badc536" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>momentReferencePoint_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab8d9151ab40af2f5bce2cf0208020e1b" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>numberOfIndependentVariables_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af4588066ab70f6866f5754016c7876c3" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>referenceArea_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a37ca00d965d756bbf54b727516a33a57" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>referenceLength_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af170e69f9c689cce254dbf9b7d0fb2ab" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>referenceLengths_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1ab400269b41186d9318d7eedde525ff87" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>ScaledAerodynamicCoefficientInterface</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a5b6637fe09eee857978eae3ff94db959" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>setControlSurfaceIncrements</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_1a327b9fd37c20e5bf4184af116667b51d" prot="public" virt="virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>updateCurrentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a59727b07127b2e8ef0af43b3177a0808" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>updateCurrentControlSurfaceCoefficientsCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aa32aa23f6d4e140130a44a74f60893dc" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>updateFullCurrentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aa1df9aca23300659cd752d9afa42efa4" prot="public" virt="virtual"><scope>tudat::aerodynamics::ScaledAerodynamicCoefficientInterface</scope><name>~AerodynamicCoefficientInterface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1391 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial" kind="class" language="C++" prot="public">
+    <compoundname>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</compoundname>
+    <basecompoundref refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial" prot="public" virt="non-virtual">tudat::acceleration_partials::AccelerationPartial</basecompoundref>
+    <includes refid="sphericalHarmonicAccelerationPartial_8h" local="no">sphericalHarmonicAccelerationPartial.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a2e5d9f4ff5ef096acdf87f9a986fe108" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::gravitationalParameterFunction_</definition>
+        <argsstring></argsstring>
+        <name>gravitationalParameterFunction_</name>
+        <briefdescription>
+<para>Function to return the gravitational parameter used for calculating the acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="403" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="403" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1abe357936f3c7911bfcbb8c908b66456c" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::bodyReferenceRadius_</definition>
+        <argsstring></argsstring>
+        <name>bodyReferenceRadius_</name>
+        <briefdescription>
+<para>Function to return the reference radius used for calculating the acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="406" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="406" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a91c198c8a9277022e6540420ce0231f3" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::MatrixXd() &gt;</type>
+        <definition>std::function&lt; Eigen::MatrixXd( ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::cosineCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>cosineCoefficients_</name>
+        <briefdescription>
+<para>Function to return the current cosine coefficients of the spherical harmonic gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="409" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="409" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a4b7ac1f911f55ab8f13a46265987d716" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::MatrixXd() &gt;</type>
+        <definition>std::function&lt; Eigen::MatrixXd( ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::sineCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>sineCoefficients_</name>
+        <briefdescription>
+<para>Function to return the current sine coefficients of the spherical harmonic gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="412" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="412" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a7bc41b0a364bbc7555ea5193275102cc" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache" kindref="compound">basic_mathematics::SphericalHarmonicsCache</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; basic_mathematics::SphericalHarmonicsCache &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::sphericalHarmonicCache_</definition>
+        <argsstring></argsstring>
+        <name>sphericalHarmonicCache_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Cache object used for storing calculated values at current time and state for spherical harmonic gravity calculations. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="416" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="416" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a7f380d52420f396e9cb62095811bb42a" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::positionFunctionOfAcceleratedBody_</definition>
+        <argsstring></argsstring>
+        <name>positionFunctionOfAcceleratedBody_</name>
+        <briefdescription>
+<para>Function returning position of body undergoing acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="419" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="419" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1ada30e520093e9d4a0ce5a260943b76db" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::positionFunctionOfAcceleratingBody_</definition>
+        <argsstring></argsstring>
+        <name>positionFunctionOfAcceleratingBody_</name>
+        <briefdescription>
+<para>Function returning position of body exerting acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="422" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="422" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a680ab0b32fac356e78ab9bc0cb00d157" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Matrix3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Matrix3d( ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::fromBodyFixedToIntegrationFrameRotation_</definition>
+        <argsstring></argsstring>
+        <name>fromBodyFixedToIntegrationFrameRotation_</name>
+        <briefdescription>
+<para>Function return current rotation from inertial frame to frame fixed to body exerting acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="425" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="425" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a19ed67ec88cc08fdc76e25fc4c5b5020" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Matrix&lt; double, 3, 1 &gt;) &gt;</type>
+        <definition>std::function&lt; Eigen::Matrix&lt; double, 3, 1 &gt; ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::accelerationFunction_</definition>
+        <argsstring></argsstring>
+        <name>accelerationFunction_</name>
+        <briefdescription>
+<para>Function to retrieve the current spherical harmonic acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="428" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="428" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a108b9692a0982cb681ff1f4485020a6a" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; void(const double) &gt;</type>
+        <definition>std::function&lt; void( const double ) &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::updateFunction_</definition>
+        <argsstring></argsstring>
+        <name>updateFunction_</name>
+        <briefdescription>
+<para>Function to update the acceleration to the current state and time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the acceleration to the current state and time. Called when updating an object of this class with the update( time ) function, in case the partial is called before the acceleration model in the current iteration of the numerical integration. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="436" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="436" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a5cf1f88dd030daa8efe9caeb7fae3cd9" prot="protected" static="no" mutable="no">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::acceleration_partials::SphericalHarmonicsGravityPartial::currentCosineCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>currentCosineCoefficients_</name>
+        <briefdescription>
+<para>Current cosine coefficients of the spherical harmonic gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current cosine coefficients of the spherical harmonic gravity field, set by update( time ) function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="442" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="442" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a61efd1799c484094e1f2a3309817cee2" prot="protected" static="no" mutable="no">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::acceleration_partials::SphericalHarmonicsGravityPartial::currentSineCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>currentSineCoefficients_</name>
+        <briefdescription>
+<para>Current sine coefficients of the spherical harmonic gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current sine coefficients of the spherical harmonic gravity field, set by update( time ) function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="448" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="448" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a96f617d424d3108f5fe63163309f987b" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::acceleration_partials::SphericalHarmonicsGravityPartial::bodyFixedPosition_</definition>
+        <argsstring></argsstring>
+        <name>bodyFixedPosition_</name>
+        <briefdescription>
+<para>Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration, set by update( time ) function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="455" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="455" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a82865216494957a337867dd7c05d8ce1" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::acceleration_partials::SphericalHarmonicsGravityPartial::bodyFixedSphericalPosition_</definition>
+        <argsstring></argsstring>
+        <name>bodyFixedSphericalPosition_</name>
+        <briefdescription>
+<para>Current spherical coordinate of body undergoing acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current spherical coordinate of body undergoing acceleration, in reference frame fixed to body exerting acceleration. Order of components is radial distance (from center of body), latitude, longitude. Note that the the second entry differs from the direct output of the cartesian -&gt; spherical coordinates, which produces a colatitude. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="463" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="463" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a41f5854f618449f734d9e385bb929778" prot="protected" static="no" mutable="no">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::acceleration_partials::SphericalHarmonicsGravityPartial::currentPartialWrtPosition_</definition>
+        <argsstring></argsstring>
+        <name>currentPartialWrtPosition_</name>
+        <briefdescription>
+<para>The current partial of the acceleration wrt the position of the body undergoing the acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The current partial of the acceleration wrt the position of the body undergoing the acceleration. The partial wrt the position of the body exerting the acceleration is minus this value. Value is set by the update( time ) function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="471" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="471" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a7a9f8f2be401442d321d9d16ea677beb" prot="protected" static="no" mutable="no">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::acceleration_partials::SphericalHarmonicsGravityPartial::currentBodyFixedPartialWrtPosition_</definition>
+        <argsstring></argsstring>
+        <name>currentBodyFixedPartialWrtPosition_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The current partial of the acceleration wrt the position of the body undergoing the acceleration, with both acceleration and position in body-fixed frame.</para>
+<para>The current partial of the acceleration wrt the position of the body undergoing the acceleration. with both acceleration and position in body-fixed frame. Value is set by the update( time ) function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="479" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="479" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a350f32e79d02ae83d780222a504c2192" prot="protected" static="no" mutable="no">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::acceleration_partials::SphericalHarmonicsGravityPartial::currentPartialWrtVelocity_</definition>
+        <argsstring></argsstring>
+        <name>currentPartialWrtVelocity_</name>
+        <briefdescription>
+<para>The current partial of the acceleration wrt the velocity of the body undergoing the acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The current partial of the acceleration wrt the velocity of the body undergoing the acceleration. The partial wrt the velocity of the body exerting the acceleration is minus this value. Value is set by the update( time ) function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="487" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="487" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1ac8a5875d6c430cf8c197b4dbd13e4c58" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::acceleration_partials::SphericalHarmonicsGravityPartial::maximumDegree_</definition>
+        <argsstring></argsstring>
+        <name>maximumDegree_</name>
+        <briefdescription>
+<para>Maximum degree of spherical harmonic expansion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum degree of spherical harmonic expansion of body exerting acceleration used in the calculation of the acceleration. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="494" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="494" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a6d7ad24c3d1f2c8faaa861206872c822" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::acceleration_partials::SphericalHarmonicsGravityPartial::maximumOrder_</definition>
+        <argsstring></argsstring>
+        <name>maximumOrder_</name>
+        <briefdescription>
+<para>Maximum order of spherical harmonic expansion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum order of spherical harmonic expansion of body exerting acceleration used in the calculation of the acceleration. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="501" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="501" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a66bd0af703babbf495b82ff1dfa88757" prot="protected" static="no" mutable="no">
+        <type>observation_partials::RotationMatrixPartialNamedList</type>
+        <definition>observation_partials::RotationMatrixPartialNamedList tudat::acceleration_partials::SphericalHarmonicsGravityPartial::rotationMatrixPartials_</definition>
+        <argsstring></argsstring>
+        <name>rotationMatrixPartials_</name>
+        <briefdescription>
+<para>Map of RotationMatrixPartial, one for each relevant rotation parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Map of RotationMatrixPartial, one for each parameter representing a property of the rotation of the body exerting the acceleration wrt which an acceleration partial will be calculated. Map is pre-created and set through the constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="509" column="58" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="509" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1afdd73c298d1c17f37f500466cf9cb03c" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface" kindref="compound">orbit_determination::TidalLoveNumberPartialInterface</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; orbit_determination::TidalLoveNumberPartialInterface &gt; &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::tidalLoveNumberPartialInterfaces_</definition>
+        <argsstring></argsstring>
+        <name>tidalLoveNumberPartialInterfaces_</name>
+        <briefdescription>
+<para>List of objects to compute partials of tidal gravity field variations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of objects to compute partials of tidal gravity field variations, one per corresponding variation object in acceleratedBody. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="516" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="516" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aadf9b1035115c37289fb59d44eba2778" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::acceleration_partials::SphericalHarmonicsGravityPartial::accelerationUsesMutualAttraction_</definition>
+        <argsstring></argsstring>
+        <name>accelerationUsesMutualAttraction_</name>
+        <briefdescription>
+<para>Boolean denoting whether the mutual attraction between the bodies is taken into account. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean denoting whether the mutual attraction between the bodies is taken into account, as is the case when integrting in a (non-rotating) frame centered on the body exerting the acceleration, in which case the gravitational acceleration of the body undergoing the acceleration on that exerting the acceleration must be taken into account as an inertial effect. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="525" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="525" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aa4a8fd9919ed9a780858daea7f94d1f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::acceleration_partials::SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial</definition>
+        <argsstring>(const std::string &amp;acceleratedBody, const std::string &amp;acceleratingBody, const std::shared_ptr&lt; gravitation::SphericalHarmonicsGravitationalAccelerationModel &gt; accelerationModel, const observation_partials::RotationMatrixPartialNamedList &amp;rotationMatrixPartials=observation_partials::RotationMatrixPartialNamedList(), const std::vector&lt; std::shared_ptr&lt; orbit_determination::TidalLoveNumberPartialInterface &gt; &gt; &amp;tidalLoveNumberPartialInterfaces=std::vector&lt; std::shared_ptr&lt; orbit_determination::TidalLoveNumberPartialInterface &gt; &gt;())</argsstring>
+        <name>SphericalHarmonicsGravityPartial</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>acceleratedBody</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>acceleratingBody</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">gravitation::SphericalHarmonicsGravitationalAccelerationModel</ref> &gt;</type>
+          <declname>accelerationModel</declname>
+        </param>
+        <param>
+          <type>const observation_partials::RotationMatrixPartialNamedList &amp;</type>
+          <declname>rotationMatrixPartials</declname>
+          <defval>observation_partials::RotationMatrixPartialNamedList()</defval>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface" kindref="compound">orbit_determination::TidalLoveNumberPartialInterface</ref> &gt; &gt; &amp;</type>
+          <declname>tidalLoveNumberPartialInterfaces</declname>
+          <defval>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface" kindref="compound">orbit_determination::TidalLoveNumberPartialInterface</ref> &gt; &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Contructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, requires input on the acceleration model as of which partials are to be computed. If any partials of parameters of the rotation model of the body exerting acceleration are to be calculated, RotationMatrixPartial objects must be pre-constructed and passed here as a map, with one object for each parameter wrt which a partial is to be taken. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>acceleratedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>acceleratingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body exerting acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Spherical harmonic gravity acceleration model from which acceleration is calculated wrt which the object being constructed is to calculate partials. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationMatrixPartials</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of RotationMatrixPartial, one for each paramater representing a property of the rotation of the body exerting the acceleration wrt which an acceleration partial will be calculated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tidalLoveNumberPartialInterfaces</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of objects to compute partials of tidal gravity field variations, one per corresponding variation object in acceleratedBody. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="57" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="25" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a2d502a2bd15dfc8a825d115ba5ea5b5e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::acceleration_partials::SphericalHarmonicsGravityPartial::~SphericalHarmonicsGravityPartial</definition>
+        <argsstring>()</argsstring>
+        <name>~SphericalHarmonicsGravityPartial</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="68" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="68" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a572e602e9a2469577bb7a6e51f04136b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtPositionOfAcceleratedBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=0)</argsstring>
+        <name>wrtPositionOfAcceleratedBody</name>
+        <reimplements refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a629ee1ab826d64e6493d1dbf0fe7586b">wrtPositionOfAcceleratedBody</reimplements>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration and adding it to the existing partial block Update( ) function must have been called during current time step before calling this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of acceleration w.r.t. Cartesian position of body undergoing acceleration where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="81" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="81" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a6942af4b6be577fbf8036a7cc05b168d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtVelocityOfAcceleratedBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=3)</argsstring>
+        <name>wrtVelocityOfAcceleratedBody</name>
+        <reimplements refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ad3bb8ec281acf660baed8eb5127fcf5d">wrtVelocityOfAcceleratedBody</reimplements>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>3</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration.. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration and adding it to the existing partial block Update( ) function must have been called during current time step before calling this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body undergoing acceleration where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="106" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="106" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a21f310f69efdfbdc36c1fc72ca8168fa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtPositionOfAcceleratingBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=0)</argsstring>
+        <name>wrtPositionOfAcceleratingBody</name>
+        <reimplements refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a779c9c208d2054d8425178f4ea8f6021">wrtPositionOfAcceleratingBody</reimplements>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration and adding it to the existing partial block. The <ref refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a581667836418faf4f1a6e9c79f898e6a" kindref="member">update( )</ref> function must have been called during current time step before calling this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of acceleration w.r.t. Cartesian position of body exerting acceleration where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="131" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="131" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a24c7ae61cb6e382a9840bcc21f4dd9df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtVelocityOfAcceleratingBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=0)</argsstring>
+        <name>wrtVelocityOfAcceleratingBody</name>
+        <reimplements refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab411157f1ab0d7b8bdcb771024b4f5a9">wrtVelocityOfAcceleratingBody</reimplements>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration and adding it to the existing partial block. The <ref refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a581667836418faf4f1a6e9c79f898e6a" kindref="member">update( )</ref> function must have been called during current time step before calling this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body exerting acceleration where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="155" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="155" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a46303a708d5697dff414538e8dc42912" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>bool tudat::acceleration_partials::SphericalHarmonicsGravityPartial::isStateDerivativeDependentOnIntegratedAdditionalStateTypes</definition>
+        <argsstring>(const std::pair&lt; std::string, std::string &gt; &amp;stateReferencePoint, const propagators::IntegratedStateType integratedStateType)</argsstring>
+        <name>isStateDerivativeDependentOnIntegratedAdditionalStateTypes</name>
+        <reimplements refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a94b95390a37109627270bd8dfbca5342">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplements>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>stateReferencePoint</declname>
+        </param>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <briefdescription>
+<para>Function for determining if the acceleration is dependent on a non-translational integrated state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for determining if the acceleration is dependent on a non-translational integrated state. No dependency is implemented, but a warning is provided if partial w.r.t. mass of body exerting acceleration (and undergoing acceleration if mutual attraction is used) is requested. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point id of propagated state </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagated state for which dependency is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if dependency exists (non-zero partial), false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="177" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="177" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a47b1b544bfab892216d8f66d5e66f724" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt;</type>
+        <definition>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::getParameterPartialFunction</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt; parameter)</argsstring>
+        <name>getParameterPartialFunction</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f">getParameterPartialFunction</reimplements>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function for setting up and retrieving a function returning a partial w.r.t. a double parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a function returning a partial w.r.t. a double parameter.</para>
+<para>Function for setting up and retrieving a function returning a partial w.r.t. a double parameter. Function returns empty function and zero size indicator for parameters with no dependency for current acceleration. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which partial is to be taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="203" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="68" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a8e5a5268d81802ce08a6ee258d89799a" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt;</type>
+        <definition>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::getParameterPartialFunction</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt; parameter)</argsstring>
+        <name>getParameterPartialFunction</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a849b14fede905e4e26ee2e752fbc95cc">getParameterPartialFunction</reimplements>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a function returning a partial w.r.t. a vector parameter.</para>
+<para>Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter. Function returns empty function and zero size indicator for parameters with no dependency for current acceleration. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which partial is to be taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of parameter partial function and number of columns in partial (0 for no dependency). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="212" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="162" bodyend="279"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aef6175182c71375a77b74d54f88e1455" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtNonTranslationalStateOfAdditionalBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const std::pair&lt; std::string, std::string &gt; &amp;stateReferencePoint, const propagators::IntegratedStateType integratedStateType, const bool addContribution=true)</argsstring>
+        <name>wrtNonTranslationalStateOfAdditionalBody</name>
+        <reimplements refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a781bc99dab9ab8dd805c63edf4e0d8f5">wrtNonTranslationalStateOfAdditionalBody</reimplements>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>stateReferencePoint</declname>
+        </param>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state and adding it to the existing partial block. Function calls constituent spherical harmonic model functions <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point id of propagated state </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagated state for which partial is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="224" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="224" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1afaea01bd1f31b90651903e6c4e75841e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt;</type>
+        <definition>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt; tudat::acceleration_partials::SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction</definition>
+        <argsstring>(const estimatable_parameters::EstimatebleParameterIdentifier &amp;parameterId)</argsstring>
+        <name>getGravitationalParameterPartialFunction</name>
+        <param>
+          <type>const estimatable_parameters::EstimatebleParameterIdentifier &amp;</type>
+          <declname>parameterId</declname>
+        </param>
+        <briefdescription>
+<para>Function to create a function returning the current partial w.r.t. a gravitational parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a function returning the current partial w.r.t. a gravitational parameter. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterId</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of parameter for which the partial is to be created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair with partial function and paramater partial size. The partial function is non-empty only if the parameterId input represents the gravitational parameter of acceleratingBody_ (or acceleratedBody_ if accelerationUsesMutualAttraction_ is true). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="246" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="283" bodyend="311"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a581667836418faf4f1a6e9c79f898e6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::update</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>update</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6801a8f31cc0fcdb9679c2db6be3b157">update</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function for updating the partial object to current state and time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for updating the partial object to current state and time. Calculates the variables that are used for the calculation of multple partials, to prevent multiple calculations of same function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which object is to be updated (note that most update functions are time-independent, since the &apos;current&apos; state of the bodies is typically updated globally by the NBodyStateDerivative class). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="256" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="314" bodyend="400"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a57a51c57398706a5f6944fc708c4d07f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody</definition>
+        <argsstring>(Eigen::MatrixXd &amp;partialMatrix, const int addPartial=0)</argsstring>
+        <name>wrtGravitationalParameterOfCentralBody</name>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>addPartial</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function to calculate the partial wrt the gravitational parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the partial wrt the gravitational parameter of the central body. Note that in the case of mutual attraction (see SphericalHarmonicsGravitationalAccelerationModel), the partial wrt the gravitational parameter of the body exerting acceleration is equal to the partial wrt to the body undergoing the acceleration, which is zero otherwise. <simplesect kind="return"><para>Partial wrt the gravitational parameter of the central body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="266" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="266" bodyend="291"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1ad62a665ae24fbf99a6345702dd7dc26d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::acceleration_partials::SphericalHarmonicsGravityPartial::getCurrentPartialWrtPosition</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentPartialWrtPosition</name>
+        <briefdescription>
+<para>Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in inertial coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration, in inertial coordinates <simplesect kind="return"><para>Current partial of the acceleration wrt the position of the body undergoing the acceleration, in inertial coordinates. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="299" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="299" bodyend="302"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1ab95e641a32da63724ed2bea71a03bda7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::acceleration_partials::SphericalHarmonicsGravityPartial::getCurrentBodyFixedPartialWrtPosition</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentBodyFixedPartialWrtPosition</name>
+        <briefdescription>
+<para>Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in body-fixed coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration, in body-fixed coordinates <simplesect kind="return"><para>Current partial of the acceleration wrt the position of the body undergoing the acceleration, in body-fixed coordinates. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="310" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="310" bodyend="313"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a615bd69cfc7a7ea6a91ea50d506f02c3" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::resetTimeOfMemberObjects</definition>
+        <argsstring>()</argsstring>
+        <name>resetTimeOfMemberObjects</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aa0245f5f6b58423905b64709dac39a4c">resetTimeOfMemberObjects</reimplements>
+        <briefdescription>
+<para>Function to reset the relevant member objects to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="318" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="318" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a689a4e11722f9552b91a0be493fb4fc4" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::updateParameterPartialsOfMemberObjects</definition>
+        <argsstring>()</argsstring>
+        <name>updateParameterPartialsOfMemberObjects</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a53491f7d5c94bd64b71c5190b9793a64">updateParameterPartialsOfMemberObjects</reimplements>
+        <briefdescription>
+<para>Function to update the parameter partials of the relevant member objects to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="327" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="327" bodyend="333"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a2b5eb89afa2612b063dfc0fbcb8784ef" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtCosineCoefficientBlock</definition>
+        <argsstring>(const std::vector&lt; std::pair&lt; int, int &gt; &gt; &amp;blockIndices, Eigen::MatrixXd &amp;partialDerivatives)</argsstring>
+        <name>wrtCosineCoefficientBlock</name>
+        <param>
+          <type>const std::vector&lt; std::pair&lt; int, int &gt; &gt; &amp;</type>
+          <declname>blockIndices</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>partialDerivatives</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the partial of the acceleration wrt a set of cosine coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the partial of the acceleration wrt a set of cosine coefficients. The set of coefficients wrt which a partial is to be taken is provided as input. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>blockIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of cosine coefficient indices wrt which the partials are to be taken (first and second are degree and order for each vector entry). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialDerivatives</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix of acceleration partials that is set by this function (returned by reference), with each column containg the partial wrt a single coefficient (in same order as blockIndices). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="344" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="403" bodyend="413"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aa3edb5f17386c2e3274c8da5d1b52a4a" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtSineCoefficientBlock</definition>
+        <argsstring>(const std::vector&lt; std::pair&lt; int, int &gt; &gt; &amp;blockIndices, Eigen::MatrixXd &amp;partialDerivatives)</argsstring>
+        <name>wrtSineCoefficientBlock</name>
+        <param>
+          <type>const std::vector&lt; std::pair&lt; int, int &gt; &gt; &amp;</type>
+          <declname>blockIndices</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>partialDerivatives</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the partial of the acceleration wrt a set of sine coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the partial of the acceleration wrt a set of sine coefficients. The set of coefficients wrt which a partial is to be taken is provided as input. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>blockIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of sine coefficient indices wrt which the partials are to be taken (first and second are degree and order for each vector entry). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialDerivatives</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix of acceleration partials that is set by this function (returned by reference), with each column containg the partial wrt a single coefficient (in same order as blockIndices). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="357" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="416" bodyend="426"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aef8a46d7ddbe55f690556eee4483b858" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtRotationModelParameter</definition>
+        <argsstring>(Eigen::MatrixXd &amp;accelerationPartial, const estimatable_parameters::EstimatebleParametersEnum parameterType, const std::string &amp;secondaryIdentifier)</argsstring>
+        <name>wrtRotationModelParameter</name>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>accelerationPartial</declname>
+        </param>
+        <param>
+          <type>const estimatable_parameters::EstimatebleParametersEnum</type>
+          <declname>parameterType</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>secondaryIdentifier</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate an acceleration partial wrt a rotational parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate an acceleration partial wrt a rotational parameter of the rotation model of the body exerting the acceleration. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>accelerationPartial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix of partials of spherical harmonic acceleration wrt a rotational parameter that is set by this function (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of parameter wrt which a partial is to be calculated. An entry of the requested type must be present in the rotationMatrixPartials_ map. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondaryIdentifier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier required to unambiguously define the parameter (in addition to information in parameterType. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="372" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="429" bodyend="451"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a5e9095296f39909951f0defe713a48a8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::SphericalHarmonicsGravityPartial::wrtTidalModelParameter</definition>
+        <argsstring>(const std::function&lt; std::vector&lt; Eigen::Matrix&lt; double, 2, Eigen::Dynamic &gt; &gt;() &gt; coefficientPartialFunctions, const int degree, const std::vector&lt; int &gt; &amp;orders, const bool sumOrders, const int parameterSize, Eigen::MatrixXd &amp;accelerationPartial)</argsstring>
+        <name>wrtTidalModelParameter</name>
+        <param>
+          <type>const std::function&lt; std::vector&lt; Eigen::Matrix&lt; double, 2, Eigen::Dynamic &gt; &gt;() &gt;</type>
+          <declname>coefficientPartialFunctions</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>orders</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>sumOrders</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>parameterSize</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>accelerationPartial</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate an acceleration partial wrt a tidal parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate an acceleration partial wrt a tidal parameter of the gravitu field of the body exerting the acceleration. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coefficientPartialFunctions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning a list of partial derivatives of C,S spherical harmonic coefficients with the degree and order determined by corresponding input arguments of this function. Degree is fixed, and this vector order corresponds to order of &apos;orders&apos; input parameter (one vector entry per order). Matrix rows denote C and S coefficient, respectively. Columns denote entries of tidal property (e.g. first entry for real Love number component, second for complex part) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of property (e.g. Love number) w.r.t. which partials are to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>orders</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orders of property (e.g. Love number) w.r.t. which partials are to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sumOrders</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True of the contributions of the various orders are to be summed (i.e. assumed to be constant for all orders at given degree), or if they are handled separately </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the parameter w.r.t. which the partials are to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationPartial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix of partials of spherical harmonic acceleration wrt a tidal parameter (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="394" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.cpp" bodystart="454" bodyend="528"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for calculating partial derivatives of a spherical harmonic gravitational acceleration. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for calculating partial derivatives of a spherical harmonic gravitational acceleration, as calculated by the SphericalHarmonicsGravitationalAccelerationModel class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::acceleration_partials::AccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::orbit_determination::StateDerivativePartial</label>
+        <link refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial"/>
+      </node>
+      <node id="1">
+        <label>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::acceleration_partials::AccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>acceleratedBody_</edgelabel>
+          <edgelabel>acceleratingBody_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>iterator</label>
+      </node>
+      <node id="3">
+        <label>tudat::orbit_determination::StateDerivativePartial</label>
+        <link refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>isCurrentDoubleParameterPartialSetIterator_</edgelabel>
+          <edgelabel>isCurrentVectorParameterPartialSetIterator_</edgelabel>
+          <edgelabel>parameterDoublePartialFunctionIterator_</edgelabel>
+          <edgelabel>parameterVectorPartialFunctionIterator_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" line="38" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h" bodystart="39" bodyend="527"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a655662aa6427373647cc9c26327e9565" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>acceleratedBody_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1aa0cb4d885b7833a39db39212a797ebd2" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>acceleratingBody_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a19ed67ec88cc08fdc76e25fc4c5b5020" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>accelerationFunction_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ad4f4594c6e13138a1895dd008a14bf7e" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>AccelerationPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>accelerationSize_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a32cc6c58e4aa187b2110b4c6c7d4ccf4" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>accelerationType_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aadf9b1035115c37289fb59d44eba2778" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>accelerationUsesMutualAttraction_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a96f617d424d3108f5fe63163309f987b" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>bodyFixedPosition_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a82865216494957a337867dd7c05d8ce1" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>bodyFixedSphericalPosition_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1abe357936f3c7911bfcbb8c908b66456c" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>bodyReferenceRadius_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a91c198c8a9277022e6540420ce0231f3" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>cosineCoefficients_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a7a9f8f2be401442d321d9d16ea677beb" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>currentBodyFixedPartialWrtPosition_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a5cf1f88dd030daa8efe9caeb7fae3cd9" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>currentCosineCoefficients_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>currentDoubleParameterPartials_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a41f5854f618449f734d9e385bb929778" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>currentPartialWrtPosition_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a350f32e79d02ae83d780222a504c2192" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>currentPartialWrtVelocity_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a61efd1799c484094e1f2a3309817cee2" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>currentSineCoefficients_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1abbca0ac294a29b7d1efc16a68d7c4582" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>currentVectorParameterPartials_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a680ab0b32fac356e78ab9bc0cb00d157" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>fromBodyFixedToIntegrationFrameRotation_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a0bf7d418855165be4d40b82cfbeb115c" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ac74a861f66f3362524aec1f0266513cf" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a6b6e323de35eaeb1292e4bfb410da7b1" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getAccelerationType</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1ab95e641a32da63724ed2bea71a03bda7" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getCurrentBodyFixedPartialWrtPosition</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ac31393221aeef20ea4ee5d7d0ad59aba" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getCurrentDoubleParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getCurrentParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1acdfcbf63330d5b2b04fbaeb3787c8f68" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getCurrentParameterPartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1ad62a665ae24fbf99a6345702dd7dc26d" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getCurrentPartialWrtPosition</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a2ba60d5dd1c131412a8f1aae8dd47a21" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getCurrentVectorParameterPartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a1b40573f9d0a7ad203e379327f13757e" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getDerivativeFunctionWrtStateOfIntegratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1afaea01bd1f31b90651903e6c4e75841e" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getGravitationalParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a01893338e6faedd93cc0410bb692ce12" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getIntegratedStateType</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adbe24dfd4085ec6343ccf18478b52bc0" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getIntegrationReferencePoint</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a47b1b544bfab892216d8f66d5e66f724" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a8e5a5268d81802ce08a6ee258d89799a" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>getParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a2e5d9f4ff5ef096acdf87f9a986fe108" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>gravitationalParameterFunction_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>integratedStateType_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>integrationReferencePoint_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab6d26ee307ebc4bb8f2cdca9f53e5097" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>isAccelerationPartialWrtAdditionalBodyNonnullptr</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>isCurrentDoubleParameterPartialSet_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>isCurrentDoubleParameterPartialSetIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>isCurrentVectorParameterPartialSet_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>isCurrentVectorParameterPartialSetIterator_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a46303a708d5697dff414538e8dc42912" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>isStateDerivativeDependentOnIntegratedAdditionalStateTypes</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab05fd603c6228f4639e6f00ac4f9527c" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>isStateDerivativeDependentOnIntegratedState</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1ac8a5875d6c430cf8c197b4dbd13e4c58" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>maximumDegree_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a6d7ad24c3d1f2c8faaa861206872c822" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>maximumOrder_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>parameterDoublePartialFunctionIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>parameterDoublePartialFunctions_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>parameterVectorPartialFunctionIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>parameterVectorPartialFunctions_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a7f380d52420f396e9cb62095811bb42a" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>positionFunctionOfAcceleratedBody_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1ada30e520093e9d4a0ce5a260943b76db" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>positionFunctionOfAcceleratingBody_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7b26a08bb4990220a7d2f40f3681274a" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>resetCurrentParameterValues</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3654d540045886559b6592dc4f30bab8" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a615bd69cfc7a7ea6a91ea50d506f02c3" prot="protected" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>resetTimeOfMemberObjects</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a66bd0af703babbf495b82ff1dfa88757" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>rotationMatrixPartials_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a481fc771c0a87996bc469b34ead49db9" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>setParameterPartialUpdateFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a646f021c7c884446d482b9b0ab1e14f4" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>setParameterPartialUpdateFunction</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a4b7ac1f911f55ab8f13a46265987d716" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>sineCoefficients_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a7bc41b0a364bbc7555ea5193275102cc" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>sphericalHarmonicCache_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aa4a8fd9919ed9a780858daea7f94d1f9" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>SphericalHarmonicsGravityPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a4827d172b38b466f65f4da68500f53ea" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>StateDerivativePartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1afdd73c298d1c17f37f500466cf9cb03c" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>tidalLoveNumberPartialInterfaces_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a581667836418faf4f1a6e9c79f898e6a" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>update</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a108b9692a0982cb681ff1f4485020a6a" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>updateFunction_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7a6f8bf919e2a0c16bc254738123b5b4" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>updateParameterPartials</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a689a4e11722f9552b91a0be493fb4fc4" prot="protected" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>updateParameterPartialsOfMemberObjects</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a2b5eb89afa2612b063dfc0fbcb8784ef" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtCosineCoefficientBlock</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a57a51c57398706a5f6944fc708c4d07f" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtGravitationalParameterOfCentralBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aef6175182c71375a77b74d54f88e1455" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtNonTranslationalStateOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a17003fa377113426b3e556a78f147941" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtParameter</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae12101f97027e73084d3d80dbc7059b3" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtParameter</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a572e602e9a2469577bb7a6e51f04136b" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtPositionOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a21f310f69efdfbdc36c1fc72ca8168fa" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtPositionOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab222ba1108201aa02e916c64ce82d599" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtPositionOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aef8a46d7ddbe55f690556eee4483b858" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtRotationModelParameter</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1aa3edb5f17386c2e3274c8da5d1b52a4a" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtSineCoefficientBlock</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a0576a63608bc8bee1da8bf2aea0ea7b6" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtStateOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a8bfba67b7f9e9a3d6021b2b1759fc33e" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtStateOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a8e21b7ff67f97af2e7e2a963cd0da3b2" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtStateOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a5e9095296f39909951f0defe713a48a8" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtTidalModelParameter</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a6942af4b6be577fbf8036a7cc05b168d" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtVelocityOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a24c7ae61cb6e382a9840bcc21f4dd9df" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtVelocityOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a1566f99b2cfd42d523c06ee6c1559435" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>wrtVelocityOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab373fff70206231b312a988e59902038" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>~AccelerationPartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a2d502a2bd15dfc8a825d115ba5ea5b5e" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>~SphericalHarmonicsGravityPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a05f085a890b27518ca24446ac22bdb3e" prot="public" virt="virtual"><scope>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</scope><name>~StateDerivativePartial</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

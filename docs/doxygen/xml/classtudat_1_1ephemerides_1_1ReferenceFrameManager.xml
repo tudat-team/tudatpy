@@ -1,0 +1,321 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1ephemerides_1_1ReferenceFrameManager" kind="class" language="C++" prot="public">
+    <compoundname>tudat::ephemerides::ReferenceFrameManager</compoundname>
+    <includes refid="frameManager_8h" local="no">frameManager.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a600e409dc257fd662849b7d965fd0c3e" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::map&lt; std::string, std::string &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; std::string, std::string &gt; &gt; tudat::ephemerides::ReferenceFrameManager::baseFrameList_</definition>
+        <argsstring></argsstring>
+        <name>baseFrameList_</name>
+        <briefdescription>
+<para>Vector of frames with associated base frames, ordered by frame level. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of frames with associated base frames, ordered by frame level. Index of vector indicates at which frame level the frames in the maps at that index are. The map contains frame names (key) with their associated base frames (value). Each base frame must be a frame of one level lower; base frame of level 0 frames must be global base frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="210" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1af6fc9e8bfa7a035668e01d244aea0587" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::shared_ptr&lt; Ephemeris &gt; &gt; tudat::ephemerides::ReferenceFrameManager::availableEphemerides_</definition>
+        <argsstring></argsstring>
+        <name>availableEphemerides_</name>
+        <briefdescription>
+<para>Map of ephemerides (values) of bodies (keys) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Map of ephemerides (values) of bodies (keys). The frame origins and orientations of these ephemerides can be retrievd from the objects themselves. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="217" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" bodystart="217" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a70a284206238729d6e57a0f98695d3bb" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, int &gt;</type>
+        <definition>std::map&lt; std::string, int &gt; tudat::ephemerides::ReferenceFrameManager::frameIndexList_</definition>
+        <argsstring></argsstring>
+        <name>frameIndexList_</name>
+        <briefdescription>
+<para>Map giving the frame level for each frame name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Map giving the frame level for each frame name. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="223" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" bodystart="223" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1abef3f56fb3dbe9bcc10581d004587a97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::ReferenceFrameManager::ReferenceFrameManager</definition>
+        <argsstring>(const std::map&lt; std::string, std::shared_ptr&lt; Ephemeris &gt; &gt; &amp;ephemerisMap)</argsstring>
+        <name>ReferenceFrameManager</name>
+        <param>
+          <type>const std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt; &gt; &amp;</type>
+          <declname>ephemerisMap</declname>
+        </param>
+        <briefdescription>
+<para>Constructor from named list of ephemerides. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor from named list of ephemerides. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemerisMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of ephemerides per body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="64" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="40" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a347277acdec8483dceac00003833d5fb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; Ephemeris &gt; tudat::ephemerides::ReferenceFrameManager::getEphemeris</definition>
+        <argsstring>(const std::string &amp;origin, const std::string &amp;body)</argsstring>
+        <name>getEphemeris</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>origin</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>body</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the ephemeris of a body with a requested frame origin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the ephemeris of a body with a requested frame origin. Both the body and the origin must be loaded into the frame manager.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>origin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Origin of ephemeris </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>body</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which ephemeris is requested. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> of requested body qith requested frame origin </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="76" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" bodystart="76" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1aa4528fe2bf8703b8e8502906cab4df5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; int, bool &gt;</type>
+        <definition>std::pair&lt; int, bool &gt; tudat::ephemerides::ReferenceFrameManager::getFrameLevel</definition>
+        <argsstring>(const std::string &amp;frame)</argsstring>
+        <name>getFrameLevel</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Return the level at which the requested ephemeris is in the hierarchy. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Return the level at which the requested ephemeris is in the hierarchy. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame for which the frame level is requested. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of frame level and boolean. Boolean is true if frame exists, false if not (and frame level NAN). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="174" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="208" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a8892a638281b34e6e92489542ff03893" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; std::string, int &gt;</type>
+        <definition>std::pair&lt; std::string, int &gt; tudat::ephemerides::ReferenceFrameManager::getNearestCommonFrame</definition>
+        <argsstring>(std::vector&lt; std::string &gt; frameList)</argsstring>
+        <name>getNearestCommonFrame</name>
+        <param>
+          <type>std::vector&lt; std::string &gt;</type>
+          <declname>frameList</declname>
+        </param>
+        <briefdescription>
+<para>Returns the nearest common frame between frames. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the nearest common frame between frames. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frameList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of frame names for which the nearest common frame is to be found. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Nearest common frame, with its frame level. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="182" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="230" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1ac6e5305685fd540c736be8d55b1d2be8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::ephemerides::ReferenceFrameManager::getBaseFrameNameOfBody</definition>
+        <argsstring>(const std::string &amp;bodyName)</argsstring>
+        <name>getBaseFrameNameOfBody</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+<para>Get name of the base frame for a given body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get name of the base frame for a given body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body for which the base frame is to be returned. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Name od base frame of bodyName. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="190" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="323" bodyend="337"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a082415ca90c5db330fb8b7d916ac98b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::ephemerides::ReferenceFrameManager::getEphemerisOrigins</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; &amp;bodyList)</argsstring>
+        <name>getEphemerisOrigins</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodyList</declname>
+        </param>
+        <briefdescription>
+<para>Get ephemeris origins (base frame names) for a list of bodies. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get ephemeris origins (base frame names) for a list of bodies, calls getBaseFrameNameOfBody for each entry of bodyList. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which ephemeris origins are to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> origins of bodyList </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="199" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="340" bodyend="349"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1aee4d5e84e1c3707e7bfb2bde6742bf17" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; Ephemeris &gt; &gt; tudat::ephemerides::ReferenceFrameManager::getDirectEphemerisFromLowerToUpperFrame</definition>
+        <argsstring>(const std::string &amp;lowerFrame, const std::string &amp;upperFrame)</argsstring>
+        <name>getDirectEphemerisFromLowerToUpperFrame</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>lowerFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>upperFrame</declname>
+        </param>
+        <briefdescription>
+<para>Returns an ephemeris along a single line of the hierarchy tree. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns an ephemeris along a single line of the hierarchy tree, i.e. returned ephemeris constituent frame levels must be continuously increasing </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="230" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="163" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a8eb53b26721b6a732dbc6a506512bb16" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::ephemerides::ReferenceFrameManager::setEphemerides</definition>
+        <argsstring>(const std::map&lt; std::string, std::shared_ptr&lt; Ephemeris &gt; &gt; &amp;additionalEphemerides)</argsstring>
+        <name>setEphemerides</name>
+        <param>
+          <type>const std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt; &gt; &amp;</type>
+          <declname>additionalEphemerides</declname>
+        </param>
+        <briefdescription>
+<para>Function to determine frame levels and base frames of all frames. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to determine frame levels and base frames of all frames; called by constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="237" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="51" bodyend="159"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to retrieve translation functions between different frames. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to retrieve translation functions between different frames, as calculated from a list of ephemeris objects. Using this class, the various <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> objects may be &apos;pasted&apos; together to obtain the state of one body w.r.t. any other body. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="55" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" bodystart="56" bodyend="240"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1af6fc9e8bfa7a035668e01d244aea0587" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>availableEphemerides_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a600e409dc257fd662849b7d965fd0c3e" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>baseFrameList_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a70a284206238729d6e57a0f98695d3bb" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>frameIndexList_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1ac6e5305685fd540c736be8d55b1d2be8" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>getBaseFrameNameOfBody</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1aee4d5e84e1c3707e7bfb2bde6742bf17" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>getDirectEphemerisFromLowerToUpperFrame</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a347277acdec8483dceac00003833d5fb" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>getEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a082415ca90c5db330fb8b7d916ac98b7" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>getEphemerisOrigins</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1aa4528fe2bf8703b8e8502906cab4df5c" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>getFrameLevel</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a8892a638281b34e6e92489542ff03893" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>getNearestCommonFrame</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1abef3f56fb3dbe9bcc10581d004587a97" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>ReferenceFrameManager</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager_1a8eb53b26721b6a732dbc6a506512bb16" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ReferenceFrameManager</scope><name>setEphemerides</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

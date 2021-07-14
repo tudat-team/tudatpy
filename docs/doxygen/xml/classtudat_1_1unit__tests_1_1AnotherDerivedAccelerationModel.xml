@@ -1,0 +1,346 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::unit_tests::AnotherDerivedAccelerationModel</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</basecompoundref>
+    <includes refid="testAccelerationModels_8h" local="no">testAccelerationModels.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename AccelerationDataType</type>
+        <defval>Eigen::Vector3d</defval>
+      </param>
+      <param>
+        <type>typename PositionDataType</type>
+        <defval>Eigen::Vector3d</defval>
+      </param>
+      <param>
+        <type>typename VelocityDataType</type>
+        <defval>Eigen::Vector3d</defval>
+      </param>
+      <param>
+        <type>typename TimeDataType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a0562b4a90a1f0d0ac0dbac0846a6b259" prot="public" static="no">
+        <type>std::function&lt; PositionDataType() &gt;</type>
+        <definition>typedef std::function&lt; PositionDataType( ) &gt; tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::PositionReturningFunction</definition>
+        <argsstring></argsstring>
+        <name>PositionReturningFunction</name>
+        <briefdescription>
+<para>Typedef for a pointer to a function that returns a position. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="143" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a3a602171a8131b0daf94cc3b3b281a29" prot="public" static="no">
+        <type>std::function&lt; VelocityDataType() &gt;</type>
+        <definition>typedef std::function&lt; VelocityDataType( ) &gt; tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::VelocityReturningFunction</definition>
+        <argsstring></argsstring>
+        <name>VelocityReturningFunction</name>
+        <briefdescription>
+<para>Typedef for a pointer to a function that returns a position. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="146" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a2c1c58f3a90044d279dbd11ea72cae22" prot="public" static="no">
+        <type>std::function&lt; TimeDataType() &gt;</type>
+        <definition>typedef std::function&lt; TimeDataType( ) &gt; tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::TimeReturningFunction</definition>
+        <argsstring></argsstring>
+        <name>TimeReturningFunction</name>
+        <briefdescription>
+<para>Typedef for a pointer to a function that returns a time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="149" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a91b9eda58782c59840681c805775856a" prot="private" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a0562b4a90a1f0d0ac0dbac0846a6b259" kindref="member">PositionReturningFunction</ref></type>
+        <definition>PositionReturningFunction tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::getPosition</definition>
+        <argsstring></argsstring>
+        <name>getPosition</name>
+        <briefdescription>
+<para>Pointer to position-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function-pointer that points to a function passed to the constructor that returns a position. This function-pointer is used by the <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" kindref="member">updateMembers()</ref> function to update the internally stored position. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="206" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a57cbd077c3f37d3686e746d050756113" prot="private" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a3a602171a8131b0daf94cc3b3b281a29" kindref="member">VelocityReturningFunction</ref></type>
+        <definition>VelocityReturningFunction tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::getVelocity</definition>
+        <argsstring></argsstring>
+        <name>getVelocity</name>
+        <briefdescription>
+<para>Pointer to velocity-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function-pointer that points to a function passed to the constructor that returns a velocity. This function-pointer is used by the <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" kindref="member">updateMembers()</ref> function to update the internally stored velocity. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="214" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a5c31a0b0c5e36507adfc5caf1a9ab3da" prot="private" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a2c1c58f3a90044d279dbd11ea72cae22" kindref="member">TimeReturningFunction</ref></type>
+        <definition>TimeReturningFunction tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::getTime</definition>
+        <argsstring></argsstring>
+        <name>getTime</name>
+        <briefdescription>
+<para>Pointer to time-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function-pointer that points to a function passed to the constructor that returns a time. This function-pointer is used by the <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" kindref="member">updateMembers()</ref> function to update the internally stored time. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="222" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="222" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a86685fae123fd4d46843cb07f9444b90" prot="private" static="no" mutable="no">
+        <type>PositionDataType</type>
+        <definition>PositionDataType tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::position</definition>
+        <argsstring></argsstring>
+        <name>position</name>
+        <briefdescription>
+<para>Position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Internally stored current position, used by the <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1ab025d414ca6b01e768198e2ab1f9c9d0" kindref="member">getAcceleration()</ref> function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="228" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="228" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a750967d07d80f23854cdd2e0d2df500a" prot="private" static="no" mutable="no">
+        <type>VelocityDataType</type>
+        <definition>VelocityDataType tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::velocity</definition>
+        <argsstring></argsstring>
+        <name>velocity</name>
+        <briefdescription>
+<para>Velocity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Internally stored current velocity, used by the <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1ab025d414ca6b01e768198e2ab1f9c9d0" kindref="member">getAcceleration()</ref> function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="234" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="234" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a4a8dfffc36922e55177abd06575d8797" prot="private" static="no" mutable="no">
+        <type>TimeDataType</type>
+        <definition>TimeDataType tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::time</definition>
+        <argsstring></argsstring>
+        <name>time</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Internally stored current time, used by the <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1ab025d414ca6b01e768198e2ab1f9c9d0" kindref="member">getAcceleration()</ref> function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="240" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="240" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1aaacbc7b46b24df7e6313f2a041cd6cac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::AnotherDerivedAccelerationModel</definition>
+        <argsstring>(const PositionReturningFunction aPositionFunction, const VelocityReturningFunction aVelocityFunction, const TimeReturningFunction aTimeFunction)</argsstring>
+        <name>AnotherDerivedAccelerationModel</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a0562b4a90a1f0d0ac0dbac0846a6b259" kindref="member">PositionReturningFunction</ref></type>
+          <declname>aPositionFunction</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a3a602171a8131b0daf94cc3b3b281a29" kindref="member">VelocityReturningFunction</ref></type>
+          <declname>aVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a2c1c58f3a90044d279dbd11ea72cae22" kindref="member">TimeReturningFunction</ref></type>
+          <declname>aTimeFunction</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor that takes function-pointers as input. These function-pointers point to functions that return a position, a velocity, and a time. Internally, the <ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" kindref="member">updateMembers()</ref> function also gets called to ensure that all members are up-to-date after construction. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aPositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A function-pointer that points to a function returning a position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aVelocityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A function-pointer that points to a function returning a velocity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aTimeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A function-pointer that points to a function returning a time. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="160" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="160" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1ab025d414ca6b01e768198e2ab1f9c9d0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>AccelerationDataType</type>
+        <definition>AccelerationDataType tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::getAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getAcceleration</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750">getAcceleration</reimplements>
+        <briefdescription>
+<para>Get acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns acceleration. In this case, this functions returns an acceleration that is dependent on the internally stored position, velocity, and time members. This function merely serves as an example, rather than representing real dynamics. <simplesect kind="return"><para>Computed acceleration. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="177" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="177" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the acceleration model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates member variables used by the acceleration model. In this case, the internally stored position, velocity, and time are updated by calling the function-pointers passed to the constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="189" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="189" bodyend="194"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Another acceleration model derived class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class serves as an example of another derived class from the AccelerationModel base class. This class contains an implementation that computes acceleration based on a given position, velocity, and time. The context of this class is somewhat specific to make it more understandable, though derived classes of the AccelerationModel base class can be completely general. It should be noted that this class should NOT be used as is in the rest of the library, and is only used in conjunction with unit tests. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>AccelerationDataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type used to represent accelerations (default=Eigen::Vector3d). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>PositionDataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type used to represent positions (default=Eigen::Vector3d). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>VelocityDataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type used to represent velocities (default=Eigen::Vector3d). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>TimeDataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type used to represent time (default=double). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;</label>
+        <link refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::unit_tests::AnotherDerivedAccelerationModel&lt; AccelerationDataType, PositionDataType, VelocityDataType, TimeDataType &gt;</label>
+        <link refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" line="137" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h" bodystart="139" bodyend="241"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a36f72cf81cc4ff658919a1b92cdc33ad" prot="public" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>AccelerationModel</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1aaacbc7b46b24df7e6313f2a041cd6cac" prot="public" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>AnotherDerivedAccelerationModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a70f6593c9eec30136ed648ca0e6c9e88" prot="protected" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1ab025d414ca6b01e768198e2ab1f9c9d0" prot="public" virt="virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>getAcceleration</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a91b9eda58782c59840681c805775856a" prot="private" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>getPosition</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a5c31a0b0c5e36507adfc5caf1a9ab3da" prot="private" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>getTime</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a57cbd077c3f37d3686e746d050756113" prot="private" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>getVelocity</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a86685fae123fd4d46843cb07f9444b90" prot="private" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>position</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a0562b4a90a1f0d0ac0dbac0846a6b259" prot="public" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>PositionReturningFunction</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a325aae81896137d88b756aac15e188da" prot="public" virt="virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a4a8dfffc36922e55177abd06575d8797" prot="private" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>time</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a2c1c58f3a90044d279dbd11ea72cae22" prot="public" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>TimeReturningFunction</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" prot="public" virt="virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a750967d07d80f23854cdd2e0d2df500a" prot="private" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>velocity</name></member>
+      <member refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a3a602171a8131b0daf94cc3b3b281a29" prot="public" virt="non-virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>VelocityReturningFunction</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a131bb0f8b79b410810f602d9b8865968" prot="public" virt="virtual"><scope>tudat::unit_tests::AnotherDerivedAccelerationModel</scope><name>~AccelerationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

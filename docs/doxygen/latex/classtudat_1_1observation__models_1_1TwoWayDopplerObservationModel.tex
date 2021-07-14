@@ -1,0 +1,151 @@
+\hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}{}\doxysection{tudat\+::observation\+\_\+models\+::Two\+Way\+Doppler\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}\index{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}}
+
+
+{\ttfamily \#include $<$two\+Way\+Doppler\+Observation\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+models\+::Two\+Way\+Doppler\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.901528cm]{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a8f0ef8daa1b965bf30562be13afa19c0}\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a8f0ef8daa1b965bf30562be13afa19c0}} 
+typedef Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 6, 1 $>$ {\bfseries State\+Type}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_aab4e159e81e0347ab2e685bc5186b15b}\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_aab4e159e81e0347ab2e685bc5186b15b}} 
+typedef Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 3, 1 $>$ {\bfseries Position\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_abe08250c04ae2889b70dc820c382364c}{Two\+Way\+Doppler\+Observation\+Model}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1OneWayDopplerObservationModel}{observation\+\_\+models\+::\+One\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$ uplink\+Doppler\+Calculator, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1OneWayDopplerObservationModel}{observation\+\_\+models\+::\+One\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$ downlink\+Doppler\+Calculator, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBias}{Observation\+Bias}}$<$ 1 $>$ $>$ observation\+Bias\+Calculator=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_ae34469dbf4baecf4543145c5c7e8639f}\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_ae34469dbf4baecf4543145c5c7e8639f}} 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_ae34469dbf4baecf4543145c5c7e8639f}{$\sim$\+Two\+Way\+Doppler\+Observation\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 1, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_abd3be27b41e7a6f0e1e5a97c66c91e10}{compute\+Ideal\+Observations}} (const Time\+Type time, const Link\+End\+Type link\+End\+Associated\+With\+Time)
+\begin{DoxyCompactList}\small\item\em Function to compute ideal one-\/way Doppler observation without any corrections at given time. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 1, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a8aa39b198d4d997ac41f855abbe264fa}{compute\+Ideal\+Observations\+With\+Link\+End\+Data}} (const Time\+Type time, const Link\+End\+Type link\+End\+Associated\+With\+Time, std\+::vector$<$ double $>$ \&link\+End\+Times, std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&link\+End\+States)
+\begin{DoxyCompactList}\small\item\em Function to compute one-\/way Doppler observable without any corrections. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1OneWayDopplerObservationModel}{observation\+\_\+models\+::\+One\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a8729a297ec00c4d71b1497893d669d34}{get\+Uplink\+Doppler\+Calculator}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the object that computes the one-\/way Doppler observable for the uplink. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1OneWayDopplerObservationModel}{observation\+\_\+models\+::\+One\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a771be55fede0e936d630bdf7d1302f7d}{get\+Downlink\+Doppler\+Calculator}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the object that computes the one-\/way Doppler observable for the downlink. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Observation\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::observation\+\_\+models\+::\+Two\+Way\+Doppler\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$}
+
+Computes observable the (simplified) one-\/way Doppler observation between two link ends, omitting proper time rates and light time corrections.
+
+Computes observable the (simplified) one-\/way Doppler observation between two link ends, omitting proper time rates and light time corrections. The observable is defined as d f\+\_\+\{B\}/d\+\_\+f\+\_\+\{A\} -\/ 1, with A the transmitter and B the receiver, and f the frequency of the signal. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_abe08250c04ae2889b70dc820c382364c}\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_abe08250c04ae2889b70dc820c382364c}} 
+\index{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}!TwoWayDopplerObservationModel@{TwoWayDopplerObservationModel}}
+\index{TwoWayDopplerObservationModel@{TwoWayDopplerObservationModel}!tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{TwoWayDopplerObservationModel()}{TwoWayDopplerObservationModel()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}{tudat\+::observation\+\_\+models\+::\+Two\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}{Two\+Way\+Doppler\+Observation\+Model}} (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1OneWayDopplerObservationModel}{observation\+\_\+models\+::\+One\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$}]{uplink\+Doppler\+Calculator,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1OneWayDopplerObservationModel}{observation\+\_\+models\+::\+One\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$}]{downlink\+Doppler\+Calculator,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBias}{Observation\+Bias}}$<$ 1 $>$ $>$}]{observation\+Bias\+Calculator = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor, 
+\begin{DoxyParams}{Parameters}
+{\em uplink\+Doppler\+Calculator} & Object that computes the one-\/way Doppler observable for the uplink \\
+\hline
+{\em downlink\+Doppler\+Calculator} & Object that computes the one-\/way Doppler observable for the downlink \\
+\hline
+{\em observation\+Bias\+Calculator} & Object for calculating system-\/dependent errors in the observable, i.\+e. deviations from the physically ideal observable between reference points (default none). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_abd3be27b41e7a6f0e1e5a97c66c91e10}\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_abd3be27b41e7a6f0e1e5a97c66c91e10}} 
+\index{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}!computeIdealObservations@{computeIdealObservations}}
+\index{computeIdealObservations@{computeIdealObservations}!tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{computeIdealObservations()}{computeIdealObservations()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 1, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}{tudat\+::observation\+\_\+models\+::\+Two\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::compute\+Ideal\+Observations (\begin{DoxyParamCaption}\item[{const Time\+Type}]{time,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute ideal one-\/way Doppler observation without any corrections at given time. 
+
+This function compute ideal the one-\/way observation without any corrections at a given time. The time argument can be either the reception or transmission time (defined by link\+End\+Associated\+With\+Time input). It does not include system-\/dependent measurement errors, such as biases or clock errors. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which observation is to be simulated \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Link end at which given time is valid, i.\+e. link end for which associated time is kept constant (to input value) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Calculated observed one-\/way Doppler value. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a8aa39b198d4d997ac41f855abbe264fa}\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a8aa39b198d4d997ac41f855abbe264fa}} 
+\index{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}!computeIdealObservationsWithLinkEndData@{computeIdealObservationsWithLinkEndData}}
+\index{computeIdealObservationsWithLinkEndData@{computeIdealObservationsWithLinkEndData}!tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{computeIdealObservationsWithLinkEndData()}{computeIdealObservationsWithLinkEndData()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 1, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}{tudat\+::observation\+\_\+models\+::\+Two\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::compute\+Ideal\+Observations\+With\+Link\+End\+Data (\begin{DoxyParamCaption}\item[{const Time\+Type}]{time,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time,  }\item[{std\+::vector$<$ double $>$ \&}]{link\+End\+Times,  }\item[{std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&}]{link\+End\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute one-\/way Doppler observable without any corrections. 
+
+Function to compute one-\/way Doppler observable without any corrections, i.\+e. the true physical Doppler as computed from the defined link ends. It does not include system-\/dependent measurement errors, such as biases or clock errors. The times and states of the link ends are also returned in double precision. These states and times are returned by reference. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which observable is to be evaluated. \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Link end at which given time is valid, i.\+e. link end for which associated time is kept constant (to input value) \\
+\hline
+{\em link\+End\+Times} & List of times at each link end during observation. \\
+\hline
+{\em link\+End\+States} & List of states at each link end during observation. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Ideal one-\/way Doppler observable. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a771be55fede0e936d630bdf7d1302f7d}\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a771be55fede0e936d630bdf7d1302f7d}} 
+\index{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}!getDownlinkDopplerCalculator@{getDownlinkDopplerCalculator}}
+\index{getDownlinkDopplerCalculator@{getDownlinkDopplerCalculator}!tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getDownlinkDopplerCalculator()}{getDownlinkDopplerCalculator()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1OneWayDopplerObservationModel}{observation\+\_\+models\+::\+One\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}{tudat\+::observation\+\_\+models\+::\+Two\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Downlink\+Doppler\+Calculator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the object that computes the one-\/way Doppler observable for the downlink. 
+
+Function to retrieve the object that computes the one-\/way Doppler observable for the downlink \begin{DoxyReturn}{Returns}
+Object that computes the one-\/way Doppler observable for the downlink 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a8729a297ec00c4d71b1497893d669d34}\label{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_a8729a297ec00c4d71b1497893d669d34}} 
+\index{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}!getUplinkDopplerCalculator@{getUplinkDopplerCalculator}}
+\index{getUplinkDopplerCalculator@{getUplinkDopplerCalculator}!tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::TwoWayDopplerObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getUplinkDopplerCalculator()}{getUplinkDopplerCalculator()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1OneWayDopplerObservationModel}{observation\+\_\+models\+::\+One\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel}{tudat\+::observation\+\_\+models\+::\+Two\+Way\+Doppler\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Uplink\+Doppler\+Calculator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the object that computes the one-\/way Doppler observable for the uplink. 
+
+Function to retrieve the object that computes the one-\/way Doppler observable for the uplink \begin{DoxyReturn}{Returns}
+Object that computes the one-\/way Doppler observable for the uplink 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/observation\+\_\+models/two\+Way\+Doppler\+Observation\+Model.\+h\end{DoxyCompactItemize}

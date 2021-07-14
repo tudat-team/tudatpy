@@ -1,0 +1,225 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameterSettings</basecompoundref>
+    <includes refid="estimatableParameterSettings_8h" local="no">estimatableParameterSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1a8c5b268bd8fce803b675e98184b95b68" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings::degree_</definition>
+        <argsstring></argsstring>
+        <name>degree_</name>
+        <briefdescription>
+<para>Degree of Love number that is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="601" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="601" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1a8a925f67d330fc59dc5448d909675cd1" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings::deformingBodies_</definition>
+        <argsstring></argsstring>
+        <name>deformingBodies_</name>
+        <briefdescription>
+<para>Names of bodies causing tidal deformation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="604" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="604" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1a496a87852565afe7564ecb507b12ea7d" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings::useComplexValue_</definition>
+        <argsstring></argsstring>
+        <name>useComplexValue_</name>
+        <briefdescription>
+<para>True if the complex Love number is estimated, false if only the real part is considered. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="607" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="607" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1adb6bd9a6370fc62589cbd3048479e640" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings::FullDegreeTidalLoveNumberEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const int degree, const std::string deformingBody, const bool useComplexValue=0)</argsstring>
+        <name>FullDegreeTidalLoveNumberEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>deformingBody</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useComplexValue</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for a single deforming body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for a single deforming body <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Deformed body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of Love number that is to be estimated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>deformingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body causing tidal deformation </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useComplexValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if the complex Love number is estimated, false if only the real part is considered </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="572" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="572" bodyend="583"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1a7aae048b47fc3408ba43a92a2438db0c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings::FullDegreeTidalLoveNumberEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const int degree, const std::vector&lt; std::string &gt; &amp;deformingBodies, const bool useComplexValue=0)</argsstring>
+        <name>FullDegreeTidalLoveNumberEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>deformingBodies</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useComplexValue</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for a list of deforming bodyies. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for a list of deforming bodyies <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Deformed body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of Love number that is to be estimated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>deformingBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Names of bodies causing tidal deformation </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useComplexValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if the complex Love number is estimated, false if only the real part is considered </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="593" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="593" bodyend="598"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders. Either a real or a complex Love number may be estimated (represented by entries of a VectorXd). The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="560" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="561" bodyend="609"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1a8a925f67d330fc59dc5448d909675cd1" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</scope><name>deformingBodies_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1a8c5b268bd8fce803b675e98184b95b68" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</scope><name>degree_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a9daf25d39f47b7253d0705460760c79c" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</scope><name>EstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1adb6bd9a6370fc62589cbd3048479e640" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</scope><name>FullDegreeTidalLoveNumberEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1a7aae048b47fc3408ba43a92a2438db0c" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</scope><name>FullDegreeTidalLoveNumberEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a5879aeacc6f924dd33459251044bdc6e" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</scope><name>parameterType_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings_1a496a87852565afe7564ecb507b12ea7d" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</scope><name>useComplexValue_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a337ccc9c7a09be382677b818d3042082" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</scope><name>~EstimatableParameterSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

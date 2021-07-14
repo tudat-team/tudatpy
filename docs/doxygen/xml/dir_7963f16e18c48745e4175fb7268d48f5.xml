@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_7963f16e18c48745e4175fb7268d48f5" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/corrections</compoundname>
+    <innerfile refid="firstOrderRelativisticCorrection_8h">firstOrderRelativisticCorrection.h</innerfile>
+    <innerfile refid="lightTimeCorrection_8h">lightTimeCorrection.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/corrections/"/>
+  </compounddef>
+</doxygen>

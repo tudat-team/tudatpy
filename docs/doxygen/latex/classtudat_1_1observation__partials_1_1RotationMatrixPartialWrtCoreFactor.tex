@@ -1,0 +1,84 @@
+\hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor}{}\doxysection{tudat\+::observation\+\_\+partials\+::Rotation\+Matrix\+Partial\+Wrt\+Core\+Factor Class Reference}
+\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor}\index{tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor@{tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor}}
+
+
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. the core factor.  
+
+
+
+
+{\ttfamily \#include $<$rotation\+Matrix\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Rotation\+Matrix\+Partial\+Wrt\+Core\+Factor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a4fb6a2a68cfe3f88eb1f0d38b3831762}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a4fb6a2a68cfe3f88eb1f0d38b3831762}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a4fb6a2a68cfe3f88eb1f0d38b3831762}{Rotation\+Matrix\+Partial\+Wrt\+Core\+Factor}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1PlanetaryRotationModel}{ephemerides\+::\+Planetary\+Rotation\+Model}} $>$ body\+Rotation\+Model)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a0cfef880c840fe74438741bddf8ebcb2}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a0cfef880c840fe74438741bddf8ebcb2}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a0cfef880c840fe74438741bddf8ebcb2}{$\sim$\+Rotation\+Matrix\+Partial\+Wrt\+Core\+Factor}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix3d $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a1672e6625458823106efdda5aa971638}{calculate\+Partial\+Of\+Rotation\+Matrix\+To\+Base\+Frame\+Wr\+Parameter}} (const double time)
+\item 
+std\+::vector$<$ Eigen\+::\+Matrix3d $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_ae8cd99aee95903df6baf85aac67ac809}{calculate\+Partial\+Of\+Rotation\+Matrix\+Derivative\+To\+Base\+Frame\+Wr\+Parameter}} (const double time)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. the core factor. 
+
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame, as computed by the Planetary\+Rotation\+Model class, w.\+r.\+t. the core factor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_ae8cd99aee95903df6baf85aac67ac809}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_ae8cd99aee95903df6baf85aac67ac809}} 
+\index{tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor@{tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor}!calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter@{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter}}
+\index{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter@{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter}!tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor@{tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter()}{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix3d $>$ tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial\+Wrt\+Core\+Factor\+::calculate\+Partial\+Of\+Rotation\+Matrix\+Derivative\+To\+Base\+Frame\+Wr\+Parameter (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Function to calculate partial of rotation matrix derivative from the body-\/fixed to the inertial frame wrt the core factor.
+
+Function to calculate partial of rotation matrix derivative from the body-\/fixed to the inertial frame wrt the core factor, using the properties of the body\+Rotation\+Model\+\_\+ member. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which the partial is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of size 1 containing partials of rotation matrix derivative from body-\/fixed to inertial frame wrt core factor. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartial_a21af519e8a78ffd2978586549f3569c4}{tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a1672e6625458823106efdda5aa971638}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_a1672e6625458823106efdda5aa971638}} 
+\index{tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor@{tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor}!calculatePartialOfRotationMatrixToBaseFrameWrParameter@{calculatePartialOfRotationMatrixToBaseFrameWrParameter}}
+\index{calculatePartialOfRotationMatrixToBaseFrameWrParameter@{calculatePartialOfRotationMatrixToBaseFrameWrParameter}!tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor@{tudat::observation\_partials::RotationMatrixPartialWrtCoreFactor}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfRotationMatrixToBaseFrameWrParameter()}{calculatePartialOfRotationMatrixToBaseFrameWrParameter()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix3d $>$ tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial\+Wrt\+Core\+Factor\+::calculate\+Partial\+Of\+Rotation\+Matrix\+To\+Base\+Frame\+Wr\+Parameter (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Function to calculate partial of rotation matrix from the body-\/fixed to the inertial frame wrt the core factor.
+
+Function to calculate partial of rotation matrix from the body-\/fixed to the inertial frame wrt the core factor, using the properties of the body\+Rotation\+Model\+\_\+ member. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which the partial is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of size 1 containing partials of rotation matrix from body-\/fixed to inertial frame wrt core factor. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartial_a758db711ec18f3efbaa759488e45daf1}{tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/rotation\+Matrix\+Partial.\+h\end{DoxyCompactItemize}

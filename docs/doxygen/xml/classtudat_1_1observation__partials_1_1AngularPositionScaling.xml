@@ -1,0 +1,253 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1AngularPositionScaling" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_partials::AngularPositionScaling</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__partials_1_1PositionPartialScaling" prot="public" virt="non-virtual">tudat::observation_partials::PositionPartialScaling</basecompoundref>
+    <includes refid="angularPositionPartial_8h" local="no">angularPositionPartial.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a9f822440005640e098ab932da53ae269" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; double, 2, 3 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 2, 3 &gt; tudat::observation_partials::AngularPositionScaling::scalingFactor_</definition>
+        <argsstring></argsstring>
+        <name>scalingFactor_</name>
+        <briefdescription>
+<para>Predeclared common scaling factor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="123" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a437160c66112c29717a47bb285581758" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; double, 2, 3 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 2, 3 &gt; tudat::observation_partials::AngularPositionScaling::referenceScalingFactor_</definition>
+        <argsstring></argsstring>
+        <name>referenceScalingFactor_</name>
+        <briefdescription>
+<para>Computed scaling factor (at receiver) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="126" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a61304e6b1e214d8d27fd7752fbeb9b3a" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector2d</type>
+        <definition>Eigen::Vector2d tudat::observation_partials::AngularPositionScaling::referenceLightTimeCorrectionScaling_</definition>
+        <argsstring></argsstring>
+        <name>referenceLightTimeCorrectionScaling_</name>
+        <briefdescription>
+<para>Computed light time correction scaling factor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="129" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a18ecc9218a5e04c489768b9a03a29aba" prot="private" static="no" mutable="no">
+        <type>observation_models::LinkEndType</type>
+        <definition>observation_models::LinkEndType tudat::observation_partials::AngularPositionScaling::currentLinkEndType_</definition>
+        <argsstring></argsstring>
+        <name>currentLinkEndType_</name>
+        <briefdescription>
+<para>Fixed link end for last computation of <ref refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1ac62b64a319dcbbc3f61752dad343b775" kindref="member">update()</ref> function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="132" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1aad5072fb29e822d4042be2fc5134670e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::AngularPositionScaling::~AngularPositionScaling</definition>
+        <argsstring>()</argsstring>
+        <name>~AngularPositionScaling</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="70" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="70" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1ac62b64a319dcbbc3f61752dad343b775" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::observation_partials::AngularPositionScaling::update</definition>
+        <argsstring>(const std::vector&lt; Eigen::Vector6d &gt; &amp;linkEndStates, const std::vector&lt; double &gt; &amp;times, const observation_models::LinkEndType fixedLinkEnd, const Eigen::VectorXd currentObservation)</argsstring>
+        <name>update</name>
+        <reimplements refid="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a7bf12506127c4527eacae23c6a9cf469">update</reimplements>
+        <param>
+          <type>const std::vector&lt; Eigen::Vector6d &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>times</declname>
+        </param>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>fixedLinkEnd</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>currentObservation</declname>
+        </param>
+        <briefdescription>
+<para>Update the scaling object to the current times and states. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update the scaling object to the current times and states <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation Index of vector maps to link end for a given ObsevableType through getLinkEndIndex function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>times</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fixedLinkEnd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which observation time is defined, i.e. link end for which associated time is kept constant when computing observable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of observation for which partial scaling is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="82" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/angularPositionPartial.cpp" bodystart="69" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a04c0378cb7b5d29b42a62ee74d863102" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; double, 2, 3 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 2, 3 &gt; tudat::observation_partials::AngularPositionScaling::getScalingFactor</definition>
+        <argsstring>(const observation_models::LinkEndType linkEndType)</argsstring>
+        <name>getScalingFactor</name>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>linkEndType</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the scaling factor for specific link end. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the scaling factor for specific link end <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end for which scaling factor is to be returned </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Position partial scaling factor at current link end </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="93" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="93" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a2f4e51bc54acffff6ee7856257f07ba7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector2d</type>
+        <definition>Eigen::Vector2d tudat::observation_partials::AngularPositionScaling::getLightTimePartialScalingFactor</definition>
+        <argsstring>()</argsstring>
+        <name>getLightTimePartialScalingFactor</name>
+        <briefdescription>
+<para>Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial. <simplesect kind="return"><para>Factor by which the light-time partials should be scaled in one-way observation partial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="104" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="104" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a8766899fbfb278e13d9af5f7c5d13a4f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>observation_models::LinkEndType</type>
+        <definition>observation_models::LinkEndType tudat::observation_partials::AngularPositionScaling::getCurrentLinkEndType</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentLinkEndType</name>
+        <briefdescription>
+<para>Function to get the fixed link end for last computation of <ref refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1ac62b64a319dcbbc3f61752dad343b775" kindref="member">update()</ref> function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixed link end for last computation of <ref refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1ac62b64a319dcbbc3f61752dad343b775" kindref="member">update()</ref> function. <simplesect kind="return"><para>Function to get the fixed link end for last computation of <ref refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1ac62b64a319dcbbc3f61752dad343b775" kindref="member">update()</ref> function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="114" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="114" bodyend="117"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Derived class for scaling three-dimensional position partial to angular position observable partial. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_partials::PositionPartialScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionPartialScaling"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::AngularPositionScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1AngularPositionScaling"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_partials::PositionPartialScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionPartialScaling"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::AngularPositionScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1AngularPositionScaling"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" line="65" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h" bodystart="66" bodyend="134"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a18ecc9218a5e04c489768b9a03a29aba" prot="private" virt="non-virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>currentLinkEndType_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a8766899fbfb278e13d9af5f7c5d13a4f" prot="public" virt="non-virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>getCurrentLinkEndType</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a2f4e51bc54acffff6ee7856257f07ba7" prot="public" virt="non-virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>getLightTimePartialScalingFactor</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a04c0378cb7b5d29b42a62ee74d863102" prot="public" virt="non-virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>getScalingFactor</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a61304e6b1e214d8d27fd7752fbeb9b3a" prot="private" virt="non-virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>referenceLightTimeCorrectionScaling_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a437160c66112c29717a47bb285581758" prot="private" virt="non-virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>referenceScalingFactor_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1a9f822440005640e098ab932da53ae269" prot="private" virt="non-virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>scalingFactor_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1ac62b64a319dcbbc3f61752dad343b775" prot="public" virt="virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>update</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1aad5072fb29e822d4042be2fc5134670e" prot="public" virt="non-virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>~AngularPositionScaling</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a434c37b9140a2f1c0c916ab1eb332564" prot="public" virt="virtual"><scope>tudat::observation_partials::AngularPositionScaling</scope><name>~PositionPartialScaling</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

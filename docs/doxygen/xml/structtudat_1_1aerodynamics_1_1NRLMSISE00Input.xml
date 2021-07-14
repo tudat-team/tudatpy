@@ -1,0 +1,299 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::NRLMSISE00Input</compoundname>
+    <includes refid="nrlmsise00Atmosphere_8h" local="no">nrlmsise00Atmosphere.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a83350bb7163f51646519f9703de0d082" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::aerodynamics::NRLMSISE00Input::year</definition>
+        <argsstring></argsstring>
+        <name>year</name>
+        <briefdescription>
+<para>Current year. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="145" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a58fd8cbf01f7c6db102142bf4eaf5420" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::aerodynamics::NRLMSISE00Input::dayOfTheYear</definition>
+        <argsstring></argsstring>
+        <name>dayOfTheYear</name>
+        <briefdescription>
+<para>Day in the current year. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="148" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1abfffa31fb2f519c392d6f4ce38af47f4" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Input::secondOfTheDay</definition>
+        <argsstring></argsstring>
+        <name>secondOfTheDay</name>
+        <briefdescription>
+<para>Number of seconds into the current day. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="151" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1ac1591dce12d418721ea177826524c5e7" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Input::localSolarTime</definition>
+        <argsstring></argsstring>
+        <name>localSolarTime</name>
+        <briefdescription>
+<para>Local solar time at the computation position. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="154" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1aa8acc6d483891e09cc3ac8833ed4f768" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Input::f107</definition>
+        <argsstring></argsstring>
+        <name>f107</name>
+        <briefdescription>
+<para>Current daily F10.7 flux for previous day. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="157" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a4a547d100e582bfcec41b07a1f2a20ed" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Input::f107a</definition>
+        <argsstring></argsstring>
+        <name>f107a</name>
+        <briefdescription>
+<para>81 day average of F10.7 flux (centered on current dayOfTheYear). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="160" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a3e40e49460a1a234b26d43a45af424ed" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Input::apDaily</definition>
+        <argsstring></argsstring>
+        <name>apDaily</name>
+        <briefdescription>
+<para>Current daily magnetic index. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="163" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a519ac4148a97e930fea9e5a4624f3c1a" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::aerodynamics::NRLMSISE00Input::apVector</definition>
+        <argsstring></argsstring>
+        <name>apVector</name>
+        <briefdescription>
+<para>Current magnetic index data vector: </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>ap_array </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="166" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a90237ee7bf069c7a1bf5d0135bd8638d" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; int &gt;</type>
+        <definition>std::vector&lt; int &gt; tudat::aerodynamics::NRLMSISE00Input::switches</definition>
+        <argsstring></argsstring>
+        <name>switches</name>
+        <briefdescription>
+<para>List of NRLMSISE-specific flags: </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>nrlmsise_flag </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="169" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a9e18207dd9135add620f5e0ead66442d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::NRLMSISE00Input::NRLMSISE00Input</definition>
+        <argsstring>(int year=0, int dayOfTheYear=0, double secondOfTheDay=0.0, double localSolarTime=0.0, double f107=0.0, double f107a=0.0, double apDaily=0.0, std::vector&lt; double &gt; apVector=std::vector&lt; double &gt;(7, 0.0), std::vector&lt; int &gt; switches=std::vector&lt; int &gt;())</argsstring>
+        <name>NRLMSISE00Input</name>
+        <param>
+          <type>int</type>
+          <declname>year</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dayOfTheYear</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>secondOfTheDay</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>localSolarTime</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>f107</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>f107a</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>apDaily</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt;</type>
+          <declname>apVector</declname>
+          <defval>std::vector&lt; double &gt;(7, 0.0)</defval>
+        </param>
+        <param>
+          <type>std::vector&lt; int &gt;</type>
+          <declname>switches</declname>
+          <defval>std::vector&lt; int &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Input for computation of NRLMSISE00 atmospheric conditions at current time and position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Input for computation of NRLMSISE00 atmospheric conditions at current time and position. The computation of this struct may be reperformed every time step, to reflect the changes in atmospheric condition. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>year</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current year </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dayOfTheYear</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Day in the current year </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondOfTheDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of seconds into the current day. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>localSolarTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Local solar time at the computation position </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>f107</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current daily F10.7 flux for previous day </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>f107a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>81 day average of F10.7 flux (centered on current dayOfTheYear). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>apDaily</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current daily magnetic index </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>apVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current magnetic index data vector: </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>ap_array </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>switches</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of NRLMSISE-specific flags: </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>nrlmsise_flags </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="127" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="127" bodyend="142"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Struct for Solar Activity data. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="111" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="112" bodyend="170"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a3e40e49460a1a234b26d43a45af424ed" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>apDaily</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a519ac4148a97e930fea9e5a4624f3c1a" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>apVector</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a58fd8cbf01f7c6db102142bf4eaf5420" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>dayOfTheYear</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1aa8acc6d483891e09cc3ac8833ed4f768" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>f107</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a4a547d100e582bfcec41b07a1f2a20ed" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>f107a</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1ac1591dce12d418721ea177826524c5e7" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>localSolarTime</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a9e18207dd9135add620f5e0ead66442d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>NRLMSISE00Input</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1abfffa31fb2f519c392d6f4ce38af47f4" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>secondOfTheDay</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a90237ee7bf069c7a1bf5d0135bd8638d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>switches</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input_1a83350bb7163f51646519f9703de0d082" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Input</scope><name>year</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

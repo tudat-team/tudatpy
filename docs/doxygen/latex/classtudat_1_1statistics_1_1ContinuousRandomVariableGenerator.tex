@@ -1,0 +1,75 @@
+\hypertarget{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator}{}\doxysection{tudat\+::statistics\+::Continuous\+Random\+Variable\+Generator Class Reference}
+\label{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator}\index{tudat::statistics::ContinuousRandomVariableGenerator@{tudat::statistics::ContinuousRandomVariableGenerator}}
+
+
+Random number generator generated directly from inverse cdf function of probability distribution.  
+
+
+
+
+{\ttfamily \#include $<$random\+Variable\+Generator.\+h$>$}
+
+Inheritance diagram for tudat\+::statistics\+::Continuous\+Random\+Variable\+Generator\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator_a0c9ace9ea4706638425511fcd7151658}{Continuous\+Random\+Variable\+Generator}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution}{Invertible\+Continuous\+Probability\+Distribution}}$<$ double $>$ $>$ random\+Variable, const double seed)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator_a91d2ccdbad16f47c24ec8d97e6aa53c3}{get\+Random\+Variable\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Function to generate random number. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Random number generator generated directly from inverse cdf function of probability distribution. 
+
+This class uses a probability distributio (or more specifically the inverse cumulative distribution function) from which numbers are randomly generated. The inverse cdf function is evaluated from an object of type \mbox{\hyperlink{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution}{Invertible\+Continuous\+Probability\+Distribution$<$ double $>$}}. The uniform random number generator that is mapped to the random number from the specific distribution is generated from the boost\+::random\+::mt19937 generator; its seed may be either pseudo-\/random (time( 0 )) or user-\/defined. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator_a0c9ace9ea4706638425511fcd7151658}\label{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator_a0c9ace9ea4706638425511fcd7151658}} 
+\index{tudat::statistics::ContinuousRandomVariableGenerator@{tudat::statistics::ContinuousRandomVariableGenerator}!ContinuousRandomVariableGenerator@{ContinuousRandomVariableGenerator}}
+\index{ContinuousRandomVariableGenerator@{ContinuousRandomVariableGenerator}!tudat::statistics::ContinuousRandomVariableGenerator@{tudat::statistics::ContinuousRandomVariableGenerator}}
+\doxysubsubsection{\texorpdfstring{ContinuousRandomVariableGenerator()}{ContinuousRandomVariableGenerator()}}
+{\footnotesize\ttfamily tudat\+::statistics\+::\+Continuous\+Random\+Variable\+Generator\+::\+Continuous\+Random\+Variable\+Generator (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution}{Invertible\+Continuous\+Probability\+Distribution}}$<$ double $>$ $>$}]{random\+Variable,  }\item[{const double}]{seed }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em random\+Variable} & Probability distribution from which random number is generated. \\
+\hline
+{\em seed} & Seed of random number generator. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator_a91d2ccdbad16f47c24ec8d97e6aa53c3}\label{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator_a91d2ccdbad16f47c24ec8d97e6aa53c3}} 
+\index{tudat::statistics::ContinuousRandomVariableGenerator@{tudat::statistics::ContinuousRandomVariableGenerator}!getRandomVariableValue@{getRandomVariableValue}}
+\index{getRandomVariableValue@{getRandomVariableValue}!tudat::statistics::ContinuousRandomVariableGenerator@{tudat::statistics::ContinuousRandomVariableGenerator}}
+\doxysubsubsection{\texorpdfstring{getRandomVariableValue()}{getRandomVariableValue()}}
+{\footnotesize\ttfamily double tudat\+::statistics\+::\+Continuous\+Random\+Variable\+Generator\+::get\+Random\+Variable\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to generate random number. 
+
+This function generates a random number from the distribution defined by random\+Variable\+\_\+ It maps the random number (representing the cdf value) generated by the random\+Number\+Generator\+\_\+ member to that of the value of the independent variable according to the distribution in random\+Variable\+\_\+. \begin{DoxyReturn}{Returns}
+Randomly generated number of from given distribution 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1statistics_1_1RandomVariableGenerator_a8fec0a593026cd247608027404ef4438}{tudat\+::statistics\+::\+Random\+Variable\+Generator$<$ double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/statistics/random\+Variable\+Generator.\+h\end{DoxyCompactItemize}

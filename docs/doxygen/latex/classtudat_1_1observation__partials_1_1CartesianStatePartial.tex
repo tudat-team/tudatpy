@@ -1,0 +1,65 @@
+\hypertarget{classtudat_1_1observation__partials_1_1CartesianStatePartial}{}\doxysection{tudat\+::observation\+\_\+partials\+::Cartesian\+State\+Partial Class Reference}
+\label{classtudat_1_1observation__partials_1_1CartesianStatePartial}\index{tudat::observation\_partials::CartesianStatePartial@{tudat::observation\_partials::CartesianStatePartial}}
+
+
+Base class for calculating the partial of an inertial position wrt a parameter.  
+
+
+
+
+{\ttfamily \#include $<$position\+Partials.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Cartesian\+State\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.833333cm]{classtudat_1_1observation__partials_1_1CartesianStatePartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1CartesianStatePartial_a57f969c657c5c827ac78d92c6898b98e}\label{classtudat_1_1observation__partials_1_1CartesianStatePartial_a57f969c657c5c827ac78d92c6898b98e}} 
+virtual \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial_a57f969c657c5c827ac78d92c6898b98e}{$\sim$\+Cartesian\+State\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial_a8f6fecdf33b3250ee347be93e246f80b}{calculate\+Partial\+Of\+Position}} (const Eigen\+::\+Vector6d \&state, const double time)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual base class function for determining partial at current time and body state. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1CartesianStatePartial_adcf58f0e2f838bf26bcac372ec0a43b3}\label{classtudat_1_1observation__partials_1_1CartesianStatePartial_adcf58f0e2f838bf26bcac372ec0a43b3}} 
+virtual Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$ {\bfseries calculate\+Partial\+Of\+Velocity} (const Eigen\+::\+Vector6d \&state, const double time)=0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for calculating the partial of an inertial position wrt a parameter. 
+
+Base class for calculating the partial of an inertial position wrt a parameter. A derived class is implemented for each (type of) estimatable parameter. A separate instance of the class must be made for each distinct state. Note that partials wrt parameters describing a property of a rotation matrix from a local to the inertial frame is implemented in the \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartial}{Rotation\+Matrix\+Partial}} class, which is then used by the \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartialWrtRotationMatrixParameter}{Cartesian\+State\+Partial\+Wrt\+Rotation\+Matrix\+Parameter}} derived class of this class 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1CartesianStatePartial_a8f6fecdf33b3250ee347be93e246f80b}\label{classtudat_1_1observation__partials_1_1CartesianStatePartial_a8f6fecdf33b3250ee347be93e246f80b}} 
+\index{tudat::observation\_partials::CartesianStatePartial@{tudat::observation\_partials::CartesianStatePartial}!calculatePartialOfPosition@{calculatePartialOfPosition}}
+\index{calculatePartialOfPosition@{calculatePartialOfPosition}!tudat::observation\_partials::CartesianStatePartial@{tudat::observation\_partials::CartesianStatePartial}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfPosition()}{calculatePartialOfPosition()}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$ tudat\+::observation\+\_\+partials\+::\+Cartesian\+State\+Partial\+::calculate\+Partial\+Of\+Position (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector6d \&}]{state,  }\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual base class function for determining partial at current time and body state. 
+
+Pure virtual base class function for determining partial at current time and body state wrt parameter of specific implemented derived. class. 
+\begin{DoxyParams}{Parameters}
+{\em state} & Current inertial state of point of which partial is to be calculated by derived class \\
+\hline
+{\em time} & Current time \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of point position wrt parameter (with specific parameter determined by derived class implementation). 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_acd28c0b438dba9fd5d03885a4bd935f0}{tudat\+::observation\+\_\+partials\+::\+Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartialWrtRotationMatrixParameter_a7e5e7a700b860a939c5f64856489a971}{tudat\+::observation\+\_\+partials\+::\+Cartesian\+State\+Partial\+Wrt\+Rotation\+Matrix\+Parameter}}, and \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartialWrtCartesianState_a643cd7b3f0f249a62a83bcfe07c74e54}{tudat\+::observation\+\_\+partials\+::\+Cartesian\+State\+Partial\+Wrt\+Cartesian\+State}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/position\+Partials.\+h\end{DoxyCompactItemize}

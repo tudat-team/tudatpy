@@ -1,0 +1,241 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="textParser_8h" kind="file" language="C++">
+    <compoundname>textParser.h</compoundname>
+    <includes local="no">boost/make_shared.hpp</includes>
+    <includes refid="parser_8h" local="yes">tudat/io/parser.h</includes>
+    <includedby refid="fixedWidthParser_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fixedWidthParser.h</includedby>
+    <includedby refid="parseSolarActivityData_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parseSolarActivityData.h</includedby>
+    <includedby refid="separatedParser_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/separatedParser.h</includedby>
+    <includedby refid="io_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io.h</includedby>
+    <includedby refid="textParser_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/textParser.cpp</includedby>
+    <incdepgraph>
+      <node id="13">
+        <label>boost/functional/hash.hpp</label>
+      </node>
+      <node id="3">
+        <label>tudat/io/parser.h</label>
+        <link refid="parser_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>tudat/io/fieldTransform.h</label>
+        <link refid="fieldTransform_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="17">
+        <label>boost/smart_ptr/make_shared.hpp</label>
+      </node>
+      <node id="11">
+        <label>tudat/io/fieldType.h</label>
+        <link refid="fieldType_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>tudat/io/fieldValue.h</label>
+        <link refid="fieldValue_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>string</label>
+      </node>
+      <node id="6">
+        <label>cstdarg</label>
+      </node>
+      <node id="8">
+        <label>map</label>
+      </node>
+      <node id="9">
+        <label>vector</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h</label>
+        <link refid="textParser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>iostream</label>
+      </node>
+      <node id="10">
+        <label>boost/regex.hpp</label>
+      </node>
+      <node id="2">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="5">
+        <label>tudat/io/parsedDataVectorUtilities.h</label>
+        <link refid="parsedDataVectorUtilities_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>cstring</label>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/separatedParser.h</label>
+        <link refid="separatedParser_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fixedWidthParser.h</label>
+        <link refid="fixedWidthParser_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io.h</label>
+        <link refid="io_8h_source"/>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parseSolarActivityData.h</label>
+        <link refid="parseSolarActivityData_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h</label>
+        <link refid="textParser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1input__output_1_1TextParser" prot="public">tudat::input_output::TextParser</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1input__output">tudat::input_output</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_TEXT_PARSER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_TEXT_PARSER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/make_shared.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/io/parser.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">input_output</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="classtudat_1_1input__output_1_1TextParser" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1input__output_1_1TextParser" kindref="compound">TextParser</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1Parser" kindref="compound">Parser</ref></highlight></codeline>
+<codeline lineno="34"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="classtudat_1_1input__output_1_1TextParser_1a8a2fccf83edc89ea7983523527b439d6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1a8a2fccf83edc89ea7983523527b439d6" kindref="member">TextParser</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1aaae584bf29ac4466230bf18c976a28d7" kindref="member">parsedData</ref>(<sp/>std::make_shared&lt;<sp/>parsed_data_vector_utilities::ParsedDataVector<sp/>&gt;(<sp/>)<sp/>),</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1a0523e93af363869e44119419880c41e4" kindref="member">parseAsStream</ref>(<sp/>false<sp/>)</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="classtudat_1_1input__output_1_1TextParser_1a68d2338a4ec8741beecae9ea4559ba49" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1a68d2338a4ec8741beecae9ea4559ba49" kindref="member">TextParser</ref>(<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>processAsStream<sp/>)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1aaae584bf29ac4466230bf18c976a28d7" kindref="member">parsedData</ref>(<sp/>std::make_shared&lt;<sp/>parsed_data_vector_utilities::ParsedDataVector<sp/>&gt;(<sp/>)<sp/>),</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1a0523e93af363869e44119419880c41e4" kindref="member">parseAsStream</ref>(<sp/>processAsStream<sp/>)</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="classtudat_1_1input__output_1_1TextParser_1aa9b9ccb909a665d5252efee839738712" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1aa9b9ccb909a665d5252efee839738712" kindref="member">~TextParser</ref>(<sp/>)<sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>parsed_data_vector_utilities::ParsedDataVectorPtr<sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1a3644442307eb67b0f2422ae3a88db7d5" kindref="member">parse</ref>(<sp/>std::string&amp;<sp/></highlight><highlight class="keywordtype">string</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>parsed_data_vector_utilities::ParsedDataVectorPtr<sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1a3644442307eb67b0f2422ae3a88db7d5" kindref="member">parse</ref>(<sp/>std::istream&amp;<sp/>stream<sp/>);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="classtudat_1_1input__output_1_1TextParser_1aaae584bf29ac4466230bf18c976a28d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>parsed_data_vector_utilities::ParsedDataVectorPtr<sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1aaae584bf29ac4466230bf18c976a28d7" kindref="member">parsedData</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="classtudat_1_1input__output_1_1TextParser_1a0523e93af363869e44119419880c41e4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1a0523e93af363869e44119419880c41e4" kindref="member">parseAsStream</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="classtudat_1_1input__output_1_1TextParser_1ac0e038fccafbb79ff2d8386f7521999c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1ac0e038fccafbb79ff2d8386f7521999c" kindref="member">parseLine</ref>(<sp/>std::string&amp;<sp/>line<sp/>)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Function<sp/>parseLine<sp/>must<sp/>be<sp/>overriden<sp/>to<sp/>be<sp/>used&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="classtudat_1_1input__output_1_1TextParser_1accbecbef478769713a2729a4a123d75c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TextParser_1accbecbef478769713a2729a4a123d75c" kindref="member">parseStream</ref>(<sp/>std::istream&amp;<sp/>stream<sp/>)</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Function<sp/>parseStream<sp/>must<sp/>be<sp/>overriden<sp/>to<sp/>be<sp/>used&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>TextParser<sp/>&gt;<sp/>TextParserPointer;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>input_output</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_TEXT_PARSER_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h"/>
+  </compounddef>
+</doxygen>

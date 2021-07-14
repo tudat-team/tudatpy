@@ -1,0 +1,232 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::TorqueModel</basecompoundref>
+    <includes refid="sphericalHarmonicGravitationalTorque_8h" local="no">sphericalHarmonicGravitationalTorque.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a48bc717e5f0f165849ba54102591721b" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">SphericalHarmonicsGravitationalAccelerationModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; SphericalHarmonicsGravitationalAccelerationModel &gt; tudat::gravitation::SphericalHarmonicGravitationalTorqueModel::sphericalHarmonicAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>sphericalHarmonicAcceleration_</name>
+        <briefdescription>
+<para>Spherical harmonic acceleration that the body that undergoes the torque exerts on the body that exerts the torque. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="105" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a69f2a9338a5f16d54bd60e9620002b99" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Quaterniond() &gt;</type>
+        <definition>std::function&lt; Eigen::Quaterniond( ) &gt; tudat::gravitation::SphericalHarmonicGravitationalTorqueModel::rotationToBodyUndergoingTorque_</definition>
+        <argsstring></argsstring>
+        <name>rotationToBodyUndergoingTorque_</name>
+        <briefdescription>
+<para>Function returning the rotation from an inertial frame to the body-fixed frame of the body undergoing the torque. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="108" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1aafdccf6edf963f23b9387f08175512e1" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::gravitation::SphericalHarmonicGravitationalTorqueModel::perturberMassFunction_</definition>
+        <argsstring></argsstring>
+        <name>perturberMassFunction_</name>
+        <briefdescription>
+<para>Function returning the mass of the body exerting the torque. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="111" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a3491e166d835f0d8f58181e18cbd4523" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::SphericalHarmonicGravitationalTorqueModel::currentTorque_</definition>
+        <argsstring></argsstring>
+        <name>currentTorque_</name>
+        <briefdescription>
+<para>Torque, as computed by last call to updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="114" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1abd06f5bcefddf5b6464d93558ec48179" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel::SphericalHarmonicGravitationalTorqueModel</definition>
+        <argsstring>(const std::shared_ptr&lt; SphericalHarmonicsGravitationalAccelerationModel &gt; sphericalHarmonicAcceleration, const std::function&lt; Eigen::Quaterniond() &gt; rotationToBodyUndergoingTorque, const std::function&lt; double() &gt; perturberMassFunction)</argsstring>
+        <name>SphericalHarmonicGravitationalTorqueModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">SphericalHarmonicsGravitationalAccelerationModel</ref> &gt;</type>
+          <declname>sphericalHarmonicAcceleration</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond() &gt;</type>
+          <declname>rotationToBodyUndergoingTorque</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>perturberMassFunction</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalHarmonicAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Spherical harmonic acceleration that the body that undergoes the torque exerts on the body that exerts the torque </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationToBodyUndergoingTorque</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the rotation from an inertial frame to the body-fixed frame of the body undergoing the torque </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>perturberMassFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the mass of the body exerting the torque. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="49" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="49" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a515be1341655389e0be283fc54c5616d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::SphericalHarmonicGravitationalTorqueModel::getTorque</definition>
+        <argsstring>()</argsstring>
+        <name>getTorque</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a6d9549c6be6ff7955697d132a5439546">getTorque</reimplements>
+        <briefdescription>
+<para>Get gravitational torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the gravitational torque. All data required for the computation is taken from member variables, which are set to their latest values by the last call of the updateMembers function. <simplesect kind="return"><para>Current gravitational torque. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a7108a60f049e510a37e3d8f395ec5d2a" kindref="member">updateMembers()</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="65" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="65" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a7108a60f049e510a37e3d8f395ec5d2a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::SphericalHarmonicGravitationalTorqueModel::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a547de9f7c418d4721d3ae9e1b5acdcaa">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the gravitational torque model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates member variables used by the gravitational accfeleration model. Pointers and function pointers to retrieve the current values of quantities from which the torque is to be calculated are set by constructor. This function calls them to update the associated variables to their current state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which torque model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="78" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="78" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a32462917b591c1c8bb89dea06e951587" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">SphericalHarmonicsGravitationalAccelerationModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; SphericalHarmonicsGravitationalAccelerationModel &gt; tudat::gravitation::SphericalHarmonicGravitationalTorqueModel::getSphericalHarmonicAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getSphericalHarmonicAcceleration</name>
+        <briefdescription>
+<para>Function to retrieve spherical harmonic acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve spherical harmonic acceleration that the body that undergoes the torque exerts on the body that exerts the torque <simplesect kind="return"><para>Spherical harmonic acceleration that the body that undergoes the torque exerts on the body that exerts the torque </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="94" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="94" bodyend="97"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to compute the gravitational torque on a body, due to a point mass perturber. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to compute the gravitational torque on a body, due to a point mass perturber, and an arbitrary dergee expansion of the spherical harmonic gravity field of the body on which the torque is acting. This class uses the <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">SphericalHarmonicsGravitationalAccelerationModel</ref> class to compute the acceleration that causes the torque </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</label>
+        <link refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::TorqueModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</label>
+        <link refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::TorqueModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" line="36" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h" bodystart="37" bodyend="115"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1ae5996724f9801a58349d9777e5db984a" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a3491e166d835f0d8f58181e18cbd4523" prot="private" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>currentTorque_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a32462917b591c1c8bb89dea06e951587" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>getSphericalHarmonicAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a515be1341655389e0be283fc54c5616d" prot="public" virt="virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>getTorque</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1aafdccf6edf963f23b9387f08175512e1" prot="private" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>perturberMassFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a31f2d71f9cdde05f7effd84270a65205" prot="public" virt="virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a69f2a9338a5f16d54bd60e9620002b99" prot="private" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>rotationToBodyUndergoingTorque_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a48bc717e5f0f165849ba54102591721b" prot="private" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>sphericalHarmonicAcceleration_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1abd06f5bcefddf5b6464d93558ec48179" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>SphericalHarmonicGravitationalTorqueModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1ac75b7b95a3207a0152259e068d8e2aef" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>TorqueModel</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel_1a7108a60f049e510a37e3d8f395ec5d2a" prot="public" virt="virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a54fb41daa5a0cbab301e8d6e4b69c26f" prot="public" virt="virtual"><scope>tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</scope><name>~TorqueModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

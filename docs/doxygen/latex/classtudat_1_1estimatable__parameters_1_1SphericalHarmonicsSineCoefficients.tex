@@ -1,0 +1,160 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Spherical\+Harmonics\+Sine\+Coefficients Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients}\index{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}}
+
+
+Interface class for estimation of spherical harmonic gravity field sine coefficients.  
+
+
+
+
+{\ttfamily \#include $<$spherical\+Harmonic\+Sine\+Coefficients.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Spherical\+Harmonics\+Sine\+Coefficients\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a1f5877ca2766f0d7d1ce96ca87358839}{Spherical\+Harmonics\+Sine\+Coefficients}} (const std\+::function$<$ Eigen\+::\+Matrix\+Xd() $>$ get\+Sine\+Coefficients, const std\+::function$<$ void(Eigen\+::\+Matrix\+Xd) $>$ set\+Sine\+Coefficients, const std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&block\+Indices, const std\+::string \&associated\+Body)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_adfab46c111df28d12d795e9de06c6649}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_adfab46c111df28d12d795e9de06c6649}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_adfab46c111df28d12d795e9de06c6649}{$\sim$\+Spherical\+Harmonics\+Sine\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a7f35c3406fdf98248ae2093dc10293e0}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the current values of the sine coefficients that are to be estimated. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_addf046d353ecbacb2564945ef44e7a42}{set\+Parameter\+Value}} (const Eigen\+::\+Vector\+Xd parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Function to reset the sine coefficients that are to be estimated. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a6bc279795f8d3018b578a0bc519607d9}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_af6b7d8a7069f385739f47cdd3d2fb828}{get\+Block\+Indices}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the list of sine coefficient indices which are to be estimated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_ab62f4a087cbe7057483ffc1488313915}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_ab62f4a087cbe7057483ffc1488313915}} 
+std\+::string {\bfseries get\+Parameter\+Description} ()
+\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a5d0617781cd4a9087ead6d54f16ed1c5}{get\+Degree\+Two\+Entries}} (int \&s21\+Index, int \&s22\+Index)
+\begin{DoxyCompactList}\small\item\em Function that returns the indices for degree two coefficients (if any) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for estimation of spherical harmonic gravity field sine coefficients. 
+
+Interface class for estimation of spherical harmonic gravity field sine coefficients. Interfaces the estimation with the member coefficients of an instance of the Spherical\+Harmonics\+Gravity\+Field (or nominal coefficients of Time\+Dependent\+Spherical\+Harmonics\+Gravity\+Field). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a1f5877ca2766f0d7d1ce96ca87358839}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a1f5877ca2766f0d7d1ce96ca87358839}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}!SphericalHarmonicsSineCoefficients@{SphericalHarmonicsSineCoefficients}}
+\index{SphericalHarmonicsSineCoefficients@{SphericalHarmonicsSineCoefficients}!tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}}
+\doxysubsubsection{\texorpdfstring{SphericalHarmonicsSineCoefficients()}{SphericalHarmonicsSineCoefficients()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients\+::\+Spherical\+Harmonics\+Sine\+Coefficients (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Matrix\+Xd() $>$}]{get\+Sine\+Coefficients,  }\item[{const std\+::function$<$ void(Eigen\+::\+Matrix\+Xd) $>$}]{set\+Sine\+Coefficients,  }\item[{const std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&}]{block\+Indices,  }\item[{const std\+::string \&}]{associated\+Body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em get\+Sine\+Coefficients} & Function to retrieve the full set of sine coefficients, of which a subset is to be estimated. \\
+\hline
+{\em set\+Sine\+Coefficients} & Function to reset the full set of sine coefficients, of which a subset is to be estimated. \\
+\hline
+{\em block\+Indices} & List of sine coefficient indices which are to be estimated (first and second are degree and order for each vector entry). \\
+\hline
+{\em associated\+Body} & Name of body for which sine coefficients are to be estimated. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_af6b7d8a7069f385739f47cdd3d2fb828}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_af6b7d8a7069f385739f47cdd3d2fb828}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}!getBlockIndices@{getBlockIndices}}
+\index{getBlockIndices@{getBlockIndices}!tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}}
+\doxysubsubsection{\texorpdfstring{getBlockIndices()}{getBlockIndices()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients\+::get\+Block\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the list of sine coefficient indices which are to be estimated. 
+
+Function to retrieve the list of sine coefficient indices which are to be estimated (first and second are degree and order for each vector entry). \begin{DoxyReturn}{Returns}
+List of sine coefficient indices which are to be estimated. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a5d0617781cd4a9087ead6d54f16ed1c5}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a5d0617781cd4a9087ead6d54f16ed1c5}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}!getDegreeTwoEntries@{getDegreeTwoEntries}}
+\index{getDegreeTwoEntries@{getDegreeTwoEntries}!tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}}
+\doxysubsubsection{\texorpdfstring{getDegreeTwoEntries()}{getDegreeTwoEntries()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients\+::get\+Degree\+Two\+Entries (\begin{DoxyParamCaption}\item[{int \&}]{s21\+Index,  }\item[{int \&}]{s22\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function that returns the indices for degree two coefficients (if any) 
+
+Function that returns the indices for degree two coefficients (if any) 
+\begin{DoxyParams}{Parameters}
+{\em s21\+Index} & Index for degree=2, order=1 entry (-\/1 if none; returned by reference) \\
+\hline
+{\em s22\+Index} & Index for degree=2, order=2 entry (-\/1 if none; returned by reference) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a6bc279795f8d3018b578a0bc519607d9}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a6bc279795f8d3018b578a0bc519607d9}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter. 
+
+Function to retrieve the size of the parameter, equal to the length of the blcok\+Indices\+\_\+ member vector, i.\+e. the number of coefficients that are to be estimated. \begin{DoxyReturn}{Returns}
+Size of parameter value. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a7f35c3406fdf98248ae2093dc10293e0}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a7f35c3406fdf98248ae2093dc10293e0}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to retrieve the current values of the sine coefficients that are to be estimated. 
+
+Function to retrieve the current values of the sine coefficients that are to be estimated. The order of the entries in this vector is the same as in the block\+Indices\+\_\+ member vector. \begin{DoxyReturn}{Returns}
+List of values for sine coefficients that are to be estimated. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_addf046d353ecbacb2564945ef44e7a42}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_addf046d353ecbacb2564945ef44e7a42}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsSineCoefficients}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector\+Xd}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to reset the sine coefficients that are to be estimated. 
+
+Function to reset the sine coefficients that are to be estimated. The order of the entries in this vector is the same as in the block\+Indices\+\_\+ member vector. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & List of new values for sine coefficients that are to be estimated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/spherical\+Harmonic\+Sine\+Coefficients.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/spherical\+Harmonic\+Sine\+Coefficients.\+cpp\end{DoxyCompactItemize}

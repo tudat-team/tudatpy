@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::DependentVariableSaveSettings</compoundname>
+    <includes refid="propagationOutputSettings_8h" local="no">propagationOutputSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1DependentVariableSaveSettings_1a77684832aaba6b514241383ada77cb44" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings" kindref="compound">SingleDependentVariableSaveSettings</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; SingleDependentVariableSaveSettings &gt; &gt; tudat::propagators::DependentVariableSaveSettings::dependentVariables_</definition>
+        <argsstring></argsstring>
+        <name>dependentVariables_</name>
+        <briefdescription>
+<para>List of settings for parameters that are to be saved. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="504" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="504" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1DependentVariableSaveSettings_1a85c76bfe9a5934dec1a2e814133073da" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::propagators::DependentVariableSaveSettings::printDependentVariableTypes_</definition>
+        <argsstring></argsstring>
+        <name>printDependentVariableTypes_</name>
+        <briefdescription>
+<para>Variable denoting whether to print the list and vector entries of dependent variables when propagating. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="507" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="507" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1DependentVariableSaveSettings_1a8399a0696c64f42f4b60caf5a4cda4ce" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::DependentVariableSaveSettings::DependentVariableSaveSettings</definition>
+        <argsstring>(const std::vector&lt; std::shared_ptr&lt; SingleDependentVariableSaveSettings &gt; &gt; dependentVariables, const bool printDependentVariableTypes=true)</argsstring>
+        <name>DependentVariableSaveSettings</name>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings" kindref="compound">SingleDependentVariableSaveSettings</ref> &gt; &gt;</type>
+          <declname>dependentVariables</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>printDependentVariableTypes</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of settings for parameters that are to be saved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printDependentVariableTypes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to print the list and vector entries of dependent variables when propagating. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="498" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="498" bodyend="501"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Container class for settings of all dependent variables that are to be saved. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="487" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="488" bodyend="514"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings_1a77684832aaba6b514241383ada77cb44" prot="public" virt="non-virtual"><scope>tudat::propagators::DependentVariableSaveSettings</scope><name>dependentVariables_</name></member>
+      <member refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings_1a8399a0696c64f42f4b60caf5a4cda4ce" prot="public" virt="non-virtual"><scope>tudat::propagators::DependentVariableSaveSettings</scope><name>DependentVariableSaveSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings_1a85c76bfe9a5934dec1a2e814133073da" prot="public" virt="non-virtual"><scope>tudat::propagators::DependentVariableSaveSettings</scope><name>printDependentVariableTypes_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

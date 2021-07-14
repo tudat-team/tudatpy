@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_2c1d4af6e463e36eedacb11a178cb35d" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json</compoundname>
+    <innerdir refid="dir_7a0df9f8f20f4b40db368db22b7ddfab">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/environment</innerdir>
+    <innerdir refid="dir_c95ed1ef97ec368099ea50d28768e5b0">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation</innerdir>
+    <innerdir refid="dir_2a56ac43973ee2bf42a9c5e06ca9fea8">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/math</innerdir>
+    <innerdir refid="dir_963291937c835ac27e7e333bc8596980">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/propagation</innerdir>
+    <innerdir refid="dir_047aad5671e689398b697721eb8291f8">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/support</innerdir>
+    <innerfile refid="jsonEstimationInterface_8cpp">jsonEstimationInterface.cpp</innerfile>
+    <innerfile refid="jsonInterface_8cpp">jsonInterface.cpp</innerfile>
+    <innerfile refid="jsonInterfaceExecute_8cpp">jsonInterfaceExecute.cpp</innerfile>
+    <innerfile refid="jsonInterfaceVariational_8cpp">jsonInterfaceVariational.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/"/>
+  </compounddef>
+</doxygen>

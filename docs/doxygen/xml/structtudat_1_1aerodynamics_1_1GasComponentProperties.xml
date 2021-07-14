@@ -1,0 +1,247 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1aerodynamics_1_1GasComponentProperties" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::GasComponentProperties</compoundname>
+    <includes refid="nrlmsise00Atmosphere_8h" local="no">nrlmsise00Atmosphere.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a0eee9fbfd1f12381cd6b61d39d723984" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::diameterArgon</definition>
+        <argsstring></argsstring>
+        <name>diameterArgon</name>
+        <briefdescription>
+<para>Molecular colision diameter of Argon in m. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="65" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a2f2c30831b4c4f9f428c06a0bbd719cd" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::diameterAtomicHydrogen</definition>
+        <argsstring></argsstring>
+        <name>diameterAtomicHydrogen</name>
+        <briefdescription>
+<para>Molecular colision diameter of Atomic Hydrogen in m. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="68" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a79573f168694c923a87e460e457e0fc1" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::diameterHelium</definition>
+        <argsstring></argsstring>
+        <name>diameterHelium</name>
+        <briefdescription>
+<para>Molecular colision diameter of Helium in m. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="71" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1abce48f267ef9b7c04734576ab6215897" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::diameterNitrogen</definition>
+        <argsstring></argsstring>
+        <name>diameterNitrogen</name>
+        <briefdescription>
+<para>Molecular colision diameter of Nitrogen in m. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="74" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a44852bf0481e6121bf7496bfcd446572" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::diameterOxygen</definition>
+        <argsstring></argsstring>
+        <name>diameterOxygen</name>
+        <briefdescription>
+<para>Molecular colision diameter of Oxygen in m. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="77" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a59e56b9e161af4f692b682b0980238a8" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::diameterAtomicNitrogen</definition>
+        <argsstring></argsstring>
+        <name>diameterAtomicNitrogen</name>
+        <briefdescription>
+<para>Molecular colision diameter of Atomic Nitrogen in m. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="80" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a7c99fbe879e09c97911ef5f8244cea2a" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::diameterAtomicOxygen</definition>
+        <argsstring></argsstring>
+        <name>diameterAtomicOxygen</name>
+        <briefdescription>
+<para>Molecular colision diameter of Atomic Oxygen in m. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="83" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a126b657eb80305e4f1b31c05e6b9510e" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::molarMassArgon</definition>
+        <argsstring></argsstring>
+        <name>molarMassArgon</name>
+        <briefdescription>
+<para>molar mass of Argon in kg/mole </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="86" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1addddae4e15ca06d0664072ddd17a71b7" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::molarMassAtomicHydrogen</definition>
+        <argsstring></argsstring>
+        <name>molarMassAtomicHydrogen</name>
+        <briefdescription>
+<para>Molar mass of Atomic Hydrogen in kg/mole. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="89" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a1c4e0c74563a23f5c261a9ff979af161" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::molarMassHelium</definition>
+        <argsstring></argsstring>
+        <name>molarMassHelium</name>
+        <briefdescription>
+<para>Molar mass of Helium in kg/mole. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="92" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a04c2f25313e763b540d04b6f551024f5" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::molarMassNitrogen</definition>
+        <argsstring></argsstring>
+        <name>molarMassNitrogen</name>
+        <briefdescription>
+<para>Molar mass of Nitrogen in kg/mole. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="95" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a5f0bb54190f91f550a5a8cd8bea60d12" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::molarMassOxygen</definition>
+        <argsstring></argsstring>
+        <name>molarMassOxygen</name>
+        <briefdescription>
+<para>Molar mass of Oxygen in kg/mole. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="98" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a86ee45d846b4739d5bdd17ba3b32cacc" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::molarMassAtomicNitrogen</definition>
+        <argsstring></argsstring>
+        <name>molarMassAtomicNitrogen</name>
+        <briefdescription>
+<para>Molar mass of Atomic Nitrogen in kg/mole. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="101" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1abc82d21b9d649bb427f9d9c677af9927" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::GasComponentProperties::molarMassAtomicOxygen</definition>
+        <argsstring></argsstring>
+        <name>molarMassAtomicOxygen</name>
+        <briefdescription>
+<para>Molar mass of Atomic Oxygen in kg/mole. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="104" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structtudat_1_1aerodynamics_1_1GasComponentProperties_1aff9b2511fcc561249671fb09a33556a0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::GasComponentProperties::GasComponentProperties</definition>
+        <argsstring>()</argsstring>
+        <name>GasComponentProperties</name>
+        <briefdescription>
+<para>default constructor </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructs a <ref refid="structtudat_1_1aerodynamics_1_1GasComponentProperties" kindref="compound">GasComponentProperties</ref> data structure with values obtained from the following sources: Collision diameters from: Tables of Physical &amp; Chemical Constants Kaye &amp; Laby Online, Kaye &amp; Laby Online, 2016 (<ulink url="http://www.kayelaby.npl.co.uk/general_physics/2_2/2_2_4.html">http://www.kayelaby.npl.co.uk/general_physics/2_2/2_2_4.html</ulink>) Molar mass from: NIST,2016 (<ulink url="http://www.nist.gov/pml/data/images/illo_for_2014_PT_1.PNG">http://www.nist.gov/pml/data/images/illo_for_2014_PT_1.PNG</ulink>)</para>
+<para>Data to be verified </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="56" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="56" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Gas component properties data structure. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This data structure contains the molar mass and collision diameter of the most frequently observed gasses in the atmosphere. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="44" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="45" bodyend="105"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a0eee9fbfd1f12381cd6b61d39d723984" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>diameterArgon</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a2f2c30831b4c4f9f428c06a0bbd719cd" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>diameterAtomicHydrogen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a59e56b9e161af4f692b682b0980238a8" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>diameterAtomicNitrogen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a7c99fbe879e09c97911ef5f8244cea2a" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>diameterAtomicOxygen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a79573f168694c923a87e460e457e0fc1" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>diameterHelium</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1abce48f267ef9b7c04734576ab6215897" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>diameterNitrogen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a44852bf0481e6121bf7496bfcd446572" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>diameterOxygen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1aff9b2511fcc561249671fb09a33556a0" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>GasComponentProperties</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a126b657eb80305e4f1b31c05e6b9510e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>molarMassArgon</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1addddae4e15ca06d0664072ddd17a71b7" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>molarMassAtomicHydrogen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a86ee45d846b4739d5bdd17ba3b32cacc" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>molarMassAtomicNitrogen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1abc82d21b9d649bb427f9d9c677af9927" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>molarMassAtomicOxygen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a1c4e0c74563a23f5c261a9ff979af161" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>molarMassHelium</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a04c2f25313e763b540d04b6f551024f5" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>molarMassNitrogen</name></member>
+      <member refid="structtudat_1_1aerodynamics_1_1GasComponentProperties_1a5f0bb54190f91f550a5a8cd8bea60d12" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::GasComponentProperties</scope><name>molarMassOxygen</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

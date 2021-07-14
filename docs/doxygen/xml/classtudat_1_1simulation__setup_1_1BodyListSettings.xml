@@ -1,0 +1,247 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1BodyListSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::BodyListSettings</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1acdf56a34d8b3c0b909efbe7cb234381a" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1BodySettings" kindref="compound">BodySettings</ref> &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::shared_ptr&lt; BodySettings &gt; &gt; tudat::simulation_setup::BodyListSettings::bodySettings_</definition>
+        <argsstring></argsstring>
+        <name>bodySettings_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="130" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1a2ad539558f5b09f3368c3adb8ac3d96b" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::BodyListSettings::frameOrigin_</definition>
+        <argsstring></argsstring>
+        <name>frameOrigin_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="132" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1ac82222fb887d5f3e8b8c85e136d7c3a9" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::BodyListSettings::frameOrientation_</definition>
+        <argsstring></argsstring>
+        <name>frameOrientation_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="134" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1a177600930ef0099b587b69a4c4228a15" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::BodyListSettings::BodyListSettings</definition>
+        <argsstring>(const std::string frameOrigin=&quot;SSB&quot;, const std::string frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>BodyListSettings</name>
+        <param>
+          <type>const std::string</type>
+          <declname>frameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="88" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="88" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1aeab649a61016f1d211b372a2d03abe08" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::BodyListSettings::BodyListSettings</definition>
+        <argsstring>(const std::map&lt; std::string, std::shared_ptr&lt; BodySettings &gt; &gt; &amp;bodySettings, const std::string frameOrigin=&quot;SSB&quot;, const std::string frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>BodyListSettings</name>
+        <param>
+          <type>const std::map&lt; std::string, std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1BodySettings" kindref="compound">BodySettings</ref> &gt; &gt; &amp;</type>
+          <declname>bodySettings</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>frameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="92" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="92" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1a4746865e83eb8bedb2375bee3292d1ec" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1BodySettings" kindref="compound">BodySettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BodySettings &gt; tudat::simulation_setup::BodyListSettings::at</definition>
+        <argsstring>(const std::string &amp;bodyName) const</argsstring>
+        <name>at</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="96" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="96" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1a4c98f166f9287f7459bbd66399475292" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1BodySettings" kindref="compound">BodySettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BodySettings &gt; tudat::simulation_setup::BodyListSettings::get</definition>
+        <argsstring>(const std::string &amp;bodyName) const</argsstring>
+        <name>get</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="101" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="101" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1a40acb77cf739caa2f79056f8705982d2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::BodyListSettings::count</definition>
+        <argsstring>(const std::string &amp;bodyName) const</argsstring>
+        <name>count</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="106" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="106" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1a723e8d94f0b60f593c05514875e3c363" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::BodyListSettings::addSettings</definition>
+        <argsstring>(std::shared_ptr&lt; BodySettings &gt; settingsToAdd, const std::string bodyName)</argsstring>
+        <name>addSettings</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1BodySettings" kindref="compound">BodySettings</ref> &gt;</type>
+          <declname>settingsToAdd</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="111" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="111" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1afdd425289e6dd70dbbc466067180632b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::BodyListSettings::addSettings</definition>
+        <argsstring>(const std::string bodyName)</argsstring>
+        <name>addSettings</name>
+        <param>
+          <type>const std::string</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="116" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="116" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1ad09018124bcc5b9e4a6382af81820df8" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::BodyListSettings::getFrameOrigin</definition>
+        <argsstring>() const</argsstring>
+        <name>getFrameOrigin</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="121" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="121" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1adf94b47fb2d0eb8764874e92cfa60f03" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::BodyListSettings::getFrameOrientation</definition>
+        <argsstring>() const</argsstring>
+        <name>getFrameOrientation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="123" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="123" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BodyListSettings_1ae854a181ed05465f4e26ad98b63e6fb5" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1BodySettings" kindref="compound">BodySettings</ref> &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::shared_ptr&lt; BodySettings &gt; &gt; tudat::simulation_setup::BodyListSettings::getMap</definition>
+        <argsstring>() const</argsstring>
+        <name>getMap</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="125" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="125" bodyend="125"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="84" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="85" bodyend="135"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1a723e8d94f0b60f593c05514875e3c363" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>addSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1afdd425289e6dd70dbbc466067180632b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>addSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1a4746865e83eb8bedb2375bee3292d1ec" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>at</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1a177600930ef0099b587b69a4c4228a15" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>BodyListSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1aeab649a61016f1d211b372a2d03abe08" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>BodyListSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1acdf56a34d8b3c0b909efbe7cb234381a" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>bodySettings_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1a40acb77cf739caa2f79056f8705982d2" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>count</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1ac82222fb887d5f3e8b8c85e136d7c3a9" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>frameOrientation_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1a2ad539558f5b09f3368c3adb8ac3d96b" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>frameOrigin_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1a4c98f166f9287f7459bbd66399475292" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>get</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1adf94b47fb2d0eb8764874e92cfa60f03" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>getFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1ad09018124bcc5b9e4a6382af81820df8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>getFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BodyListSettings_1ae854a181ed05465f4e26ad98b63e6fb5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodyListSettings</scope><name>getMap</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

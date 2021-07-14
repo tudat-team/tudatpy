@@ -1,0 +1,122 @@
+\hypertarget{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition}{}\doxysection{tudat\+::propagators\+::Single\+Variable\+Limit\+Propagation\+Termination\+Condition Class Reference}
+\label{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition}\index{tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}}
+
+
+Class for stopping the propagation when a dependent variable reaches a given value (either upper or lower bound)  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Termination.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Single\+Variable\+Limit\+Propagation\+Termination\+Condition\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a1b24ec3f05f6a8d1c07fad75b407026f}{Single\+Variable\+Limit\+Propagation\+Termination\+Condition}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings}{Single\+Dependent\+Variable\+Save\+Settings}} $>$ dependent\+Variable\+Settings, const std\+::function$<$ double() $>$ variable\+Retrieval\+Funtion, const double limiting\+Value, const bool use\+As\+Lower\+Bound, const bool check\+Termination\+To\+Exact\+Condition=false, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ termination\+Root\+Finder\+Settings=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a4210729b9226d3aaaff9a53ba3568771}\label{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a4210729b9226d3aaaff9a53ba3568771}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a4210729b9226d3aaaff9a53ba3568771}{$\sim$\+Single\+Variable\+Limit\+Propagation\+Termination\+Condition}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_abbfe9087844acaa96854aaa48face31e}{check\+Stop\+Condition}} (const double time, const double cpu\+Time)
+\begin{DoxyCompactList}\small\item\em Function to check whether the propagation is to be be stopped. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_acb214648355eee91d03e94849b576e0b}{get\+Stop\+Condition\+Error}} ()
+\begin{DoxyCompactList}\small\item\em Function to return current difference between termination variable, and the value at which the propagation must terminate. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a2de1a8bf7043e73e97017a0d466beb08}{get\+Termination\+Root\+Finder\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve settings to create root finder used to converge on exact final condition. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for stopping the propagation when a dependent variable reaches a given value (either upper or lower bound) 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a1b24ec3f05f6a8d1c07fad75b407026f}\label{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a1b24ec3f05f6a8d1c07fad75b407026f}} 
+\index{tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}!SingleVariableLimitPropagationTerminationCondition@{SingleVariableLimitPropagationTerminationCondition}}
+\index{SingleVariableLimitPropagationTerminationCondition@{SingleVariableLimitPropagationTerminationCondition}!tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{SingleVariableLimitPropagationTerminationCondition()}{SingleVariableLimitPropagationTerminationCondition()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Single\+Variable\+Limit\+Propagation\+Termination\+Condition\+::\+Single\+Variable\+Limit\+Propagation\+Termination\+Condition (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings}{Single\+Dependent\+Variable\+Save\+Settings}} $>$}]{dependent\+Variable\+Settings,  }\item[{const std\+::function$<$ double() $>$}]{variable\+Retrieval\+Funtion,  }\item[{const double}]{limiting\+Value,  }\item[{const bool}]{use\+As\+Lower\+Bound,  }\item[{const bool}]{check\+Termination\+To\+Exact\+Condition = {\ttfamily false},  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$}]{termination\+Root\+Finder\+Settings = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em dependent\+Variable\+Settings} & Settings for dependent variable that is to be checked \\
+\hline
+{\em variable\+Retrieval\+Funtion} & Function returning the dependent variable. \\
+\hline
+{\em limiting\+Value} & Value at which the propagation is to be stopped \\
+\hline
+{\em use\+As\+Lower\+Bound} & Boolean denoting whether the propagation should stop if the dependent variable goes below (if true) or above (if false) limiting\+Value \\
+\hline
+{\em check\+Termination\+To\+Exact\+Condition} & Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated. \\
+\hline
+{\em termination\+Root\+Finder\+Settings} & Settings to create root finder used to converge on exact final condition. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_abbfe9087844acaa96854aaa48face31e}\label{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_abbfe9087844acaa96854aaa48face31e}} 
+\index{tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}!checkStopCondition@{checkStopCondition}}
+\index{checkStopCondition@{checkStopCondition}!tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{checkStopCondition()}{checkStopCondition()}}
+{\footnotesize\ttfamily bool tudat\+::propagators\+::\+Single\+Variable\+Limit\+Propagation\+Termination\+Condition\+::check\+Stop\+Condition (\begin{DoxyParamCaption}\item[{const double}]{time,  }\item[{const double}]{cpu\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to check whether the propagation is to be be stopped. 
+
+Function to check whether the propagation is to be be stopped, i.\+e. whether the given dependent variable has been reached or not. 
+\begin{DoxyParams}{Parameters}
+{\em time} & Current time in propagation \\
+\hline
+{\em cpu\+Time} & Current CPU time in propagation \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if propagation is to be stopped, false otherwise. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition_a379032acf2619d19bb774bbd83316f60}{tudat\+::propagators\+::\+Propagation\+Termination\+Condition}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_acb214648355eee91d03e94849b576e0b}\label{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_acb214648355eee91d03e94849b576e0b}} 
+\index{tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}!getStopConditionError@{getStopConditionError}}
+\index{getStopConditionError@{getStopConditionError}!tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{getStopConditionError()}{getStopConditionError()}}
+{\footnotesize\ttfamily double tudat\+::propagators\+::\+Single\+Variable\+Limit\+Propagation\+Termination\+Condition\+::get\+Stop\+Condition\+Error (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return current difference between termination variable, and the value at which the propagation must terminate. 
+
+Function to return current difference between termination variable, and the value at which the propagation must terminate \begin{DoxyReturn}{Returns}
+Current difference between termination variable, and the value at which the propagation must terminate 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a2de1a8bf7043e73e97017a0d466beb08}\label{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_a2de1a8bf7043e73e97017a0d466beb08}} 
+\index{tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}!getTerminationRootFinderSettings@{getTerminationRootFinderSettings}}
+\index{getTerminationRootFinderSettings@{getTerminationRootFinderSettings}!tudat::propagators::SingleVariableLimitPropagationTerminationCondition@{tudat::propagators::SingleVariableLimitPropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{getTerminationRootFinderSettings()}{getTerminationRootFinderSettings()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ tudat\+::propagators\+::\+Single\+Variable\+Limit\+Propagation\+Termination\+Condition\+::get\+Termination\+Root\+Finder\+Settings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve settings to create root finder used to converge on exact final condition. 
+
+Function to retrieve settings to create root finder used to converge on exact final condition. \begin{DoxyReturn}{Returns}
+Settings to create root finder used to converge on exact final condition. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Termination.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/simulation/propagation\+\_\+setup/propagation\+Termination.\+cpp\end{DoxyCompactItemize}

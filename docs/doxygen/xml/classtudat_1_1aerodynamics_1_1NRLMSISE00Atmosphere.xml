@@ -1,0 +1,1369 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere" kind="class" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::NRLMSISE00Atmosphere</compoundname>
+    <basecompoundref refid="classtudat_1_1aerodynamics_1_1AtmosphereModel" prot="public" virt="non-virtual">tudat::aerodynamics::AtmosphereModel</basecompoundref>
+    <includes refid="nrlmsise00Atmosphere_8h" local="no">nrlmsise00Atmosphere.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aab847188836f8c91f16a8e062865d68e" prot="public" static="no">
+        <type>std::function&lt; <ref refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input" kindref="compound">NRLMSISE00Input</ref>(double, double, double, double) &gt;</type>
+        <definition>typedef std::function&lt; NRLMSISE00Input( double, double, double, double ) &gt; tudat::aerodynamics::NRLMSISE00Atmosphere::NRLMSISE00InputFunction</definition>
+        <argsstring></argsstring>
+        <name>NRLMSISE00InputFunction</name>
+        <briefdescription>
+<para>NRLMSISEInput function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Boost function that accepts (altitude, longitude, latitude, time ) and returns NRLMSISEInput data. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="189" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a23185c4f3e47e4aebdb062d8b8bbb06d" prot="private" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aab847188836f8c91f16a8e062865d68e" kindref="member">NRLMSISE00InputFunction</ref></type>
+        <definition>NRLMSISE00InputFunction tudat::aerodynamics::NRLMSISE00Atmosphere::nrlmsise00InputFunction_</definition>
+        <argsstring></argsstring>
+        <name>nrlmsise00InputFunction_</name>
+        <briefdescription>
+<para>Shared pointer to solar activity function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="434" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="434" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a19305e1ea195dbd3f7ab1826ce254e56" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::aerodynamics::NRLMSISE00Atmosphere::useIdealGasLaw_</definition>
+        <argsstring></argsstring>
+        <name>useIdealGasLaw_</name>
+        <briefdescription>
+<para>Use the ideal gas law for the computation of the pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="437" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="437" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a4876ef04ca4f4a8d361e609369953f6f" prot="private" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t tudat::aerodynamics::NRLMSISE00Atmosphere::hashKey_</definition>
+        <argsstring></argsstring>
+        <name>hashKey_</name>
+        <briefdescription>
+<para>Current key hash. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="440" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="440" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a4d6daee8fe07a8ef6a28eaac51eb3e45" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::density_</definition>
+        <argsstring></argsstring>
+        <name>density_</name>
+        <briefdescription>
+<para>Current local density (kg/m3) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="443" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="443" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a33974dc047644f34cbc6ad9c60a53e37" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::temperature_</definition>
+        <argsstring></argsstring>
+        <name>temperature_</name>
+        <briefdescription>
+<para>Current local temperature (K) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="446" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="446" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a33b39fe98cc26801abdf7a9900ddc990" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::pressure_</definition>
+        <argsstring></argsstring>
+        <name>pressure_</name>
+        <briefdescription>
+<para>Current local pressure (Implemented with ideal gass law only!) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="449" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="449" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a5f1f633bb3f15f11e1d40a2dd1c60a1d" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::speedOfSound_</definition>
+        <argsstring></argsstring>
+        <name>speedOfSound_</name>
+        <briefdescription>
+<para>Current speed of sound (m/s) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="452" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="452" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a21e925620cb4faf55d28d5a1ca1bcb1e" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::meanFreePath_</definition>
+        <argsstring></argsstring>
+        <name>meanFreePath_</name>
+        <briefdescription>
+<para>Current mean free path (m) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="455" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="455" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a42b32b26e68c66dce75b8dafb58e70cb" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::aerodynamics::NRLMSISE00Atmosphere::numberDensities_</definition>
+        <argsstring></argsstring>
+        <name>numberDensities_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Current number densities of gas components numberDensities_[0] - HE NUMBER DENSITY (M-3) numberDensities_[1] - O NUMBER DENSITY (M-3) numberDensities_[2] - N2 NUMBER DENSITY (M-3) numberDensities_[3] - O2 NUMBER DENSITY (M-3) numberDensities_[4] - AR NUMBER DENSITY (M-3) numberDensities_[5] - H NUMBER DENSITY (M-3) numberDensities_[6] - N NUMBER DENSITY (M-3) numberDensities_[7] - Anomalous oxygen NUMBER DENSITY (M-3) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="468" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="468" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a616b0c33a5309e1039d954e52f79c2bf" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::averageNumberDensity_</definition>
+        <argsstring></argsstring>
+        <name>averageNumberDensity_</name>
+        <briefdescription>
+<para>Current average number density (M-3) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="471" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="471" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a8d7c380e1386c4bdbec87828d5ebcebc" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::weightedAverageCollisionDiameter_</definition>
+        <argsstring></argsstring>
+        <name>weightedAverageCollisionDiameter_</name>
+        <briefdescription>
+<para>Current weighted average of the collision diameter using the number density as weights in (M) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="474" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="474" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a86280546a79a45f21826edd5c5a472a9" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::meanMolarMass_</definition>
+        <argsstring></argsstring>
+        <name>meanMolarMass_</name>
+        <briefdescription>
+<para>mean molar mass (kg/mole) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="477" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="477" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a39ee2228a915e99468697f4fc84cced2" prot="private" static="no" mutable="no">
+        <type><ref refid="structtudat_1_1aerodynamics_1_1GasComponentProperties" kindref="compound">GasComponentProperties</ref></type>
+        <definition>GasComponentProperties tudat::aerodynamics::NRLMSISE00Atmosphere::gasComponentProperties_</definition>
+        <argsstring></argsstring>
+        <name>gasComponentProperties_</name>
+        <briefdescription>
+<para>Data structure that contains the colision diameter. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="480" column="28" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="480" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a90188533a53d98c435fade89c8574d14" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::specificHeatRatio_</definition>
+        <argsstring></argsstring>
+        <name>specificHeatRatio_</name>
+        <briefdescription>
+<para>Specific heat ratio. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="483" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="483" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1af2474a428f231a54502c5324662236a1" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::molarGasConstant_</definition>
+        <argsstring></argsstring>
+        <name>molarGasConstant_</name>
+        <briefdescription>
+<para>Molar gas constant (J/mol K) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="486" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="486" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a5472bf6cae3ca884ba75fd0d7a5f10f0" prot="private" static="no" mutable="no">
+        <type>nrlmsise_flags</type>
+        <definition>nrlmsise_flags tudat::aerodynamics::NRLMSISE00Atmosphere::flags_</definition>
+        <argsstring></argsstring>
+        <name>flags_</name>
+        <briefdescription>
+<para>Flags set for NRLMSISE computations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="489" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="489" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aee0fceddbd78572fa6bdada621b64256" prot="private" static="no" mutable="no">
+        <type>ap_array</type>
+        <definition>ap_array tudat::aerodynamics::NRLMSISE00Atmosphere::aph_</definition>
+        <argsstring></argsstring>
+        <name>aph_</name>
+        <briefdescription>
+<para>Magnetic index structure of 7d array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Magnetic index structure of 7d array: 0 : daily AP 1 : 3 hr AP index for current time 2 : 3 hr AP index for 3 hrs before current time 3 : 3 hr AP index for 6 hrs before current time 4 : 3 hr AP index for 9 hrs before current time 5 : Average of eight 3 hr AP indicies from 12 to 33 hrs prior to current time 6 : Average of eight 3 hr AP indicies from 36 to 57 hrs prior to current time </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="504" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="504" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ae46950a0546abdf3145c3244fc6d9723" prot="private" static="no" mutable="no">
+        <type>nrlmsise_input</type>
+        <definition>nrlmsise_input tudat::aerodynamics::NRLMSISE00Atmosphere::input_</definition>
+        <argsstring></argsstring>
+        <name>input_</name>
+        <briefdescription>
+<para>Input structure with 10 scalar settings and magnetic values struct. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Input structure with 10 scalar settings and magnetic values struct. year - year, currently ignored (int) doy - day of the year (int) sec - seconds in the day (UT) (double) alt - altitude in kilometers (double) g_lat - geodetic latitude in deg (double) g_long - geodetic longitude in deg (double) lst - local apparent solar time (hours) (double) f107A - 81 day average of F10.7 flux (centered on doy) (double) f107 - daily F10.7 flux for previous day (double) ap - magnetic index (daily) (double) ap_a - magnetic index struct (see above) (ap_array) <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="521" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="521" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a4e6d58765d65b232dfe77cd3fcc9749a" prot="private" static="no" mutable="no">
+        <type>nrlmsise_output</type>
+        <definition>nrlmsise_output tudat::aerodynamics::NRLMSISE00Atmosphere::output_</definition>
+        <argsstring></argsstring>
+        <name>output_</name>
+        <briefdescription>
+<para>Ouput structure of densities (9d) and temperature (2d) arrays. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ouput structure of densities (9d) and temperature (2d) arrays: d[0] - HE NUMBER DENSITY(CM-3) d[1] - O NUMBER DENSITY(CM-3) d[2] - N2 NUMBER DENSITY(CM-3) d[3] - O2 NUMBER DENSITY(CM-3) d[4] - AR NUMBER DENSITY(CM-3) <linebreak/>
+ d[5] - TOTAL MASS DENSITY(GM/CM3) [includes d[8] in td7d] d[6] - H NUMBER DENSITY(CM-3) d[7] - N NUMBER DENSITY(CM-3) d[8] - Anomalous oxygen NUMBER DENSITY(CM-3) t[0] - EXOSPHERIC TEMPERATURE t[1] - TEMPERATURE AT ALT</para>
+<para><verbatim>O, H, and N are set to zero below 72.5 km
+
+t[0], Exospheric temperature, is set to global average for
+altitudes below 120 km. The 120 km gradient is left at global
+average value for altitudes below 72 km.
+
+d[5], TOTAL MASS DENSITY, is NOT the same for subroutines GTD7 
+and GTD7D
+
+  SUBROUTINE GTD7 -- d[5] is the sum of the mass densities of the
+  species labeled by indices 0-4 and 6-7 in output variable d.
+  This includes He, O, N2, O2, Ar, H, and N but does NOT include
+  anomalous oxygen (species index 8).
+
+  SUBROUTINE GTD7D -- d[5] is the &quot;effective total mass density
+  for drag&quot; and is the sum of the mass densities of all species
+  in this model, INCLUDING anomalous oxygen.
+</verbatim> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="557" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="557" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a8829c2d70d7ee6993412c1bb4540dcdd" prot="private" static="no" mutable="no">
+        <type><ref refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input" kindref="compound">NRLMSISE00Input</ref></type>
+        <definition>NRLMSISE00Input tudat::aerodynamics::NRLMSISE00Atmosphere::inputData_</definition>
+        <argsstring></argsstring>
+        <name>inputData_</name>
+        <briefdescription>
+<para>Input data to NRLMSISE00 atmosphere model. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="591" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="591" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a83ec6d0bb41bd6cd34dd16ac5a408195" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::NRLMSISE00Atmosphere::NRLMSISE00Atmosphere</definition>
+        <argsstring>(const NRLMSISE00InputFunction nrlmsise00InputFunction, const bool useIdealGasLaw=true)</argsstring>
+        <name>NRLMSISE00Atmosphere</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aab847188836f8c91f16a8e062865d68e" kindref="member">NRLMSISE00InputFunction</ref></type>
+          <declname>nrlmsise00InputFunction</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useIdealGasLaw</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>nrlmsise00InputFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function which provides the NRLMSISE00 model input as a function of (altitude, longitude, latitude, time ). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useIdealGasLaw</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to use the ideal gas law for computation of pressure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="198" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="198" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1af30909b7ca9b2e925a6c62c148226df5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::NRLMSISE00Atmosphere::NRLMSISE00Atmosphere</definition>
+        <argsstring>(const NRLMSISE00InputFunction nrlmsise00InputFunction, const double specificHeatRatio, const GasComponentProperties gasProperties, const bool useIdealGasLaw=true)</argsstring>
+        <name>NRLMSISE00Atmosphere</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aab847188836f8c91f16a8e062865d68e" kindref="member">NRLMSISE00InputFunction</ref></type>
+          <declname>nrlmsise00InputFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specificHeatRatio</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structtudat_1_1aerodynamics_1_1GasComponentProperties" kindref="compound">GasComponentProperties</ref></type>
+          <declname>gasProperties</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useIdealGasLaw</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor that sets the gas component properties and specific heat ratio. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>nrlmsise00InputFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>shared function pointer to provide all necessary input. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificHeatRatio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>value of the specific heat ratio. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gasProperties</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a <ref refid="structtudat_1_1aerodynamics_1_1GasComponentProperties" kindref="compound">GasComponentProperties</ref> data structure that contains the molecule collision diameters and the molar mass. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useIdealGasLaw</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the ideal gas law is to be used. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="219" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="219" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a9c4cfe9a72d0e00b1746d85849e9e61c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::NRLMSISE00Atmosphere::setGasComponentProperties</definition>
+        <argsstring>(const GasComponentProperties gasComponentProperties)</argsstring>
+        <name>setGasComponentProperties</name>
+        <param>
+          <type>const <ref refid="structtudat_1_1aerodynamics_1_1GasComponentProperties" kindref="compound">GasComponentProperties</ref></type>
+          <declname>gasComponentProperties</declname>
+        </param>
+        <briefdescription>
+<para>Set gas component properties. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the gas component properties. These are required for the calculation of the speed of sound and the mean free path. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gasComponentProperties</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Properties of the gas components </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="238" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="238" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a47aa6bc2a6782701055d74ef26ef2652" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::getDensity</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getDensity</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a167feb7925eb65a4ca59317d5fba22fb">getDensity</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get local density. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local density of the atmosphere in kg per meter^3. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which density is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which density is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which density is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which density is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Atmospheric density [kg/m^3]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="252" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="252" bodyend="257"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1afb3da940e795477c8f3fa112bf8dd5f5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::getPressure</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getPressure</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a516553ea32c89f55a5ba7abe5a417ddc">getPressure</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get local pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local pressure of the atmosphere in Newton per meter^2. The pressure is not implemented in the current version (returns NaN). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which pressure is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which pressure is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which pressure is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which pressure is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Atmospheric pressure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="269" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="269" bodyend="281"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a16b8b8363a3b7f6759cd764ba239d8bf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::getTemperature</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getTemperature</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a9b6be6472481354320e2869e586be5ca">getTemperature</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get local temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local temperature of the atmosphere parameter in Kelvin. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which temperature is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which temperature is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which temperature is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which temperature is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Atmospheric temperature. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="292" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="292" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a494e42d0266f7d9fa0ebc45bf0f7d78d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::getSpeedOfSound</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getSpeedOfSound</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a815606ec0437866d6308679c6f078bce">getSpeedOfSound</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get local speed of sound. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local speed of sound in m/s. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which speed of sound is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which speed of sound is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at whichspeed of sound is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which speed of sound is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Speed of sound. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="308" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="308" bodyend="313"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a0e205f917f3c2f11b148a7a7f4f9bc07" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::getMeanFreePath</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getMeanFreePath</name>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get local mean free path. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local mean free path in m. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which mean free path is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which mean free path is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which mean free path is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which mean free path is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Mean free path. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="324" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="324" bodyend="329"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ac187a49f5bdbfecb523200718b3cd443" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::getMeanMolarMass</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getMeanMolarMass</name>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get local mean molar mass. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local mean molar mass in kg/mol. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which mean molar mass is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which mean molar mass is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which mean molar mass is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which mean molar mass is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>mean molar mass. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="340" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="340" bodyend="345"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a99b458d72a6953dca8de46f88a625df4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::aerodynamics::NRLMSISE00Atmosphere::getNumberDensities</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getNumberDensities</name>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>get local number density of the gas components. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the number density of each gas component in a vector. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which number density is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which number density is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which number density is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which number density is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number densities of gas components </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="356" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="356" bodyend="361"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ac4cc8f6d6362b4ef8fa176412b623215" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::getAverageNumberDensity</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getAverageNumberDensity</name>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get local average number density. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local average number density in m^-3 <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which density is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which density is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which density is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which density is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>average number density. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="372" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="372" bodyend="377"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a4af6d0c8273998f75ba8bdc4c2cc4755" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::NRLMSISE00Atmosphere::getWeightedAverageCollisionDiameter</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getWeightedAverageCollisionDiameter</name>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get local weighted average collision diameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local weighted average collision diameter using the number densities as weights. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which average collision diameter is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which average collision diameter is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which average collision diameter is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which average collision diameter is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>weighted average collision diameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="388" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="388" bodyend="393"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ab317008d9d94f2acf51f9fc08a03975e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; std::vector&lt; double &gt;, std::vector&lt; double &gt; &gt;</type>
+        <definition>std::pair&lt; std::vector&lt; double &gt;, std::vector&lt; double &gt; &gt; tudat::aerodynamics::NRLMSISE00Atmosphere::getFullOutput</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>getFullOutput</name>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get the full model output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Gets the output directly from the model. This will return a pair of double vectors containing density and temperature values. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which output is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which output is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which output is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which output is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Full density and temperature values </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="406" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/nrlmsise00Atmosphere.cpp" bodystart="148" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1afc0f053e11cb133e4821a85f810366f8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::NRLMSISE00Atmosphere::resetHashKey</definition>
+        <argsstring>()</argsstring>
+        <name>resetHashKey</name>
+        <briefdescription>
+<para>Reset the hash key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets the hash key, this allows re-computation even if the independent parameters haven&apos;t changed. Such as in the case of changes to the model. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="416" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="416" bodyend="419"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a00e56dcbeb048a358500a2bef4b359dd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structtudat_1_1aerodynamics_1_1NRLMSISE00Input" kindref="compound">NRLMSISE00Input</ref></type>
+        <definition>NRLMSISE00Input tudat::aerodynamics::NRLMSISE00Atmosphere::getNRLMSISE00Input</definition>
+        <argsstring>()</argsstring>
+        <name>getNRLMSISE00Input</name>
+        <briefdescription>
+<para>Function to get Input data to NRLMSISE00 atmosphere model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get input data to NRLMSISE00 atmosphere model <simplesect kind="return"><para>Input data to NRLMSISE00 atmosphere model </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="426" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="426" bodyend="429"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ac13dcc930e184a5c9bc173f2a60da5de" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t tudat::aerodynamics::NRLMSISE00Atmosphere::hashFunc</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>hashFunc</name>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get Hash Key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns hash key value based on a vector of keys <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>time. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>hash key value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="568" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="568" bodyend="577"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aa138b011259b554bc9244888c8b53e23" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::NRLMSISE00Atmosphere::computeProperties</definition>
+        <argsstring>(const double altitude, const double longitude, const double latitude, const double time)</argsstring>
+        <name>computeProperties</name>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Compute the local atmospheric properties. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the local atmospheric density, pressure and temperature. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which output is to be computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which output is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which output is to be computed [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which output is to be computed (seconds since J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="587" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/nrlmsise00Atmosphere.cpp" bodystart="21" bodyend="117"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>NRLMSISE-00 atmosphere model class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>NRLMSISE-00 atmosphere model class. This class uses the NRLMSISE00 atmosphere model to calculate atmospheric density and temperature. The GTD7 function is used: Neutral Atmosphere Empircial Model from the surface to lower exosphere. Currently the ideal gas law is used to compute the speed of sound. The specific heat ratio is assumed to be constant and equal to 1.4. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::aerodynamics::AtmosphereModel</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AtmosphereModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::aerodynamics::NRLMSISE00Atmosphere</label>
+        <link refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::aerodynamics::AtmosphereModel</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AtmosphereModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::aerodynamics::NRLMSISE00Atmosphere</label>
+        <link refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" line="180" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/nrlmsise00Atmosphere.h" bodystart="181" bodyend="592"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aee0fceddbd78572fa6bdada621b64256" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>aph_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a616b0c33a5309e1039d954e52f79c2bf" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>averageNumberDensity_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aa138b011259b554bc9244888c8b53e23" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>computeProperties</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a4d6daee8fe07a8ef6a28eaac51eb3e45" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>density_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a5472bf6cae3ca884ba75fd0d7a5f10f0" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>flags_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a39ee2228a915e99468697f4fc84cced2" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>gasComponentProperties_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ac4cc8f6d6362b4ef8fa176412b623215" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getAverageNumberDensity</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a47aa6bc2a6782701055d74ef26ef2652" prot="public" virt="virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getDensity</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ab317008d9d94f2acf51f9fc08a03975e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getFullOutput</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a0e205f917f3c2f11b148a7a7f4f9bc07" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getMeanFreePath</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ac187a49f5bdbfecb523200718b3cd443" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getMeanMolarMass</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a00e56dcbeb048a358500a2bef4b359dd" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getNRLMSISE00Input</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a99b458d72a6953dca8de46f88a625df4" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getNumberDensities</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1afb3da940e795477c8f3fa112bf8dd5f5" prot="public" virt="virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getPressure</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a494e42d0266f7d9fa0ebc45bf0f7d78d" prot="public" virt="virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getSpeedOfSound</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a16b8b8363a3b7f6759cd764ba239d8bf" prot="public" virt="virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getTemperature</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a4af6d0c8273998f75ba8bdc4c2cc4755" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getWeightedAverageCollisionDiameter</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1aa6948868e4d053536cdd97d70bea63e4" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>getWindModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ac13dcc930e184a5c9bc173f2a60da5de" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>hashFunc</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a4876ef04ca4f4a8d361e609369953f6f" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>hashKey_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1ae46950a0546abdf3145c3244fc6d9723" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>input_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a8829c2d70d7ee6993412c1bb4540dcdd" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>inputData_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a21e925620cb4faf55d28d5a1ca1bcb1e" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>meanFreePath_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a86280546a79a45f21826edd5c5a472a9" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>meanMolarMass_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1af2474a428f231a54502c5324662236a1" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>molarGasConstant_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a83ec6d0bb41bd6cd34dd16ac5a408195" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>NRLMSISE00Atmosphere</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1af30909b7ca9b2e925a6c62c148226df5" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>NRLMSISE00Atmosphere</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1aab847188836f8c91f16a8e062865d68e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>NRLMSISE00InputFunction</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a23185c4f3e47e4aebdb062d8b8bbb06d" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>nrlmsise00InputFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a42b32b26e68c66dce75b8dafb58e70cb" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>numberDensities_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a4e6d58765d65b232dfe77cd3fcc9749a" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>output_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a33b39fe98cc26801abdf7a9900ddc990" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>pressure_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1afc0f053e11cb133e4821a85f810366f8" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>resetHashKey</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a9c4cfe9a72d0e00b1746d85849e9e61c" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>setGasComponentProperties</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1abed0c184d0864d3f7f7860240f09fa22" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>setWindModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a90188533a53d98c435fade89c8574d14" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>specificHeatRatio_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a5f1f633bb3f15f11e1d40a2dd1c60a1d" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>speedOfSound_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a33974dc047644f34cbc6ad9c60a53e37" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>temperature_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a19305e1ea195dbd3f7ab1826ce254e56" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>useIdealGasLaw_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1NRLMSISE00Atmosphere_1a8d7c380e1386c4bdbec87828d5ebcebc" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>weightedAverageCollisionDiameter_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a02355eaebd0b2c00f2f2fd1836ac9697" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>windModel_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a1ceb7bfb8c497ca6b6a0ccbade902ed7" prot="public" virt="virtual"><scope>tudat::aerodynamics::NRLMSISE00Atmosphere</scope><name>~AtmosphereModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,2163 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="createNWayRangePartials_8h" kind="file" language="C++">
+    <compoundname>createNWayRangePartials.h</compoundname>
+    <includes local="no">vector</includes>
+    <includes local="no">map</includes>
+    <includes local="no">memory</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes refid="interpolator_8h" local="yes">tudat/math/interpolators/interpolator.h</includes>
+    <includes refid="createOneWayRangePartials_8h" local="yes">tudat/simulation/estimation_setup/createOneWayRangePartials.h</includes>
+    <includes refid="nWayRangePartial_8h" local="yes">tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h</includes>
+    <includes refid="linkTypeDefs_8h" local="yes">tudat/astro/observation_models/linkTypeDefs.h</includes>
+    <includes refid="observableTypes_8h" local="yes">tudat/astro/observation_models/observableTypes.h</includes>
+    <includedby refid="createObservationPartials_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationPartials.h</includedby>
+    <includedby refid="estimation__setup_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</includedby>
+    <incdepgraph>
+      <node id="60">
+        <label>tudat/astro/ephemerides/constantEphemeris.h</label>
+        <link refid="constantEphemeris_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+      </node>
+      <node id="68">
+        <label>tudat/math/interpolators/oneDimensionalInterpolator.h</label>
+        <link refid="oneDimensionalInterpolator_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="82">
+        <label>boost/algorithm/string.hpp</label>
+      </node>
+      <node id="156">
+        <label>tudat/astro/observation_models/observableTypes.h</label>
+        <link refid="observableTypes_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="150">
+        <label>tudat/config.hpp</label>
+      </node>
+      <node id="45">
+        <label>boost/lambda/lambda.hpp</label>
+      </node>
+      <node id="89">
+        <label>tudat/io/streamFilters.h</label>
+        <link refid="streamFilters_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>tudat/math/interpolators/piecewiseConstantInterpolator.h</label>
+        <link refid="piecewiseConstantInterpolator_8h_source"/>
+        <childnode refid="68" relation="include">
+        </childnode>
+      </node>
+      <node id="148">
+        <label>system_error</label>
+      </node>
+      <node id="144">
+        <label>iomanip</label>
+      </node>
+      <node id="27">
+        <label>functional</label>
+      </node>
+      <node id="44">
+        <label>tudat/astro/reference_frames/aerodynamicAngleCalculator.h</label>
+        <link refid="aerodynamicAngleCalculator_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="95">
+        <label>tudat/astro/gravitation/sphericalHarmonicsGravityField.h</label>
+        <link refid="sphericalHarmonicsGravityField_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="96" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="101" relation="include">
+        </childnode>
+      </node>
+      <node id="78">
+        <label>boost/shared_ptr.hpp</label>
+      </node>
+      <node id="157">
+        <label>tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h</label>
+        <link refid="observationBiasParameter_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="158" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>limits</label>
+      </node>
+      <node id="66">
+        <label>tudat/math/interpolators/linearInterpolator.h</label>
+        <link refid="linearInterpolator_8h_source"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+      </node>
+      <node id="135">
+        <label>tudat/astro/propagators/singleStateTypeDerivative.h</label>
+        <link refid="singleStateTypeDerivative_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="110" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>tudat/astro/ephemerides/frameManager.h</label>
+        <link refid="frameManager_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="142">
+        <label>tudat/interface/spice/spiceInterface.h</label>
+        <link refid="spiceInterface_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="143" relation="include">
+        </childnode>
+        <childnode refid="151" relation="include">
+        </childnode>
+        <childnode refid="152" relation="include">
+        </childnode>
+        <childnode refid="153" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="94">
+        <label>tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h</label>
+        <link refid="timeDependentSphericalHarmonicsGravityField_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+      </node>
+      <node id="91">
+        <label>boost/iostreams/device/back_inserter.hpp</label>
+      </node>
+      <node id="69">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="120">
+        <label>boost/math/special_functions/atanh.hpp</label>
+      </node>
+      <node id="86">
+        <label>boost/iostreams/copy.hpp</label>
+      </node>
+      <node id="147">
+        <label>stdlib.h</label>
+      </node>
+      <node id="64">
+        <label>tudat/astro/gravitation/gravityFieldVariations.h</label>
+        <link refid="gravityFieldVariations_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>tudat/astro/basic_astro/accelerationModel.h</label>
+        <link refid="accelerationModel_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>boost/date_time/gregorian/gregorian.hpp</label>
+      </node>
+      <node id="23">
+        <label>tudat/simulation/estimation_setup/createCartesianStatePartials.h</label>
+        <link refid="createCartesianStatePartials_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="136" relation="include">
+        </childnode>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="154" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="15">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="153">
+        <label>tudat/astro/ephemerides/tleEphemeris.h</label>
+        <link refid="tleEphemeris_8h_source"/>
+        <childnode refid="56" relation="include">
+        </childnode>
+      </node>
+      <node id="77">
+        <label>tudat/math/interpolators/multiDimensionalInterpolator.h</label>
+        <link refid="multiDimensionalInterpolator_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>tudat/simulation/estimation_setup/createOneWayRangePartials.h</label>
+        <link refid="createOneWayRangePartials_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="159" relation="include">
+        </childnode>
+        <childnode refid="136" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="156" relation="include">
+        </childnode>
+        <childnode refid="162" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>cmath</label>
+      </node>
+      <node id="112">
+        <label>tudat/math/root_finders/newtonRaphson.h</label>
+        <link refid="newtonRaphson_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="113" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>stdexcept</label>
+      </node>
+      <node id="124">
+        <label>tudat/astro/basic_astro/unifiedStateModelQuaternionElementConversions.h</label>
+        <link refid="unifiedStateModelQuaternionElementConversions_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="46">
+        <label>tudat/astro/ephemerides/rotationalEphemeris.h</label>
+        <link refid="rotationalEphemeris_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="62">
+        <label>tudat/astro/gravitation/centralGravityModel.h</label>
+        <link refid="centralGravityModel_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>string</label>
+      </node>
+      <node id="52">
+        <label>tudat/astro/reference_frames/dependentOrientationCalculator.h</label>
+        <link refid="dependentOrientationCalculator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="119">
+        <label>tudat/astro/basic_astro/orbitalElementConversions.h</label>
+        <link refid="orbitalElementConversions_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="120" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="121" relation="include">
+        </childnode>
+        <childnode refid="106" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="143">
+        <label>tudat/io/basicInputOutput.h</label>
+        <link refid="basicInputOutput_8h_source"/>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="144" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="145" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+      </node>
+      <node id="161">
+        <label>tudat/astro/observation_models/lightTimeSolution.h</label>
+        <link refid="lightTimeSolution_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>map</label>
+      </node>
+      <node id="133">
+        <label>tudat/math/basic/numericalDerivative.h</label>
+        <link refid="numericalDerivative_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="83">
+        <label>boost/algorithm/string/trim.hpp</label>
+      </node>
+      <node id="92">
+        <label>boost/iostreams/stream_buffer.hpp</label>
+      </node>
+      <node id="117">
+        <label>tudat/astro/basic_astro/geodeticCoordinateConversions.h</label>
+        <link refid="geodeticCoordinateConversions_8h_source"/>
+        <childnode refid="118" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>tudat/astro/reference_frames/referenceFrameTransformations.h</label>
+        <link refid="referenceFrameTransformations_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="123">
+        <label>tudat/astro/basic_astro/missionGeometry.h</label>
+        <link refid="missionGeometry_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>boost/algorithm/string/trim_all.hpp</label>
+      </node>
+      <node id="115">
+        <label>tudat/math/basic/functionProxy.h</label>
+        <link refid="functionProxy_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="116" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>fstream</label>
+      </node>
+      <node id="98">
+        <label>boost/circular_buffer.hpp</label>
+      </node>
+      <node id="40">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="163">
+        <label>tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h</label>
+        <link refid="nWayRangePartial_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="155" relation="include">
+        </childnode>
+        <childnode refid="159" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>tudat/astro/gravitation/gravityFieldModel.h</label>
+        <link refid="gravityFieldModel_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>tudat/astro/aerodynamics/flightConditions.h</label>
+        <link refid="flightConditions_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="130">
+        <label>tudat/astro/system_models/vehicleSystems.h</label>
+        <link refid="vehicleSystems_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="131" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="129">
+        <label>tudat/astro/propulsion/thrustGuidance.h</label>
+        <link refid="thrustGuidance_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="141">
+        <label>boost/function.hpp</label>
+      </node>
+      <node id="73">
+        <label>tudat/math/interpolators/hermiteCubicSplineInterpolator.h</label>
+        <link refid="hermiteCubicSplineInterpolator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+      </node>
+      <node id="132">
+        <label>tudat/astro/propulsion/thrustFunctions.h</label>
+        <link refid="thrustFunctions_8h_source"/>
+      </node>
+      <node id="126">
+        <label>tudat/astro/basic_astro/unifiedStateModelExponentialMapElementConversions.h</label>
+        <link refid="unifiedStateModelExponentialMapElementConversions_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="127">
+        <label>tudat/astro/basic_astro/attitudeElementConversions.h</label>
+        <link refid="attitudeElementConversions_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="108">
+        <label>tudat/math/root_finders/createRootFinder.h</label>
+        <link refid="createRootFinder_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="109" relation="include">
+        </childnode>
+        <childnode refid="111" relation="include">
+        </childnode>
+        <childnode refid="112" relation="include">
+        </childnode>
+        <childnode refid="114" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="76">
+        <label>tudat/math/interpolators/multiLinearInterpolator.h</label>
+        <link refid="multiLinearInterpolator_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>tudat/astro/basic_astro/bodyShapeModel.h</label>
+        <link refid="bodyShapeModel_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="149">
+        <label>tudat/resource/resource.h</label>
+      </node>
+      <node id="104">
+        <label>tudat/astro/ground_stations/groundStationState.h</label>
+        <link refid="groundStationState_8h_source"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="105" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>tudat/math/basic/linearAlgebra.h</label>
+        <link refid="linearAlgebra_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="85">
+        <label>boost/iostreams/device/file.hpp</label>
+      </node>
+      <node id="121">
+        <label>tudat/astro/basic_astro/stateVectorIndices.h</label>
+        <link refid="stateVectorIndices_8h_source"/>
+      </node>
+      <node id="13">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="131">
+        <label>tudat/astro/system_models/engineModel.h</label>
+        <link refid="engineModel_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="132" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>tudat/math/interpolators/createInterpolator.h</label>
+        <link refid="createInterpolator_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="79" relation="include">
+        </childnode>
+      </node>
+      <node id="111">
+        <label>tudat/math/root_finders/halleyRootFinder.h</label>
+        <link refid="halleyRootFinder_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>tudat/astro/ephemerides/ephemeris.h</label>
+        <link refid="astro_2ephemerides_2ephemeris_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="154">
+        <label>tudat/astro/orbit_determination/observation_partials/positionPartials.h</label>
+        <link refid="positionPartials_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="138" relation="include">
+        </childnode>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="155" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h</label>
+        <link refid="aerodynamicCoefficientInterface_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="137">
+        <label>tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h</label>
+        <link refid="rotationMatrixPartial_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="138" relation="include">
+        </childnode>
+        <childnode refid="139" relation="include">
+        </childnode>
+        <childnode refid="140" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="107">
+        <label>boost/math/special_functions/asinh.hpp</label>
+      </node>
+      <node id="20">
+        <label>tudat/astro/observation_models/corrections/lightTimeCorrection.h</label>
+        <link refid="lightTimeCorrection_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="99">
+        <label>boost/unordered_map.hpp</label>
+      </node>
+      <node id="47">
+        <label>tudat/astro/basic_astro/timeConversions.h</label>
+        <link refid="timeConversions_8h_source"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>tudat/astro/aerodynamics/trimOrientation.h</label>
+        <link refid="trimOrientation_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="71">
+        <label>tudat/math/basic/nearestNeighbourSearch.h</label>
+        <link refid="nearestNeighbourSearch_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>vector</label>
+      </node>
+      <node id="90">
+        <label>boost/iostreams/filter/line.hpp</label>
+      </node>
+      <node id="151">
+        <label>cspice/SpiceUsr.h</label>
+      </node>
+      <node id="134">
+        <label>tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h</label>
+        <link refid="estimatableParameter_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="135" relation="include">
+        </childnode>
+      </node>
+      <node id="146">
+        <label>tudat/paths.hpp</label>
+        <link refid="paths_8hpp_source"/>
+        <childnode refid="147" relation="include">
+        </childnode>
+        <childnode refid="148" relation="include">
+        </childnode>
+        <childnode refid="149" relation="include">
+        </childnode>
+        <childnode refid="150" relation="include">
+        </childnode>
+      </node>
+      <node id="145">
+        <label>boost/filesystem.hpp</label>
+      </node>
+      <node id="63">
+        <label>tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h</label>
+        <link refid="sphericalHarmonicsGravityModelBase_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="109">
+        <label>tudat/math/root_finders/bisection.h</label>
+        <link refid="bisection_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="110" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="152">
+        <label>cspice/SpiceZfc.h</label>
+      </node>
+      <node id="110">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="55">
+        <label>tudat/astro/electromagnetism/radiationPressureInterface.h</label>
+        <link refid="radiationPressureInterface_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="96">
+        <label>tudat/math/basic/legendrePolynomials.h</label>
+        <link refid="legendrePolynomials_8h_source"/>
+        <childnode refid="97" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="98" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="99" relation="include">
+        </childnode>
+        <childnode refid="100" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="116">
+        <label>tudat/math/basic/basicFunction.h</label>
+        <link refid="basicFunction_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="128">
+        <label>tudat/astro/ground_stations/pointingAnglesCalculator.h</label>
+        <link refid="pointingAnglesCalculator_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="104" relation="include">
+        </childnode>
+      </node>
+      <node id="118">
+        <label>utility</label>
+      </node>
+      <node id="81">
+        <label>sstream</label>
+      </node>
+      <node id="113">
+        <label>tudat/math/basic/convergenceException.h</label>
+        <link refid="convergenceException_8h_source"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>tudat/basics/utilities.h</label>
+        <link refid="basics_2utilities_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>tudat/simulation/environment_setup/body.h</label>
+        <link refid="simulation_2environment__setup_2body_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="94" relation="include">
+        </childnode>
+        <childnode refid="103" relation="include">
+        </childnode>
+        <childnode refid="129" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="130" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="133" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h</label>
+        <link refid="controlSurfaceAerodynamicCoefficientInterface_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="100">
+        <label>boost/enable_shared_from_this.hpp</label>
+      </node>
+      <node id="122">
+        <label>tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h</label>
+        <link refid="modifiedEquinoctialElementConversions_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="121" relation="include">
+        </childnode>
+        <childnode refid="123" relation="include">
+        </childnode>
+        <childnode refid="119" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>tudat/astro/aerodynamics/atmosphereModel.h</label>
+        <link refid="atmosphereModel_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>iostream</label>
+      </node>
+      <node id="138">
+        <label>tudat/astro/ephemerides/simpleRotationalEphemeris.h</label>
+        <link refid="simpleRotationalEphemeris_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="105">
+        <label>tudat/astro/basic_astro/stateRepresentationConversions.h</label>
+        <link refid="stateRepresentationConversions_8h_source"/>
+        <childnode refid="106" relation="include">
+        </childnode>
+        <childnode refid="117" relation="include">
+        </childnode>
+        <childnode refid="119" relation="include">
+        </childnode>
+        <childnode refid="122" relation="include">
+        </childnode>
+        <childnode refid="124" relation="include">
+        </childnode>
+        <childnode refid="125" relation="include">
+        </childnode>
+        <childnode refid="126" relation="include">
+        </childnode>
+        <childnode refid="127" relation="include">
+        </childnode>
+        <childnode refid="121" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="140">
+        <label>tudat/astro/ephemerides/fullPlanetaryRotationModel.h</label>
+        <link refid="fullPlanetaryRotationModel_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="141" relation="include">
+        </childnode>
+        <childnode refid="142" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+      </node>
+      <node id="97">
+        <label>cstddef</label>
+      </node>
+      <node id="29">
+        <label>tudat/astro/aerodynamics/aerodynamics.h</label>
+        <link refid="astro_2aerodynamics_2aerodynamics_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>tudat/astro/ephemerides/compositeEphemeris.h</label>
+        <link refid="compositeEphemeris_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="155">
+        <label>tudat/astro/orbit_determination/observation_partials/observationPartial.h</label>
+        <link refid="observationPartial_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="156" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="157" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>unordered_map</label>
+      </node>
+      <node id="158">
+        <label>tudat/astro/observation_models/observationBias.h</label>
+        <link refid="observationBias_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="156" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>tudat/astro/observation_models/linkTypeDefs.h</label>
+        <link refid="linkTypeDefs_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="102">
+        <label>tudat/math/basic/sphericalHarmonics.h</label>
+        <link refid="sphericalHarmonics_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="96" relation="include">
+        </childnode>
+      </node>
+      <node id="139">
+        <label>tudat/astro/ephemerides/synchronousRotationalEphemeris.h</label>
+        <link refid="synchronousRotationalEphemeris_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="79">
+        <label>tudat/io/mapTextFileReader.h</label>
+        <link refid="mapTextFileReader_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>tudat/astro/aerodynamics/windModel.h</label>
+        <link refid="windModel_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="103">
+        <label>tudat/astro/ground_stations/groundStation.h</label>
+        <link refid="groundStation_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="104" relation="include">
+        </childnode>
+        <childnode refid="128" relation="include">
+        </childnode>
+      </node>
+      <node id="106">
+        <label>tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h</label>
+        <link refid="convertMeanToEccentricAnomalies_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="107" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="108" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="115" relation="include">
+        </childnode>
+      </node>
+      <node id="162">
+        <label>tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h</label>
+        <link refid="createLightTimeCorrectionPartials_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="160" relation="include">
+        </childnode>
+      </node>
+      <node id="136">
+        <label>tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h</label>
+        <link refid="initialTranslationalState_8h_source"/>
+        <childnode refid="134" relation="include">
+        </childnode>
+      </node>
+      <node id="93">
+        <label>boost/regex.hpp</label>
+      </node>
+      <node id="101">
+        <label>tudat/astro/gravitation/sphericalHarmonicsGravityModel.h</label>
+        <link refid="sphericalHarmonicsGravityModel_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="102" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>Eigen/SVD</label>
+      </node>
+      <node id="67">
+        <label>boost/array.hpp</label>
+      </node>
+      <node id="125">
+        <label>tudat/astro/basic_astro/unifiedStateModelModifiedRodriguesParameterElementConversions.h</label>
+        <link refid="unifiedStateModelModifiedRodriguesParameterElementConversions_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="88">
+        <label>tudat/io/matrixTextFileReader.h</label>
+        <link refid="matrixTextFileReader_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+      </node>
+      <node id="72">
+        <label>tudat/math/interpolators/cubicSplineInterpolator.h</label>
+        <link refid="cubicSplineInterpolator_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="114">
+        <label>tudat/math/root_finders/secantRootFinder.h</label>
+        <link refid="secantRootFinder_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>type_traits</label>
+      </node>
+      <node id="58">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="33">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="87">
+        <label>boost/iostreams/filtering_stream.hpp</label>
+      </node>
+      <node id="17">
+        <label>complex</label>
+      </node>
+      <node id="9">
+        <label>algorithm</label>
+      </node>
+      <node id="74">
+        <label>tudat/math/interpolators/lagrangeInterpolator.h</label>
+        <link refid="lagrangeInterpolator_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+      </node>
+      <node id="159">
+        <label>tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h</label>
+        <link refid="oneWayRangePartial_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="155" relation="include">
+        </childnode>
+        <childnode refid="154" relation="include">
+        </childnode>
+        <childnode refid="160" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNWayRangePartials.h</label>
+        <link refid="createNWayRangePartials_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="163" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="156" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+      <node id="70">
+        <label>tudat/math/interpolators/lookupScheme.h</label>
+        <link refid="lookupScheme_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+      </node>
+      <node id="160">
+        <label>tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h</label>
+        <link refid="lightTimeCorrectionPartial_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="161" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="134" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationManager.h</label>
+        <link refid="createObservationManager_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNWayRangePartials.h</label>
+        <link refid="createNWayRangePartials_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationPartials.h</label>
+        <link refid="createObservationPartials_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1observation__partials">tudat::observation_partials</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_CREATENWAYRANGEPARTIALS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_CREATENWAYRANGEPARTIALS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;map&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/interpolators/interpolator.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/simulation/estimation_setup/createOneWayRangePartials.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/observation_models/linkTypeDefs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/observation_models/observableTypes.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">observation_partials</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>ParameterType<sp/>&gt;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">std::pair&lt;<sp/>SingleLinkObservationPartialList,<sp/>std::shared_ptr&lt;<sp/>PositionPartialScaling<sp/>&gt;<sp/>&gt;<sp/>createNWayRangePartials(</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>observation_models::LinkEnds&amp;<sp/>nWayRangeLinkEnds,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>simulation_setup::SystemOfBodies&amp;<sp/>bodies,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameterSet&lt;<sp/>ParameterType<sp/>&gt;<sp/>&gt;<sp/>parametersToEstimate,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>observation_models::LightTimeCorrection<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>lightTimeCorrections<sp/>=</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>observation_models::LightTimeCorrection<sp/>&gt;<sp/>&gt;<sp/>&gt;(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Define<sp/>return<sp/>partial<sp/>list</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>SingleLinkObservationPartialList<sp/>nWayRangePartialList;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Define<sp/>list<sp/>of<sp/>constituent<sp/>one-way<sp/>partials.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>int,<sp/>std::pair&lt;<sp/>SingleLinkObservationPartialList,<sp/>std::shared_ptr&lt;<sp/>PositionPartialScaling<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OneWayRangePartialList;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>OneWayRangePartialList<sp/>constituentOneWayRangePartials;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Getr<sp/>number<sp/>of<sp/>link<sp/>ends,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>observation_models::LinkEnds<sp/>currentLinkEnds;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfLinkEnds<sp/>=<sp/>nWayRangeLinkEnds.size(<sp/>);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Iterate<sp/>over<sp/>all<sp/>links<sp/>in<sp/>the<sp/>n-way<sp/>range<sp/>observable</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>observation_models::LightTimeCorrection<sp/>&gt;<sp/>&gt;<sp/>currentLightTimeCorrections;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>numberOfLinkEnds<sp/>-<sp/>1;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLightTimeCorrections.clear(<sp/>);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>lightTimeCorrections.size(<sp/>)<sp/>&gt;<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLightTimeCorrections<sp/>=<sp/>lightTimeCorrections.at(<sp/>i<sp/>);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Define<sp/>links<sp/>for<sp/>current<sp/>one-way<sp/>range<sp/>link</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLinkEnds.clear(<sp/>);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLinkEnds[<sp/>observation_models::transmitter<sp/>]<sp/>=<sp/>nWayRangeLinkEnds.at(</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>observation_models::getNWayLinkEnumFromIndex(<sp/>i,<sp/>numberOfLinkEnds<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLinkEnds[<sp/>observation_models::receiver<sp/>]<sp/>=<sp/>nWayRangeLinkEnds.at(</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>observation_models::getNWayLinkEnumFromIndex(<sp/>i<sp/>+<sp/>1,<sp/>numberOfLinkEnds<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Create<sp/>onw-way<sp/>range<sp/>partials<sp/>for<sp/>current<sp/>link</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>constituentOneWayRangePartials[<sp/>i<sp/>]<sp/>=</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>createOneWayRangePartials(<sp/>currentLinkEnds,<sp/>bodies,<sp/>parametersToEstimate,<sp/>currentLightTimeCorrections,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>sorted<sp/>(by<sp/>parameter<sp/>index<sp/>and<sp/>link<sp/>index)<sp/>one-way<sp/>range<sp/>partials<sp/>and<sp/>(by<sp/>link<sp/>index)<sp/>opne-way<sp/>range<sp/>partials</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>int,<sp/>std::shared_ptr&lt;<sp/>OneWayRangeScaling<sp/>&gt;<sp/>&gt;<sp/>oneWayRangeScalers;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;,<sp/>std::map&lt;<sp/>int,<sp/>std::shared_ptr&lt;<sp/>ObservationPartial&lt;<sp/>1<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>sortedOneWayRangePartials;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;,<sp/>estimatable_parameters::EstimatebleParameterIdentifier<sp/>&gt;<sp/>parameterIdList;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/>OneWayRangePartialList::iterator<sp/>oneWayPartialIterator<sp/>=<sp/>constituentOneWayRangePartials.begin(<sp/>);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>oneWayPartialIterator<sp/>!=<sp/>constituentOneWayRangePartials.end(<sp/>);<sp/>oneWayPartialIterator++<sp/>)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>one-way<sp/>range<sp/>paritals</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>oneWayRangeScalers[<sp/>oneWayPartialIterator-&gt;first<sp/>]<sp/>=<sp/>std::dynamic_pointer_cast&lt;<sp/>OneWayRangeScaling<sp/>&gt;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/>oneWayPartialIterator-&gt;second.second<sp/>);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Iterate<sp/>over<sp/>all<sp/>one-way<sp/>range<sp/>partials<sp/>of<sp/>current<sp/>link</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/>SingleLinkObservationPartialList::iterator<sp/>parameterIterator<sp/>=<sp/>oneWayPartialIterator-&gt;second.first.begin(<sp/>);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parameterIterator<sp/>!=<sp/>oneWayPartialIterator-&gt;second.first.end(<sp/>);<sp/>parameterIterator++<sp/>)</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sortedOneWayRangePartials[<sp/>parameterIterator-&gt;first<sp/>][<sp/>oneWayPartialIterator-&gt;first<sp/>]<sp/>=<sp/>parameterIterator-&gt;second;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>parameterIdList.count(<sp/>parameterIterator-&gt;first<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parameterIdList[<sp/>parameterIterator-&gt;first<sp/>]<sp/>=<sp/>parameterIterator-&gt;second-&gt;getParameterIdentifier(<sp/>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>parameterIdList.at(<sp/>parameterIterator-&gt;first<sp/>)<sp/>!=<sp/>parameterIterator-&gt;second-&gt;getParameterIdentifier(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>making<sp/>n<sp/>way<sp/>range<sp/>partial,<sp/>parameter<sp/>indices<sp/>are<sp/>inconsistent&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Create<sp/>n-way<sp/>range<sp/>scaling<sp/>object</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>NWayRangeScaling<sp/>&gt;<sp/>nWayRangeScaler<sp/>=<sp/>std::make_shared&lt;<sp/>NWayRangeScaling<sp/>&gt;(</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>oneWayRangeScalers,<sp/>nWayRangeLinkEnds.size(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Create<sp/>n-way<sp/>range<sp/>partial<sp/>object</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/>std::map&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;,<sp/>std::map&lt;<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1observation__partials_1_1ObservationPartial" kindref="compound">ObservationPartial&lt; 1 &gt;</ref><sp/>&gt;<sp/>&gt;<sp/>&gt;::iterator<sp/>sortedPartialIterator<sp/>=</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sortedOneWayRangePartials.begin(<sp/>);<sp/>sortedPartialIterator<sp/>!=<sp/>sortedOneWayRangePartials.end(<sp/>);<sp/>sortedPartialIterator++<sp/>)</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nWayRangePartialList[<sp/>sortedPartialIterator-&gt;first<sp/>]<sp/>=<sp/>std::make_shared&lt;<sp/>NWayRangePartial<sp/>&gt;(</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nWayRangeScaler,<sp/>sortedPartialIterator-&gt;second,<sp/>parameterIdList.at(<sp/>sortedPartialIterator-&gt;first<sp/>),</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>numberOfLinkEnds<sp/>);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>int,<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>Eigen::VectorXd<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vectorParametersToEstimate<sp/>=<sp/><sp/>parametersToEstimate-&gt;getVectorParameters(<sp/>);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/>std::map&lt;<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>Eigen::VectorXd<sp/><sp/>&gt;<sp/>&gt;<sp/>&gt;::iterator</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parameterIterator<sp/>=</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vectorParametersToEstimate.begin(<sp/>);<sp/>parameterIterator<sp/>!=<sp/>vectorParametersToEstimate.end(<sp/>);<sp/>parameterIterator++<sp/>)</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ObservationPartial&lt;<sp/>1<sp/>&gt;<sp/>&gt;<sp/>currentNWayRangePartial;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>isParameterObservationLinkProperty(<sp/>parameterIterator-&gt;second-&gt;getParameterName(<sp/>).first<sp/>)<sp/><sp/>)</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentNWayRangePartial<sp/>=<sp/>createObservationPartialWrtLinkProperty&lt;<sp/>1<sp/>&gt;(</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nWayRangeLinkEnds,<sp/>observation_models::n_way_range,<sp/>parameterIterator-&gt;second<sp/>);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>if<sp/>partial<sp/>is<sp/>non-nullptr</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>currentNWayRangePartial<sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Add<sp/>partial<sp/>to<sp/>the<sp/>list.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>currentPair<sp/>=<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;(<sp/>parameterIterator-&gt;first,</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parameterIterator-&gt;second-&gt;getParameterSize(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nWayRangePartialList[<sp/>currentPair<sp/>]<sp/>=<sp/>currentNWayRangePartial;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>nWayRangePartialList,<sp/>nWayRangeScaler<sp/>);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>ParameterType<sp/>&gt;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal">std::map&lt;<sp/>observation_models::LinkEnds,<sp/>std::pair&lt;<sp/>SingleLinkObservationPartialList,<sp/>std::shared_ptr&lt;<sp/>PositionPartialScaling<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">createNWayRangePartials(</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>observation_models::LinkEnds<sp/>&gt;&amp;<sp/>linkEnds,</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>simulation_setup::SystemOfBodies&amp;<sp/>bodies,</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameterSet&lt;<sp/>ParameterType<sp/>&gt;<sp/>&gt;<sp/>parametersToEstimate,</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>observation_models::LinkEnds,</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>observation_models::LightTimeCorrection<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>&gt;&amp;<sp/>lightTimeCorrections<sp/>=</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::map&lt;<sp/>observation_models::LinkEnds,</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>observation_models::LightTimeCorrection<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>&gt;(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="190"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>observation_models::LinkEnds,</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>SingleLinkObservationPartialList,<sp/>std::shared_ptr&lt;<sp/>PositionPartialScaling<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>partialMap;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>observation_models::LightTimeCorrection<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>currentLightTimeCorrections;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Iterate<sp/>over<sp/>all<sp/>sets<sp/>of<sp/>link<sp/>ends,<sp/>and<sp/><sp/>create<sp/>associated<sp/>n-way<sp/>range<sp/>partials</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>linkEnds.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>light-time<sp/>corrections</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>lightTimeCorrections.count(<sp/>linkEnds.at(<sp/>i<sp/>)<sp/>)<sp/>&gt;<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLightTimeCorrections<sp/>=<sp/>lightTimeCorrections.at(<sp/>linkEnds.at(<sp/>i<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>currentLightTimeCorrections.size(<sp/>)<sp/>!=<sp/>linkEnds.at(<sp/>i<sp/>).size(<sp/>)<sp/>-<sp/>1<sp/>)</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>making<sp/>n-way<sp/>range<sp/>partials,<sp/>found<sp/>light<sp/>time<sp/>correction<sp/>partials<sp/>for<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::to_string(<sp/>currentLightTimeCorrections.size(<sp/>)<sp/>)<sp/>+</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/>links,<sp/>with<sp/>&quot;</highlight><highlight class="normal"><sp/>+<sp/>std::to_string(<sp/>linkEnds.size(<sp/>)<sp/>)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;<sp/>link<sp/>ends&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLightTimeCorrections.clear(<sp/>);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Create<sp/>n-way<sp/>range<sp/>partials<sp/>for<sp/>current<sp/>LinkEnds</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partialMap[<sp/>linkEnds.at(<sp/>i<sp/>)<sp/>]<sp/>=<sp/>createNWayRangePartials&lt;<sp/>ParameterType<sp/>&gt;(</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>linkEnds.at(<sp/>i<sp/>),<sp/>bodies,<sp/>parametersToEstimate,<sp/>currentLightTimeCorrections<sp/>);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>partialMap;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_CREATENWAYRANGEPARTIALS_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNWayRangePartials.h"/>
+  </compounddef>
+</doxygen>

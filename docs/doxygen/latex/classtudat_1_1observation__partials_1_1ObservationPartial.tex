@@ -1,0 +1,123 @@
+\hypertarget{classtudat_1_1observation__partials_1_1ObservationPartial}{}\doxysection{tudat\+::observation\+\_\+partials\+::Observation\+Partial$<$ Observation\+Size $>$ Class Template Reference}
+\label{classtudat_1_1observation__partials_1_1ObservationPartial}\index{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}}
+
+
+Base class of partial derivative of an observable w.\+r.\+t. an estimated parameter.  
+
+
+
+
+{\ttfamily \#include $<$observation\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Observation\+Partial$<$ Observation\+Size $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.522388cm]{classtudat_1_1observation__partials_1_1ObservationPartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial_aadcaac556c98d652f2eb93e53c40ede9}{Observation\+Partial}} (const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier parameter\+Identifier)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial_a39c35e737e517437b96a5a8c867a7d55}{$\sim$\+Observation\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, Observation\+Size, Eigen\+::\+Dynamic $>$, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial_a85e94e334ea8136b11eba24e10a85849}{calculate\+Partial}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Of\+Fixed\+Time=observation\+\_\+models\+::receiver, const Eigen\+::\+Matrix$<$ double, Observation\+Size, 1 $>$ \&current\+Observation=Eigen\+::\+Matrix$<$ double, Observation\+Size, 1 $>$\+::Constant(TUDAT\+\_\+\+NAN))=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function to calculate the observation partial(s) at required time(s) and state(s) \end{DoxyCompactList}\item 
+estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial_a8778a20ad87def4f80c29483709b6884}{get\+Parameter\+Identifier}} ()
+\begin{DoxyCompactList}\small\item\em Function to get parameter id of for specifc parameter of which partial is computed by object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1ObservationPartial_a1bdd56be8dbca3458d8708eb7a2570e2}\label{classtudat_1_1observation__partials_1_1ObservationPartial_a1bdd56be8dbca3458d8708eb7a2570e2}} 
+estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial_a1bdd56be8dbca3458d8708eb7a2570e2}{parameter\+Identifier\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Parameter id of for specifc parameter of which partial is computed by object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$int Observation\+Size$>$\newline
+class tudat\+::observation\+\_\+partials\+::\+Observation\+Partial$<$ Observation\+Size $>$}
+
+Base class of partial derivative of an observable w.\+r.\+t. an estimated parameter. 
+
+Base class of partial derivative of an observable w.\+r.\+t. an estimated parameter. Calculated partial function must be defined in each derived class for calculation of specific derivative. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1ObservationPartial_aadcaac556c98d652f2eb93e53c40ede9}\label{classtudat_1_1observation__partials_1_1ObservationPartial_aadcaac556c98d652f2eb93e53c40ede9}} 
+\index{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}!ObservationPartial@{ObservationPartial}}
+\index{ObservationPartial@{ObservationPartial}!tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}}
+\doxysubsubsection{\texorpdfstring{ObservationPartial()}{ObservationPartial()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size$>$ \\
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$\+::\mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}} (\begin{DoxyParamCaption}\item[{const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier}]{parameter\+Identifier }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Identifier} & Parameter id of for specifc parameter of which partial is computed by object. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1ObservationPartial_a39c35e737e517437b96a5a8c867a7d55}\label{classtudat_1_1observation__partials_1_1ObservationPartial_a39c35e737e517437b96a5a8c867a7d55}} 
+\index{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}!````~ObservationPartial@{$\sim$ObservationPartial}}
+\index{````~ObservationPartial@{$\sim$ObservationPartial}!tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}}
+\doxysubsubsection{\texorpdfstring{$\sim$ObservationPartial()}{~ObservationPartial()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size$>$ \\
+virtual \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$\+::$\sim$\mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Virtual destructor. 
+
+Virtual destrcutor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1ObservationPartial_a85e94e334ea8136b11eba24e10a85849}\label{classtudat_1_1observation__partials_1_1ObservationPartial_a85e94e334ea8136b11eba24e10a85849}} 
+\index{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}!calculatePartial@{calculatePartial}}
+\index{calculatePartial@{calculatePartial}!tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}}
+\doxysubsubsection{\texorpdfstring{calculatePartial()}{calculatePartial()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size$>$ \\
+virtual std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, Observation\+Size, Eigen\+::\+Dynamic $>$, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$\+::calculate\+Partial (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Of\+Fixed\+Time = {\ttfamily observation\+\_\+models\+:\+:receiver},  }\item[{const Eigen\+::\+Matrix$<$ double, Observation\+Size, 1 $>$ \&}]{current\+Observation = {\ttfamily Eigen\+:\+:Matrix$<$~double,~ObservationSize,~1~$>$\+:\+:Constant(TUDAT\+\_\+NAN)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function to calculate the observation partial(s) at required time(s) and state(s) 
+
+Pure virtual function to calculate the observation partial(s) at required time(s) and state(s). States and times are typically obtained from evaluation of associated observation model. Derived class functions implement this for a specific observable. 
+\begin{DoxyParams}{Parameters}
+{\em states} & Link end states. Index maps to link end for a given Obsevable\+Type through get\+Link\+End\+Index function. \\
+\hline
+{\em times} & Link end times. \\
+\hline
+{\em link\+End\+Of\+Fixed\+Time} & Link end that is kept fixed when computing the observable. \\
+\hline
+{\em current\+Observation} & Value of the observation for which the partial is to be computed (default NaN for compatibility purposes). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of pairs containing partial values and associated times. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtArcWiseRelativeBias_a8cbe2d52a9abddfb1c270448f7ce9f59}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial\+Wrt\+Arc\+Wise\+Relative\+Bias$<$ Observation\+Size $>$}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtArcWiseAbsoluteBias_a9ef97af1fcb0f7c6770a9e00d48351a0}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial\+Wrt\+Arc\+Wise\+Absolute\+Bias$<$ Observation\+Size $>$}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_ab9fd21b903e220210e42e7e3f2a2ad18}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial\+Wrt\+Constant\+Absolute\+Bias$<$ Observation\+Size $>$}}, and \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantRelativeBias_a6d2eb84b7fdec67f14554d6bcbef5b91}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial\+Wrt\+Constant\+Relative\+Bias$<$ Observation\+Size $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1ObservationPartial_a8778a20ad87def4f80c29483709b6884}\label{classtudat_1_1observation__partials_1_1ObservationPartial_a8778a20ad87def4f80c29483709b6884}} 
+\index{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}!getParameterIdentifier@{getParameterIdentifier}}
+\index{getParameterIdentifier@{getParameterIdentifier}!tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$@{tudat::observation\_partials::ObservationPartial$<$ ObservationSize $>$}}
+\doxysubsubsection{\texorpdfstring{getParameterIdentifier()}{getParameterIdentifier()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size$>$ \\
+estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{tudat\+::observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$\+::get\+Parameter\+Identifier (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get parameter id of for specifc parameter of which partial is computed by object. 
+
+Function to get parameter id of for specifc parameter of which partial is computed by object. \begin{DoxyReturn}{Returns}
+Parameter id of for specifc parameter of which partial is computed by object. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/observation\+Partial.\+h\end{DoxyCompactItemize}

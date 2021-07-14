@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataInterpolation" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Interpolation::DataInterpolation</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataInterpolation_1afea221ab2b0fc09b4e8fdf02d9bc83b0" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Interpolation::DataInterpolation::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <initializer>= &quot;data&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="499" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="499" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataInterpolation_1af909b6c353ccaa3fb180c7555c52da2e" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Interpolation::DataInterpolation::interpolator</definition>
+        <argsstring></argsstring>
+        <name>interpolator</name>
+        <initializer>= &quot;interpolator&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="500" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="500" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="497" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="498" bodyend="501"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataInterpolation_1afea221ab2b0fc09b4e8fdf02d9bc83b0" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Interpolation::DataInterpolation</scope><name>data</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataInterpolation_1af909b6c353ccaa3fb180c7555c52da2e" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Interpolation::DataInterpolation</scope><name>interpolator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,340 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="lightTimeCorrectionPartial_8cpp" kind="file" language="C++">
+    <compoundname>lightTimeCorrectionPartial.cpp</compoundname>
+    <includes local="no">boost/bind.hpp</includes>
+    <includes refid="lightTimeCorrectionPartial_8h" local="yes">tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h</includes>
+    <includes refid="firstOrderRelativisticPartial_8h" local="yes">tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h</includes>
+    <incdepgraph>
+      <node id="33">
+        <label>boost/lambda/lambda.hpp</label>
+      </node>
+      <node id="14">
+        <label>functional</label>
+      </node>
+      <node id="23">
+        <label>boost/shared_ptr.hpp</label>
+      </node>
+      <node id="20">
+        <label>limits</label>
+      </node>
+      <node id="25">
+        <label>tudat/astro/propagators/singleStateTypeDerivative.h</label>
+        <link refid="singleStateTypeDerivative_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="24">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="17">
+        <label>cmath</label>
+      </node>
+      <node id="5">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="9">
+        <label>string</label>
+      </node>
+      <node id="10">
+        <label>tudat/astro/observation_models/lightTimeSolution.h</label>
+        <link refid="lightTimeSolution_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>map</label>
+      </node>
+      <node id="28">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h</label>
+        <link refid="firstOrderRelativisticCorrection_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.cpp</label>
+        <link refid="lightTimeCorrectionPartial_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="16">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>tudat/astro/observation_models/corrections/lightTimeCorrection.h</label>
+        <link refid="lightTimeCorrection_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>vector</label>
+      </node>
+      <node id="22">
+        <label>tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h</label>
+        <link refid="estimatableParameter_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="26">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h</label>
+        <link refid="firstOrderRelativisticPartial_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>iostream</label>
+      </node>
+      <node id="18">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat/astro/observation_models/linkTypeDefs.h</label>
+        <link refid="linkTypeDefs_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="12">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="19">
+        <label>complex</label>
+      </node>
+      <node id="27">
+        <label>algorithm</label>
+      </node>
+      <node id="11">
+        <label>memory</label>
+      </node>
+      <node id="3">
+        <label>tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h</label>
+        <link refid="lightTimeCorrectionPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1observation__partials">tudat::observation_partials</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/bind.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="17"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">observation_partials</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal">std::pair&lt;<sp/>std::function&lt;<sp/><ref refid="classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_1a7a759098d3629d8d00a83648d81f9e9a" kindref="member">LightTimeCorrectionPartial::SingleOneWayRangePartialReturnType</ref>(</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>Eigen::Vector6d<sp/>&gt;&amp;,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">getLightTimeParameterPartialFunction(</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>estimatable_parameters::EstimatebleParameterIdentifier<sp/>parameterId,</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>LightTimeCorrectionPartial<sp/>&gt;<sp/>lightTimeCorrectionPartial<sp/>)</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Declare<sp/>return<sp/>type,<sp/>set<sp/>second<sp/>part<sp/>to<sp/>0<sp/>(no<sp/>dependency<sp/>found).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>std::function&lt;<sp/><ref refid="classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_1a7a759098d3629d8d00a83648d81f9e9a" kindref="member">LightTimeCorrectionPartial::SingleOneWayRangePartialReturnType</ref>(</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>Eigen::Vector6d<sp/>&gt;&amp;,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&gt;<sp/>partialFunction;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>partialFunction.second<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>type<sp/>of<sp/>light-time<sp/>correction</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal">(<sp/>lightTimeCorrectionPartial-&gt;getCorrectionType(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Correction<sp/>type<sp/>of<sp/>1st-order<sp/>relativistic</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>observation_models::first_order_relativistic:</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>consistency<sp/>of<sp/>input.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>FirstOrderRelativisticLightTimeCorrectionPartial<sp/>&gt;<sp/>currentLightTimeCorrectorPartial<sp/>=</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::dynamic_pointer_cast&lt;<sp/>FirstOrderRelativisticLightTimeCorrectionPartial<sp/>&gt;(<sp/>lightTimeCorrectionPartial<sp/>);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>currentLightTimeCorrectorPartial<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/>errorMessage<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>getting<sp/>light<sp/>time<sp/>correction<sp/>partial<sp/>function,<sp/>type<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::to_string(<sp/>lightTimeCorrectionPartial-&gt;getCorrectionType(<sp/>)<sp/>)<sp/>+</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;is<sp/>inconsistent.&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/>errorMessage<sp/>);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>partial<sp/>of<sp/>gravitational<sp/>parameter</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>parameterId.first<sp/>==<sp/>estimatable_parameters::gravitational_parameter<sp/>)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>function<sp/>from<sp/>FirstOrderRelativisticLightTimeCorrectionPartial<sp/>if<sp/>correction<sp/>depends<sp/>on</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>body<sp/>associated<sp/>with<sp/>parameter.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::string<sp/>&gt;<sp/>perturbingBodies<sp/>=<sp/>currentLightTimeCorrectorPartial-&gt;getPerturbingBodies(<sp/>);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::string<sp/>&gt;::iterator<sp/>findIterator<sp/>=<sp/>std::find(</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>perturbingBodies.begin(<sp/>),<sp/>perturbingBodies.end(<sp/>),<sp/>parameterId.second.first<sp/>);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>findIterator<sp/>!=<sp/>perturbingBodies.end(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>bodyIndex<sp/>=<sp/>std::distance(<sp/>perturbingBodies.begin(<sp/>),<sp/><sp/>findIterator<sp/>);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partialFunction<sp/>=<sp/>std::make_pair(</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::bind(<sp/>&amp;<ref refid="classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_1ae1ccf57015f4dd985a104cbcb085cc84" kindref="member">FirstOrderRelativisticLightTimeCorrectionPartial::wrtBodyGravitationalParameter</ref>,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLightTimeCorrectorPartial,<sp/>std::placeholders::_1,<sp/>std::placeholders::_2,<sp/>bodyIndex<sp/>),<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>parameterId.first<sp/>==<sp/>estimatable_parameters::ppn_parameter_gamma<sp/>)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partialFunction<sp/>=<sp/>std::make_pair(</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::bind(<sp/>&amp;<ref refid="classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_1a73cc17da73755b275692bd5d489c1e9f" kindref="member">FirstOrderRelativisticLightTimeCorrectionPartial::wrtPpnParameterGamma</ref>,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLightTimeCorrectorPartial,<sp/>std::placeholders::_1,<sp/>std::placeholders::_2<sp/>),<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/>errorMessage<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;Error,<sp/>light<sp/>time<sp/>correction<sp/>type<sp/>&quot;</highlight><highlight class="normal"><sp/>+<sp/>std::to_string(</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lightTimeCorrectionPartial-&gt;getCorrectionType(<sp/>)<sp/>)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;not<sp/>found<sp/>when<sp/>creating<sp/>partial<sp/>&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/>errorMessage<sp/>);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>partialFunction;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.cpp"/>
+  </compounddef>
+</doxygen>

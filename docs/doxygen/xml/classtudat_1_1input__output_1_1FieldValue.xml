@@ -1,0 +1,222 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1FieldValue" kind="class" language="C++" prot="public">
+    <compoundname>tudat::input_output::FieldValue</compoundname>
+    <includes refid="fieldValue_8h" local="no">fieldValue.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1FieldValue_1aef971559bdcdf9d08782073882e161a0" prot="public" static="no" mutable="no">
+        <type>const FieldType</type>
+        <definition>const FieldType tudat::input_output::FieldValue::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+<para>FieldType of the <ref refid="classtudat_1_1input__output_1_1FieldValue" kindref="compound">FieldValue</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="46" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1FieldValue_1a79bd0406d76dc86d2e0bc534695f3f22" prot="private" static="no" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::input_output::FieldValue::rawField</definition>
+        <argsstring></argsstring>
+        <name>rawField</name>
+        <briefdescription>
+<para>String of field value in raw data format. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="87" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1FieldValue_1a9a0dacea1eec69988552d529b154564a" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::input_output::FieldValue::transformedField</definition>
+        <argsstring></argsstring>
+        <name>transformedField</name>
+        <briefdescription>
+<para>String of field value in the transformed data format. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="90" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1FieldValue_1a4d17b6c40121b9cded2dd368a7dde629" prot="private" static="no" mutable="no">
+        <type>FieldTransformPointer</type>
+        <definition>FieldTransformPointer tudat::input_output::FieldValue::transform</definition>
+        <argsstring></argsstring>
+        <name>transform</name>
+        <briefdescription>
+<para>Pointer to unit transformation equation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="93" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1FieldValue_1af22d420281b6c98a31e4d73031c12085" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::FieldValue::FieldValue</definition>
+        <argsstring>(const FieldType &amp;type, const std::string &amp;field, const std::shared_ptr&lt; FieldTransform &gt; transformer=std::shared_ptr&lt; FieldTransform &gt;())</argsstring>
+        <name>FieldValue</name>
+        <param>
+          <type>const FieldType &amp;</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1input__output_1_1FieldTransform" kindref="compound">FieldTransform</ref> &gt;</type>
+          <declname>transformer</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1input__output_1_1FieldTransform" kindref="compound">FieldTransform</ref> &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Create a <ref refid="classtudat_1_1input__output_1_1FieldValue" kindref="compound">FieldValue</ref> containing type, string content and transformation of field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a <ref refid="classtudat_1_1input__output_1_1FieldValue" kindref="compound">FieldValue</ref> which contains the type, the content as a string and unit transformation of the field. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transformer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transformation to apply to field data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="41" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/fieldValue.cpp" bodystart="22" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1FieldValue_1a2b0c0ef1510cfe80cf5bd2644c802921" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::input_output::FieldValue::get</definition>
+        <argsstring>()</argsstring>
+        <name>get</name>
+        <briefdescription>
+<para>Get value of field content in SI units. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="50" column="7" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" bodystart="50" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1FieldValue_1a9cd70b9234dfba471b11242218d23c63" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; T &gt;</type>
+        <definition>std::shared_ptr&lt; T &gt; tudat::input_output::FieldValue::getPointer</definition>
+        <argsstring>()</argsstring>
+        <name>getPointer</name>
+        <briefdescription>
+<para>Get a shared pointer to the value of field content in SI units. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="58" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" bodystart="58" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1FieldValue_1a3df0ef770d9892455684c493c1f2afe6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const std::string &amp;</type>
+        <definition>const std::string &amp; tudat::input_output::FieldValue::getTransformed</definition>
+        <argsstring>()</argsstring>
+        <name>getTransformed</name>
+        <briefdescription>
+<para>Get transformed field content. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="65" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/fieldValue.cpp" bodystart="28" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1FieldValue_1ab8ca94a7853ab16819629be28607fef9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const std::string &amp;</type>
+        <definition>const std::string &amp; tudat::input_output::FieldValue::getRaw</definition>
+        <argsstring>()</argsstring>
+        <name>getRaw</name>
+        <briefdescription>
+<para>Get raw field content. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="68" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/fieldValue.cpp" bodystart="35" bodyend="35"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1FieldValue_1a8bbe59c9bab2bcfc0fb11d714345d33f" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::input_output::FieldValue::loadTransformation</definition>
+        <argsstring>()</argsstring>
+        <name>loadTransformation</name>
+        <briefdescription>
+<para>Load the transformed string if required. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="73" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" bodystart="73" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Field value class. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" line="29" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldValue.h" bodystart="30" bodyend="94"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1af22d420281b6c98a31e4d73031c12085" prot="public" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>FieldValue</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1a2b0c0ef1510cfe80cf5bd2644c802921" prot="public" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>get</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1a9cd70b9234dfba471b11242218d23c63" prot="public" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>getPointer</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1ab8ca94a7853ab16819629be28607fef9" prot="public" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>getRaw</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1a3df0ef770d9892455684c493c1f2afe6" prot="public" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>getTransformed</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1a8bbe59c9bab2bcfc0fb11d714345d33f" prot="protected" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>loadTransformation</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1a79bd0406d76dc86d2e0bc534695f3f22" prot="private" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>rawField</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1a4d17b6c40121b9cded2dd368a7dde629" prot="private" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>transform</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1a9a0dacea1eec69988552d529b154564a" prot="private" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>transformedField</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldValue_1aef971559bdcdf9d08782073882e161a0" prot="public" virt="non-virtual"><scope>tudat::input_output::FieldValue</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,685 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="trajectory__design_8h" kind="file" language="C++">
+    <compoundname>trajectory_design.h</compoundname>
+    <includes refid="captureLeg_8h" local="yes">trajectory_design/captureLeg.h</includes>
+    <includes refid="departureLeg_8h" local="yes">trajectory_design/departureLeg.h</includes>
+    <includes refid="departureLegMga_8h" local="yes">trajectory_design/departureLegMga.h</includes>
+    <includes refid="departureLegMga1DsmPosition_8h" local="yes">trajectory_design/departureLegMga1DsmPosition.h</includes>
+    <includes refid="departureLegMga1DsmVelocity_8h" local="yes">trajectory_design/departureLegMga1DsmVelocity.h</includes>
+    <includes refid="exportTrajectory_8h" local="yes">trajectory_design/exportTrajectory.h</includes>
+    <includes refid="missionLeg_8h" local="yes">trajectory_design/missionLeg.h</includes>
+    <includes refid="planetTrajectory_8h" local="yes">trajectory_design/planetTrajectory.h</includes>
+    <includes refid="spaceLeg_8h" local="yes">trajectory_design/spaceLeg.h</includes>
+    <includes refid="swingbyLeg_8h" local="yes">trajectory_design/swingbyLeg.h</includes>
+    <includes refid="swingbyLegMga_8h" local="yes">trajectory_design/swingbyLegMga.h</includes>
+    <includes refid="swingbyLegMga1DsmPosition_8h" local="yes">trajectory_design/swingbyLegMga1DsmPosition.h</includes>
+    <includes refid="swingbyLegMga1DsmVelocity_8h" local="yes">trajectory_design/swingbyLegMga1DsmVelocity.h</includes>
+    <includes refid="trajectory_8h" local="yes">trajectory_design/trajectory.h</includes>
+    <incdepgraph>
+      <node id="66">
+        <label>trajectory_design/swingbyLegMga1DsmPosition.h</label>
+        <link refid="swingbyLegMga1DsmPosition_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>functional</label>
+      </node>
+      <node id="8">
+        <label>limits</label>
+      </node>
+      <node id="25">
+        <label>boost/functional/hash.hpp</label>
+      </node>
+      <node id="30">
+        <label>tudat/io/fieldTransform.h</label>
+        <link refid="fieldTransform_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>tudat/astro/trajectory_design/spaceLeg.h</label>
+        <link refid="spaceLeg_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="52">
+        <label>tudat/astro/ephemerides/approximatePlanetPositionsBase.h</label>
+        <link refid="approximatePlanetPositionsBase_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>boost/smart_ptr/make_shared.hpp</label>
+      </node>
+      <node id="60">
+        <label>boost/date_time/gregorian/gregorian.hpp</label>
+      </node>
+      <node id="57">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design.h</label>
+        <link refid="trajectory__design_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>cmath</label>
+      </node>
+      <node id="17">
+        <label>trajectory_design/exportTrajectory.h</label>
+        <link refid="exportTrajectory_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>tudat/math/root_finders/newtonRaphson.h</label>
+        <link refid="newtonRaphson_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>stdexcept</label>
+      </node>
+      <node id="11">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="32">
+        <label>tudat/astro/ephemerides/approximatePlanetPositions.h</label>
+        <link refid="approximatePlanetPositions_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>tudat/io/fieldType.h</label>
+        <link refid="fieldType_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/io/fieldValue.h</label>
+        <link refid="fieldValue_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>string</label>
+      </node>
+      <node id="19">
+        <label>cstdarg</label>
+      </node>
+      <node id="14">
+        <label>trajectory_design/departureLegMga.h</label>
+        <link refid="departureLegMga_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>map</label>
+      </node>
+      <node id="15">
+        <label>trajectory_design/departureLegMga1DsmPosition.h</label>
+        <link refid="departureLegMga1DsmPosition_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>trajectory_design/departureLegMga1DsmVelocity.h</label>
+        <link refid="departureLegMga1DsmVelocity_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>tudat/math/basic/functionProxy.h</label>
+        <link refid="functionProxy_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>tudat/math/root_finders/createRootFinder.h</label>
+        <link refid="createRootFinder_8h_source"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="55">
+        <label>tudat/math/basic/linearAlgebra.h</label>
+        <link refid="linearAlgebra_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>tudat/math/root_finders/halleyRootFinder.h</label>
+        <link refid="halleyRootFinder_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>tudat/astro/ephemerides/ephemeris.h</label>
+        <link refid="astro_2ephemerides_2ephemeris_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>boost/math/special_functions/asinh.hpp</label>
+      </node>
+      <node id="2">
+        <label>trajectory_design/captureLeg.h</label>
+        <link refid="captureLeg_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>tudat/astro/basic_astro/timeConversions.h</label>
+        <link refid="timeConversions_8h_source"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>vector</label>
+      </node>
+      <node id="68">
+        <label>trajectory_design/trajectory.h</label>
+        <link refid="trajectory_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="64">
+        <label>trajectory_design/swingbyLeg.h</label>
+        <link refid="swingbyLeg_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>tudat/math/root_finders/bisection.h</label>
+        <link refid="bisection_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="67">
+        <label>trajectory_design/swingbyLegMga1DsmVelocity.h</label>
+        <link refid="swingbyLegMga1DsmVelocity_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>tudat/math/basic/basicFunction.h</label>
+        <link refid="basicFunction_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>tudat/astro/trajectory_design/missionLeg.h</label>
+        <link refid="missionLeg_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>tudat/math/basic/convergenceException.h</label>
+        <link refid="convergenceException_8h_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="62">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>trajectory_design/planetTrajectory.h</label>
+        <link refid="planetTrajectory_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>tudat/astro/ephemerides/approximatePlanetPositionsDataContainer.h</label>
+        <link refid="approximatePlanetPositionsDataContainer_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>iostream</label>
+      </node>
+      <node id="12">
+        <label>trajectory_design/departureLeg.h</label>
+        <link refid="departureLeg_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="33">
+        <label>tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h</label>
+        <link refid="convertMeanToEccentricAnomalies_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>boost/regex.hpp</label>
+      </node>
+      <node id="56">
+        <label>Eigen/SVD</label>
+      </node>
+      <node id="65">
+        <label>trajectory_design/swingbyLegMga.h</label>
+        <link refid="swingbyLegMga_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>tudat/math/root_finders/secantRootFinder.h</label>
+        <link refid="secantRootFinder_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="18">
+        <label>tudat/io/parsedDataVectorUtilities.h</label>
+        <link refid="parsedDataVectorUtilities_8h_source"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>complex</label>
+      </node>
+      <node id="63">
+        <label>algorithm</label>
+      </node>
+      <node id="24">
+        <label>cstring</label>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2018,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDATPY_TRAJECTORY_DESIGN_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDATPY_TRAJECTORY_DESIGN_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/captureLeg.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/departureLeg.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/departureLegMga.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/departureLegMga1DsmPosition.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/departureLegMga1DsmVelocity.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/exportTrajectory.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/missionLeg.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/planetTrajectory.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/spaceLeg.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/swingbyLeg.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/swingbyLegMga.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/swingbyLegMga1DsmPosition.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/swingbyLegMga1DsmVelocity.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trajectory_design/trajectory.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDATPY_TRAJECTORY_DESIGN_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design.h"/>
+  </compounddef>
+</doxygen>

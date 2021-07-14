@@ -1,0 +1,100 @@
+\hypertarget{classtudat_1_1mission__segments_1_1PericenterFindingFunctions}{}\doxysection{tudat\+::mission\+\_\+segments\+::Pericenter\+Finding\+Functions Class Reference}
+\label{classtudat_1_1mission__segments_1_1PericenterFindingFunctions}\index{tudat::mission\_segments::PericenterFindingFunctions@{tudat::mission\_segments::PericenterFindingFunctions}}
+
+
+Pericenter finding functions class.  
+
+
+
+
+{\ttfamily \#include $<$gravity\+Assist.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a97fb47b1920e4dc1809b760928552bf0}{Pericenter\+Finding\+Functions}} (const double absolute\+Incoming\+Semi\+Major\+Axis, const double absolute\+Outgoing\+Semi\+Major\+Axis, const double bending\+Angle)
+\begin{DoxyCompactList}\small\item\em Constructor with immediate definition of parameters. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a59165e752c9250d1e9fa7c2c29699094}{compute\+Pericenter\+Radius\+Function}} (const double pericenter\+Radius)
+\begin{DoxyCompactList}\small\item\em Compute pericenter radius function. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a76c0e8b16c404037209233edc85a4e64}{compute\+First\+Derivative\+Pericenter\+Radius\+Function}} (const double pericenter\+Radius)
+\begin{DoxyCompactList}\small\item\em Compute first-\/derivative of the pericenter radius function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Pericenter finding functions class. 
+
+This class contains the functions required by the root-\/finders to find the pericenter radius in the gravity assist function to find the deltaV. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a97fb47b1920e4dc1809b760928552bf0}\label{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a97fb47b1920e4dc1809b760928552bf0}} 
+\index{tudat::mission\_segments::PericenterFindingFunctions@{tudat::mission\_segments::PericenterFindingFunctions}!PericenterFindingFunctions@{PericenterFindingFunctions}}
+\index{PericenterFindingFunctions@{PericenterFindingFunctions}!tudat::mission\_segments::PericenterFindingFunctions@{tudat::mission\_segments::PericenterFindingFunctions}}
+\doxysubsubsection{\texorpdfstring{PericenterFindingFunctions()}{PericenterFindingFunctions()}}
+{\footnotesize\ttfamily tudat\+::mission\+\_\+segments\+::\+Pericenter\+Finding\+Functions\+::\+Pericenter\+Finding\+Functions (\begin{DoxyParamCaption}\item[{const double}]{absolute\+Incoming\+Semi\+Major\+Axis,  }\item[{const double}]{absolute\+Outgoing\+Semi\+Major\+Axis,  }\item[{const double}]{bending\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with immediate definition of parameters. 
+
+Constructor that sets all the parameters in the pericenter finding functions for use in the Newton Raphson rootfinder. Note that absolute values of the semi-\/major axis are required due to the rootfinding process.
+
+
+\begin{DoxyParams}{Parameters}
+{\em absolute\+Incoming\+Semi\+Major\+Axis} & The absolute semi-\/major axis of the incoming hyperbolic leg. \mbox{[}m\mbox{]} \\
+\hline
+{\em absolute\+Outgoing\+Semi\+Major\+Axis} & The absolute semi-\/major axis of the outgoing hyperbolic leg. \mbox{[}m\mbox{]} \\
+\hline
+{\em bending\+Angle} & The bending angle between the excess velocities. \mbox{[}rad\mbox{]} \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a76c0e8b16c404037209233edc85a4e64}\label{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a76c0e8b16c404037209233edc85a4e64}} 
+\index{tudat::mission\_segments::PericenterFindingFunctions@{tudat::mission\_segments::PericenterFindingFunctions}!computeFirstDerivativePericenterRadiusFunction@{computeFirstDerivativePericenterRadiusFunction}}
+\index{computeFirstDerivativePericenterRadiusFunction@{computeFirstDerivativePericenterRadiusFunction}!tudat::mission\_segments::PericenterFindingFunctions@{tudat::mission\_segments::PericenterFindingFunctions}}
+\doxysubsubsection{\texorpdfstring{computeFirstDerivativePericenterRadiusFunction()}{computeFirstDerivativePericenterRadiusFunction()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Pericenter\+Finding\+Functions\+::compute\+First\+Derivative\+Pericenter\+Radius\+Function (\begin{DoxyParamCaption}\item[{const double}]{pericenter\+Radius }\end{DoxyParamCaption})}
+
+
+
+Compute first-\/derivative of the pericenter radius function. 
+
+Computes the first-\/derivative of the pericenter radius function. This function is used by the Newton-\/\+Raphson root-\/finder to find the pericenter radius that matches the bending angle required in the gravity assist. 
+\begin{DoxyParams}{Parameters}
+{\em pericenter\+Radius} & Pericenter radius. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pericenter radius root finding function first-\/derivative value. 
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+Newton\+Rapshon(). 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a59165e752c9250d1e9fa7c2c29699094}\label{classtudat_1_1mission__segments_1_1PericenterFindingFunctions_a59165e752c9250d1e9fa7c2c29699094}} 
+\index{tudat::mission\_segments::PericenterFindingFunctions@{tudat::mission\_segments::PericenterFindingFunctions}!computePericenterRadiusFunction@{computePericenterRadiusFunction}}
+\index{computePericenterRadiusFunction@{computePericenterRadiusFunction}!tudat::mission\_segments::PericenterFindingFunctions@{tudat::mission\_segments::PericenterFindingFunctions}}
+\doxysubsubsection{\texorpdfstring{computePericenterRadiusFunction()}{computePericenterRadiusFunction()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Pericenter\+Finding\+Functions\+::compute\+Pericenter\+Radius\+Function (\begin{DoxyParamCaption}\item[{const double}]{pericenter\+Radius }\end{DoxyParamCaption})}
+
+
+
+Compute pericenter radius function. 
+
+Computes pericenter radius function. This function is used by the Newton-\/\+Raphson root-\/finder to find the pericenter radius that matches the bending angle required in the gravity assist. 
+\begin{DoxyParams}{Parameters}
+{\em pericenter\+Radius} & Pericenter radius. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pericenter radius root finding function value. 
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+Newton\+Raphson(). 
+\end{DoxySeeAlso}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/mission\+\_\+segments/gravity\+Assist.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/mission\+\_\+segments/gravity\+Assist.\+cpp\end{DoxyCompactItemize}

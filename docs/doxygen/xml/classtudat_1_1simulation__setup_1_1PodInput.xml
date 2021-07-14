@@ -1,0 +1,671 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1PodInput" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::PodInput</compoundname>
+    <includes refid="podInputOutputTypes_8h" local="no">podInputOutputTypes.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ObservationScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1simulation__setup_1_1PodInput_1adfadb5fbccd9d7710f2a48fb945d2daf" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt; tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::ObservationVectorType</definition>
+        <argsstring></argsstring>
+        <name>ObservationVectorType</name>
+        <briefdescription>
+<para>Typedef of vector of observations of a single type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="39" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1simulation__setup_1_1PodInput_1aa393ce8a0c6bc79c8af7dacc9f63ed61" prot="public" static="no">
+        <type>std::map&lt; observation_models::LinkEnds, std::pair&lt; <ref refid="classtudat_1_1simulation__setup_1_1PodInput_1adfadb5fbccd9d7710f2a48fb945d2daf" kindref="member">ObservationVectorType</ref>, std::pair&lt; std::vector&lt; TimeType &gt;, observation_models::LinkEndType &gt; &gt; &gt;</type>
+        <definition>typedef std::map&lt; observation_models::LinkEnds, std::pair&lt; ObservationVectorType, std::pair&lt; std::vector&lt; TimeType &gt;, observation_models::LinkEndType &gt; &gt; &gt; tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::SingleObservablePodInputType</definition>
+        <argsstring></argsstring>
+        <name>SingleObservablePodInputType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of map of pairs (observation vector and pair (vector of associated times reference link end)), link ends as map key </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="44" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1simulation__setup_1_1PodInput_1a2e1f6d5a718a2cf8359e222823ddc40b" prot="public" static="no">
+        <type>std::map&lt; observation_models::ObservableType, <ref refid="classtudat_1_1simulation__setup_1_1PodInput_1aa393ce8a0c6bc79c8af7dacc9f63ed61" kindref="member">SingleObservablePodInputType</ref> &gt;</type>
+        <definition>typedef std::map&lt; observation_models::ObservableType, SingleObservablePodInputType &gt; tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::PodInputDataType</definition>
+        <argsstring></argsstring>
+        <name>PodInputDataType</name>
+        <briefdescription>
+<para>List of SingleObservablePodInputType per observation type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="47" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1ac40a32f05712f17c8838ef1ded197ca8" prot="private" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1simulation__setup_1_1PodInput_1a2e1f6d5a718a2cf8359e222823ddc40b" kindref="member">PodInputDataType</ref></type>
+        <definition>PodInputDataType tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::observationsAndTimes_</definition>
+        <argsstring></argsstring>
+        <name>observationsAndTimes_</name>
+        <briefdescription>
+<para>Total data structure of observations and associated times/link ends/type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="325" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="325" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1a375906bd2af86d77ed55261b09702cf5" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt; tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::initialParameterDeviationEstimate_</definition>
+        <argsstring></argsstring>
+        <name>initialParameterDeviationEstimate_</name>
+        <briefdescription>
+<para>Correction to estimated parameter vector to be applied on first iteration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="328" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="328" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1ad4beb4576d2895c9694346e942db1826" prot="private" static="no" mutable="no">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::inverseOfAprioriCovariance_</definition>
+        <argsstring></argsstring>
+        <name>inverseOfAprioriCovariance_</name>
+        <briefdescription>
+<para>A priori covariance matrix (unnormalized) of estimated parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="331" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="331" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1aca8ec8bca2ad1cc5c18f1d6f86a06d84" prot="private" static="no" mutable="no">
+        <type>std::map&lt; observation_models::ObservableType, std::map&lt; observation_models::LinkEnds, Eigen::VectorXd &gt; &gt;</type>
+        <definition>std::map&lt; observation_models::ObservableType, std::map&lt; observation_models::LinkEnds, Eigen::VectorXd &gt; &gt; tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::weightsMatrixDiagonals_</definition>
+        <argsstring></argsstring>
+        <name>weightsMatrixDiagonals_</name>
+        <briefdescription>
+<para>Weight matrix diagonals, sorted by link ends and observable type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="335" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="335" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1a3e070d6466475f5d1ac4ca42504e6832" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::reintegrateEquationsOnFirstIteration_</definition>
+        <argsstring></argsstring>
+        <name>reintegrateEquationsOnFirstIteration_</name>
+        <briefdescription>
+<para>Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="338" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="338" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1a7252c3116c6de8af57829320ac275d65" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::reintegrateVariationalEquations_</definition>
+        <argsstring></argsstring>
+        <name>reintegrateVariationalEquations_</name>
+        <briefdescription>
+<para>Boolean denoting whether the variational equations are to be reintegrated during estimation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="341" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="341" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1a0fbee5654c02e39e1dd1cc6fff84f935" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::saveInformationMatrix_</definition>
+        <argsstring></argsstring>
+        <name>saveInformationMatrix_</name>
+        <briefdescription>
+<para>Boolean denoting whether to print output to th terminal when running the estimation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="344" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="344" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1afeae934f0d8cf7f1df42e3df05015525" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::printOutput_</definition>
+        <argsstring></argsstring>
+        <name>printOutput_</name>
+        <briefdescription>
+<para>Boolean denoting whether to print output to th terminal when running the estimation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="347" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="347" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1a1cff2055dbdb7128d7a0a9d04cb2c622" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::saveResidualsAndParametersFromEachIteration_</definition>
+        <argsstring></argsstring>
+        <name>saveResidualsAndParametersFromEachIteration_</name>
+        <briefdescription>
+<para>Boolean denoting whether the residuals and parameters from the each iteration are to be saved. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="350" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="350" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PodInput_1a2beeb79875d50e6a2fec4fd0af7327c3" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::saveStateHistoryForEachIteration_</definition>
+        <argsstring></argsstring>
+        <name>saveStateHistoryForEachIteration_</name>
+        <briefdescription>
+<para>Boolean denoting whether the state history is to be saved on each iteration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="353" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="353" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1ae867826e363d16e416bbf87f6dde8fc7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::PodInput</definition>
+        <argsstring>(const PodInputDataType &amp;observationsAndTimes, const int numberOfEstimatedParameters, const Eigen::MatrixXd inverseOfAprioriCovariance=Eigen::MatrixXd::Zero(0, 0), const Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt; initialParameterDeviationEstimate=Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;::Zero(0, 1))</argsstring>
+        <name>PodInput</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1PodInput_1a2e1f6d5a718a2cf8359e222823ddc40b" kindref="member">PodInputDataType</ref> &amp;</type>
+          <declname>observationsAndTimes</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfEstimatedParameters</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd</type>
+          <declname>inverseOfAprioriCovariance</declname>
+          <defval>Eigen::MatrixXd::Zero(0, 0)</defval>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;</type>
+          <declname>initialParameterDeviationEstimate</declname>
+          <defval>Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;::Zero(0, 1)</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationsAndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total data structure of observations and associated times/link ends/type </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfEstimatedParameters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of vector of estimated parameters </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inverseOfAprioriCovariance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A priori covariance matrix (unnormalized) of estimated parameters. None (matrix of size 0) by default </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialParameterDeviationEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Correction to estimated parameter vector to be applied on first iteration. None (vector of size 0) by default </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="59" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="59" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1ae8e3f3bfcbe652ad1f592503f4656352" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::~PodInput</definition>
+        <argsstring>()</argsstring>
+        <name>~PodInput</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="99" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="99" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1aee83eb22193762a70a57d3064c010de4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::setConstantWeightsMatrix</definition>
+        <argsstring>(const double constantWeight=1.0)</argsstring>
+        <name>setConstantWeightsMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>constantWeight</declname>
+          <defval>1.0</defval>
+        </param>
+        <briefdescription>
+<para>Function to set a constant values for all observation weights. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set a constant values for all observation weights <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>constantWeight</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant weight that is to be set for all observations </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="106" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="106" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a2e06a7166bafc1f6cb0b78ad117b17db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::setConstantPerObservableWeightsMatrix</definition>
+        <argsstring>(const std::map&lt; observation_models::ObservableType, double &gt; weightPerObservable)</argsstring>
+        <name>setConstantPerObservableWeightsMatrix</name>
+        <param>
+          <type>const std::map&lt; observation_models::ObservableType, double &gt;</type>
+          <declname>weightPerObservable</declname>
+        </param>
+        <briefdescription>
+<para>Function to set a values for observation weights, constant per observable type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set a values for observation weights, constant per observable type <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>weightPerObservable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values for observation weights, constant per observable type </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="127" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="127" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a37960ccb0b1ab6c15e8a6e0d1e2097e5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::setConstantPerObservableAndLinkEndsWeights</definition>
+        <argsstring>(const std::map&lt; observation_models::ObservableType, std::map&lt; observation_models::LinkEnds, double &gt; &gt; weightPerObservableAndLinkEnds)</argsstring>
+        <name>setConstantPerObservableAndLinkEndsWeights</name>
+        <param>
+          <type>const std::map&lt; observation_models::ObservableType, std::map&lt; observation_models::LinkEnds, double &gt; &gt;</type>
+          <declname>weightPerObservableAndLinkEnds</declname>
+        </param>
+        <briefdescription>
+<para>Function to set a values for observation weights, constant per observable type and link ends type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set a values for observation weights, constant per observable type and link ends type <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>weightPerObservableAndLinkEnds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values for observation weights, constant per observable type and link ends type </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="153" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="153" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a1cf21e79bf0800df0ee61aa4b6f71373" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::defineEstimationSettings</definition>
+        <argsstring>(const bool reintegrateEquationsOnFirstIteration=1, const bool reintegrateVariationalEquations=1, const bool saveInformationMatrix=1, const bool printOutput=1, const bool saveResidualsAndParametersFromEachIteration=1, const bool saveStateHistoryForEachIteration=0)</argsstring>
+        <name>defineEstimationSettings</name>
+        <param>
+          <type>const bool</type>
+          <declname>reintegrateEquationsOnFirstIteration</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>reintegrateVariationalEquations</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>saveInformationMatrix</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>printOutput</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>saveResidualsAndParametersFromEachIteration</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>saveStateHistoryForEachIteration</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function to define specific settings for estimation process. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to define specific settings for estimation process <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>reintegrateEquationsOnFirstIteration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration, or if existing values are to be used to perform first iteration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reintegrateVariationalEquations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the variational equations are to be reintegrated during estimation </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>saveInformationMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether to save the partials matrix in the output </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printOutput</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether to print output to th terminal when running the estimation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>saveResidualsAndParametersFromEachIteration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the residuals and parameters from the each iteration are to be saved </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>saveStateHistoryForEachIteration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the state history is to be saved on each iteration </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="205" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="205" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1ad49edbf0665355e0b735d12dbdd2af75" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classtudat_1_1simulation__setup_1_1PodInput_1a2e1f6d5a718a2cf8359e222823ddc40b" kindref="member">PodInputDataType</ref> &amp;</type>
+        <definition>PodInputDataType&amp; tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getObservationsAndTimes</definition>
+        <argsstring>()</argsstring>
+        <name>getObservationsAndTimes</name>
+        <briefdescription>
+<para>Function to return the total data structure of observations and associated times/link ends/type (by reference) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the total data structure of observations and associated times/link ends/type (by reference) <simplesect kind="return"><para>Total data structure of observations and associated times/link ends/type (by reference) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="225" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="225" bodyend="228"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a066bb86d23d52f7abc968107d9b68ada" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt; tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getInitialParameterDeviationEstimate</definition>
+        <argsstring>()</argsstring>
+        <name>getInitialParameterDeviationEstimate</name>
+        <briefdescription>
+<para>Function to return the correction to estimated parameter vector to be applied on first iteration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the correction to estimated parameter vector to be applied on first iteration <simplesect kind="return"><para>Correction to estimated parameter vector to be applied on first iteration </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="235" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="235" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a5d98da3baed4610339cf5639ec982a78" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getInverseOfAprioriCovariance</definition>
+        <argsstring>()</argsstring>
+        <name>getInverseOfAprioriCovariance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>A priori covariance matrix (unnormalized) of estimated parameters Function to return the a priori covariance matrix (unnormalized) of estimated parameters</para>
+<para>Function to return the a priori covariance matrix (unnormalized) of estimated parameters <simplesect kind="return"><para>A priori covariance matrix (unnormalized) of estimated parameters </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="246" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="246" bodyend="249"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1aac343d50edaceeb33233c41edde058f8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; observation_models::ObservableType, std::map&lt; observation_models::LinkEnds, Eigen::VectorXd &gt; &gt; &amp;</type>
+        <definition>std::map&lt; observation_models::ObservableType, std::map&lt; observation_models::LinkEnds, Eigen::VectorXd &gt; &gt;&amp; tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getWeightsMatrixDiagonals</definition>
+        <argsstring>()</argsstring>
+        <name>getWeightsMatrixDiagonals</name>
+        <briefdescription>
+<para>Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference) <simplesect kind="return"><para>Weight matrix diagonals, sorted by link ends and observable type (by reference) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="257" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="257" bodyend="260"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a66274177db8feb353e2300672b1942da" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getReintegrateEquationsOnFirstIteration</definition>
+        <argsstring>()</argsstring>
+        <name>getReintegrateEquationsOnFirstIteration</name>
+        <briefdescription>
+<para>Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration <simplesect kind="return"><para>Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="268" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="268" bodyend="271"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1aa76b58f501752ed759877992d247c4c4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getReintegrateVariationalEquations</definition>
+        <argsstring>()</argsstring>
+        <name>getReintegrateVariationalEquations</name>
+        <briefdescription>
+<para>Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation <simplesect kind="return"><para>Boolean denoting whether the variational equations are to be reintegrated during estimation </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="278" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="278" bodyend="281"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a1392e4f33dc513241aacf621a0b9cb53" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getSaveInformationMatrix</definition>
+        <argsstring>()</argsstring>
+        <name>getSaveInformationMatrix</name>
+        <briefdescription>
+<para>Function to return the boolean denoting whether to print output to th terminal when running the estimation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the boolean denoting whether to print output to th terminal when running the estimation. <simplesect kind="return"><para>Boolean denoting whether to print output to th terminal when running the estimation. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="288" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="288" bodyend="291"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1aeca00db85f7aaa529e583d7f3a107635" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getPrintOutput</definition>
+        <argsstring>()</argsstring>
+        <name>getPrintOutput</name>
+        <briefdescription>
+<para>Function to return the boolean denoting whether to print output to th terminal when running the estimation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the boolean denoting whether to print output to th terminal when running the estimation. <simplesect kind="return"><para>Boolean denoting whether to print output to th terminal when running the estimation. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="298" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="298" bodyend="301"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a8bd610430764387be99e628077b8509a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getSaveResidualsAndParametersFromEachIteration</definition>
+        <argsstring>()</argsstring>
+        <name>getSaveResidualsAndParametersFromEachIteration</name>
+        <briefdescription>
+<para>Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved <simplesect kind="return"><para>Boolean denoting whether the residuals and parameters from the each iteration are to be saved </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="308" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="308" bodyend="311"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PodInput_1a806b134be8f7f1773da619ba3120ac45" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::PodInput&lt; ObservationScalarType, TimeType &gt;::getSaveStateHistoryForEachIteration</definition>
+        <argsstring>()</argsstring>
+        <name>getSaveStateHistoryForEachIteration</name>
+        <briefdescription>
+<para>Function to return the boolean denoting whether the state history is to be saved on each iteration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the boolean denoting whether the state history is to be saved on each iteration. <simplesect kind="return"><para>Boolean denoting whether the state history is to be saved on each iteration. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="318" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="318" bodyend="321"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Data structure used to provide input to orbit determination procedure. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="34" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="35" bodyend="355"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a1cf21e79bf0800df0ee61aa4b6f71373" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>defineEstimationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a066bb86d23d52f7abc968107d9b68ada" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getInitialParameterDeviationEstimate</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a5d98da3baed4610339cf5639ec982a78" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getInverseOfAprioriCovariance</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1ad49edbf0665355e0b735d12dbdd2af75" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getObservationsAndTimes</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1aeca00db85f7aaa529e583d7f3a107635" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getPrintOutput</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a66274177db8feb353e2300672b1942da" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getReintegrateEquationsOnFirstIteration</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1aa76b58f501752ed759877992d247c4c4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getReintegrateVariationalEquations</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a1392e4f33dc513241aacf621a0b9cb53" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getSaveInformationMatrix</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a8bd610430764387be99e628077b8509a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getSaveResidualsAndParametersFromEachIteration</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a806b134be8f7f1773da619ba3120ac45" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getSaveStateHistoryForEachIteration</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1aac343d50edaceeb33233c41edde058f8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>getWeightsMatrixDiagonals</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a375906bd2af86d77ed55261b09702cf5" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>initialParameterDeviationEstimate_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1ad4beb4576d2895c9694346e942db1826" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>inverseOfAprioriCovariance_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1ac40a32f05712f17c8838ef1ded197ca8" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>observationsAndTimes_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1adfadb5fbccd9d7710f2a48fb945d2daf" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>ObservationVectorType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1ae867826e363d16e416bbf87f6dde8fc7" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>PodInput</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a2e1f6d5a718a2cf8359e222823ddc40b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>PodInputDataType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1afeae934f0d8cf7f1df42e3df05015525" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>printOutput_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a3e070d6466475f5d1ac4ca42504e6832" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>reintegrateEquationsOnFirstIteration_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a7252c3116c6de8af57829320ac275d65" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>reintegrateVariationalEquations_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a0fbee5654c02e39e1dd1cc6fff84f935" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>saveInformationMatrix_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a1cff2055dbdb7128d7a0a9d04cb2c622" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>saveResidualsAndParametersFromEachIteration_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a2beeb79875d50e6a2fec4fd0af7327c3" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>saveStateHistoryForEachIteration_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a37960ccb0b1ab6c15e8a6e0d1e2097e5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>setConstantPerObservableAndLinkEndsWeights</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1a2e06a7166bafc1f6cb0b78ad117b17db" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>setConstantPerObservableWeightsMatrix</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1aee83eb22193762a70a57d3064c010de4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>setConstantWeightsMatrix</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1aa393ce8a0c6bc79c8af7dacc9f63ed61" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>SingleObservablePodInputType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1aca8ec8bca2ad1cc5c18f1d6f86a06d84" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PodInput</scope><name>weightsMatrixDiagonals_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PodInput_1ae8e3f3bfcbe652ad1f592503f4656352" prot="public" virt="virtual"><scope>tudat::simulation_setup::PodInput</scope><name>~PodInput</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

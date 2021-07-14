@@ -1,0 +1,256 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1RotationModelSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::RotationModelSettings</compoundname>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings" prot="public" virt="non-virtual">tudat::simulation_setup::PlanetaryRotationModelSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings" prot="public" virt="non-virtual">tudat::simulation_setup::SimpleRotationModelSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings" prot="public" virt="non-virtual">tudat::simulation_setup::SynchronousRotationModelSettings</derivedcompoundref>
+    <includes refid="createRotationModel_8h" local="no">createRotationModel.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1af2b7a9868f25f739090e438acee36304" prot="protected" static="no" mutable="no">
+        <type>RotationModelType</type>
+        <definition>RotationModelType tudat::simulation_setup::RotationModelSettings::rotationType_</definition>
+        <argsstring></argsstring>
+        <name>rotationType_</name>
+        <briefdescription>
+<para>Type of rotation model that is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="118" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a3664732bd644fd17c1c56a9193816d60" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::RotationModelSettings::originalFrame_</definition>
+        <argsstring></argsstring>
+        <name>originalFrame_</name>
+        <briefdescription>
+<para>Target frame of rotation model. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="121" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a5e950c3ec40646eac2ae85eea100ae6f" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::RotationModelSettings::targetFrame_</definition>
+        <argsstring></argsstring>
+        <name>targetFrame_</name>
+        <briefdescription>
+<para>Base frame of rotation model. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="124" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1aebe6e9ad90787c441e4736971b778396" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::RotationModelSettings::RotationModelSettings</definition>
+        <argsstring>(const RotationModelType rotationType, const std::string &amp;originalFrame, const std::string &amp;targetFrame)</argsstring>
+        <name>RotationModelSettings</name>
+        <param>
+          <type>const RotationModelType</type>
+          <declname>rotationType</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>targetFrame</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, sets type of rotation model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets type of rotation model and base and target frame identifiers. Settings for rotation models requiring additional information should be defined in a derived class. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of rotation model that is to be created. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>originalFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base frame of rotation model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target frame of rotation model. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="70" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="70" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1aae3318a08e2fc5dd26b8b038fa51a451" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::simulation_setup::RotationModelSettings::~RotationModelSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~RotationModelSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="77" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="77" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1afbb5f870668604c75eab753968cb6b6d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>RotationModelType</type>
+        <definition>RotationModelType tudat::simulation_setup::RotationModelSettings::getRotationType</definition>
+        <argsstring>()</argsstring>
+        <name>getRotationType</name>
+        <briefdescription>
+<para>Function to return the type of rotation model that is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the type of rotation model that is to be created. <simplesect kind="return"><para>Type of rotation model that is to be created. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="85" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="85" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a9ba9508d4c524bcd90f0a09e36b3bdd5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::RotationModelSettings::getOriginalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getOriginalFrame</name>
+        <briefdescription>
+<para>Function to return the base frame of rotation model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the base frame of rotation model. <simplesect kind="return"><para>Base frame of rotation model. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="93" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="93" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a4f7f267d90d71182613fedfdc0363e4d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::RotationModelSettings::getTargetFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getTargetFrame</name>
+        <briefdescription>
+<para>Function to return the target frame of rotation model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the target frame of rotation model. <simplesect kind="return"><para>Target frame of rotation model. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="101" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="101" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a7a3e915574afe20bb1ca65577a032226" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::RotationModelSettings::resetOriginalFrame</definition>
+        <argsstring>(const std::string &amp;originalFrame)</argsstring>
+        <name>resetOriginalFrame</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the orientation of the base frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the orientation of the base frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originalFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New base frame orientation </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="110" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="110" bodyend="113"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for providing settings for rotation model. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for providing settings for automatic rotation model creation. This class is a functional (base) class for settings of rotation models that require no information in addition to their type. Rotation model classes defining requiring additional information must be created using an object derived from this class. @get_docstring(RotationModelSettings.__docstring__) </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::RotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RotationModelSettings"/>
+      </node>
+      <node id="3">
+        <label>tudat::simulation_setup::SimpleRotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::PlanetaryRotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::simulation_setup::SynchronousRotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::RotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RotationModelSettings"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>originalFrame_</edgelabel>
+          <edgelabel>targetFrame_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>string</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="56" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="57" bodyend="126"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a9ba9508d4c524bcd90f0a09e36b3bdd5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>getOriginalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1afbb5f870668604c75eab753968cb6b6d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>getRotationType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a4f7f267d90d71182613fedfdc0363e4d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>getTargetFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a3664732bd644fd17c1c56a9193816d60" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>originalFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a7a3e915574afe20bb1ca65577a032226" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>resetOriginalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1aebe6e9ad90787c441e4736971b778396" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>RotationModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1af2b7a9868f25f739090e438acee36304" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>rotationType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a5e950c3ec40646eac2ae85eea100ae6f" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>targetFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1aae3318a08e2fc5dd26b8b038fa51a451" prot="public" virt="virtual"><scope>tudat::simulation_setup::RotationModelSettings</scope><name>~RotationModelSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

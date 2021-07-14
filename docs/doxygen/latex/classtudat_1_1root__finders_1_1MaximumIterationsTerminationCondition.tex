@@ -1,0 +1,60 @@
+\hypertarget{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition}{}\doxysection{tudat\+::root\+\_\+finders\+::Maximum\+Iterations\+Termination\+Condition$<$ Scalar\+Type $>$ Class Template Reference}
+\label{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition}\index{tudat::root\_finders::MaximumIterationsTerminationCondition$<$ ScalarType $>$@{tudat::root\_finders::MaximumIterationsTerminationCondition$<$ ScalarType $>$}}
+
+
+Maximum iterations termination condition.  
+
+
+
+
+{\ttfamily \#include $<$termination\+Conditions.\+h$>$}
+
+Inheritance diagram for tudat\+::root\+\_\+finders\+::Maximum\+Iterations\+Termination\+Condition$<$ Scalar\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition_a129f36d0af0decb5aa548ef7e0bc8bfc}{Maximum\+Iterations\+Termination\+Condition}} (const unsigned int maximum\+Number\+Of\+Iterations=1000, const Maximum\+Iteration\+Handling maximum\+Iteration\+Handling=throw\+\_\+exception)
+\begin{DoxyCompactList}\small\item\em Default constructor, taking maximum number of iterations and run-\/time exception flag. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition_a1d746029f432af0842920e5d5b8b0fec}\label{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition_a1d746029f432af0842920e5d5b8b0fec}} 
+bool \mbox{\hyperlink{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition_a1d746029f432af0842920e5d5b8b0fec}{check\+Termination\+Condition}} (const Scalar\+Type current\+Root\+Guess, const Scalar\+Type previous\+Root\+Guess, const Scalar\+Type current\+Root\+Function\+Value, const Scalar\+Type previous\+Root\+Function\+Value, const unsigned int number\+Of\+Iterations)
+\begin{DoxyCompactList}\small\item\em Check termination condition (wrapper for check\+Maximum\+Iterations\+Exceeded()-\/function). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Scalar\+Type = double$>$\newline
+class tudat\+::root\+\_\+finders\+::\+Maximum\+Iterations\+Termination\+Condition$<$ Scalar\+Type $>$}
+
+Maximum iterations termination condition. 
+
+This class implements the \mbox{\hyperlink{classtudat_1_1root__finders_1_1TerminationCondition}{Termination\+Condition}} base class to check if the maximum number of iterations has been reached by the root-\/finder that this class is used in conjunction with. This class effectively serves as a wrapper for the check\+Maximum\+Iterations\+Exceeded()-\/function. \begin{DoxySeeAlso}{See also}
+check\+Maximum\+Iterations\+Exceeded(). 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition_a129f36d0af0decb5aa548ef7e0bc8bfc}\label{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition_a129f36d0af0decb5aa548ef7e0bc8bfc}} 
+\index{tudat::root\_finders::MaximumIterationsTerminationCondition$<$ ScalarType $>$@{tudat::root\_finders::MaximumIterationsTerminationCondition$<$ ScalarType $>$}!MaximumIterationsTerminationCondition@{MaximumIterationsTerminationCondition}}
+\index{MaximumIterationsTerminationCondition@{MaximumIterationsTerminationCondition}!tudat::root\_finders::MaximumIterationsTerminationCondition$<$ ScalarType $>$@{tudat::root\_finders::MaximumIterationsTerminationCondition$<$ ScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{MaximumIterationsTerminationCondition()}{MaximumIterationsTerminationCondition()}}
+{\footnotesize\ttfamily template$<$typename Scalar\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition}{tudat\+::root\+\_\+finders\+::\+Maximum\+Iterations\+Termination\+Condition}}$<$ Scalar\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1root__finders_1_1MaximumIterationsTerminationCondition}{Maximum\+Iterations\+Termination\+Condition}} (\begin{DoxyParamCaption}\item[{const unsigned int}]{maximum\+Number\+Of\+Iterations = {\ttfamily 1000},  }\item[{const Maximum\+Iteration\+Handling}]{maximum\+Iteration\+Handling = {\ttfamily throw\+\_\+exception} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor, taking maximum number of iterations and run-\/time exception flag. 
+
+Default constructor, taking a specified maximum number of iterations (default=1000) and a flag indicating if a run-\/time exception should be thrown if this number is exceeded (default=true). 
+\begin{DoxyParams}{Parameters}
+{\em maximum\+Number\+Of\+Iterations} & Maximum number of iterations (default=1000). \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/root\+\_\+finders/termination\+Conditions.\+h\end{DoxyCompactItemize}

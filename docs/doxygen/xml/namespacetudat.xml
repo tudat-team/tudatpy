@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat" kind="namespace" language="C++">
+    <compoundname>tudat</compoundname>
+    <innerclass refid="classtudat_1_1IdentityElement" prot="public">tudat::IdentityElement</innerclass>
+    <innerclass refid="classtudat_1_1Time" prot="public">tudat::Time</innerclass>
+    <innerclass refid="structtudat_1_1is__eigen__matrix" prot="public">tudat::is_eigen_matrix</innerclass>
+    <innerclass refid="structtudat_1_1is__state__scalar" prot="public">tudat::is_state_scalar</innerclass>
+    <innerclass refid="structtudat_1_1is__state__scalar_3_01double_01_4" prot="public">tudat::is_state_scalar&lt; double &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__state__scalar_3_01long_01double_01_4" prot="public">tudat::is_state_scalar&lt; long double &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__time__type" prot="public">tudat::is_time_type</innerclass>
+    <innerclass refid="structtudat_1_1is__time__type_3_01double_01_4" prot="public">tudat::is_time_type&lt; double &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__time__type_3_01Time_01_4" prot="public">tudat::is_time_type&lt; Time &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__state__scalar__and__time__type" prot="public">tudat::is_state_scalar_and_time_type</innerclass>
+    <innerclass refid="structtudat_1_1is__direct__gravity__partial" prot="public">tudat::is_direct_gravity_partial</innerclass>
+    <innerclass refid="structtudat_1_1is__direct__gravity__partial_3_01acceleration__partials_1_1CentralGravitationPartial_01_4" prot="public">tudat::is_direct_gravity_partial&lt; acceleration_partials::CentralGravitationPartial &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__direct__gravity__partial_3_01acceleration__partials_1_1SphericalHarmonicsGravityPartial_01_4" prot="public">tudat::is_direct_gravity_partial&lt; acceleration_partials::SphericalHarmonicsGravityPartial &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__direct__gravity__partial_3_01acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_01_4" prot="public">tudat::is_direct_gravity_partial&lt; acceleration_partials::MutualSphericalHarmonicsGravityPartial &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__direct__gravity__acceleration" prot="public">tudat::is_direct_gravity_acceleration</innerclass>
+    <innerclass refid="structtudat_1_1is__direct__gravity__acceleration_3_01gravitation_1_1CentralGravitationalAccelera450530c193cbdf1679e149a92b28d4d0" prot="public">tudat::is_direct_gravity_acceleration&lt; gravitation::CentralGravitationalAccelerationModel&lt; Eigen::Vector3d &gt; &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__direct__gravity__acceleration_3_01gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel_01_4" prot="public">tudat::is_direct_gravity_acceleration&lt; gravitation::SphericalHarmonicsGravitationalAccelerationModel &gt;</innerclass>
+    <innerclass refid="structtudat_1_1is__direct__gravity__acceleration_3_01gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_01_4" prot="public">tudat::is_direct_gravity_acceleration&lt; gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel &gt;</innerclass>
+    <innerclass refid="classtudat_1_1SurfaceGeometry" prot="public">tudat::SurfaceGeometry</innerclass>
+    <innernamespace refid="namespacetudat_1_1acceleration__partials">tudat::acceleration_partials</innernamespace>
+    <innernamespace refid="namespacetudat_1_1aerodynamics">tudat::aerodynamics</innernamespace>
+    <innernamespace refid="namespacetudat_1_1basic__astrodynamics">tudat::basic_astrodynamics</innernamespace>
+    <innernamespace refid="namespacetudat_1_1basic__mathematics">tudat::basic_mathematics</innernamespace>
+    <innernamespace refid="namespacetudat_1_1celestial__body__constants">tudat::celestial_body_constants</innernamespace>
+    <innernamespace refid="namespacetudat_1_1circular__restricted__three__body__problem">tudat::circular_restricted_three_body_problem</innernamespace>
+    <innernamespace refid="namespacetudat_1_1coordinate__conversions">tudat::coordinate_conversions</innernamespace>
+    <innernamespace refid="namespacetudat_1_1earth__orientation">tudat::earth_orientation</innernamespace>
+    <innernamespace refid="namespacetudat_1_1electromagnetism">tudat::electromagnetism</innernamespace>
+    <innernamespace refid="namespacetudat_1_1ephemerides">tudat::ephemerides</innernamespace>
+    <innernamespace refid="namespacetudat_1_1estimatable__parameters">tudat::estimatable_parameters</innernamespace>
+    <innernamespace refid="namespacetudat_1_1filters">tudat::filters</innernamespace>
+    <innernamespace refid="namespacetudat_1_1geometric__shapes">tudat::geometric_shapes</innernamespace>
+    <innernamespace refid="namespacetudat_1_1gravitation">tudat::gravitation</innernamespace>
+    <innernamespace refid="namespacetudat_1_1ground__stations">tudat::ground_stations</innernamespace>
+    <innernamespace refid="namespacetudat_1_1input__output">tudat::input_output</innernamespace>
+    <innernamespace refid="namespacetudat_1_1interpolators">tudat::interpolators</innernamespace>
+    <innernamespace refid="namespacetudat_1_1is__eigen__matrix__detail">tudat::is_eigen_matrix_detail</innernamespace>
+    <innernamespace refid="namespacetudat_1_1json__interface">tudat::json_interface</innernamespace>
+    <innernamespace refid="namespacetudat_1_1linear__algebra">tudat::linear_algebra</innernamespace>
+    <innernamespace refid="namespacetudat_1_1low__thrust__trajectories">tudat::low_thrust_trajectories</innernamespace>
+    <innernamespace refid="namespacetudat_1_1mathematical__constants">tudat::mathematical_constants</innernamespace>
+    <innernamespace refid="namespacetudat_1_1mission__geometry">tudat::mission_geometry</innernamespace>
+    <innernamespace refid="namespacetudat_1_1mission__segments">tudat::mission_segments</innernamespace>
+    <innernamespace refid="namespacetudat_1_1numerical__derivatives">tudat::numerical_derivatives</innernamespace>
+    <innernamespace refid="namespacetudat_1_1numerical__integrators">tudat::numerical_integrators</innernamespace>
+    <innernamespace refid="namespacetudat_1_1numerical__quadrature">tudat::numerical_quadrature</innernamespace>
+    <innernamespace refid="namespacetudat_1_1observation__models">tudat::observation_models</innernamespace>
+    <innernamespace refid="namespacetudat_1_1observation__partials">tudat::observation_partials</innernamespace>
+    <innernamespace refid="namespacetudat_1_1orbit__determination">tudat::orbit_determination</innernamespace>
+    <innernamespace refid="namespacetudat_1_1orbital__element__conversions">tudat::orbital_element_conversions</innernamespace>
+    <innernamespace refid="namespacetudat_1_1paths">tudat::paths</innernamespace>
+    <innernamespace refid="namespacetudat_1_1physical__constants">tudat::physical_constants</innernamespace>
+    <innernamespace refid="namespacetudat_1_1propagators">tudat::propagators</innernamespace>
+    <innernamespace refid="namespacetudat_1_1propulsion">tudat::propulsion</innernamespace>
+    <innernamespace refid="namespacetudat_1_1reference__frames">tudat::reference_frames</innernamespace>
+    <innernamespace refid="namespacetudat_1_1relativity">tudat::relativity</innernamespace>
+    <innernamespace refid="namespacetudat_1_1root__finders">tudat::root_finders</innernamespace>
+    <innernamespace refid="namespacetudat_1_1shape__based__methods">tudat::shape_based_methods</innernamespace>
+    <innernamespace refid="namespacetudat_1_1simulation__setup">tudat::simulation_setup</innernamespace>
+    <innernamespace refid="namespacetudat_1_1sofa__interface">tudat::sofa_interface</innernamespace>
+    <innernamespace refid="namespacetudat_1_1spice__interface">tudat::spice_interface</innernamespace>
+    <innernamespace refid="namespacetudat_1_1statistics">tudat::statistics</innernamespace>
+    <innernamespace refid="namespacetudat_1_1system__models">tudat::system_models</innernamespace>
+    <innernamespace refid="namespacetudat_1_1transfer__trajectories">tudat::transfer_trajectories</innernamespace>
+    <innernamespace refid="namespacetudat_1_1unit__conversions">tudat::unit_conversions</innernamespace>
+    <innernamespace refid="namespacetudat_1_1unit__tests">tudat::unit_tests</innernamespace>
+    <innernamespace refid="namespacetudat_1_1utilities">tudat::utilities</innernamespace>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="namespacetudat_1a6ac9c600d1f7b753780a81f9c35154c5" prot="public" static="no">
+        <templateparamlist>
+          <param>
+            <type>bool</type>
+            <declname>B</declname>
+            <defname>B</defname>
+          </param>
+          <param>
+            <type>typename T</type>
+            <defval>void</defval>
+          </param>
+        </templateparamlist>
+        <type>typename std::enable_if&lt; B, T &gt;::type</type>
+        <definition>using tudat::enable_if_t = typedef typename std::enable_if&lt;B, T&gt;::type</definition>
+        <argsstring></argsstring>
+        <name>enable_if_t</name>
+        <briefdescription>
+<para>Implementation of <computeroutput>std::enable_if_t</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Implementation of <computeroutput>std::enable_if_t</computeroutput>, from C++14. See: <ulink url="http://en.cppreference.com/w/cpp/types/enable_if">http://en.cppreference.com/w/cpp/types/enable_if</ulink>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="27" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="namespacetudat_1a2f86edf3035f9bb842e20e69971275d3" prot="public" static="yes" mutable="no">
+        <type>const long double</type>
+        <definition>const long double tudat::TIME_NORMALIZATION_TERM</definition>
+        <argsstring></argsstring>
+        <name>TIME_NORMALIZATION_TERM</name>
+        <initializer>= 3600.0L</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/timeType.h" line="24" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/timeType.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Tudat library namespace. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The Tudat library namespace. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicAcceleration.h" line="24" column="1"/>
+  </compounddef>
+</doxygen>

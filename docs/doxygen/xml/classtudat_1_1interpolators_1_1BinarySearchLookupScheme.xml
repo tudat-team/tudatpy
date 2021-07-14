@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1interpolators_1_1BinarySearchLookupScheme" kind="class" language="C++" prot="public">
+    <compoundname>tudat::interpolators::BinarySearchLookupScheme</compoundname>
+    <basecompoundref refid="classtudat_1_1interpolators_1_1LookUpScheme" prot="public" virt="non-virtual">tudat::interpolators::LookUpScheme&lt; IndependentVariableType &gt;</basecompoundref>
+    <includes refid="lookupScheme_8h" local="no">lookupScheme.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1BinarySearchLookupScheme_1aa2ef6246aeee011cb6ab3786d0386481" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::BinarySearchLookupScheme&lt; IndependentVariableType &gt;::BinarySearchLookupScheme</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentVariableValues)</argsstring>
+        <name>BinarySearchLookupScheme</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentVariableValues</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, used to set data vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, used to set data vector. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of independent variable values in which to perform lookup procedure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="191" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" bodystart="191" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1BinarySearchLookupScheme_1ae0a878950e354c57efb3fac7d402a47e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::BinarySearchLookupScheme&lt; IndependentVariableType &gt;::~BinarySearchLookupScheme</definition>
+        <argsstring>()</argsstring>
+        <name>~BinarySearchLookupScheme</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="200" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" bodystart="200" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1BinarySearchLookupScheme_1a9c91bd06d198e6a5dc2a15ad7314c91f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::interpolators::BinarySearchLookupScheme&lt; IndependentVariableType &gt;::findNearestLowerNeighbour</definition>
+        <argsstring>(const IndependentVariableType valueToLookup)</argsstring>
+        <name>findNearestLowerNeighbour</name>
+        <reimplements refid="classtudat_1_1interpolators_1_1LookUpScheme_1a7749ee1bb2df25690a6e040a3e61f646">findNearestLowerNeighbour</reimplements>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>valueToLookup</declname>
+        </param>
+        <briefdescription>
+<para>Find nearest left neighbour. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function finds nearest left neighbour of given value in independentVariableValues_. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>valueToLookup</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of which nearest neaighbour is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Index of entry in independentVariableValues_ vector which is nearest lower neighbour to valueToLookup. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="209" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" bodystart="209" bodyend="213"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Look-up scheme class for nearest left neighbour search using binary search algorithm. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Look-up scheme class for nearest left neighbour search using binary search algorithm. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of entries of vector in which lookup is to be performed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::interpolators::BinarySearchLookupScheme&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1BinarySearchLookupScheme"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::LookUpScheme&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1LookUpScheme"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::interpolators::BinarySearchLookupScheme&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1BinarySearchLookupScheme"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::LookUpScheme&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1LookUpScheme"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="179" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" bodystart="180" bodyend="215"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1interpolators_1_1BinarySearchLookupScheme_1aa2ef6246aeee011cb6ab3786d0386481" prot="public" virt="non-virtual"><scope>tudat::interpolators::BinarySearchLookupScheme</scope><name>BinarySearchLookupScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1BinarySearchLookupScheme_1a9c91bd06d198e6a5dc2a15ad7314c91f" prot="public" virt="virtual"><scope>tudat::interpolators::BinarySearchLookupScheme</scope><name>findNearestLowerNeighbour</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LookUpScheme_1a753a3db9ce3acfe0bbb4272155360ab7" prot="protected" virt="non-virtual"><scope>tudat::interpolators::BinarySearchLookupScheme</scope><name>independentVariableValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LookUpScheme_1a6e9a14c5e9a66966beba83a190f145eb" prot="public" virt="non-virtual"><scope>tudat::interpolators::BinarySearchLookupScheme</scope><name>LookUpScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1BinarySearchLookupScheme_1ae0a878950e354c57efb3fac7d402a47e" prot="public" virt="non-virtual"><scope>tudat::interpolators::BinarySearchLookupScheme</scope><name>~BinarySearchLookupScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LookUpScheme_1a61dad132b9b66c6a673d6afa811a516d" prot="public" virt="virtual"><scope>tudat::interpolators::BinarySearchLookupScheme</scope><name>~LookUpScheme</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

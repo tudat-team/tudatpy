@@ -1,0 +1,219 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature" kind="class" language="C++" prot="public">
+    <compoundname>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</compoundname>
+    <basecompoundref refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature" prot="public" virt="non-virtual">tudat::numerical_quadrature::NumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</basecompoundref>
+    <includes refid="trapezoidQuadrature_8h" local="no">trapezoidQuadrature.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+      <param>
+        <type>typename DependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a72438b8f74beedfc83912dc0f783d0a5" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; IndependentVariableType &gt;</type>
+        <definition>std::vector&lt; IndependentVariableType &gt; tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::independentVariables_</definition>
+        <argsstring></argsstring>
+        <name>independentVariables_</name>
+        <briefdescription>
+<para>Independent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="177" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1af6781d20af408199217abaefa2be8f7a" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; DependentVariableType &gt;</type>
+        <definition>std::vector&lt; DependentVariableType &gt; tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::dependentVariables_</definition>
+        <argsstring></argsstring>
+        <name>dependentVariables_</name>
+        <briefdescription>
+<para>Dependent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="180" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a373643c4a22bfc225d223cbdaeff37cf" prot="private" static="no" mutable="no">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::quadratureResult_</definition>
+        <argsstring></argsstring>
+        <name>quadratureResult_</name>
+        <briefdescription>
+<para>Computed value of the quadrature, as computed by last call to performQuadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="183" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a9f6d286ea475f0fcbea651652753befa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::TrapezoidNumericalQuadrature</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentVariables, const std::vector&lt; DependentVariableType &gt; &amp;dependentVariables)</argsstring>
+        <name>TrapezoidNumericalQuadrature</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>dependentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of independent variables at which dependentVariables are given </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of function for which the numerical quadrature is to be computed, given at independentVariables. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="129" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="129" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1af18d8bced503240cfd92315fc7f1b531" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::resetData</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentVariables, const std::vector&lt; DependentVariableType &gt; &amp;dependentVariables)</argsstring>
+        <name>resetData</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>dependentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the (in)dependent variable values. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the (in)dependent variable values. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of independent variables at which dependentVariables are given </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of function for which the numerical quadrature is to be computed, given at independentVariables. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="144" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="144" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a07f87eae9444f7bbafb53fb83318d356" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::getQuadrature</definition>
+        <argsstring>()</argsstring>
+        <name>getQuadrature</name>
+        <reimplements refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1ab47826b9612a50e5dfc1b1c17d0d0b1c">getQuadrature</reimplements>
+        <briefdescription>
+<para>Function to return computed value of the quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return computed value of the quadrature, as computed by last call to performQuadrature. <simplesect kind="return"><para>Function to return computed value of the quadrature, as computed by last call to performQuadrature. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="157" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="157" bodyend="160"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a2f675b21a3a8176da38893bd7632c702" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::performQuadrature</definition>
+        <argsstring>()</argsstring>
+        <name>performQuadrature</name>
+        <reimplements refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1a878612c6ed5f9f606ac537071ca67f15">performQuadrature</reimplements>
+        <briefdescription>
+<para>Function that is called to perform the numerical quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that is called to perform the numerical quadrature. Sets the result in the quadratureResult_ local variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="169" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="169" bodyend="172"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Trapezoid numerical quadrature wrapper class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Numerical method that uses the trapezoid method to compute definite integrals of a dataset. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::numerical_quadrature::NumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature"/>
+      </node>
+      <node id="1">
+        <label>tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::numerical_quadrature::NumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature"/>
+      </node>
+      <node id="1">
+        <label>tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="118" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="119" bodyend="185"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1af6781d20af408199217abaefa2be8f7a" prot="private" virt="non-virtual"><scope>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</scope><name>dependentVariables_</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a07f87eae9444f7bbafb53fb83318d356" prot="public" virt="virtual"><scope>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</scope><name>getQuadrature</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a72438b8f74beedfc83912dc0f783d0a5" prot="private" virt="non-virtual"><scope>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</scope><name>independentVariables_</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a2f675b21a3a8176da38893bd7632c702" prot="protected" virt="virtual"><scope>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</scope><name>performQuadrature</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a373643c4a22bfc225d223cbdaeff37cf" prot="private" virt="non-virtual"><scope>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</scope><name>quadratureResult_</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1af18d8bced503240cfd92315fc7f1b531" prot="public" virt="non-virtual"><scope>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</scope><name>resetData</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a9f6d286ea475f0fcbea651652753befa" prot="public" virt="non-virtual"><scope>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</scope><name>TrapezoidNumericalQuadrature</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1a602011cbb2341401407f5221bc016a79" prot="public" virt="virtual"><scope>tudat::numerical_quadrature::TrapezoidNumericalQuadrature</scope><name>~NumericalQuadrature</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,453 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase" kind="class" language="C++" prot="public">
+    <compoundname>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</compoundname>
+    <includes refid="sphericalHarmonicsGravityModelBase_8h" local="no">sphericalHarmonicsGravityModelBase.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateMatrix</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-type">
+      <memberdef kind="typedef" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" prot="protected" static="no">
+        <type>std::function&lt; StateMatrix() &gt;</type>
+        <definition>typedef std::function&lt; StateMatrix( ) &gt; tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::StateFunction</definition>
+        <argsstring></argsstring>
+        <name>StateFunction</name>
+        <briefdescription>
+<para>Typedef for a position-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="36" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a0e873e80f5b4654243def79fc89a8f9b" prot="protected" static="no" mutable="no">
+        <type>StateMatrix</type>
+        <definition>StateMatrix tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::positionOfBodySubjectToAcceleration</definition>
+        <argsstring></argsstring>
+        <name>positionOfBodySubjectToAcceleration</name>
+        <briefdescription>
+<para>Position of body subject to acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current position vector of body subject to gravitational acceleration in inertial frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="191" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a302efd9e7b078e67f3d475e613c96da1" prot="protected" static="no" mutable="no">
+        <type>const <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" kindref="member">StateFunction</ref></type>
+        <definition>const StateFunction tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::subjectPositionFunction</definition>
+        <argsstring></argsstring>
+        <name>subjectPositionFunction</name>
+        <briefdescription>
+<para>Pointer to function returning position of body subject to acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to function that returns the current position of the body subject to the gravitational acceleration. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="198" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a98ca240f9cff47946ad04b1c44b744f9" prot="protected" static="no" mutable="no">
+        <type>const std::function&lt; double() &gt;</type>
+        <definition>const std::function&lt; double( ) &gt; tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::gravitationalParameterFunction</definition>
+        <argsstring></argsstring>
+        <name>gravitationalParameterFunction</name>
+        <briefdescription>
+<para>Function returning a gravitational parameter [m^3 s^-2]. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function returning current gravitational parameter of body exerting acceleration [m^3 s^-2]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="204" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a6324fd00981daa580fab84e579de285f" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::gravitationalParameter</definition>
+        <argsstring></argsstring>
+        <name>gravitationalParameter</name>
+        <briefdescription>
+<para>Gravitational parameter [m^3 s^-2]. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current gravitational parameter of body exerting acceleration [m^3 s^-2]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="210" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7025348306abb91a3dd47a8583518de8" prot="protected" static="no" mutable="no">
+        <type>StateMatrix</type>
+        <definition>StateMatrix tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::positionOfBodyExertingAcceleration</definition>
+        <argsstring></argsstring>
+        <name>positionOfBodyExertingAcceleration</name>
+        <briefdescription>
+<para>Position of body exerting acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current position vector of body exerting gravitational acceleration in inertial frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="216" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a90738dd2d368872dc3ac4b163ab98ece" prot="protected" static="no" mutable="no">
+        <type>const <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" kindref="member">StateFunction</ref></type>
+        <definition>const StateFunction tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::sourcePositionFunction</definition>
+        <argsstring></argsstring>
+        <name>sourcePositionFunction</name>
+        <briefdescription>
+<para>Pointer to function returning position of body exerting acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to function that returns the current position of the body exerting the gravitational acceleration. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="223" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="223" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a103da0d449d50376af758f527bbe5131" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::isMutualAttractionUsed_</definition>
+        <argsstring></argsstring>
+        <name>isMutualAttractionUsed_</name>
+        <briefdescription>
+<para>Variable denoting whether mutual acceleration between bodies is included. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Variable denoting whether attraction from body undergoing acceleration on body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters, if the variable is true. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="232" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="232" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a693001dda5e9013564542cd78b585b84" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::SphericalHarmonicsGravitationalAccelerationModelBase</definition>
+        <argsstring>(const StateFunction positionOfBodySubjectToAccelerationFunction, const double aGravitationalParameter, const StateFunction positionOfBodyExertingAccelerationFunction, const bool isMutualAttractionUsed)</argsstring>
+        <name>SphericalHarmonicsGravitationalAccelerationModelBase</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" kindref="member">StateFunction</ref></type>
+          <declname>positionOfBodySubjectToAccelerationFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" kindref="member">StateFunction</ref></type>
+          <declname>positionOfBodyExertingAccelerationFunction</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isMutualAttractionUsed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor taking position of body subject to acceleration, variable gravitational parameter, and position of body exerting acceleration.</para>
+<para>Constructor taking a pointer to a function returning the position of the body subject to gravitational acceleration, a pointer to a function returning the gravitational parameter of the body exerting the acceleration, and a pointer to a function returning the position of the body exerting the gravitational acceleration (typically the central body). The constructor also updates all the internal members. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAccelerationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to function returning position of body subject to gravitational acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of body exerting gravitational acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAccelerationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to function returning position of body exerting gravitational acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isMutualAttractionUsed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether attraction from body undergoing acceleration on body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters, if the variable is true. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="58" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="58" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a91330db3d4ed181744cd9869b2459360" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::SphericalHarmonicsGravitationalAccelerationModelBase</definition>
+        <argsstring>(const StateFunction positionOfBodySubjectToAccelerationFunction, const std::function&lt; double() &gt; aGravitationalParameterFunction, const StateFunction positionOfBodyExertingAccelerationFunction, const bool isMutualAttractionUsed)</argsstring>
+        <name>SphericalHarmonicsGravitationalAccelerationModelBase</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" kindref="member">StateFunction</ref></type>
+          <declname>positionOfBodySubjectToAccelerationFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>aGravitationalParameterFunction</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" kindref="member">StateFunction</ref></type>
+          <declname>positionOfBodyExertingAccelerationFunction</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isMutualAttractionUsed</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor taking position of body subject to acceleration, variable gravitational parameter, and position of body exerting acceleration.</para>
+<para>Constructor taking a pointer to a function returning the position of the body subject to gravitational acceleration, a pointer to a function returning the gravitational parameter of the body exerting the acceleration, and a pointer to a function returning the position of the body exerting the gravitational acceleration (typically the central body). The constructor also updates all the internal members. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAccelerationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to function returning position of body subject to gravitational acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aGravitationalParameterFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to function returning gravitational parameter of body exerting gravitational acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAccelerationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to function returning position of body exerting gravitational acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isMutualAttractionUsed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether attraction from body undergoing acceleration on body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters, if the variable is true. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="88" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="88" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a4fed916f0154efda68edf6d40f4a08b8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::~SphericalHarmonicsGravitationalAccelerationModelBase</definition>
+        <argsstring>()</argsstring>
+        <name>~SphericalHarmonicsGravitationalAccelerationModelBase</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Base class virtual destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="103" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="103" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1ac6cc02edc064e51ab02fdb5cfdea9082" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::updateBaseMembers</definition>
+        <argsstring>()</argsstring>
+        <name>updateBaseMembers</name>
+        <briefdescription>
+<para>Update base class members. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates members of base class. In this case, the current position of the body subject to and exerting the gravitational acceleration, as well as the gravitational parameter are updated by calling the functions provided through the constructor. <simplesect kind="return"><para>True; this should be modified to return a flag indicating if the update was successful. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="113" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="113" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1acbdd1b69824c9f5af8419b84a14e1f85" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::getGravitationalParameterFunction</definition>
+        <argsstring>()</argsstring>
+        <name>getGravitationalParameterFunction</name>
+        <briefdescription>
+<para>Function to return the function returning the relevant gravitational parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the function returning the relevant gravitational parameter. <simplesect kind="return"><para>Function returning the gravitational parameter used in the computations. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="125" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="125" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1ace19aa33fe08f1f8bb6704fdd7bf9471" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; StateMatrix() &gt;</type>
+        <definition>std::function&lt; StateMatrix( ) &gt; tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::getStateFunctionOfBodyExertingAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getStateFunctionOfBodyExertingAcceleration</name>
+        <briefdescription>
+<para>Function to return the function returning position of body exerting acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the function returning position of body exerting acceleration. <simplesect kind="return"><para>Function returning position of body exerting acceleration. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="133" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="133" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7af29510400781d943d1f8a02b4fb240" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; StateMatrix() &gt;</type>
+        <definition>std::function&lt; StateMatrix( ) &gt; tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::getStateFunctionOfBodyUndergoingAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getStateFunctionOfBodyUndergoingAcceleration</name>
+        <briefdescription>
+<para>Function to return the function returning position of body subject to acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the function returning position of body subject to acceleration. <simplesect kind="return"><para>Function returning position of body subject to acceleration. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="141" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="141" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1aab2e6ab909d87470b03ab14eb77855db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::getIsMutualAttractionUsed</definition>
+        <argsstring>()</argsstring>
+        <name>getIsMutualAttractionUsed</name>
+        <briefdescription>
+<para>Function to return whether the mutual attraction is used. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return whether the mutual attraction is used. <simplesect kind="return"><para>Boolean defining whether the mutual attraction is used. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="149" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="149" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1aa834018ebef79d20ba7d09dcd8735b5b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::getCurrentGravitationalParameter</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentGravitationalParameter</name>
+        <briefdescription>
+<para>Function to return the current gravitational paramter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current gravitational paramter. Must be called after <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1ac6cc02edc064e51ab02fdb5cfdea9082" kindref="member">updateBaseMembers( )</ref>. <simplesect kind="return"><para>The value of the current gravitational parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="159" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="159" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1abcf8a1d45a47a52bbcb7ddc68ac70edc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateMatrix</type>
+        <definition>StateMatrix tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::getCurrentPositionOfBodySubjectToAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentPositionOfBodySubjectToAcceleration</name>
+        <briefdescription>
+<para>Function to return current position vector of body exerting gravitational acceleration in inertial frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return current position vector of body exerting gravitational acceleration in inertial frame. <simplesect kind="return"><para>Current position vector of body exerting gravitational acceleration in inertial frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="169" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="169" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1adf08c02b22b14aee63a1c5c6710245e4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateMatrix</type>
+        <definition>StateMatrix tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; StateMatrix &gt;::getCurrentPositionOfBodyExertingAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentPositionOfBodyExertingAcceleration</name>
+        <briefdescription>
+<para>Function to return current position vector of body undergoing gravitational acceleration in inertial frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return current position vector of body undergoing gravitational acceleration in inertial frame. <simplesect kind="return"><para>Current position vector of body undergoing gravitational acceleration in inertial frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="179" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="179" bodyend="182"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Template base class for spherical harmonics gravitational acceleration models. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This template class serves as the base class for the <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">SphericalHarmonicsGravitationalAccelerationModel</ref>, <ref refid="classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel" kindref="compound">CentralGravitationalAccelerationModel</ref>, <ref refid="classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel" kindref="compound">CentralJ2GravitationalAccelerationModel</ref>, <ref refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel" kindref="compound">CentralJ2J3GravitationalAccelerationModel</ref>, and <ref refid="classtudat_1_1gravitation_1_1CentralJ2J3J4GravitationalAccelerationModel" kindref="compound">CentralJ2J3J4GravitationalAccelerationModel</ref> classes. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>StateMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type used to store a state matrix. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" line="31" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h" bodystart="32" bodyend="236"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1aa834018ebef79d20ba7d09dcd8735b5b" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>getCurrentGravitationalParameter</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1adf08c02b22b14aee63a1c5c6710245e4" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>getCurrentPositionOfBodyExertingAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1abcf8a1d45a47a52bbcb7ddc68ac70edc" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>getCurrentPositionOfBodySubjectToAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1acbdd1b69824c9f5af8419b84a14e1f85" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>getGravitationalParameterFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1aab2e6ab909d87470b03ab14eb77855db" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>getIsMutualAttractionUsed</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1ace19aa33fe08f1f8bb6704fdd7bf9471" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>getStateFunctionOfBodyExertingAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7af29510400781d943d1f8a02b4fb240" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>getStateFunctionOfBodyUndergoingAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a6324fd00981daa580fab84e579de285f" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>gravitationalParameter</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a98ca240f9cff47946ad04b1c44b744f9" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>gravitationalParameterFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a103da0d449d50376af758f527bbe5131" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>isMutualAttractionUsed_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7025348306abb91a3dd47a8583518de8" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>positionOfBodyExertingAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a0e873e80f5b4654243def79fc89a8f9b" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>positionOfBodySubjectToAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a90738dd2d368872dc3ac4b163ab98ece" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>sourcePositionFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a693001dda5e9013564542cd78b585b84" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>SphericalHarmonicsGravitationalAccelerationModelBase</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a91330db3d4ed181744cd9869b2459360" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>SphericalHarmonicsGravitationalAccelerationModelBase</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>StateFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a302efd9e7b078e67f3d475e613c96da1" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>subjectPositionFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1ac6cc02edc064e51ab02fdb5cfdea9082" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>updateBaseMembers</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a4fed916f0154efda68edf6d40f4a08b8" prot="public" virt="virtual"><scope>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</scope><name>~SphericalHarmonicsGravitationalAccelerationModelBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

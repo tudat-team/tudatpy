@@ -1,0 +1,140 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Empirical\+Acceleration\+Coefficients\+Parameter Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter}\index{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}}
+
+
+Interface class for estimation of a body\textquotesingle{}s time-\/independent empirical accelerations.  
+
+
+
+
+{\ttfamily \#include $<$empirical\+Acceleration\+Coefficients.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Empirical\+Acceleration\+Coefficients\+Parameter\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_ab2353c7eda867dbed0ca7a3dc6e06225}{Empirical\+Acceleration\+Coefficients\+Parameter}} (const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration}{basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration}} $>$ $>$ empirical\+Acceleration, const std\+::string \&associated\+Body, const std\+::string \&central\+Body, const std\+::map$<$ basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration\+Components, std\+::vector$<$ basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration\+Functional\+Shapes $>$ $>$ components\+To\+Estimate)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_ada69ba8fa9fa5d456060817989495a06}\label{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_ada69ba8fa9fa5d456060817989495a06}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_ada69ba8fa9fa5d456060817989495a06}{$\sim$\+Empirical\+Acceleration\+Coefficients\+Parameter}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a54e901322c00dff181a2a941d6d7b1a3}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Get value of empirical acceleration components. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_af3c2e8a279c112d4d85e6bf1331bb618}{set\+Parameter\+Value}} (Eigen\+::\+Vector\+Xd parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Reset value of empirical acceleration components. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_aaf2dd846801e345b6999bcbe00ca8394}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a4b40db894a23b76f451995d4b76ac22c}\label{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a4b40db894a23b76f451995d4b76ac22c}} 
+std\+::string {\bfseries get\+Parameter\+Description} ()
+\item 
+std\+::map$<$ basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration\+Functional\+Shapes, std\+::vector$<$ int $>$ $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a1e731f609270b04b3e1a2ffbf8c56f09}{get\+Indices}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve list of components in empirical accelerations that are to be estimated. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for estimation of a body\textquotesingle{}s time-\/independent empirical accelerations. 
+
+Interface class for estimation of a body\textquotesingle{}s time-\/independent empirical accelerations. Interfaces the estimation with the acceleration components in the Empirical\+Acceleration class 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_ab2353c7eda867dbed0ca7a3dc6e06225}\label{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_ab2353c7eda867dbed0ca7a3dc6e06225}} 
+\index{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}!EmpiricalAccelerationCoefficientsParameter@{EmpiricalAccelerationCoefficientsParameter}}
+\index{EmpiricalAccelerationCoefficientsParameter@{EmpiricalAccelerationCoefficientsParameter}!tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}}
+\doxysubsubsection{\texorpdfstring{EmpiricalAccelerationCoefficientsParameter()}{EmpiricalAccelerationCoefficientsParameter()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Empirical\+Acceleration\+Coefficients\+Parameter\+::\+Empirical\+Acceleration\+Coefficients\+Parameter (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration}{basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration}} $>$ $>$}]{empirical\+Acceleration,  }\item[{const std\+::string \&}]{associated\+Body,  }\item[{const std\+::string \&}]{central\+Body,  }\item[{const std\+::map$<$ basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration\+Components, std\+::vector$<$ basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration\+Functional\+Shapes $>$ $>$}]{components\+To\+Estimate }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em empirical\+Acceleration} & Class defining properties of empirical acceleration used in propagation. \\
+\hline
+{\em associated\+Body} & Body for which empirical accelerations are estimated \\
+\hline
+{\em central\+Body} & Central body used for empirical accelerations \\
+\hline
+{\em components\+To\+Estimate} & List of empirical acceleration components that are to be estimated. Map key is functional shape of acceleration, value is list of components. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a1e731f609270b04b3e1a2ffbf8c56f09}\label{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a1e731f609270b04b3e1a2ffbf8c56f09}} 
+\index{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}!getIndices@{getIndices}}
+\index{getIndices@{getIndices}!tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}}
+\doxysubsubsection{\texorpdfstring{getIndices()}{getIndices()}}
+{\footnotesize\ttfamily std\+::map$<$ basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration\+Functional\+Shapes, std\+::vector$<$ int $>$ $>$ tudat\+::estimatable\+\_\+parameters\+::\+Empirical\+Acceleration\+Coefficients\+Parameter\+::get\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve list of components in empirical accelerations that are to be estimated. 
+
+Function to retrieve list of components in empirical accelerations that are to be estimated. \begin{DoxyReturn}{Returns}
+List of components in empirical accelerations that are to be estimated. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_aaf2dd846801e345b6999bcbe00ca8394}\label{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_aaf2dd846801e345b6999bcbe00ca8394}} 
+\index{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Empirical\+Acceleration\+Coefficients\+Parameter\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter. 
+
+Function to retrieve the size of the parameter \begin{DoxyReturn}{Returns}
+Size of parameter value. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a54e901322c00dff181a2a941d6d7b1a3}\label{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a54e901322c00dff181a2a941d6d7b1a3}} 
+\index{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::estimatable\+\_\+parameters\+::\+Empirical\+Acceleration\+Coefficients\+Parameter\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get value of empirical acceleration components. 
+
+Get value of empirical acceleration components \begin{DoxyReturn}{Returns}
+Value of empirical acceleration components 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_af3c2e8a279c112d4d85e6bf1331bb618}\label{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_af3c2e8a279c112d4d85e6bf1331bb618}} 
+\index{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter@{tudat::estimatable\_parameters::EmpiricalAccelerationCoefficientsParameter}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Empirical\+Acceleration\+Coefficients\+Parameter\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{Eigen\+::\+Vector\+Xd}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reset value of empirical acceleration components. 
+
+Reset value of empirical acceleration components 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New value of empirical acceleration components \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/empirical\+Acceleration\+Coefficients.\+h\end{DoxyCompactItemize}

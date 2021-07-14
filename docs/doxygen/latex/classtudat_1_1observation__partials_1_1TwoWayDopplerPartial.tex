@@ -1,0 +1,116 @@
+\hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial}{}\doxysection{tudat\+::observation\+\_\+partials\+::Two\+Way\+Doppler\+Partial Class Reference}
+\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial}\index{tudat::observation\_partials::TwoWayDopplerPartial@{tudat::observation\_partials::TwoWayDopplerPartial}}
+
+
+Class to compute the partial derivatives of an two-\/way range observation partial.  
+
+
+
+
+{\ttfamily \#include $<$two\+Way\+Doppler\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Two\+Way\+Doppler\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a17aac3870af2aa83b9ccdd5d6f884b8d}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a17aac3870af2aa83b9ccdd5d6f884b8d}} 
+typedef std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 1, Eigen\+::\+Dynamic $>$, double $>$ $>$ {\bfseries Two\+Way\+Doppler\+Partial\+Return\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a2911bd4f7466a62b27c006ef43076684}{Two\+Way\+Doppler\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerScaling}{Two\+Way\+Doppler\+Scaling}} $>$ two\+Way\+Doppler\+Scaler, const std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ $>$ \&doppler\+Partial\+List, const std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ $>$ \&range\+Partial\+List, const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier parameter\+Identifier, const int number\+Of\+Link\+Ends)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_ac06e226593330b47f82affaead0bd81f}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_ac06e226593330b47f82affaead0bd81f}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_ac06e226593330b47f82affaead0bd81f}{$\sim$\+Two\+Way\+Doppler\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Two\+Way\+Doppler\+Partial\+Return\+Type \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_adc0f014484c3583426632f5f3b1b7eac}{calculate\+Partial}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Of\+Fixed\+Time, const Eigen\+::\+Vector1d \&current\+Observation=Eigen\+::\+Vector1d\+::\+Constant(TUDAT\+\_\+\+NAN))
+\begin{DoxyCompactList}\small\item\em Function to calculate the observation partial(s) at required time and state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a5e3b673946a0ac49ee5eab3c391f5fc8}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a5e3b673946a0ac49ee5eab3c391f5fc8}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerScaling}{Two\+Way\+Doppler\+Scaling}} $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a5e3b673946a0ac49ee5eab3c391f5fc8}{two\+Way\+Doppler\+Scaler\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Scaling object used for mapping partials of one-\/way ranges to partials of observable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a3020019dad08e071f031913bf7fc2a62}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a3020019dad08e071f031913bf7fc2a62}} 
+std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a3020019dad08e071f031913bf7fc2a62}{doppler\+Partial\+List\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of one-\/way range partials per link index. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a88728cabcc9b58daece631728469f745}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a88728cabcc9b58daece631728469f745}} 
+std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ $>$\+::iterator \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a88728cabcc9b58daece631728469f745}{doppler\+Partial\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Predeclared iterator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_aa1e16b090c91e09f8a6e0a3b85ea9259}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_aa1e16b090c91e09f8a6e0a3b85ea9259}} 
+std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_aa1e16b090c91e09f8a6e0a3b85ea9259}{range\+Partial\+List\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of one-\/way range partials per link index. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a1fad13545d2a2f82dffde6d5a6c2ba9b}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a1fad13545d2a2f82dffde6d5a6c2ba9b}} 
+std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ $>$\+::iterator \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a1fad13545d2a2f82dffde6d5a6c2ba9b}{range\+Partial\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Predeclared iterator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a566b0f5296951e880ff48ba8eceef529}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a566b0f5296951e880ff48ba8eceef529}} 
+int \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a566b0f5296951e880ff48ba8eceef529}{number\+Of\+Link\+Ends\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of link ends in two-\/way observable. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the partial derivatives of an two-\/way range observation partial. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a2911bd4f7466a62b27c006ef43076684}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_a2911bd4f7466a62b27c006ef43076684}} 
+\index{tudat::observation\_partials::TwoWayDopplerPartial@{tudat::observation\_partials::TwoWayDopplerPartial}!TwoWayDopplerPartial@{TwoWayDopplerPartial}}
+\index{TwoWayDopplerPartial@{TwoWayDopplerPartial}!tudat::observation\_partials::TwoWayDopplerPartial@{tudat::observation\_partials::TwoWayDopplerPartial}}
+\doxysubsubsection{\texorpdfstring{TwoWayDopplerPartial()}{TwoWayDopplerPartial()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+Two\+Way\+Doppler\+Partial\+::\+Two\+Way\+Doppler\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerScaling}{Two\+Way\+Doppler\+Scaling}} $>$}]{two\+Way\+Doppler\+Scaler,  }\item[{const std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ $>$ \&}]{doppler\+Partial\+List,  }\item[{const std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ $>$ \&}]{range\+Partial\+List,  }\item[{const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier}]{parameter\+Identifier,  }\item[{const int}]{number\+Of\+Link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em two\+Way\+Doppler\+Scaler} & Scaling object used for mapping partials of one-\/way ranges to partials of observable \\
+\hline
+{\em doppler\+Partial\+List} & List of one-\/way range partials per link index. \\
+\hline
+{\em range\+Partial\+List} & List of one-\/way range per link index. \\
+\hline
+{\em parameter\+Identifier} & Id of parameter for which instance of class computes partial derivatives. \\
+\hline
+{\em number\+Of\+Link\+Ends} & Number of link ends in two-\/way observable \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_adc0f014484c3583426632f5f3b1b7eac}\label{classtudat_1_1observation__partials_1_1TwoWayDopplerPartial_adc0f014484c3583426632f5f3b1b7eac}} 
+\index{tudat::observation\_partials::TwoWayDopplerPartial@{tudat::observation\_partials::TwoWayDopplerPartial}!calculatePartial@{calculatePartial}}
+\index{calculatePartial@{calculatePartial}!tudat::observation\_partials::TwoWayDopplerPartial@{tudat::observation\_partials::TwoWayDopplerPartial}}
+\doxysubsubsection{\texorpdfstring{calculatePartial()}{calculatePartial()}}
+{\footnotesize\ttfamily Two\+Way\+Doppler\+Partial\+::\+Two\+Way\+Doppler\+Partial\+Return\+Type tudat\+::observation\+\_\+partials\+::\+Two\+Way\+Doppler\+Partial\+::calculate\+Partial (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Of\+Fixed\+Time,  }\item[{const Eigen\+::\+Vector1d \&}]{current\+Observation = {\ttfamily Eigen\+:\+:Vector1d\+:\+:Constant(~TUDAT\+\_\+NAN~)} }\end{DoxyParamCaption})}
+
+
+
+Function to calculate the observation partial(s) at required time and state. 
+
+Function to calculate the observation partial(s) at required time and state. State and time are typically obtained from evaluation of observation model. 
+\begin{DoxyParams}{Parameters}
+{\em states} & Link end states. Index maps to link end for a given Obsevable\+Type through get\+Link\+End\+Index function. \\
+\hline
+{\em times} & Link end time. \\
+\hline
+{\em link\+End\+Of\+Fixed\+Time} & Link end that is kept fixed when computing the observable. \\
+\hline
+{\em current\+Observation} & Value of the observation for which the partial is to be computed (default NaN for compatibility purposes) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of pairs containing partial values and associated times. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/two\+Way\+Doppler\+Partial.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/observation\+\_\+partials/two\+Way\+Doppler\+Partial.\+cpp\end{DoxyCompactItemize}

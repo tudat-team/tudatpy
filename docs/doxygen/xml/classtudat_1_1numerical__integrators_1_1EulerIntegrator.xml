@@ -1,0 +1,530 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1numerical__integrators_1_1EulerIntegrator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::numerical_integrators::EulerIntegrator</compoundname>
+    <basecompoundref refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" prot="public" virt="non-virtual">tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</basecompoundref>
+    <includes refid="euler_8h" local="no">euler.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename StateType</type>
+        <defval>Eigen::VectorXd</defval>
+      </param>
+      <param>
+        <type>typename StateDerivativeType</type>
+        <defval>Eigen::VectorXd</defval>
+      </param>
+      <param>
+        <type>typename TimeStepType</type>
+        <defval>IndependentVariableType</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a2c8237c92c141983162d39a002ede599" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" kindref="compound">numerical_integrators::ReinitializableNumericalIntegrator</ref>&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</type>
+        <definition>typedef numerical_integrators::ReinitializableNumericalIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt; tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::ReinitializableNumericalIntegratorBase</definition>
+        <argsstring></argsstring>
+        <name>ReinitializableNumericalIntegratorBase</name>
+        <briefdescription>
+<para>Typedef of the base class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of the base class with all template parameters filled in. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="52" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a868c812e8c32d247e52ca0800c6db198" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::StateDerivativeFunction</ref></type>
+        <definition>typedef ReinitializableNumericalIntegratorBase::NumericalIntegratorBase:: StateDerivativeFunction tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::StateDerivativeFunction</definition>
+        <argsstring></argsstring>
+        <name>StateDerivativeFunction</name>
+        <briefdescription>
+<para>Typedef to the state derivative function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef to the state derivative function inherited from the base class. <simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">NumericalIntegrator::StateDerivativeFunction</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="60" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a41ae773d51024c4388cba602ede31c58" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::stepSize_</definition>
+        <argsstring></argsstring>
+        <name>stepSize_</name>
+        <briefdescription>
+<para>Last used step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last used step size, passed to either <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" kindref="member">integrateTo()</ref> or <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a6ff2ab6fbde6cb97cfe77961963e4910" kindref="member">performIntegrationStep()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="210" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a796713263d79972f32b6a6d600cb34ee" prot="protected" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::currentIndependentVariable_</definition>
+        <argsstring></argsstring>
+        <name>currentIndependentVariable_</name>
+        <briefdescription>
+<para>Current independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current independent variable as computed by <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a6ff2ab6fbde6cb97cfe77961963e4910" kindref="member">performIntegrationStep()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="216" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a923da3b83abbfd6ac4ff9da7a9695eda" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::currentState_</definition>
+        <argsstring></argsstring>
+        <name>currentState_</name>
+        <briefdescription>
+<para>Current state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current state as computed by <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a6ff2ab6fbde6cb97cfe77961963e4910" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="222" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="222" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a19d04fd16d5ef487d089007f44315ee3" prot="protected" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::lastIndependentVariable_</definition>
+        <argsstring></argsstring>
+        <name>lastIndependentVariable_</name>
+        <briefdescription>
+<para>Last independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last independent variable value as computed by <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a6ff2ab6fbde6cb97cfe77961963e4910" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="228" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="228" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1acf89c8e5e22c6836f2479468a595216a" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::lastState_</definition>
+        <argsstring></argsstring>
+        <name>lastState_</name>
+        <briefdescription>
+<para>Last state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last state as computed by <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a6ff2ab6fbde6cb97cfe77961963e4910" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="234" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="234" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a35afaa235cbe71bd2ce8d26e25caeaae" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::EulerIntegrator</definition>
+        <argsstring>(const StateDerivativeFunction &amp;stateDerivativeFunction, const IndependentVariableType intervalStart, const StateType &amp;initialState)</argsstring>
+        <name>EulerIntegrator</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a868c812e8c32d247e52ca0800c6db198" kindref="member">StateDerivativeFunction</ref> &amp;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>intervalStart</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>initialState</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor, taking a state derivative function as argument. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State derivative function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>intervalStart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The start of the integration interval. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The initial state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" kindref="member">NumericalIntegrator::NumericalIntegrator</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="70" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="70" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a98665fae87c33745dbec97c32cea96e6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>TimeStepType</type>
+        <definition>virtual TimeStepType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getNextStepSize</definition>
+        <argsstring>() const</argsstring>
+        <name>getNextStepSize</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ab8b38ad002b10d53adf7b2c2282a86cc">getNextStepSize</reimplements>
+        <briefdescription>
+<para>Get step size of the next step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the step size of the next step. <simplesect kind="return"><para>Step size to be used for the next step. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="84" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="84" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a04c3ae01f670ff13f65f2d9b4cf251a9" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>StateType</type>
+        <definition>virtual StateType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getCurrentState</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a90b09d8d6a9b07d495bfabe9122748a1">getCurrentState</reimplements>
+        <briefdescription>
+<para>Get current state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current state of the Euler integrator. <simplesect kind="return"><para>Current integrated state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="91" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="91" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a4141828448fa22b753e009d129598a8a" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>IndependentVariableType</type>
+        <definition>virtual IndependentVariableType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getCurrentIndependentVariable</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentIndependentVariable</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a8ca318a39081842472ccd1a165ec06a4">getCurrentIndependentVariable</reimplements>
+        <briefdescription>
+<para>Returns the current independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current value of the independent variable of the integrator. <simplesect kind="return"><para>Current independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="98" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="98" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a6ff2ab6fbde6cb97cfe77961963e4910" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>StateType</type>
+        <definition>virtual StateType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::performIntegrationStep</definition>
+        <argsstring>(const TimeStepType stepSize)</argsstring>
+        <name>performIntegrationStep</name>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>stepSize</declname>
+        </param>
+        <briefdescription>
+<para>Perform a single Euler integration step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Performs a single Euler integration step using a step of size specified by stepSize. The initial state for the step is internally set to the final state of the previous step. In case this is the first step, the initial state is set to the initial state provided by the user. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The size of the step to take. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The state at the end of the interval. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="112" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="112" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a030f7c176b3b5d6a36f7d2c090be5e35" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::rollbackToPreviousState</definition>
+        <argsstring>()</argsstring>
+        <name>rollbackToPreviousState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a87d34e8535b55d430a511fb7e345dc2b">rollbackToPreviousState</reimplements>
+        <briefdescription>
+<para>Rollback the internal state to the last state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Performs rollback of the internal state to the last state. This function can only be called once after calling <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" kindref="member">integrateTo()</ref> or <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a6ff2ab6fbde6cb97cfe77961963e4910" kindref="member">performIntegrationStep()</ref> unless specified otherwise by implementations, and can not be called before any of these functions have been called. Will return true if the rollback was successful, and false otherwise. <simplesect kind="return"><para>True if the rollback was successful. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="135" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="135" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1aae8d5a143ea9c1be7412e99927768c63" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getPreviousIndependentVariable</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousIndependentVariable</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a5a1c2e20cb6ca8ddcb51bab3b1c5bc39">getPreviousIndependentVariable</reimplements>
+        <briefdescription>
+<para>Get previous independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the previoius value of the independent variable of the integrator. <simplesect kind="return"><para>Previous independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="152" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="152" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a01eeb078884ff53d5f3d9e1e629ee716" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getPreviousState</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a83ea0ccadf61e7d630ea692b4f8454a8">getPreviousState</reimplements>
+        <briefdescription>
+<para>Get previous state value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the previous value of the state. <simplesect kind="return"><para>Previous state </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="162" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="162" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a9371da197de1d30726b0987e66873094" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::modifyCurrentState</definition>
+        <argsstring>(const StateType &amp;newState, const bool allowRollback=false)</argsstring>
+        <name>modifyCurrentState</name>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>newState</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>allowRollback</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Replace the state with a new value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Replace the state with a new value. This allows for discrete jumps in the state, often used in simulations of discrete events. In astro, this relates to simulations of rocket staging, impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either set the flag to true, or store the state before calling this function the first time, and call it again with the initial state as parameter to revert to the state before the discrete change. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The value of the new state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>allowRollback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether roll-back should be allowed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="177" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="177" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a2a03428c00bb7ff54cfeaf4ec54408e6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::modifyCurrentIntegrationVariables</definition>
+        <argsstring>(const StateType &amp;newState, const IndependentVariableType newTime, const bool allowRollback=false)</argsstring>
+        <name>modifyCurrentIntegrationVariables</name>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>newState</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>newTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>allowRollback</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Modify the state and time for the current step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Modify the state and time for the current step. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The new state to set the current state to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>newTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The time to set the current time to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>allowRollback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether roll-back should be allowed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="193" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="193" bodyend="202"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class that implements the Euler integrator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class that implements the Euler, fixed order, fixed step size integrator. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>StateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the state. This type should support addition with StateDerivativeType </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>StateDerivativeType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the state derivative. This type should support multiplication with IndependentVariableType and doubles. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the independent variable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator</ref>. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::numerical_integrators::NumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::numerical_integrators::EulerIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::numerical_integrators::NumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="40" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="43" bodyend="235"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a796713263d79972f32b6a6d600cb34ee" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>currentIndependentVariable_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a923da3b83abbfd6ac4ff9da7a9695eda" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>currentState_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a35afaa235cbe71bd2ce8d26e25caeaae" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>EulerIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a4141828448fa22b753e009d129598a8a" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>getCurrentIndependentVariable</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a04c3ae01f670ff13f65f2d9b4cf251a9" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>getCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a98665fae87c33745dbec97c32cea96e6" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>getNextStepSize</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1aae8d5a143ea9c1be7412e99927768c63" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>getPreviousIndependentVariable</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a01eeb078884ff53d5f3d9e1e629ee716" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>getPreviousState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a04532c99a84b6a68247c7134fbdb43ed" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>getPropagationTerminationConditionReached</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abe7509347b34000520da61da0e090c47" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>getStateDerivativeFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>integrateTo</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a19d04fd16d5ef487d089007f44315ee3" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>lastIndependentVariable_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1acf89c8e5e22c6836f2479468a595216a" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>lastState_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a2a03428c00bb7ff54cfeaf4ec54408e6" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>modifyCurrentIntegrationVariables</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a1730c343a1fdb730ff4e576c1144657e" prot="public" virt="virtual" ambiguityscope="ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;::"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>modifyCurrentIntegrationVariables</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a9371da197de1d30726b0987e66873094" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>modifyCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a64080c154d27dc673784b289deb1eb57" prot="public" virt="virtual" ambiguityscope="ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;::"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>modifyCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>NumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1a156664f177b4a65af665415ed5b7f9e2" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>NumericalIntegratorBase</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a6ff2ab6fbde6cb97cfe77961963e4910" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>performIntegrationStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a125da80be4a16cd933707212caefe8a5" prot="public" virt="pure-virtual" ambiguityscope="ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;::"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>performIntegrationStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a3ca1dd274c2cafb901624c5e5600082a" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>propagationTerminationConditionReachedDuringStep_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1acda867c5c181bc9f00c8cab0d8b31a8b" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>propagationTerminationFunction_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1ac48067b658e3213d8cd7c4145dca9338" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>ReinitializableNumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a2c8237c92c141983162d39a002ede599" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>ReinitializableNumericalIntegratorBase</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a030f7c176b3b5d6a36f7d2c090be5e35" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>rollbackToPreviousState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aa1fa7e7a16150c2fd79e6daba5765644" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>setPropagationTerminationFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aeb76143b70710fa15543fc3df7d5e132" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>setStepSizeControl</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a868c812e8c32d247e52ca0800c6db198" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>StateDerivativeFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a9da0d5b84797f0f84783447c6b6cffcf" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>stateDerivativeFunction_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator_1a41ae773d51024c4388cba602ede31c58" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>stepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abaa3ce86883c7bc620b6473500557ccb" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>~NumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1ae5c26328c8f3017f136bb5c4bdb72eef" prot="public" virt="virtual"><scope>tudat::numerical_integrators::EulerIntegrator</scope><name>~ReinitializableNumericalIntegrator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

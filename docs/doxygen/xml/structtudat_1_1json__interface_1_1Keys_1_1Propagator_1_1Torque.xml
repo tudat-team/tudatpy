@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Torque" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Propagator::Torque</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Torque_1a741b286e14c2ff168089a93970de7ee8" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::Torque::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <initializer>= &quot;type&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="437" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="437" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="435" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="436" bodyend="438"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Torque_1a741b286e14c2ff168089a93970de7ee8" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::Torque</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1is__state__scalar" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::is_state_scalar</compoundname>
+    <templateparamlist>
+      <param>
+        <type>typename T</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1is__state__scalar_1a1dd0c5fc2aadc877b0930279bc3c16bc" prot="public" static="yes" mutable="no">
+        <type>const bool</type>
+        <definition>const bool tudat::is_state_scalar&lt; T &gt;::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <initializer>= false</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="57" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="56" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" bodystart="56" bodyend="58"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1is__state__scalar_1a1dd0c5fc2aadc877b0930279bc3c16bc" prot="public" virt="non-virtual"><scope>tudat::is_state_scalar</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

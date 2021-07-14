@@ -126,7 +126,6 @@ protected:
 };
 
 //! RotationModelSettings derived class for defining settings of a simple rotational ephemeris.
-//! @get_docstring(SimpleRotationModelSettings.__docstring__)
 class SimpleRotationModelSettings: public RotationModelSettings
 {
 public:
@@ -217,7 +216,6 @@ struct EopCorrectionSettings
 };
 
 //! Settings for creating a GCRS<->ITRS rotation model
-//! @get_docstring(GcrsToItrsRotationModelSettings.__docstring__)
 class GcrsToItrsRotationModelSettings: public RotationModelSettings
 {
 public:
@@ -352,7 +350,6 @@ private:
 
 //! RotationModelSettings derived class for defining settings of a synchronous rotational ephemeris (body-fixed x-axis always
 //! pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)
-//! @get_docstring(SynchronousRotationModelSettings.__docstring__)
 class SynchronousRotationModelSettings: public RotationModelSettings
 {
 public:

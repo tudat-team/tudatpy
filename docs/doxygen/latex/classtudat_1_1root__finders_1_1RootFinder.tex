@@ -1,0 +1,160 @@
+\hypertarget{classtudat_1_1root__finders_1_1RootFinder}{}\doxysection{tudat\+::root\+\_\+finders\+::Root\+Finder$<$ Data\+Type $>$ Class Template Reference}
+\label{classtudat_1_1root__finders_1_1RootFinder}\index{tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}}
+
+
+Root-\/finder class.  
+
+
+
+
+{\ttfamily \#include $<$root\+Finder.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}\label{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}} 
+typedef std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{basic\+\_\+mathematics\+::\+Function}}$<$ Data\+Type, Data\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}{Function\+Pointer}}
+\begin{DoxyCompactList}\small\item\em Typedef of the function whose root we have to determine. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_aa4219a6dfcc1e36985b65245a32ff673}\label{classtudat_1_1root__finders_1_1RootFinder_aa4219a6dfcc1e36985b65245a32ff673}} 
+typedef std\+::function$<$ bool(Data\+Type, Data\+Type, Data\+Type, Data\+Type, unsigned int) $>$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa4219a6dfcc1e36985b65245a32ff673}{Termination\+Function}}
+\begin{DoxyCompactList}\small\item\em Typedef of the function determining whether to terminate the root finding (i.\+e convergence) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_a9b965801f22c3ff27f3c34996bf092ad}{Root\+Finder}} (\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa4219a6dfcc1e36985b65245a32ff673}{Termination\+Function}} termination\+Function)
+\begin{DoxyCompactList}\small\item\em Constructor taking custom termination function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_aafc876b28429d8519b47778d9d5f56b8}\label{classtudat_1_1root__finders_1_1RootFinder_aafc876b28429d8519b47778d9d5f56b8}} 
+{\bfseries Root\+Finder} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1TerminationCondition}{Termination\+Condition}}$<$ Data\+Type $>$ $>$ termination\+Condition)
+\item 
+virtual \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_ad501cc8971bd751fcd6f971853ab2e60}{$\sim$\+Root\+Finder}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}{Function\+Pointer}} \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_a27434ca7484c4e45e77bdfe63f5a7252}{get\+Function}} ()
+\begin{DoxyCompactList}\small\item\em Get the function subject to the rootfinding algorithm. \end{DoxyCompactList}\item 
+virtual Data\+Type \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_a5009700f9daaefe9592520f41f0acd4a}{execute}} (const \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}{Function\+Pointer}} a\+Root\+Function, const Data\+Type initial\+Guess)=0
+\begin{DoxyCompactList}\small\item\em Find a root of the function provided as input. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}{Function\+Pointer}} \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_acd11d2e8941f562b59f756b6e65c4a8d}{root\+Function}}
+\begin{DoxyCompactList}\small\item\em Function to find the root of. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa4219a6dfcc1e36985b65245a32ff673}{Termination\+Function}} \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_ab90854fae8530fd91376d100b3a26818}{termination\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function specifying the termination conditions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Data\+Type = double$>$\newline
+class tudat\+::root\+\_\+finders\+::\+Root\+Finder$<$ Data\+Type $>$}
+
+Root-\/finder class. 
+
+A description of root-\/finding algorithms. These algorihms take a Function, and find a root using passed along data, such as starting point or a solution bracket. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Data\+Type} & Data type used to represent floating-\/point values. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_a9b965801f22c3ff27f3c34996bf092ad}\label{classtudat_1_1root__finders_1_1RootFinder_a9b965801f22c3ff27f3c34996bf092ad}} 
+\index{tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}!RootFinder@{RootFinder}}
+\index{RootFinder@{RootFinder}!tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}}
+\doxysubsubsection{\texorpdfstring{RootFinder()}{RootFinder()}}
+{\footnotesize\ttfamily template$<$typename Data\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder}{tudat\+::root\+\_\+finders\+::\+Root\+Finder}}$<$ Data\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder}{Root\+Finder}} (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa4219a6dfcc1e36985b65245a32ff673}{Termination\+Function}}}]{termination\+Function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor taking custom termination function. 
+
+Constructor taking custom termination function. 
+\begin{DoxyParams}{Parameters}
+{\em termination\+Function} & The function specifying the termination conditions of the root-\/finding process \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+Root\+Finder\+Core\+::termination\+Function\+\_\+ 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_ad501cc8971bd751fcd6f971853ab2e60}\label{classtudat_1_1root__finders_1_1RootFinder_ad501cc8971bd751fcd6f971853ab2e60}} 
+\index{tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}!````~RootFinder@{$\sim$RootFinder}}
+\index{````~RootFinder@{$\sim$RootFinder}!tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}}
+\doxysubsubsection{\texorpdfstring{$\sim$RootFinder()}{~RootFinder()}}
+{\footnotesize\ttfamily template$<$typename Data\+Type  = double$>$ \\
+virtual \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder}{tudat\+::root\+\_\+finders\+::\+Root\+Finder}}$<$ Data\+Type $>$\+::$\sim$\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder}{Root\+Finder}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Default destructor. 
+
+Default destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_a5009700f9daaefe9592520f41f0acd4a}\label{classtudat_1_1root__finders_1_1RootFinder_a5009700f9daaefe9592520f41f0acd4a}} 
+\index{tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}!execute@{execute}}
+\index{execute@{execute}!tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}}
+\doxysubsubsection{\texorpdfstring{execute()}{execute()}}
+{\footnotesize\ttfamily template$<$typename Data\+Type  = double$>$ \\
+virtual Data\+Type \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder}{tudat\+::root\+\_\+finders\+::\+Root\+Finder}}$<$ Data\+Type $>$\+::execute (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}{Function\+Pointer}}}]{a\+Root\+Function,  }\item[{const Data\+Type}]{initial\+Guess }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Find a root of the function provided as input. 
+
+Find a root of the function provided as input, using the termination function set by the constructor and the technique specified in the derived class 
+\begin{DoxyParams}{Parameters}
+{\em a\+Root\+Function} & Function to find root of. \\
+\hline
+{\em initial\+Guess} & The initial guess of the root. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Convergence\+Exeption} & If the solution does not converge to a root value. \\
+\hline
+\end{DoxyExceptions}
+\begin{DoxyReturn}{Returns}
+Root of the root\+Function that is found 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_a27434ca7484c4e45e77bdfe63f5a7252}\label{classtudat_1_1root__finders_1_1RootFinder_a27434ca7484c4e45e77bdfe63f5a7252}} 
+\index{tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}!getFunction@{getFunction}}
+\index{getFunction@{getFunction}!tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}}
+\doxysubsubsection{\texorpdfstring{getFunction()}{getFunction()}}
+{\footnotesize\ttfamily template$<$typename Data\+Type  = double$>$ \\
+const \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}{Function\+Pointer}} \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder}{tudat\+::root\+\_\+finders\+::\+Root\+Finder}}$<$ Data\+Type $>$\+::get\+Function (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the function subject to the rootfinding algorithm. 
+
+Returns the function subject to the rootfinding algorithm. \begin{DoxyReturn}{Returns}
+root\+Function Pointer to the function subject to the rootfinding algorithm. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_acd11d2e8941f562b59f756b6e65c4a8d}\label{classtudat_1_1root__finders_1_1RootFinder_acd11d2e8941f562b59f756b6e65c4a8d}} 
+\index{tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}!rootFunction@{rootFunction}}
+\index{rootFunction@{rootFunction}!tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}}
+\doxysubsubsection{\texorpdfstring{rootFunction}{rootFunction}}
+{\footnotesize\ttfamily template$<$typename Data\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa475b6033744e7b0e6bb2f1be1721145}{Function\+Pointer}} \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder}{tudat\+::root\+\_\+finders\+::\+Root\+Finder}}$<$ Data\+Type $>$\+::root\+Function\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Function to find the root of. 
+
+The root-\/finder tries to find a root of this function. \mbox{\Hypertarget{classtudat_1_1root__finders_1_1RootFinder_ab90854fae8530fd91376d100b3a26818}\label{classtudat_1_1root__finders_1_1RootFinder_ab90854fae8530fd91376d100b3a26818}} 
+\index{tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}!terminationFunction\_@{terminationFunction\_}}
+\index{terminationFunction\_@{terminationFunction\_}!tudat::root\_finders::RootFinder$<$ DataType $>$@{tudat::root\_finders::RootFinder$<$ DataType $>$}}
+\doxysubsubsection{\texorpdfstring{terminationFunction\_}{terminationFunction\_}}
+{\footnotesize\ttfamily template$<$typename Data\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder_aa4219a6dfcc1e36985b65245a32ff673}{Termination\+Function}} \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinder}{tudat\+::root\+\_\+finders\+::\+Root\+Finder}}$<$ Data\+Type $>$\+::termination\+Function\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Function specifying the termination conditions. 
+
+The rootfinder will continue improving the solution of the root until the termination function returns true. The five input variables of the Termination\+Function typedef are\+: current root value; previous root value; current function value; previous function value; number of iterations. Its output is true if the algorithm is to terminate, false otherwise. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/root\+\_\+finders/root\+Finder.\+h\end{DoxyCompactItemize}

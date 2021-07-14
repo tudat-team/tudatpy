@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1simulation__setup_1_1BodySettings" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::BodySettings</compoundname>
+    <includes refid="createBodies_8h" local="no">createBodies.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1a3910f77d120039ce365c3840b696762e" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::BodySettings::constantMass</definition>
+        <argsstring></argsstring>
+        <name>constantMass</name>
+        <initializer>= TUDAT_NAN</initializer>
+        <briefdescription>
+<para>Constant mass. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="44" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1a2f4a14bdd31a977e32fb206c8bb048ca" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AtmosphereSettings &gt; tudat::simulation_setup::BodySettings::atmosphereSettings</definition>
+        <argsstring></argsstring>
+        <name>atmosphereSettings</name>
+        <briefdescription>
+<para>Settings for the atmosphere model that the body is to contain. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="47" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1a0ee7f34f33a0c1a1e1d30562db3ab917" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" kindref="compound">EphemerisSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; EphemerisSettings &gt; tudat::simulation_setup::BodySettings::ephemerisSettings</definition>
+        <argsstring></argsstring>
+        <name>ephemerisSettings</name>
+        <briefdescription>
+<para>Settings for the ephemeris model that the body is to contain. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="50" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1a50f2d608d48545b1f310a0d733190b11" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings" kindref="compound">GravityFieldSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; GravityFieldSettings &gt; tudat::simulation_setup::BodySettings::gravityFieldSettings</definition>
+        <argsstring></argsstring>
+        <name>gravityFieldSettings</name>
+        <briefdescription>
+<para>Settings for the gravity field model that the body is to contain. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="53" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1a6f7993ea5656f6b145f4cea2887023e5" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1RotationModelSettings" kindref="compound">RotationModelSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; RotationModelSettings &gt; tudat::simulation_setup::BodySettings::rotationModelSettings</definition>
+        <argsstring></argsstring>
+        <name>rotationModelSettings</name>
+        <briefdescription>
+<para>Settings for the rotation model that the body is to contain. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="56" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1a3ee11a34d99b4219622a54640b9ba5dd" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1BodyShapeSettings" kindref="compound">BodyShapeSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BodyShapeSettings &gt; tudat::simulation_setup::BodySettings::shapeModelSettings</definition>
+        <argsstring></argsstring>
+        <name>shapeModelSettings</name>
+        <briefdescription>
+<para>Settings for the shape model that the body is to contain. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="59" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1a97f9e95d58ab26ecb9e9455ab28c918f" prot="public" static="no" mutable="no">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings" kindref="compound">RadiationPressureInterfaceSettings</ref> &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::shared_ptr&lt; RadiationPressureInterfaceSettings &gt; &gt; tudat::simulation_setup::BodySettings::radiationPressureSettings</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureSettings</name>
+        <briefdescription>
+<para>Settings for the radiations pressure interfaces that the body is to contain (source body as key). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="63" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1abd0f747b550eb1ce22a8232b849e744a" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings" kindref="compound">AerodynamicCoefficientSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AerodynamicCoefficientSettings &gt; tudat::simulation_setup::BodySettings::aerodynamicCoefficientSettings</definition>
+        <argsstring></argsstring>
+        <name>aerodynamicCoefficientSettings</name>
+        <briefdescription>
+<para>Settings for the aerodynamic coefficients that the body is to contain. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="66" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1ae7d1e5f3c342f0df6771669ccdc43368" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1GravityFieldVariationSettings" kindref="compound">GravityFieldVariationSettings</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; GravityFieldVariationSettings &gt; &gt; tudat::simulation_setup::BodySettings::gravityFieldVariationSettings</definition>
+        <argsstring></argsstring>
+        <name>gravityFieldVariationSettings</name>
+        <briefdescription>
+<para>Settings for variations of the gravity field of the body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="69" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1simulation__setup_1_1BodySettings_1a38b65a9ff84e0e0e1938847b37962c76" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1GroundStationSettings" kindref="compound">GroundStationSettings</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; GroundStationSettings &gt; &gt; tudat::simulation_setup::BodySettings::groundStationSettings</definition>
+        <argsstring></argsstring>
+        <name>groundStationSettings</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="71" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Struct holding settings for a body to be created. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Struct holding settings for a body to be created. From the settings, a <ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> object is created by the createBodies function. Default values can be generated from the function in <ref refid="defaultBodies_8h_source" kindref="compound">defaultBodies.h</ref>. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" line="41" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h" bodystart="42" bodyend="73"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1abd0f747b550eb1ce22a8232b849e744a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>aerodynamicCoefficientSettings</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1a2f4a14bdd31a977e32fb206c8bb048ca" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>atmosphereSettings</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1a3910f77d120039ce365c3840b696762e" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>constantMass</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1a0ee7f34f33a0c1a1e1d30562db3ab917" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>ephemerisSettings</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1a50f2d608d48545b1f310a0d733190b11" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>gravityFieldSettings</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1ae7d1e5f3c342f0df6771669ccdc43368" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>gravityFieldVariationSettings</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1a38b65a9ff84e0e0e1938847b37962c76" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>groundStationSettings</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1a97f9e95d58ab26ecb9e9455ab28c918f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>radiationPressureSettings</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1a6f7993ea5656f6b145f4cea2887023e5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>rotationModelSettings</name></member>
+      <member refid="structtudat_1_1simulation__setup_1_1BodySettings_1a3ee11a34d99b4219622a54640b9ba5dd" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BodySettings</scope><name>shapeModelSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

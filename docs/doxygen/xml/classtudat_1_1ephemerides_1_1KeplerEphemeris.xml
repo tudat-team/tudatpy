@@ -1,0 +1,384 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1ephemerides_1_1KeplerEphemeris" kind="class" language="C++" prot="public">
+    <compoundname>tudat::ephemerides::KeplerEphemeris</compoundname>
+    <basecompoundref refid="classtudat_1_1ephemerides_1_1Ephemeris" prot="public" virt="non-virtual">tudat::ephemerides::Ephemeris</basecompoundref>
+    <includes refid="keplerEphemeris_8h" local="no">keplerEphemeris.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1ae54765e01bbeb5a01d76558bd85e3f59" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::ephemerides::KeplerEphemeris::initialStateInKeplerianElements_</definition>
+        <argsstring></argsstring>
+        <name>initialStateInKeplerianElements_</name>
+        <briefdescription>
+<para>Kepler elements at time epochOfInitialState. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="82" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a92e8dd6db3045e558f0041b371452061" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::KeplerEphemeris::semiLatusRectum_</definition>
+        <argsstring></argsstring>
+        <name>semiLatusRectum_</name>
+        <briefdescription>
+<para>Semi-latus rectum of orbit. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="85" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a60f1685f48a04e91af05fdfc415cdb92" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::KeplerEphemeris::initialMeanAnomaly_</definition>
+        <argsstring></argsstring>
+        <name>initialMeanAnomaly_</name>
+        <briefdescription>
+<para>Mean anomaly at epochOfInitialState. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="88" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1add47bb29928ac53fae19f859abe30ef5" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::KeplerEphemeris::semiMajorAxis_</definition>
+        <argsstring></argsstring>
+        <name>semiMajorAxis_</name>
+        <briefdescription>
+<para>Semi-major axis of orbit. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="91" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a358821c81c777f4e7873000800807cf1" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::KeplerEphemeris::eccentricity_</definition>
+        <argsstring></argsstring>
+        <name>eccentricity_</name>
+        <briefdescription>
+<para>Eccentricity of orbit. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="94" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1aba0a2ad79b2c4f40421c952b7d8539f5" prot="private" static="no" mutable="no">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::ephemerides::KeplerEphemeris::rotationFromOrbitalPlane_</definition>
+        <argsstring></argsstring>
+        <name>rotationFromOrbitalPlane_</name>
+        <briefdescription>
+<para>Rotation from orbital plane to frame in which the orbit is defined. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="97" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1aff5a3e9b704ed788ce221d82f950c4bb" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1root__finders_1_1RootFinder" kindref="compound">root_finders::RootFinder</ref>&lt; double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; root_finders::RootFinder&lt; double &gt; &gt; tudat::ephemerides::KeplerEphemeris::rootFinder_</definition>
+        <argsstring></argsstring>
+        <name>rootFinder_</name>
+        <briefdescription>
+<para>Root finder used to convert mean to eccentric anomalies. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="100" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a0be81eaeb7261ab828c093a1d49c9884" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::KeplerEphemeris::epochOfInitialState_</definition>
+        <argsstring></argsstring>
+        <name>epochOfInitialState_</name>
+        <briefdescription>
+<para>Initial epoch from which propagation of Kepler orbit is performed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="103" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a49c6fc37bc97f9814b55501921744564" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::KeplerEphemeris::centralBodyGravitationalParameter_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameter_</name>
+        <briefdescription>
+<para>Gravitational parameter of central body about which the Kepler orbit is defined. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="106" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a8a48fdab609a2fb8d0810d0adaf2284e" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::ephemerides::KeplerEphemeris::isOrbitHyperbolic_</definition>
+        <argsstring></argsstring>
+        <name>isOrbitHyperbolic_</name>
+        <briefdescription>
+<para>Boolean denoting whether orbit is hyperbolic or elliptical (parabola not supported). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="109" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1ab2333125f79d592d29243b62200a2132" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::KeplerEphemeris::KeplerEphemeris</definition>
+        <argsstring>(const Eigen::Vector6d &amp;initialStateInKeplerianElements, const double epochOfInitialState, const double centralBodyGravitationalParameter, const std::string &amp;referenceFrameOrigin=&quot;SSB&quot;, const std::string &amp;referenceFrameOrientation=&quot;ECLIPJ2000&quot;, const double rootFinderAbsoluteTolerance=200.0 *std::numeric_limits&lt; double &gt;::epsilon(), const double rootFinderMaximumNumberOfIterations=1000.0)</argsstring>
+        <name>KeplerEphemeris</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>initialStateInKeplerianElements</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>epochOfInitialState</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceFrameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceFrameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>rootFinderAbsoluteTolerance</declname>
+          <defval>200.0 *std::numeric_limits&lt; double &gt;::epsilon()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>rootFinderMaximumNumberOfIterations</declname>
+          <defval>1000.0</defval>
+        </param>
+        <briefdescription>
+<para>Class constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Class constructor, sets the characteristics of the Kepler orbit and the root finder used for converting mean to eccentric anomalies. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialStateInKeplerianElements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kepler elements at time epochOfInitialState. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>epochOfInitialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which initialStateInKeplerianElements represents the Keplerian state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of the central body that is used in the computations. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrigin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Origin of reference frame (string identifier) (default SSB). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of reference frame (string identifier) (default ECLIPJ000 </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rootFinderAbsoluteTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Convergence tolerance for root finder used to convert mean to eccentric anomaly on each call to getCartesianState (default 200*epsilon). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rootFinderMaximumNumberOfIterations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum iteration for root finder used to convert mean to eccentric anomaly on each call to getCartesianState (default 1000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="61" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/keplerEphemeris.cpp" bodystart="24" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a75c1764cd02061e2de18b09202e479e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::ephemerides::KeplerEphemeris::getCartesianState</definition>
+        <argsstring>(const double secondsSinceEpoch)</argsstring>
+        <name>getCartesianState</name>
+        <reimplements refid="classtudat_1_1ephemerides_1_1Ephemeris_1a9ffa2e6b00aa190385d87266bc6ca091">getCartesianState</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Function to get state from ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris at given time, assuming a purely Keplerian orbit <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch at which ephemeris is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Keplerian orbit Cartesian state at given time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="76" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/keplerEphemeris.cpp" bodystart="100" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a9ffa2e6b00aa190385d87266bc6ca091" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>virtual Eigen::Vector6d tudat::ephemerides::Ephemeris::getCartesianState</definition>
+        <argsstring>(const double secondsSinceEpoch)=0</argsstring>
+        <name>getCartesianState</name>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Get state from ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris at given time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch at which ephemeris is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State from ephemeris. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="40" column="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> derived class that calculates the Cartesian position as a function of time assuming a Kepler orbit.</para>
+<para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> derived class that calculates the Cartesian position as a function of time assuming a Kepler orbit. In this class, both the Kepler propagation and conversion to Cartesian coordinates is done internally using precomputed values of the initial Kepler elements, thereby reducing computation time compared to succesively using the propagateKeplerOrbit or convertKeplerianToCartesianElements functions. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::ephemerides::KeplerEphemeris</label>
+        <link refid="classtudat_1_1ephemerides_1_1KeplerEphemeris"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::ephemerides::Ephemeris</label>
+        <link refid="classtudat_1_1ephemerides_1_1Ephemeris"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::ephemerides::KeplerEphemeris</label>
+        <link refid="classtudat_1_1ephemerides_1_1KeplerEphemeris"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::ephemerides::Ephemeris</label>
+        <link refid="classtudat_1_1ephemerides_1_1Ephemeris"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>referenceFrameOrientation_</edgelabel>
+          <edgelabel>referenceFrameOrigin_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" line="36" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerEphemeris.h" bodystart="37" bodyend="110"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a49c6fc37bc97f9814b55501921744564" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>centralBodyGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a358821c81c777f4e7873000800807cf1" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>eccentricity_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a84b2fe561ee07d270ed3cb5e0738b6cb" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>Ephemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a0be81eaeb7261ab828c093a1d49c9884" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>epochOfInitialState_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a2b4485db49528e74903e2448e9a277ea" prot="public" virt="virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getCartesianLongState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a0dc15b6ec16fea02fa3af1a7ffbdeefe" prot="public" virt="virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getCartesianLongStateFromExtendedTime</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a11508af5994ac79a571b8c7c53c2f01a" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getCartesianPosition</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a75c1764cd02061e2de18b09202e479e5" prot="public" virt="virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getCartesianState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a9ffa2e6b00aa190385d87266bc6ca091" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getCartesianState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a4953c48335220b8c1b46fcd6c408b2d3" prot="public" virt="virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getCartesianStateFromExtendedTime</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a1b18b53a45423bd1b17f0e0c0f459e32" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getCartesianVelocity</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a9c03fe22d322ffecda1f60d91021f842" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getReferenceFrameOrientation</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a6a81880bac3b4737ea522e232b40807b" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getReferenceFrameOrigin</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1aab6239fef97c6bc476ba7c0ea9c6e10b" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a74f968788b24caea12669f65f66b691a" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a0ec66ebe15e2bf0516448ff79cdd3012" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a60f1685f48a04e91af05fdfc415cdb92" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>initialMeanAnomaly_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1ae54765e01bbeb5a01d76558bd85e3f59" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>initialStateInKeplerianElements_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a8a48fdab609a2fb8d0810d0adaf2284e" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>isOrbitHyperbolic_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1ab2333125f79d592d29243b62200a2132" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>KeplerEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a423f4cfbc075f421a16b07bea53ca939" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>referenceFrameOrientation_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a69d6996ff459ef971f07b4f826528531" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>referenceFrameOrigin_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1aff5a3e9b704ed788ce221d82f950c4bb" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>rootFinder_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1aba0a2ad79b2c4f40421c952b7d8539f5" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>rotationFromOrbitalPlane_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1a92e8dd6db3045e558f0041b371452061" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>semiLatusRectum_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerEphemeris_1add47bb29928ac53fae19f859abe30ef5" prot="private" virt="non-virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>semiMajorAxis_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1ac9c54e2db132b832948e18267736fcdb" prot="public" virt="virtual"><scope>tudat::ephemerides::KeplerEphemeris</scope><name>~Ephemeris</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

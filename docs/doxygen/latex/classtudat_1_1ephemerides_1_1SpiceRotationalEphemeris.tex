@@ -1,0 +1,190 @@
+\hypertarget{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris}{}\doxysection{tudat\+::ephemerides\+::Spice\+Rotational\+Ephemeris Class Reference}
+\label{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris}\index{tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}}
+
+
+Class to directly calculate rotational state of body from spice kernel(s)  
+
+
+
+
+{\ttfamily \#include $<$spice\+Rotational\+Ephemeris.\+h$>$}
+
+Inheritance diagram for tudat\+::ephemerides\+::Spice\+Rotational\+Ephemeris\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_aa0b9c27bdb9bfd9f06f687f087f49382}{Spice\+Rotational\+Ephemeris}} (const std\+::string \&base\+Frame\+Orientation=\char`\"{}ECLIPJ2000\char`\"{}, const std\+::string \&target\+Frame\+Orientation=\char`\"{}\char`\"{}, const double reference\+Julian\+Day=basic\+\_\+astrodynamics\+::\+JULIAN\+\_\+\+DAY\+\_\+\+ON\+\_\+\+J2000)
+\begin{DoxyCompactList}\small\item\em Constructor for spice ephemeris. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_a9cea9f1e90a771668c8ed23ff7275e86}{$\sim$\+Spice\+Rotational\+Ephemeris}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Quaterniond \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_ab3ac9ee4633524110222c0afb4c27bb4}{get\+Rotation\+To\+Base\+Frame}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Function to calculate the rotation quaternion from target frame to original frame. \end{DoxyCompactList}\item 
+Eigen\+::\+Quaterniond \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_abef7ce85bb808b2f7471ef59e3d3ac9c}{get\+Rotation\+To\+Target\+Frame}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Function to calculate the rotation quaternion from original frame to target frame. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix3d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_ab99c74c3949251affc7829f28cd39671}{get\+Derivative\+Of\+Rotation\+To\+Base\+Frame}} (const double seconds\+Since\+Epoch)
+\item 
+Eigen\+::\+Matrix3d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_a0108d04795daa600b6614d9c48046ce0}{get\+Derivative\+Of\+Rotation\+To\+Target\+Frame}} (const double seconds\+Since\+Epoch)
+\item 
+void \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_af7a669375d65d14ac82b54e3a4b84ae1}{get\+Full\+Rotational\+Quantities\+To\+Target\+Frame}} (Eigen\+::\+Quaterniond \&current\+Rotation\+To\+Local\+Frame, Eigen\+::\+Matrix3d \&current\+Rotation\+To\+Local\+Frame\+Derivative, Eigen\+::\+Vector3d \&current\+Angular\+Velocity\+Vector\+In\+Global\+Frame, const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Function to calculate the full rotational state at given time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class to directly calculate rotational state of body from spice kernel(s) 
+
+Class to directly calculate rotational state of body from spice kernel(s). Note that if an object of this class is called often, it may become a performance bottleneck, using the an interpolated rotation will generally be more efficient, but at the expense of interpolation errors. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_aa0b9c27bdb9bfd9f06f687f087f49382}\label{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_aa0b9c27bdb9bfd9f06f687f087f49382}} 
+\index{tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}!SpiceRotationalEphemeris@{SpiceRotationalEphemeris}}
+\index{SpiceRotationalEphemeris@{SpiceRotationalEphemeris}!tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{SpiceRotationalEphemeris()}{SpiceRotationalEphemeris()}}
+{\footnotesize\ttfamily tudat\+::ephemerides\+::\+Spice\+Rotational\+Ephemeris\+::\+Spice\+Rotational\+Ephemeris (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{base\+Frame\+Orientation = {\ttfamily \char`\"{}ECLIPJ2000\char`\"{}},  }\item[{const std\+::string \&}]{target\+Frame\+Orientation = {\ttfamily \char`\"{}\char`\"{}},  }\item[{const double}]{reference\+Julian\+Day = {\ttfamily basic\+\_\+astrodynamics\+:\+:JULIAN\+\_\+DAY\+\_\+ON\+\_\+J2000} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor for spice ephemeris. 
+
+Constructor for spice ephemeris, sets frames between which rotation is determined. 
+\begin{DoxyParams}{Parameters}
+{\em base\+Frame\+Orientation} & Base frame identifier. \\
+\hline
+{\em target\+Frame\+Orientation} & Target frame identifier. \\
+\hline
+{\em reference\+Julian\+Day} & Reference julian day w.\+r.\+t. which ephemeris is evaluated. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_a9cea9f1e90a771668c8ed23ff7275e86}\label{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_a9cea9f1e90a771668c8ed23ff7275e86}} 
+\index{tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}!````~SpiceRotationalEphemeris@{$\sim$SpiceRotationalEphemeris}}
+\index{````~SpiceRotationalEphemeris@{$\sim$SpiceRotationalEphemeris}!tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{$\sim$SpiceRotationalEphemeris()}{~SpiceRotationalEphemeris()}}
+{\footnotesize\ttfamily tudat\+::ephemerides\+::\+Spice\+Rotational\+Ephemeris\+::$\sim$\+Spice\+Rotational\+Ephemeris (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Destructor. 
+
+Destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_ab99c74c3949251affc7829f28cd39671}\label{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_ab99c74c3949251affc7829f28cd39671}} 
+\index{tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}!getDerivativeOfRotationToBaseFrame@{getDerivativeOfRotationToBaseFrame}}
+\index{getDerivativeOfRotationToBaseFrame@{getDerivativeOfRotationToBaseFrame}!tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getDerivativeOfRotationToBaseFrame()}{getDerivativeOfRotationToBaseFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix3d tudat\+::ephemerides\+::\+Spice\+Rotational\+Ephemeris\+::get\+Derivative\+Of\+Rotation\+To\+Base\+Frame (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+Function to calculate the derivative of the rotation matrix from target frame to original frame.
+
+Function to calculate the derivative of the rotation matrix from target frame to original frame at specified time, calculated by SPICE sx\+\_\+form function. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated.. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Derivative of rotation from target (typically local) to original (typically global) frame at specified time.
+\end{DoxyReturn}
+Function to calculate the derivative of the rotation matrix from target frame to original frame. 
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_ae3d4f6abdc820c309328747397b25afc}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_a0108d04795daa600b6614d9c48046ce0}\label{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_a0108d04795daa600b6614d9c48046ce0}} 
+\index{tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}!getDerivativeOfRotationToTargetFrame@{getDerivativeOfRotationToTargetFrame}}
+\index{getDerivativeOfRotationToTargetFrame@{getDerivativeOfRotationToTargetFrame}!tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getDerivativeOfRotationToTargetFrame()}{getDerivativeOfRotationToTargetFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix3d tudat\+::ephemerides\+::\+Spice\+Rotational\+Ephemeris\+::get\+Derivative\+Of\+Rotation\+To\+Target\+Frame (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Function to calculate the derivative of the rotation matrix from original frame to target frame.
+
+Function to calculate the derivative of the rotation matrix from target frame to original frame at specified time, calculated by SPICE sx\+\_\+form function. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated.. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Derivative of rotation from original (typically global) to target (typically local) frame at specified time. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_a8749ef7c763d598973acf970c546c601}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_af7a669375d65d14ac82b54e3a4b84ae1}\label{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_af7a669375d65d14ac82b54e3a4b84ae1}} 
+\index{tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}!getFullRotationalQuantitiesToTargetFrame@{getFullRotationalQuantitiesToTargetFrame}}
+\index{getFullRotationalQuantitiesToTargetFrame@{getFullRotationalQuantitiesToTargetFrame}!tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getFullRotationalQuantitiesToTargetFrame()}{getFullRotationalQuantitiesToTargetFrame()}}
+{\footnotesize\ttfamily void tudat\+::ephemerides\+::\+Spice\+Rotational\+Ephemeris\+::get\+Full\+Rotational\+Quantities\+To\+Target\+Frame (\begin{DoxyParamCaption}\item[{Eigen\+::\+Quaterniond \&}]{current\+Rotation\+To\+Local\+Frame,  }\item[{Eigen\+::\+Matrix3d \&}]{current\+Rotation\+To\+Local\+Frame\+Derivative,  }\item[{Eigen\+::\+Vector3d \&}]{current\+Angular\+Velocity\+Vector\+In\+Global\+Frame,  }\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to calculate the full rotational state at given time. 
+
+Function to calculate the full rotational state at given time (rotation matrix, derivative of rotation matrix and angular velocity vector). 
+\begin{DoxyParams}{Parameters}
+{\em current\+Rotation\+To\+Local\+Frame} & Current rotation to local frame (returned by reference) \\
+\hline
+{\em current\+Rotation\+To\+Local\+Frame\+Derivative} & Current derivative of rotation matrix to local frame (returned by reference) \\
+\hline
+{\em current\+Angular\+Velocity\+Vector\+In\+Global\+Frame} & Current angular velocity vector, expressed in global frame (returned by reference) \\
+\hline
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated... \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_af26529c506f7eed75689b57e70c29b64}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_ab3ac9ee4633524110222c0afb4c27bb4}\label{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_ab3ac9ee4633524110222c0afb4c27bb4}} 
+\index{tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}!getRotationToBaseFrame@{getRotationToBaseFrame}}
+\index{getRotationToBaseFrame@{getRotationToBaseFrame}!tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getRotationToBaseFrame()}{getRotationToBaseFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Quaterniond tudat\+::ephemerides\+::\+Spice\+Rotational\+Ephemeris\+::get\+Rotation\+To\+Base\+Frame (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to calculate the rotation quaternion from target frame to original frame. 
+
+Function to calculate the rotation quaternion from target frame to original frame at specified time, calculated by call to pxform\+\_\+c spice function (through compute\+Rotation\+Quaternion\+Between\+Frames function) 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated... \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Rotation from target (typically local) to original (typically global) frame at specified time. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_a48c05e29f3a225433eb02feb09d1b77a}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_abef7ce85bb808b2f7471ef59e3d3ac9c}\label{classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_abef7ce85bb808b2f7471ef59e3d3ac9c}} 
+\index{tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}!getRotationToTargetFrame@{getRotationToTargetFrame}}
+\index{getRotationToTargetFrame@{getRotationToTargetFrame}!tudat::ephemerides::SpiceRotationalEphemeris@{tudat::ephemerides::SpiceRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getRotationToTargetFrame()}{getRotationToTargetFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Quaterniond tudat\+::ephemerides\+::\+Spice\+Rotational\+Ephemeris\+::get\+Rotation\+To\+Target\+Frame (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to calculate the rotation quaternion from original frame to target frame. 
+
+Function to calculate the rotation quaternion from original frame to target frame at specified time, calculated by call to pxform\+\_\+c spice function (through compute\+Rotation\+Quaternion\+Between\+Frames function) 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated.. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Rotation from original (typically global) to target (typically local) frame at specified time. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_a569eeb2b7416693589b6f2b4707932a7}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/interface/spice/spice\+Rotational\+Ephemeris.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/interface/spice/spice\+Rotational\+Ephemeris.\+cpp\end{DoxyCompactItemize}

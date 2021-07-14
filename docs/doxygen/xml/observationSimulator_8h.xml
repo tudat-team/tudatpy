@@ -1,0 +1,1148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="observationSimulator_8h" kind="file" language="C++">
+    <compoundname>observationSimulator.h</compoundname>
+    <includes refid="basics_2utilities_8h" local="yes">tudat/basics/utilities.h</includes>
+    <includes refid="observableTypes_8h" local="yes">tudat/astro/observation_models/observableTypes.h</includes>
+    <includes refid="observationModel_8h" local="yes">tudat/astro/observation_models/observationModel.h</includes>
+    <includes refid="observationViabilityCalculator_8h" local="yes">tudat/astro/observation_models/observationViabilityCalculator.h</includes>
+    <includes refid="linkTypeDefs_8h" local="yes">tudat/astro/observation_models/linkTypeDefs.h</includes>
+    <includedby refid="observationManager_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationManager.h</includedby>
+    <includedby refid="simulateObservations_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/simulateObservations.h</includedby>
+    <includedby refid="observation__models_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models.h</includedby>
+    <includedby refid="createObservationModel_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h</includedby>
+    <includedby refid="observationSimulator_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/observation_models/observationSimulator.cpp</includedby>
+    <incdepgraph>
+      <node id="10">
+        <label>tudat/astro/observation_models/observableTypes.h</label>
+        <link refid="observableTypes_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>functional</label>
+      </node>
+      <node id="28">
+        <label>limits</label>
+      </node>
+      <node id="47">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>boost/math/special_functions/atanh.hpp</label>
+      </node>
+      <node id="40">
+        <label>boost/date_time/gregorian/gregorian.hpp</label>
+      </node>
+      <node id="35">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="21">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>cmath</label>
+      </node>
+      <node id="53">
+        <label>tudat/math/root_finders/newtonRaphson.h</label>
+        <link refid="newtonRaphson_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>stdexcept</label>
+      </node>
+      <node id="64">
+        <label>tudat/astro/basic_astro/unifiedStateModelQuaternionElementConversions.h</label>
+        <link refid="unifiedStateModelQuaternionElementConversions_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="38">
+        <label>tudat/astro/ephemerides/rotationalEphemeris.h</label>
+        <link refid="rotationalEphemeris_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>string</label>
+      </node>
+      <node id="60">
+        <label>tudat/astro/basic_astro/orbitalElementConversions.h</label>
+        <link refid="orbitalElementConversions_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>map</label>
+      </node>
+      <node id="58">
+        <label>tudat/astro/basic_astro/geodeticCoordinateConversions.h</label>
+        <link refid="geodeticCoordinateConversions_8h_source"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>tudat/astro/basic_astro/missionGeometry.h</label>
+        <link refid="missionGeometry_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>tudat/math/basic/functionProxy.h</label>
+        <link refid="functionProxy_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="66">
+        <label>tudat/astro/basic_astro/unifiedStateModelExponentialMapElementConversions.h</label>
+        <link refid="unifiedStateModelExponentialMapElementConversions_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="67">
+        <label>tudat/astro/basic_astro/attitudeElementConversions.h</label>
+        <link refid="attitudeElementConversions_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>tudat/math/root_finders/createRootFinder.h</label>
+        <link refid="createRootFinder_8h_source"/>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>tudat/astro/basic_astro/bodyShapeModel.h</label>
+        <link refid="bodyShapeModel_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="13">
+        <label>tudat/astro/observation_models/observationModel.h</label>
+        <link refid="observationModel_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>tudat/astro/ground_stations/groundStationState.h</label>
+        <link refid="groundStationState_8h_source"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>tudat/math/basic/linearAlgebra.h</label>
+        <link refid="linearAlgebra_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="62">
+        <label>tudat/astro/basic_astro/stateVectorIndices.h</label>
+        <link refid="stateVectorIndices_8h_source"/>
+      </node>
+      <node id="32">
+        <label>tudat/astro/observation_models/observationViabilityCalculator.h</label>
+        <link refid="observationViabilityCalculator_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>tudat/math/root_finders/halleyRootFinder.h</label>
+        <link refid="halleyRootFinder_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>boost/math/special_functions/asinh.hpp</label>
+      </node>
+      <node id="39">
+        <label>tudat/astro/basic_astro/timeConversions.h</label>
+        <link refid="timeConversions_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>tudat/math/basic/nearestNeighbourSearch.h</label>
+        <link refid="nearestNeighbourSearch_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>vector</label>
+      </node>
+      <node id="50">
+        <label>tudat/math/root_finders/bisection.h</label>
+        <link refid="bisection_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="57">
+        <label>tudat/math/basic/basicFunction.h</label>
+        <link refid="basicFunction_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>tudat/astro/ground_stations/pointingAnglesCalculator.h</label>
+        <link refid="pointingAnglesCalculator_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>utility</label>
+      </node>
+      <node id="54">
+        <label>tudat/math/basic/convergenceException.h</label>
+        <link refid="convergenceException_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat/basics/utilities.h</label>
+        <link refid="basics_2utilities_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h</label>
+        <link refid="modifiedEquinoctialElementConversions_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>iostream</label>
+      </node>
+      <node id="43">
+        <label>tudat/astro/basic_astro/stateRepresentationConversions.h</label>
+        <link refid="stateRepresentationConversions_8h_source"/>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>tudat/astro/observation_models/observationBias.h</label>
+        <link refid="observationBias_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/astro/observation_models/linkTypeDefs.h</label>
+        <link refid="linkTypeDefs_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="68">
+        <label>tudat/astro/ground_stations/groundStation.h</label>
+        <link refid="groundStation_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h</label>
+        <link refid="convertMeanToEccentricAnomalies_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h</label>
+        <link refid="observationSimulator_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>Eigen/SVD</label>
+      </node>
+      <node id="65">
+        <label>tudat/astro/basic_astro/unifiedStateModelModifiedRodriguesParameterElementConversions.h</label>
+        <link refid="unifiedStateModelModifiedRodriguesParameterElementConversions_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>tudat/math/root_finders/secantRootFinder.h</label>
+        <link refid="secantRootFinder_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>type_traits</label>
+      </node>
+      <node id="24">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="7">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="27">
+        <label>complex</label>
+      </node>
+      <node id="18">
+        <label>algorithm</label>
+      </node>
+      <node id="8">
+        <label>memory</label>
+      </node>
+      <node id="29">
+        <label>tudat/math/interpolators/lookupScheme.h</label>
+        <link refid="lookupScheme_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/simulateObservations.h</label>
+        <link refid="simulateObservations_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationManager.h</label>
+        <link refid="observationManager_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h</label>
+        <link refid="createDifferencedOneWayRangeRatePartials_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationManager.h</label>
+        <link refid="createObservationManager_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/estimation/observation.h</label>
+        <link refid="observation_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models.h</label>
+        <link refid="observation__models_8h_source"/>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h</label>
+        <link refid="createObservationModel_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h</label>
+        <link refid="observationSimulator_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationPartials.h</label>
+        <link refid="createObservationPartials_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" prot="public">tudat::observation_models::ObservationSimulatorBase</innerclass>
+    <innerclass refid="classtudat_1_1observation__models_1_1ObservationSimulator" prot="public">tudat::observation_models::ObservationSimulator</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1observation__models">tudat::observation_models</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_OBSERVATIONSIMULATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_OBSERVATIONSIMULATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/basics/utilities.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/observation_models/observableTypes.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/observation_models/observationModel.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/observation_models/observationViabilityCalculator.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/observation_models/linkTypeDefs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">observation_models</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ObservationSize<sp/>=<sp/>1,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>ObservationScalarType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&gt;<sp/>simulateObservationWithCheck(</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeType&amp;<sp/>observationTime,</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ObservationModel&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>observationModel,</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;<sp/>linkViabilityCalculators<sp/>=</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Initialize<sp/>vector<sp/>with<sp/>reception<sp/>times.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>observationFeasible<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Vector6d<sp/>&gt;<sp/>vectorOfStates;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>vectorOfTimes;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>ObservationSize,<sp/>1<sp/>&gt;<sp/>calculatedObservation<sp/>=</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>observationModel-&gt;computeObservationsWithLinkEndData(</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>observationTime,<sp/>linkEndAssociatedWithTime,<sp/>vectorOfTimes,<sp/>vectorOfStates<sp/>);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>observationFeasible<sp/>=<sp/>isObservationViable(<sp/>vectorOfStates,<sp/>vectorOfTimes,<sp/>linkViabilityCalculators<sp/>);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Return<sp/>pair<sp/>of<sp/>simulated<sp/>ranges<sp/>and<sp/>reception<sp/>times.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>calculatedObservation,<sp/>observationFeasible<sp/>);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ObservationSize<sp/>=<sp/>1,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>ObservationScalarType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">simulateObservationsWithCheck(</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;&amp;<sp/>observationTimes,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ObservationModel&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>observationModel,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;<sp/>linkViabilityCalculators<sp/>=</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>TimeType,<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>ObservationSize,<sp/>1<sp/>&gt;<sp/>&gt;<sp/>observations;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>ObservationSize,<sp/>1<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&gt;<sp/>simulatedObservation;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>observationTimes.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>simulatedObservation<sp/>=<sp/>simulateObservationWithCheck&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;(</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>observationTimes.at(<sp/>i<sp/>),<sp/>observationModel,<sp/>linkEndAssociatedWithTime,<sp/>linkViabilityCalculators<sp/>);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>if<sp/>receiving<sp/>station<sp/>can<sp/>view<sp/>transmitting<sp/>station.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>simulatedObservation.second<sp/>)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>viable,<sp/>add<sp/>observable<sp/>and<sp/>time<sp/>to<sp/>vector<sp/>of<sp/>simulated<sp/>data.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>observations[<sp/>observationTimes[<sp/>i<sp/>]<sp/><sp/>]<sp/>=<sp/>simulatedObservation.first;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Return<sp/>pair<sp/>of<sp/>simulated<sp/>ranges<sp/>and<sp/>reception<sp/>times.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>utilities::createConcatenatedEigenMatrixFromMapValues(<sp/>observations<sp/>),</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>utilities::createVectorFromMapKeys(<sp/>observations<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ObservationSize<sp/>=<sp/>1,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>ObservationScalarType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/>std::pair&lt;<sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;,<sp/>LinkEndType<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">simulateObservationsWithCheckAndLinkEndIdOutput(</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;&amp;<sp/>observationTimes,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ObservationModel&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>observationModel,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;<sp/>linkViabilityCalculators<sp/>=</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>simulatedObservations<sp/>=</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>simulateObservationsWithCheck(<sp/>observationTimes,<sp/>observationModel,<sp/>linkEndAssociatedWithTime,<sp/>linkViabilityCalculators<sp/>);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>simulatedObservations.first,<sp/>std::make_pair(<sp/>simulatedObservations.second,<sp/>linkEndAssociatedWithTime<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>ObservationScalarType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="137" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kindref="compound">ObservationSimulatorBase</ref></highlight></codeline>
+<codeline lineno="138"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ac079d2d1cd42b07e74aacf62533f6f28" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ac079d2d1cd42b07e74aacf62533f6f28" kindref="member">ObservationSimulatorBase</ref>(</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>ObservableType<sp/>observableType<sp/>):</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae1c7c12fc87026c0c8328ed04f10c798" kindref="member">observableType_</ref>(<sp/>observableType<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ad52f049877949ec8ca9e4e7e69479e75" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ad52f049877949ec8ca9e4e7e69479e75" kindref="member">~ObservationSimulatorBase</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1aa95ee5346ad56a1fff76520142086c46" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>ObservableType<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1aa95ee5346ad56a1fff76520142086c46" kindref="member">getObservableType</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae1c7c12fc87026c0c8328ed04f10c798" kindref="member">observableType_</ref>;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1aad7bd1073d02404c117d984ce39409ac" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1aad7bd1073d02404c117d984ce39409ac" kindref="member">getObservationSize</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds&amp;<sp/>linkEnds<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a35e5fd2214d342991819fe4fbd659642" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a35e5fd2214d342991819fe4fbd659642" kindref="member">simulateObservation</ref>(</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeType<sp/>observationTime,</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds<sp/>linkEnds,</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>linkEndTimes,</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix&lt;<sp/>double,<sp/>6,<sp/>1<sp/>&gt;<sp/>&gt;&amp;<sp/>linkEndStates<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="202" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1afe9a274000df6656ecd291b077b4a8c8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1afe9a274000df6656ecd291b077b4a8c8" kindref="member">simulateObservations</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;&amp;<sp/>observationTimes,</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds<sp/>linkEnds,</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>checkTimes<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/>std::pair&lt;<sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;,<sp/>LinkEndType<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="218" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae670794e383f799abd99ebb382c22159" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae670794e383f799abd99ebb382c22159" kindref="member">simulateObservationsWithLinkEndId</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;&amp;<sp/>observationTimes,</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds<sp/>linkEnds,</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>checkTimes<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a9d47cab41af990d667b833397d199315" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a9d47cab41af990d667b833397d199315" kindref="member">setViabilityCalculators</ref>(</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>LinkEnds,<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;<sp/>&gt;&amp;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>viabilityCalculators<sp/>)</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" kindref="member">viabilityCalculators_</ref><sp/>=<sp/>viabilityCalculators;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a95ecdc26cceb6fdcecb80847104aaad2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a95ecdc26cceb6fdcecb80847104aaad2" kindref="member">getLinkViabilityCalculators</ref>(</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds&amp;<sp/>linkEnds<sp/>)</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" kindref="member">viabilityCalculators_</ref>.count(<sp/>linkEnds<sp/>)<sp/>&gt;<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" kindref="member">viabilityCalculators_</ref>.at(<sp/>linkEnds<sp/>);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;(<sp/>);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae1c7c12fc87026c0c8328ed04f10c798" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>ObservableType<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae1c7c12fc87026c0c8328ed04f10c798" kindref="member">observableType_</ref>;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262" refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>LinkEnds,<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" kindref="member">viabilityCalculators_</ref>;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ObservationSize,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>ObservationScalarType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="267" refid="classtudat_1_1observation__models_1_1ObservationSimulator" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kindref="compound">ObservationSimulatorBase</ref>&lt;<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kindref="compound">ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::observableType_</ref>;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a3dc6762090659f2ffc50a8b043eda4ee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a3dc6762090659f2ffc50a8b043eda4ee" kindref="member">ObservationSimulator</ref>(</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>ObservableType<sp/>observableType,</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>LinkEnds,<sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationModel" kindref="compound">ObservationModel</ref>&lt;<sp/>ObservationSize,</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>&gt;&amp;<sp/>observationModels<sp/>):</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kindref="compound">ObservationSimulatorBase</ref>&lt;<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;(<sp/>observableType<sp/>),<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>(<sp/>observationModels<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a8e867b460c824fd877ab12c1a812eb3d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a8e867b460c824fd877ab12c1a812eb3d" kindref="member">~ObservationSimulator</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a38e047f6a4bc54be0252296d169cf151" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a38e047f6a4bc54be0252296d169cf151" kindref="member">getObservationSize</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds&amp;<sp/>linkEnds<sp/>)</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.count(<sp/>linkEnds<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error,<sp/>could<sp/>not<sp/>find<sp/>observation<sp/>models<sp/>for<sp/>requested<sp/>link<sp/>ends&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.at(<sp/>linkEnds<sp/>)-&gt;getObservationSize(<sp/>);</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1ac278e14934c3a5a40f7dc9e7ca22fc70" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ObservationModel&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1ac278e14934c3a5a40f7dc9e7ca22fc70" kindref="member">getObservationModel</ref>(</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds<sp/>linkEnds<sp/>)</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.count(<sp/>linkEnds<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>in<sp/>observation<sp/>manager<sp/>when<sp/>getting<sp/>observation<sp/>model,<sp/>did<sp/>not<sp/>find<sp/>model<sp/>for<sp/>given<sp/>link<sp/>ends<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::to_string(<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.size(<sp/>)<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.at(<sp/>linkEnds<sp/>);</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>LinkEnds,<sp/>std::shared_ptr&lt;<sp/>ObservationModel&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="324" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a5c17c419662476b335475f8b16af376b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a5c17c419662476b335475f8b16af376b" kindref="member">getObservationModels</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a1c1031427d9a7a20642c8d142273302b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a1c1031427d9a7a20642c8d142273302b" kindref="member">simulateObservation</ref>(</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeType<sp/>observationTime,</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds<sp/>linkEnds,</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>linkEndTimes,</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix&lt;<sp/>double,<sp/>6,<sp/>1<sp/>&gt;<sp/>&gt;&amp;<sp/>linkEndStates<sp/>)</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.count(<sp/>linkEnds<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>simulating<sp/>observtion,<sp/>could<sp/>not<sp/>find<sp/>observation<sp/>model<sp/>for<sp/>given<sp/>linke<sp/>ends&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.at(<sp/>linkEnds<sp/>)-&gt;computeObservationsWithLinkEndData(</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>observationTime,<sp/>linkEndAssociatedWithTime,<sp/>linkEndTimes,<sp/>linkEndStates<sp/>);</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="369" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1aa628ab864de55cbf267fe436337e2888" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1aa628ab864de55cbf267fe436337e2888" kindref="member">simulateObservations</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;&amp;<sp/>observationTimes,</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds<sp/>linkEnds,</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>checkTimes<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"></highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.count(<sp/>linkEnds<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>simulating<sp/>observtions,<sp/>could<sp/>not<sp/>find<sp/>observation<sp/>model<sp/>for<sp/>given<sp/>linke<sp/>ends&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ObservationModel&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>selectedObservationModel<sp/>=</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>.at(<sp/>linkEnds<sp/>);</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;<sp/>currentLinkViabilityCalculators;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>checkTimes<sp/>==<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>this-&gt;<ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" kindref="member">viabilityCalculators_</ref>.count(<sp/>linkEnds<sp/>)<sp/>&gt;<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLinkViabilityCalculators<sp/>=<sp/>this-&gt;<ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" kindref="member">viabilityCalculators_</ref>.at(<sp/>linkEnds<sp/>);</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>simulateObservationsWithCheck&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;(</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>observationTimes,<sp/>selectedObservationModel,<sp/>linkEndAssociatedWithTime,<sp/>currentLinkViabilityCalculators<sp/>);</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394"><highlight class="normal"></highlight></codeline>
+<codeline lineno="403"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/>std::pair&lt;<sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;,<sp/>LinkEndType<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="404" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a31414eb9ec76784b0885c9cd8300c16b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a31414eb9ec76784b0885c9cd8300c16b" kindref="member">simulateObservationsWithLinkEndId</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;&amp;<sp/>observationTimes,</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEnds<sp/>linkEnds,</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>LinkEndType<sp/>linkEndAssociatedWithTime,</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>checkTimes<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>Eigen::Matrix&lt;<sp/>ObservationScalarType,<sp/>Eigen::Dynamic,<sp/>1<sp/>&gt;,<sp/>std::vector&lt;<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>simulatedObservations<sp/>=</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1aa628ab864de55cbf267fe436337e2888" kindref="member">simulateObservations</ref>(<sp/>observationTimes,<sp/>linkEnds,<sp/>linkEndAssociatedWithTime,<sp/>checkTimes<sp/>);</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>ObservationViabilityCalculator<sp/>&gt;<sp/>&gt;<sp/>currentLinkViabilityCalculators;</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>checkTimes<sp/>==<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>this-&gt;<ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" kindref="member">viabilityCalculators_</ref>.count(<sp/>linkEnds<sp/>)<sp/>&gt;<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentLinkViabilityCalculators<sp/>=<sp/>this-&gt;<ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" kindref="member">viabilityCalculators_</ref>.at(<sp/>linkEnds<sp/>);</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="416"><highlight class="normal"></highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>simulatedObservations.first,<sp/>std::make_pair(</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>simulatedObservations.second,<sp/>linkEndAssociatedWithTime<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"></highlight></codeline>
+<codeline lineno="421"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"></highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>LinkEnds,<sp/>std::shared_ptr&lt;<sp/>ObservationModel&lt;<sp/>ObservationSize,<sp/>ObservationScalarType,<sp/>TimeType<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="425" refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator_1adc6b16e00d9ef38a290d077f4ace2c9f" kindref="member">observationModels_</ref>;</highlight></codeline>
+<codeline lineno="426"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"></highlight></codeline>
+<codeline lineno="428"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kindref="compound">ObservationSimulatorBase&lt; double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 1, double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 2, double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="431"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 3, double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="432"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 6, double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"></highlight></codeline>
+<codeline lineno="434"><highlight class="normal"></highlight><highlight class="preprocessor">#if(<sp/>TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS<sp/>)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="435"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kindref="compound">ObservationSimulatorBase&lt; double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kindref="compound">ObservationSimulatorBase&lt; long double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kindref="compound">ObservationSimulatorBase&lt; long double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 1, double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="440"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 1, long double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="441"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 1, long double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="442"><highlight class="normal"></highlight></codeline>
+<codeline lineno="443"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 2, double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="444"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 2, long double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 2, long double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"></highlight></codeline>
+<codeline lineno="447"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 3, double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 3, long double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 3, long double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"></highlight></codeline>
+<codeline lineno="451"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 6, double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="452"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 6, long double, double &gt;</ref>;</highlight></codeline>
+<codeline lineno="453"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator&lt; 6, long double, Time &gt;</ref>;</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="455"><highlight class="normal"></highlight></codeline>
+<codeline lineno="456"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="457"><highlight class="normal"></highlight></codeline>
+<codeline lineno="458"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="459"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_OBSERVATIONSIMULATOR_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h"/>
+  </compounddef>
+</doxygen>

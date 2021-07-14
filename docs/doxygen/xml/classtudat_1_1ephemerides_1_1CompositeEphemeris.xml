@@ -1,0 +1,557 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1ephemerides_1_1CompositeEphemeris" kind="class" language="C++" prot="public">
+    <compoundname>tudat::ephemerides::CompositeEphemeris</compoundname>
+    <basecompoundref refid="classtudat_1_1ephemerides_1_1Ephemeris" prot="public" virt="non-virtual">tudat::ephemerides::Ephemeris</basecompoundref>
+    <includes refid="compositeEphemeris_8h" local="no">compositeEphemeris.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a70e4010d05963c8ff6ee9a918e10cee7" prot="public" static="no">
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::StateType</definition>
+        <argsstring></argsstring>
+        <name>StateType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="50" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a57432e383fe3b009689dedf8cbfa07c2" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::pair&lt; std::function&lt; StateType(const TimeType &amp;) &gt;, int &gt; &gt;</type>
+        <definition>std::vector&lt; std::pair&lt; std::function&lt; StateType( const TimeType&amp; ) &gt;, int &gt; &gt; tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::translationalEphemerides_</definition>
+        <argsstring></argsstring>
+        <name>translationalEphemerides_</name>
+        <briefdescription>
+<para>Vector of translational ephemeris functions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of translational ephemeris functions and addition (1) or subtraction (-1) indicator. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="312" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="312" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a3414959056434462f1874fb2beb407f6" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; StateType(const TimeType, const StateType &amp;) &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; StateType( const TimeType, const StateType&amp; ) &gt; &gt; tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::rotationalEphemerides_</definition>
+        <argsstring></argsstring>
+        <name>rotationalEphemerides_</name>
+        <briefdescription>
+<para>Vector of rotational ephemeris functions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of rotational ephemeris functions. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="318" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="318" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a175401ff74c66c479405b10796100703" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; bool &gt;</type>
+        <definition>std::vector&lt; bool &gt; tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::isCurrentEphemerisTranslational_</definition>
+        <argsstring></argsstring>
+        <name>isCurrentEphemerisTranslational_</name>
+        <briefdescription>
+<para>Vector indicating order of translational and rotational ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector indicating order of translational and rotational ephemeris (0 is first, highest is last) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="324" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="324" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a04c1001110e0ba8a7799a646923c9ae1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::CompositeEphemeris</definition>
+        <argsstring>(const std::map&lt; int, std::function&lt; StateType(const TimeType &amp;) &gt; &gt; translationalEphemerides, const std::map&lt; int, std::function&lt; StateType(const TimeType, const StateType &amp;) &gt; &gt; rotationalEphemerides, const std::string referenceFrameOrigin=&quot;SSB&quot;, const std::string referenceFrameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>CompositeEphemeris</name>
+        <param>
+          <type>const std::map&lt; int, std::function&lt; StateType(const TimeType &amp;) &gt; &gt;</type>
+          <declname>translationalEphemerides</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; int, std::function&lt; StateType(const TimeType, const StateType &amp;) &gt; &gt;</type>
+          <declname>rotationalEphemerides</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>referenceFrameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>referenceFrameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor from series of translational and rotational ephemeris functions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor from series of translational and rotational ephemeris functions. Input is provided as maps, with key being the index providing the position in the order where the given function should be applied. Each index must be present only once (i.e. either in translation or rotation), must start with 0 (which must be a translational ephemeris), and must be increasing by 1. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>translationalEphemerides</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of translational ephemerides. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationalEphemerides</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of rotational ephemerides. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrigin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Origin of reference frame in which state is defined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of reference frame in which state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="64" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="64" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a2453f4e5c03f46c053d149676e9c451d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::CompositeEphemeris</definition>
+        <argsstring>(const std::map&lt; int, std::pair&lt; std::function&lt; StateType(const TimeType &amp;) &gt;, bool &gt; &gt; translationalEphemerides, const std::map&lt; int, std::function&lt; StateType(const TimeType, const StateType &amp;) &gt; &gt; rotationalEphemerides, const std::string referenceFrameOrigin=&quot;SSB&quot;, const std::string referenceFrameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>CompositeEphemeris</name>
+        <param>
+          <type>const std::map&lt; int, std::pair&lt; std::function&lt; StateType(const TimeType &amp;) &gt;, bool &gt; &gt;</type>
+          <declname>translationalEphemerides</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; int, std::function&lt; StateType(const TimeType, const StateType &amp;) &gt; &gt;</type>
+          <declname>rotationalEphemerides</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>referenceFrameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>referenceFrameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor from series of translational and rotational ephemeris functions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor from series of translational and rotational ephemeris functions, allowing either addition or subtraction of translation ep Input is provided as maps, with key being the index providing the position in the order where the given function should be applied. Each index must be present only once (i.e. either in translation or rotation), must start with 0 (which must be a translational ephemeris), and must be increasing by 1. The second element of the pair that is the translational map value denotes whether to add (1) or subtract(0) it. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>translationalEphemerides</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of translational ephemerides, with subtraction/addition indicator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationalEphemerides</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of rotational ephemerides. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrigin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Origin of reference frame in which state is defined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of reference frame in which state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="134" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="134" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1affde60b26b1fb26732475e50309bc541" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::~CompositeEphemeris</definition>
+        <argsstring>()</argsstring>
+        <name>~CompositeEphemeris</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="193" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="193" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1adaf00c6374bab84ecfa0a9f7e92d5f36" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::getCartesianState</definition>
+        <argsstring>(const double secondsSinceEpoch)</argsstring>
+        <name>getCartesianState</name>
+        <reimplements refid="classtudat_1_1ephemerides_1_1Ephemeris_1a9ffa2e6b00aa190385d87266bc6ca091">getCartesianState</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Get state from ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris at given time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch at which ephemeris is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Constant state given by combined rotations and translations. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="201" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="201" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a42bbb7b71d00f1a9ae2dc70aa1e63b94" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; long double, 6, 1 &gt; tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::getCartesianLongState</definition>
+        <argsstring>(const double secondsSinceEpoch)</argsstring>
+        <name>getCartesianLongState</name>
+        <reimplements refid="classtudat_1_1ephemerides_1_1Ephemeris_1a2b4485db49528e74903e2448e9a277ea">getCartesianLongState</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Get state from ephemeris (with long double as state scalar). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris with long double as state scalar at given time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch at which ephemeris is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Constant state with long double as state scalar given by combined rotations and translations. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="213" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="213" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a91b0a66e98778b9ff6f3f70aae93fe88" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 6, 1 &gt; tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::getCartesianStateFromExtendedTime</definition>
+        <argsstring>(const Time &amp;currentTime)</argsstring>
+        <name>getCartesianStateFromExtendedTime</name>
+        <reimplements refid="classtudat_1_1ephemerides_1_1Ephemeris_1a4953c48335220b8c1b46fcd6c408b2d3">getCartesianStateFromExtendedTime</reimplements>
+        <param>
+          <type>const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &amp;</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Get state from ephemeris (with double as state scalar and <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> as time type). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris with double as state scalar at given time (as custom <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> type). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state is to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State from ephemeris with long double as state scalar </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="225" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="225" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1ac539a6b811fbbe82ff38461fb21f8e66" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; long double, 6, 1 &gt; tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::getCartesianLongStateFromExtendedTime</definition>
+        <argsstring>(const Time &amp;currentTime)</argsstring>
+        <name>getCartesianLongStateFromExtendedTime</name>
+        <reimplements refid="classtudat_1_1ephemerides_1_1Ephemeris_1a0dc15b6ec16fea02fa3af1a7ffbdeefe">getCartesianLongStateFromExtendedTime</reimplements>
+        <param>
+          <type>const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &amp;</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Get state from ephemeris (with long double as state scalar and <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> as time type). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris with long double as state scalar at given time (as custom <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> type). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state is to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State from ephemeris with long double as state scalar </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="237" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="237" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1aa87a7cbda8ca887a6f795f14a4601a36" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename OutputTimeType</type>
+          </param>
+          <param>
+            <type>typename OutputStateScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; OutputStateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; OutputStateScalarType, 6, 1 &gt; tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::getTemplatedCartesianStateFromCompositeEphemeris</definition>
+        <argsstring>(const OutputTimeType &amp;currentTime)</argsstring>
+        <name>getTemplatedCartesianStateFromCompositeEphemeris</name>
+        <param>
+          <type>const OutputTimeType &amp;</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Templated function to get the state from tabulated ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Templated function to get the state from tabulated ephemeris. This function is called with the appropriate template arguments by each of the specific state functions. Its function is to have only a single function implemented, while ensuring that the numerical precision is at least that of the <ref refid="classtudat_1_1ephemerides_1_1CompositeEphemeris" kindref="compound">CompositeEphemeris</ref> and requested time/state scalar types. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch at which ephemeris is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State given by combined rotations and translations, at requested precision. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="253" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="253" bodyend="283"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1aee55a23525016fe9b645d8b3e54168f1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;::addTranslationalEphemeris</definition>
+        <argsstring>(const std::function&lt; StateType(const TimeType &amp;) &gt; stateFunction, const int add=1)</argsstring>
+        <name>addTranslationalEphemeris</name>
+        <param>
+          <type>const std::function&lt; StateType(const TimeType &amp;) &gt;</type>
+          <declname>stateFunction</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>add</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+<para>Add an additional translational ephemeris at the end of the chain. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to add an additional translational ephemeris at the end of the chain. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Translational ephemeris function to add. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>add</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier setting whether to add (1) or subtract (-1) translation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="291" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="291" bodyend="304"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a2b4485db49528e74903e2448e9a277ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>virtual Eigen::Matrix&lt; long double, 6, 1 &gt; tudat::ephemerides::Ephemeris::getCartesianLongState</definition>
+        <argsstring>(const double secondsSinceEpoch)</argsstring>
+        <name>getCartesianLongState</name>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Get state from ephemeris (with long double as state scalar). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris with long double as state scalar at given time. By default, this function casts the double getCartesianState to long double. It may be overridden by derived classes to make use of full long double computations. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch at which ephemeris is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State from ephemeris with long double as state scalar </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="47" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/ephemeris.h" bodystart="110" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a9ffa2e6b00aa190385d87266bc6ca091" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>virtual Eigen::Vector6d tudat::ephemerides::Ephemeris::getCartesianState</definition>
+        <argsstring>(const double secondsSinceEpoch)=0</argsstring>
+        <name>getCartesianState</name>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Get state from ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris at given time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch at which ephemeris is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State from ephemeris. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="48" column="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class that combines a series of translational and rotational ephemeris functions. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class that combines a series of translational and rotational ephemeris functions to yield a single translational ephemeris. By using this class, a single object can be used for calling a series of translations and rotations. The option is provided for both adding or subtracting a given translational state. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1ephemerides_1_1CompositeEphemeris"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::ephemerides::Ephemeris</label>
+        <link refid="classtudat_1_1ephemerides_1_1Ephemeris"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::ephemerides::CompositeEphemeris&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1ephemerides_1_1CompositeEphemeris"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="2">
+        <label>tudat::ephemerides::Ephemeris</label>
+        <link refid="classtudat_1_1ephemerides_1_1Ephemeris"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>referenceFrameOrientation_</edgelabel>
+          <edgelabel>referenceFrameOrigin_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="43" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="44" bodyend="325"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1aee55a23525016fe9b645d8b3e54168f1" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>addTranslationalEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a04c1001110e0ba8a7799a646923c9ae1" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>CompositeEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a2453f4e5c03f46c053d149676e9c451d" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>CompositeEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a84b2fe561ee07d270ed3cb5e0738b6cb" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>Ephemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a42bbb7b71d00f1a9ae2dc70aa1e63b94" prot="public" virt="virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getCartesianLongState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a2b4485db49528e74903e2448e9a277ea" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getCartesianLongState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1ac539a6b811fbbe82ff38461fb21f8e66" prot="public" virt="virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getCartesianLongStateFromExtendedTime</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a11508af5994ac79a571b8c7c53c2f01a" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getCartesianPosition</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1adaf00c6374bab84ecfa0a9f7e92d5f36" prot="public" virt="virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getCartesianState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a9ffa2e6b00aa190385d87266bc6ca091" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getCartesianState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a91b0a66e98778b9ff6f3f70aae93fe88" prot="public" virt="virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getCartesianStateFromExtendedTime</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a1b18b53a45423bd1b17f0e0c0f459e32" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getCartesianVelocity</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a9c03fe22d322ffecda1f60d91021f842" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getReferenceFrameOrientation</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a6a81880bac3b4737ea522e232b40807b" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getReferenceFrameOrigin</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1aa87a7cbda8ca887a6f795f14a4601a36" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getTemplatedCartesianStateFromCompositeEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1aab6239fef97c6bc476ba7c0ea9c6e10b" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a74f968788b24caea12669f65f66b691a" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a0ec66ebe15e2bf0516448ff79cdd3012" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a175401ff74c66c479405b10796100703" prot="private" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>isCurrentEphemerisTranslational_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a423f4cfbc075f421a16b07bea53ca939" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>referenceFrameOrientation_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a69d6996ff459ef971f07b4f826528531" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>referenceFrameOrigin_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a3414959056434462f1874fb2beb407f6" prot="private" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>rotationalEphemerides_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a70e4010d05963c8ff6ee9a918e10cee7" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>StateType</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1a57432e383fe3b009689dedf8cbfa07c2" prot="private" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>translationalEphemerides_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1CompositeEphemeris_1affde60b26b1fb26732475e50309bc541" prot="public" virt="non-virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>~CompositeEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1ac9c54e2db132b832948e18267736fcdb" prot="public" virt="virtual"><scope>tudat::ephemerides::CompositeEphemeris</scope><name>~Ephemeris</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

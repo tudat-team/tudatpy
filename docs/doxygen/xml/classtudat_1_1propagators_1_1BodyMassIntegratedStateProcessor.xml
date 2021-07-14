@@ -1,0 +1,227 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::BodyMassIntegratedStateProcessor</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1IntegratedStateProcessor" prot="public" virt="non-virtual">tudat::propagators::IntegratedStateProcessor&lt; TimeType, StateScalarType &gt;</basecompoundref>
+    <includes refid="setNumericallyIntegratedStates_8h" local="no">setNumericallyIntegratedStates.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename TimeType</type>
+      </param>
+      <param>
+        <type>typename StateScalarType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1a60bb98651e0b23b7a8398a489eedc3af" prot="private" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref></type>
+        <definition>simulation_setup::SystemOfBodies tudat::propagators::BodyMassIntegratedStateProcessor&lt; TimeType, StateScalarType &gt;::bodies_</definition>
+        <argsstring></argsstring>
+        <name>bodies_</name>
+        <briefdescription>
+<para>List of bodies used in simulations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" line="905" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" bodystart="905" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1afe3951e9503da5e77aa09fd7f9e7e7ea" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::propagators::BodyMassIntegratedStateProcessor&lt; TimeType, StateScalarType &gt;::bodiesToIntegrate_</definition>
+        <argsstring></argsstring>
+        <name>bodiesToIntegrate_</name>
+        <briefdescription>
+<para>List of bodies for which the body mass is numerically integrated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of bodies for which the body mass is numerically integrated. Order in this vector is the same as the order in state vector. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" line="912" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" bodystart="912" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1a52d1e4d64fd453b5293e322815f3536b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::BodyMassIntegratedStateProcessor&lt; TimeType, StateScalarType &gt;::BodyMassIntegratedStateProcessor</definition>
+        <argsstring>(const int startIndex, const simulation_setup::SystemOfBodies &amp;bodies, const std::vector&lt; std::string &gt; &amp;bodiesToIntegrate)</argsstring>
+        <name>BodyMassIntegratedStateProcessor</name>
+        <param>
+          <type>const int</type>
+          <declname>startIndex</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToIntegrate</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>startIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index in the state vector where the translational state starts. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies used in simulations. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToIntegrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the mass is numerically integrated. Order in this vector is the same as the order in state vector. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" line="865" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" bodystart="865" bodyend="872"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1ad6ec2043a50970d83671e0bfb44a87da" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::BodyMassIntegratedStateProcessor&lt; TimeType, StateScalarType &gt;::~BodyMassIntegratedStateProcessor</definition>
+        <argsstring>()</argsstring>
+        <name>~BodyMassIntegratedStateProcessor</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" line="875" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" bodystart="875" bodyend="875"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1a24172315a1044a3bfe4134a194b95aec" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::BodyMassIntegratedStateProcessor&lt; TimeType, StateScalarType &gt;::processIntegratedStates</definition>
+        <argsstring>(const std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &amp;numericalSolution)</argsstring>
+        <name>processIntegratedStates</name>
+        <reimplements refid="classtudat_1_1propagators_1_1IntegratedStateProcessor_1a379cb44bfbb3506b9de350719e1a05ac">processIntegratedStates</reimplements>
+        <param>
+          <type>const std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &amp;</type>
+          <declname>numericalSolution</declname>
+        </param>
+        <briefdescription>
+<para>Function processing mass state in the full numericalSolution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that processes the entries of the propagated mass in the full numericalSolution, resetting bodies&apos; mass models <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>numericalSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Full numerical solution of state, in global representation (representation is constant for mass). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" line="883" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" bodystart="883" bodyend="887"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1a02df96a504d0c8d43fb0f776aec7d673" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::BodyMassIntegratedStateProcessor&lt; TimeType, StateScalarType &gt;::processIntegratedMultiArcStates</definition>
+        <argsstring>(const std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt; &amp;numericalSolution, const std::vector&lt; double &gt; &amp;arcStartTimes)</argsstring>
+        <name>processIntegratedMultiArcStates</name>
+        <reimplements refid="classtudat_1_1propagators_1_1IntegratedStateProcessor_1a240d49ef33209d1e237147b3172f9d60">processIntegratedMultiArcStates</reimplements>
+        <param>
+          <type>const std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt; &amp;</type>
+          <declname>numericalSolution</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <briefdescription>
+<para>Function processing multi-arc translational mass, resetting bodies&apos; mass models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function processing multi-arc translational mass, resetting bodies&apos; mass models <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>numericalSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of numerical solutions (one vector per arc) for mass. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of start times of the propagation arcs. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" line="895" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" bodystart="895" bodyend="900"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used for processing numerically integrated masses of bodies. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::propagators::BodyMassIntegratedStateProcessor&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::IntegratedStateProcessor&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1IntegratedStateProcessor"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::propagators::BodyMassIntegratedStateProcessor&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::IntegratedStateProcessor&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1IntegratedStateProcessor"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" line="853" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h" bodystart="854" bodyend="913"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1a60bb98651e0b23b7a8398a489eedc3af" prot="private" virt="non-virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>bodies_</name></member>
+      <member refid="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1afe3951e9503da5e77aa09fd7f9e7e7ea" prot="private" virt="non-virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>bodiesToIntegrate_</name></member>
+      <member refid="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1a52d1e4d64fd453b5293e322815f3536b" prot="public" virt="non-virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>BodyMassIntegratedStateProcessor</name></member>
+      <member refid="classtudat_1_1propagators_1_1IntegratedStateProcessor_1afe2a747863b453263a4398712346a9e9" prot="public" virt="non-virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>IntegratedStateProcessor</name></member>
+      <member refid="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1a02df96a504d0c8d43fb0f776aec7d673" prot="public" virt="virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>processIntegratedMultiArcStates</name></member>
+      <member refid="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1a24172315a1044a3bfe4134a194b95aec" prot="public" virt="virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>processIntegratedStates</name></member>
+      <member refid="classtudat_1_1propagators_1_1IntegratedStateProcessor_1ae03065ec333ec767023e999ff2f884e5" prot="public" virt="non-virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>startIndexAndSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1IntegratedStateProcessor_1aa37431c3c4e60e9f922cc70737d5de47" prot="public" virt="non-virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>stateType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_1ad6ec2043a50970d83671e0bfb44a87da" prot="public" virt="non-virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>~BodyMassIntegratedStateProcessor</name></member>
+      <member refid="classtudat_1_1propagators_1_1IntegratedStateProcessor_1ab0ec743ee7b147be2e5c8ee4e25a54a1" prot="public" virt="virtual"><scope>tudat::propagators::BodyMassIntegratedStateProcessor</scope><name>~IntegratedStateProcessor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

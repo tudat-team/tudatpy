@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::MinimumElevationAngleCalculator</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator" prot="public" virt="non-virtual">tudat::observation_models::ObservationViabilityCalculator</basecompoundref>
+    <includes refid="observationViabilityCalculator_8h" local="no">observationViabilityCalculator.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a3981bc248bb6559ae40daa5f13e947d2" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::pair&lt; int, int &gt; &gt;</type>
+        <definition>std::vector&lt; std::pair&lt; int, int &gt; &gt; tudat::observation_models::MinimumElevationAngleCalculator::linkEndIndices_</definition>
+        <argsstring></argsstring>
+        <name>linkEndIndices_</name>
+        <briefdescription>
+<para>Vector of indices denoting which combinations of entries of vectors are to be used in isObservationViable function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of indices denoting which combinations of entries from the linkEndIndices and linkEndTimes vectors to use for elevation angle calculator when isObservationViable is called. The second entry of the pair is the index of the target that is being observed from the ground station at which the elevation angle is check, the first entry is the index of the ground station at which the check is performed. From each entry of this vector, a vector is created for which the elevation angle is checked. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="146" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a49a745c5069ec850b31c18c1ac101c6d" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::observation_models::MinimumElevationAngleCalculator::minimumElevationAngle_</definition>
+        <argsstring></argsstring>
+        <name>minimumElevationAngle_</name>
+        <briefdescription>
+<para>Minimum elevation angle that is allowed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="149" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1af3b43e688a6374c9ceba7dfdc3c2a5e6" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator" kindref="compound">ground_stations::PointingAnglesCalculator</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ground_stations::PointingAnglesCalculator &gt; tudat::observation_models::MinimumElevationAngleCalculator::pointingAngleCalculator_</definition>
+        <argsstring></argsstring>
+        <name>pointingAngleCalculator_</name>
+        <briefdescription>
+<para>Object to calculate pointing angles (elevation angle) at ground station. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="152" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a41dc66cd62a63c5402550586afce4a06" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::MinimumElevationAngleCalculator::MinimumElevationAngleCalculator</definition>
+        <argsstring>(const std::vector&lt; std::pair&lt; int, int &gt; &gt; linkEndIndices, const double minimumElevationAngle, const std::shared_ptr&lt; ground_stations::PointingAnglesCalculator &gt; pointingAngleCalculator)</argsstring>
+        <name>MinimumElevationAngleCalculator</name>
+        <param>
+          <type>const std::vector&lt; std::pair&lt; int, int &gt; &gt;</type>
+          <declname>linkEndIndices</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumElevationAngle</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator" kindref="compound">ground_stations::PointingAnglesCalculator</ref> &gt;</type>
+          <declname>pointingAngleCalculator</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, takes a variable defining the geometry and the minimmum elevation angle and current angle calculator. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of indices denoting which combinations of entries from the linkEndIndices and linkEndTimes vectors to use for elevation angle calculator when isObservationViable is called. The second entry of the pair is the index of the target that is being observed from the ground station at which the elevation angle is check, the first entry is the index of the ground station at which the check is performed. From each entry of this vector, a vector is created for which the elevation angle is checked. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumElevationAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum elevation angle that is allowed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pointingAngleCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to calculate pointing angles (elevation angle) at ground station </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="114" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="114" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1aa252a6a2142081cdb6b1e3beecaca420" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::MinimumElevationAngleCalculator::~MinimumElevationAngleCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>~MinimumElevationAngleCalculator</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="122" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="122" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a441156af13ab44cb48481e8c97de3b82" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>bool tudat::observation_models::MinimumElevationAngleCalculator::isObservationViable</definition>
+        <argsstring>(const std::vector&lt; Eigen::Vector6d &gt; &amp;linkEndStates, const std::vector&lt; double &gt; &amp;linkEndTimes)</argsstring>
+        <name>isObservationViable</name>
+        <reimplements refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a10e0bb328451764f39e626d2b11141ee">isObservationViable</reimplements>
+        <param>
+          <type>const std::vector&lt; Eigen::Vector6d &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <briefdescription>
+<para>Function for determining whether the elevation angle at station is sufficient to allow observation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for determining whether the elevation angle at station is sufficient to allow observation. The input from which the viability of an observation is calculated are a vector of times and states of link ends involved in the observation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of states of the link ends involved in the observation, in the order as provided by the of function computeObservationsAndLinkEndData of the associated <ref refid="classtudat_1_1observation__models_1_1ObservationModel" kindref="compound">ObservationModel</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of times of the link ends involved in the observation, in the order as provided by the of function computeObservationsAndLinkEndData of the associated <ref refid="classtudat_1_1observation__models_1_1ObservationModel" kindref="compound">ObservationModel</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if observation is viable, false if not. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="134" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/observation_models/observationViabilityCalculator.cpp" bodystart="54" bodyend="74"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Function to check whether an observation is possible based on minimum elevation angle criterion at one link end. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationViabilityCalculator</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::MinimumElevationAngleCalculator</label>
+        <link refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationViabilityCalculator</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::MinimumElevationAngleCalculator</label>
+        <link refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="99" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="100" bodyend="153"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a441156af13ab44cb48481e8c97de3b82" prot="public" virt="virtual"><scope>tudat::observation_models::MinimumElevationAngleCalculator</scope><name>isObservationViable</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a3981bc248bb6559ae40daa5f13e947d2" prot="private" virt="non-virtual"><scope>tudat::observation_models::MinimumElevationAngleCalculator</scope><name>linkEndIndices_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a49a745c5069ec850b31c18c1ac101c6d" prot="private" virt="non-virtual"><scope>tudat::observation_models::MinimumElevationAngleCalculator</scope><name>minimumElevationAngle_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a41dc66cd62a63c5402550586afce4a06" prot="public" virt="non-virtual"><scope>tudat::observation_models::MinimumElevationAngleCalculator</scope><name>MinimumElevationAngleCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a3fc6b1b8e740c2de0a2ecdeb9f411b3a" prot="public" virt="non-virtual"><scope>tudat::observation_models::MinimumElevationAngleCalculator</scope><name>ObservationViabilityCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1af3b43e688a6374c9ceba7dfdc3c2a5e6" prot="private" virt="non-virtual"><scope>tudat::observation_models::MinimumElevationAngleCalculator</scope><name>pointingAngleCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1aa252a6a2142081cdb6b1e3beecaca420" prot="public" virt="non-virtual"><scope>tudat::observation_models::MinimumElevationAngleCalculator</scope><name>~MinimumElevationAngleCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a2d946b60b63096edf768e7dfbf5eafe6" prot="public" virt="virtual"><scope>tudat::observation_models::MinimumElevationAngleCalculator</scope><name>~ObservationViabilityCalculator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

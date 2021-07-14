@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_aeb7b70c9916090d6b1dacdce87a6f6b" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation</compoundname>
+    <innerfile refid="earthOrientationCalculator_8cpp">earthOrientationCalculator.cpp</innerfile>
+    <innerfile refid="eopReader_8cpp">eopReader.cpp</innerfile>
+    <innerfile refid="polarMotionCalculator_8cpp">polarMotionCalculator.cpp</innerfile>
+    <innerfile refid="precessionNutationCalculator_8cpp">precessionNutationCalculator.cpp</innerfile>
+    <innerfile refid="readAmplitudeAndArgumentMultipliers_8cpp">readAmplitudeAndArgumentMultipliers.cpp</innerfile>
+    <innerfile refid="shortPeriodEarthOrientationCorrectionCalculator_8cpp">shortPeriodEarthOrientationCorrectionCalculator.cpp</innerfile>
+    <innerfile refid="terrestrialTimeScaleConverter_8cpp">terrestrialTimeScaleConverter.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines" kind="class" language="C++" prot="public">
+    <compoundname>tudat::input_output::stream_filters::SkipFirstLines</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">boost::iostreams::line_filter</basecompoundref>
+    <includes refid="streamFilters_8h" local="no">streamFilters.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1a5da99f91f4c9c4773d386996fea2ab67" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::stream_filters::SkipFirstLines::linesToSkip_</definition>
+        <argsstring></argsstring>
+        <name>linesToSkip_</name>
+        <briefdescription>
+<para>Lines to skip. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Lines to skip, counted sequentially from the head of a stream. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="126" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1ade5c62be349d1429dee1bbc12a2deeb5" prot="private" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::stream_filters::SkipFirstLines::numberOfSkippedLines_</definition>
+        <argsstring></argsstring>
+        <name>numberOfSkippedLines_</name>
+        <briefdescription>
+<para>Number of skipped lines. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Counter of the number of lines already skipped in the stream. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="132" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1a11af91f29d82ac2fc8b191f5c7353c1e" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::input_output::stream_filters::SkipFirstLines::isOmitIfEmpty_</definition>
+        <argsstring></argsstring>
+        <name>isOmitIfEmpty_</name>
+        <briefdescription>
+<para>Omit state for filtered line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If filtered line is empty, and omit flag is set to true, no newline empty line is returned. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="138" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1aa5afe3401fd4348b9840504ab346e40b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::stream_filters::SkipFirstLines::SkipFirstLines</definition>
+        <argsstring>(unsigned int linesToSkip=0, bool isOmitIfEmpty=true)</argsstring>
+        <name>SkipFirstLines</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>linesToSkip</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isOmitIfEmpty</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Create a filter to skip a given amount of lines. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates a filter to skip a given amount of lines by passing in the number of lines to skip and the action for empty lines. Note that the variable &quot;line_filter&quot; is set to true, to indicate to Boost not to append newline characters. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linesToSkip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of lines (counted sequentially from the stream head) to discard. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isOmitIfEmpty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if a line should be removed when a complete line is filtered away. (If false, there will be &apos;linesToSkip&apos; newline characters is the start of the stream.) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="102" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="102" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1a39193974df3b34e1618e51cca1070cb4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::input_output::stream_filters::SkipFirstLines::do_filter</definition>
+        <argsstring>(const std::string &amp;line)</argsstring>
+        <name>do_filter</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+<para>Execute filter on the input line by skipping if required. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This object will ignore the first &apos;linesToSkip_&apos; number of passed in lines before returning the same line. For more information see boost::iostreams::line_filter (overrides definition of line_filter to enable chaining of filters). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unfiltered line. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filtered line. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="118" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/streamFilters.cpp" bodystart="45" bodyend="60"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Filter for skipping the first several lines in a stream. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class allows for a data stream to be filtered by skipping a given number of lines from the start of the stream. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::input_output::stream_filters::SkipFirstLines</label>
+        <link refid="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost::iostreams::line_filter</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::input_output::stream_filters::SkipFirstLines</label>
+        <link refid="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost::iostreams::line_filter</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="88" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="89" bodyend="139"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1a39193974df3b34e1618e51cca1070cb4" prot="public" virt="non-virtual"><scope>tudat::input_output::stream_filters::SkipFirstLines</scope><name>do_filter</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1a11af91f29d82ac2fc8b191f5c7353c1e" prot="private" virt="non-virtual"><scope>tudat::input_output::stream_filters::SkipFirstLines</scope><name>isOmitIfEmpty_</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1a5da99f91f4c9c4773d386996fea2ab67" prot="private" virt="non-virtual"><scope>tudat::input_output::stream_filters::SkipFirstLines</scope><name>linesToSkip_</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1ade5c62be349d1429dee1bbc12a2deeb5" prot="private" virt="non-virtual"><scope>tudat::input_output::stream_filters::SkipFirstLines</scope><name>numberOfSkippedLines_</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1SkipFirstLines_1aa5afe3401fd4348b9840504ab346e40b" prot="public" virt="non-virtual"><scope>tudat::input_output::stream_filters::SkipFirstLines</scope><name>SkipFirstLines</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

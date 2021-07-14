@@ -1,0 +1,57 @@
+\hypertarget{classtudat_1_1input__output_1_1MultiArrayFileWriter_3_012_00_01NumberOfCoefficients_01_4}{}\doxysection{tudat\+::input\+\_\+output\+::Multi\+Array\+File\+Writer$<$ 2, Number\+Of\+Coefficients $>$ Class Template Reference}
+\label{classtudat_1_1input__output_1_1MultiArrayFileWriter_3_012_00_01NumberOfCoefficients_01_4}\index{tudat::input\_output::MultiArrayFileWriter$<$ 2, NumberOfCoefficients $>$@{tudat::input\_output::MultiArrayFileWriter$<$ 2, NumberOfCoefficients $>$}}
+
+
+Interface class for writing coefficients as a function of 2 independent variables to a file.  
+
+
+
+
+{\ttfamily \#include $<$multi\+Dimensional\+Array\+Writer.\+h$>$}
+
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{classtudat_1_1input__output_1_1MultiArrayFileWriter_3_012_00_01NumberOfCoefficients_01_4_aed0566f7182342bbb59eb9901b88c43a}{write\+Multi\+Array\+And\+Independent\+Variables\+To\+Files}} (const std\+::map$<$ int, std\+::string $>$ \&file\+Names\+Map, const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&independent\+Variables, const boost\+::multi\+\_\+array$<$ Eigen\+::\+Matrix$<$ double, Number\+Of\+Coefficients, 1 $>$, 2 $>$ \&dependent\+Variables)
+\begin{DoxyCompactList}\small\item\em Function to write multi-\/dimensional array data and independent variables to file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$unsigned int Number\+Of\+Coefficients$>$\newline
+class tudat\+::input\+\_\+output\+::\+Multi\+Array\+File\+Writer$<$ 2, Number\+Of\+Coefficients $>$}
+
+Interface class for writing coefficients as a function of 2 independent variables to a file. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MultiArrayFileWriter_3_012_00_01NumberOfCoefficients_01_4_aed0566f7182342bbb59eb9901b88c43a}\label{classtudat_1_1input__output_1_1MultiArrayFileWriter_3_012_00_01NumberOfCoefficients_01_4_aed0566f7182342bbb59eb9901b88c43a}} 
+\index{tudat::input\_output::MultiArrayFileWriter$<$ 2, NumberOfCoefficients $>$@{tudat::input\_output::MultiArrayFileWriter$<$ 2, NumberOfCoefficients $>$}!writeMultiArrayAndIndependentVariablesToFiles@{writeMultiArrayAndIndependentVariablesToFiles}}
+\index{writeMultiArrayAndIndependentVariablesToFiles@{writeMultiArrayAndIndependentVariablesToFiles}!tudat::input\_output::MultiArrayFileWriter$<$ 2, NumberOfCoefficients $>$@{tudat::input\_output::MultiArrayFileWriter$<$ 2, NumberOfCoefficients $>$}}
+\doxysubsubsection{\texorpdfstring{writeMultiArrayAndIndependentVariablesToFiles()}{writeMultiArrayAndIndependentVariablesToFiles()}}
+{\footnotesize\ttfamily template$<$unsigned int Number\+Of\+Coefficients$>$ \\
+static void \mbox{\hyperlink{classtudat_1_1input__output_1_1MultiArrayFileWriter}{tudat\+::input\+\_\+output\+::\+Multi\+Array\+File\+Writer}}$<$ 2, Number\+Of\+Coefficients $>$\+::write\+Multi\+Array\+And\+Independent\+Variables\+To\+Files (\begin{DoxyParamCaption}\item[{const std\+::map$<$ int, std\+::string $>$ \&}]{file\+Names\+Map,  }\item[{const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&}]{independent\+Variables,  }\item[{const boost\+::multi\+\_\+array$<$ Eigen\+::\+Matrix$<$ double, Number\+Of\+Coefficients, 1 $>$, 2 $>$ \&}]{dependent\+Variables }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Function to write multi-\/dimensional array data and independent variables to file. 
+
+Function to write multi-\/dimensional array data and independent variables to file. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Number\+Of\+Independent\+Variables} & Number of independent variables. \\
+\hline
+{\em Number\+Of\+Coefficients} & Number of coefficients. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em file\+Names\+Map} & Map of files where coefficients need to be saved. Each coefficient is saved in a separate file, thus number of files has to match number of coefficients. \\
+\hline
+{\em independent\+Variables} & Vector of independent variable vectors. \\
+\hline
+{\em dependent\+Variables} & Multi-\/array of dependent variables for each independent variable. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/io/multi\+Dimensional\+Array\+Writer.\+h\end{DoxyCompactItemize}

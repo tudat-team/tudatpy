@@ -1,0 +1,170 @@
+\hypertarget{classtudat_1_1mission__segments_1_1LambertFunctionsGooding}{}\doxysection{tudat\+::mission\+\_\+segments\+::Lambert\+Functions\+Gooding Class Reference}
+\label{classtudat_1_1mission__segments_1_1LambertFunctionsGooding}\index{tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}}
+
+
+Gooding Lambert functions class.  
+
+
+
+
+{\ttfamily \#include $<$lambert\+Routines.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a20ab9d6cb406bcf2859118ecbbd4bfa3}{Lambert\+Functions\+Gooding}} (const double a\+QParameter, const double a\+Normalized\+Time\+Of\+Flight)
+\begin{DoxyCompactList}\small\item\em Constructor with immediate definition of parameters. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a2e79db651f15d2e0c749131dec97a4b0}{compute\+Lambert\+Function\+Gooding}} (const double x\+Parameter)
+\begin{DoxyCompactList}\small\item\em Define general Lambert function. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a840445c6a6a6e641071d345a30351149}{compute\+First\+Derivative\+Lambert\+Function\+Gooding}} (const double x\+Parameter)
+\begin{DoxyCompactList}\small\item\em Define first derivative of general Lambert function. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a6a4439f4b7f8a5375b1989140131a894}{lambert\+Function\+Positive\+Gooding}} (const double x\+Parameter)
+\begin{DoxyCompactList}\small\item\em Define Lambert function for positive lambert\+Eccentric\+Anomaly. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_ab0a5a78377684e239ea851700571e32a}{lambert\+Function\+Negative\+Gooding}} (const double x\+Parameter)
+\begin{DoxyCompactList}\small\item\em Define Lambert function for negative lambert\+Eccentric\+Anomaly. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_afb44881b2d389192522574b5be5f7e0d}{lambert\+First\+Derivative\+Function\+Positive\+Gooding}} (const double x\+Parameter)
+\begin{DoxyCompactList}\small\item\em Define first derivative of Lambert function for positive lambert\+Eccentric\+Anomaly. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_ab3e79aabf0f02b5181ff3a85db25f281}{lambert\+First\+Derivative\+Function\+Negative\+Gooding}} (const double x\+Parameter)
+\begin{DoxyCompactList}\small\item\em Define first derivative of Lambert function for negative lambert\+Eccentric\+Anomaly. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Gooding Lambert functions class. 
+
+This class contains the auxiliary functions required by the root-\/finder in the Lambert routine from Gooding. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a20ab9d6cb406bcf2859118ecbbd4bfa3}\label{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a20ab9d6cb406bcf2859118ecbbd4bfa3}} 
+\index{tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}!LambertFunctionsGooding@{LambertFunctionsGooding}}
+\index{LambertFunctionsGooding@{LambertFunctionsGooding}!tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}}
+\doxysubsubsection{\texorpdfstring{LambertFunctionsGooding()}{LambertFunctionsGooding()}}
+{\footnotesize\ttfamily tudat\+::mission\+\_\+segments\+::\+Lambert\+Functions\+Gooding\+::\+Lambert\+Functions\+Gooding (\begin{DoxyParamCaption}\item[{const double}]{a\+QParameter,  }\item[{const double}]{a\+Normalized\+Time\+Of\+Flight }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with immediate definition of parameters. 
+
+Constructor that sets all the parameters in the Lambert functions for use in the Newton-\/\+Raphson rootfinder. 
+\begin{DoxyParams}{Parameters}
+{\em a\+QParameter} & The value of the Lambert q-\/parameter. \mbox{[}-\/\mbox{]} \\
+\hline
+{\em a\+Normalized\+Time\+Of\+Flight} & The normalized time-\/of-\/flight for the Lambert problem. \mbox{[}-\/\mbox{]} \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a840445c6a6a6e641071d345a30351149}\label{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a840445c6a6a6e641071d345a30351149}} 
+\index{tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}!computeFirstDerivativeLambertFunctionGooding@{computeFirstDerivativeLambertFunctionGooding}}
+\index{computeFirstDerivativeLambertFunctionGooding@{computeFirstDerivativeLambertFunctionGooding}!tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}}
+\doxysubsubsection{\texorpdfstring{computeFirstDerivativeLambertFunctionGooding()}{computeFirstDerivativeLambertFunctionGooding()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Lambert\+Functions\+Gooding\+::compute\+First\+Derivative\+Lambert\+Function\+Gooding (\begin{DoxyParamCaption}\item[{const double}]{x\+Parameter }\end{DoxyParamCaption})}
+
+
+
+Define first derivative of general Lambert function. 
+
+Defines the first derivative of general Lambert function. 
+\begin{DoxyParams}{Parameters}
+{\em x\+Parameter} & x-\/parameter. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Derivative of the Lambert function. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a2e79db651f15d2e0c749131dec97a4b0}\label{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a2e79db651f15d2e0c749131dec97a4b0}} 
+\index{tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}!computeLambertFunctionGooding@{computeLambertFunctionGooding}}
+\index{computeLambertFunctionGooding@{computeLambertFunctionGooding}!tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}}
+\doxysubsubsection{\texorpdfstring{computeLambertFunctionGooding()}{computeLambertFunctionGooding()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Lambert\+Functions\+Gooding\+::compute\+Lambert\+Function\+Gooding (\begin{DoxyParamCaption}\item[{const double}]{x\+Parameter }\end{DoxyParamCaption})}
+
+
+
+Define general Lambert function. 
+
+Defines the general Lambert function. 
+\begin{DoxyParams}{Parameters}
+{\em x\+Parameter} & x-\/parameter. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Lambert function value. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_ab3e79aabf0f02b5181ff3a85db25f281}\label{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_ab3e79aabf0f02b5181ff3a85db25f281}} 
+\index{tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}!lambertFirstDerivativeFunctionNegativeGooding@{lambertFirstDerivativeFunctionNegativeGooding}}
+\index{lambertFirstDerivativeFunctionNegativeGooding@{lambertFirstDerivativeFunctionNegativeGooding}!tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}}
+\doxysubsubsection{\texorpdfstring{lambertFirstDerivativeFunctionNegativeGooding()}{lambertFirstDerivativeFunctionNegativeGooding()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Lambert\+Functions\+Gooding\+::lambert\+First\+Derivative\+Function\+Negative\+Gooding (\begin{DoxyParamCaption}\item[{const double}]{x\+Parameter }\end{DoxyParamCaption})}
+
+
+
+Define first derivative of Lambert function for negative lambert\+Eccentric\+Anomaly. 
+
+Defines first derivative of Lambert function for negative lambert\+Eccentric\+Anomaly. 
+\begin{DoxyParams}{Parameters}
+{\em x\+Parameter} & x-\/parameter. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Derivative of the Lambert function for a negative lambert\+Eccentric\+Anomaly. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_afb44881b2d389192522574b5be5f7e0d}\label{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_afb44881b2d389192522574b5be5f7e0d}} 
+\index{tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}!lambertFirstDerivativeFunctionPositiveGooding@{lambertFirstDerivativeFunctionPositiveGooding}}
+\index{lambertFirstDerivativeFunctionPositiveGooding@{lambertFirstDerivativeFunctionPositiveGooding}!tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}}
+\doxysubsubsection{\texorpdfstring{lambertFirstDerivativeFunctionPositiveGooding()}{lambertFirstDerivativeFunctionPositiveGooding()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Lambert\+Functions\+Gooding\+::lambert\+First\+Derivative\+Function\+Positive\+Gooding (\begin{DoxyParamCaption}\item[{const double}]{x\+Parameter }\end{DoxyParamCaption})}
+
+
+
+Define first derivative of Lambert function for positive lambert\+Eccentric\+Anomaly. 
+
+Defines the first derivative of Lambert function for a positive lambert\+Eccentric\+Anomaly. 
+\begin{DoxyParams}{Parameters}
+{\em x\+Parameter} & x-\/parameter. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Derivative of the Lambert function for a positive lambert\+Eccentric\+Anomaly. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_ab0a5a78377684e239ea851700571e32a}\label{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_ab0a5a78377684e239ea851700571e32a}} 
+\index{tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}!lambertFunctionNegativeGooding@{lambertFunctionNegativeGooding}}
+\index{lambertFunctionNegativeGooding@{lambertFunctionNegativeGooding}!tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}}
+\doxysubsubsection{\texorpdfstring{lambertFunctionNegativeGooding()}{lambertFunctionNegativeGooding()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Lambert\+Functions\+Gooding\+::lambert\+Function\+Negative\+Gooding (\begin{DoxyParamCaption}\item[{const double}]{x\+Parameter }\end{DoxyParamCaption})}
+
+
+
+Define Lambert function for negative lambert\+Eccentric\+Anomaly. 
+
+Defines the Lambert function for a negative lambert\+Eccentric\+Anomaly. 
+\begin{DoxyParams}{Parameters}
+{\em x\+Parameter} & x-\/parameter. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Lambert function value for a negative lambert\+Eccentric\+Anomaly. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a6a4439f4b7f8a5375b1989140131a894}\label{classtudat_1_1mission__segments_1_1LambertFunctionsGooding_a6a4439f4b7f8a5375b1989140131a894}} 
+\index{tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}!lambertFunctionPositiveGooding@{lambertFunctionPositiveGooding}}
+\index{lambertFunctionPositiveGooding@{lambertFunctionPositiveGooding}!tudat::mission\_segments::LambertFunctionsGooding@{tudat::mission\_segments::LambertFunctionsGooding}}
+\doxysubsubsection{\texorpdfstring{lambertFunctionPositiveGooding()}{lambertFunctionPositiveGooding()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Lambert\+Functions\+Gooding\+::lambert\+Function\+Positive\+Gooding (\begin{DoxyParamCaption}\item[{const double}]{x\+Parameter }\end{DoxyParamCaption})}
+
+
+
+Define Lambert function for positive lambert\+Eccentric\+Anomaly. 
+
+Defines the Lambert function for a positive lambert\+Eccentric\+Anomaly. 
+\begin{DoxyParams}{Parameters}
+{\em x\+Parameter} & x-\/parameter. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Lambert function value for a positive lambert\+Eccentric\+Anomaly. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/mission\+\_\+segments/lambert\+Routines.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/mission\+\_\+segments/lambert\+Routines.\+cpp\end{DoxyCompactItemize}

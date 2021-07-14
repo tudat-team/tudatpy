@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1AccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AccelerationSettings</basecompoundref>
+    <includes refid="accelerationSettings_8h" local="no">accelerationSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1a6781555a26095bfaf3d29fd21c2384f8" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::RelativisticAccelerationCorrectionSettings::calculateSchwarzschildCorrection_</definition>
+        <argsstring></argsstring>
+        <name>calculateSchwarzschildCorrection_</name>
+        <briefdescription>
+<para>Boolean denoting wheter the Schwarzschild term is used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="232" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="232" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1a2c3f1b3fc12802af641e908e40cd407a" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::RelativisticAccelerationCorrectionSettings::calculateLenseThirringCorrection_</definition>
+        <argsstring></argsstring>
+        <name>calculateLenseThirringCorrection_</name>
+        <briefdescription>
+<para>Boolean denoting wheter the Lense-Thirring term is used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="235" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="235" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1a995e1fcea8b84cc85a26b38426bbe7c1" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::RelativisticAccelerationCorrectionSettings::calculateDeSitterCorrection_</definition>
+        <argsstring></argsstring>
+        <name>calculateDeSitterCorrection_</name>
+        <briefdescription>
+<para>Boolean denoting wheter the de Sitter term is used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="238" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="238" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1ac49ec9bc45dba2f87f9fdb37c7d00cd1" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::RelativisticAccelerationCorrectionSettings::primaryBody_</definition>
+        <argsstring></argsstring>
+        <name>primaryBody_</name>
+        <briefdescription>
+<para>Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="241" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="241" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1adb2ca86337153aedbee9223d1d941f8e" prot="public" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::RelativisticAccelerationCorrectionSettings::centralBodyAngularMomentum_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyAngularMomentum_</name>
+        <briefdescription>
+<para>Constant angular momentum of central body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="244" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="244" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1a5a8f4096357052bef53f9bf99c32389f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings::RelativisticAccelerationCorrectionSettings</definition>
+        <argsstring>(const bool calculateSchwarzschildCorrection=true, const bool calculateLenseThirringCorrection=false, const bool calculateDeSitterCorrection=false, const std::string primaryBody=&quot;&quot;, const Eigen::Vector3d centralBodyAngularMomentum=Eigen::Vector3d::Zero())</argsstring>
+        <name>RelativisticAccelerationCorrectionSettings</name>
+        <param>
+          <type>const bool</type>
+          <declname>calculateSchwarzschildCorrection</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>calculateLenseThirringCorrection</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>calculateDeSitterCorrection</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>primaryBody</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>centralBodyAngularMomentum</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>calculateSchwarzschildCorrection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the Schwarzschild term is used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>calculateLenseThirringCorrection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the Lense-Thirring term is used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>calculateDeSitterCorrection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the de Sitter term is used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>primaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyAngularMomentum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant angular momentum of central body. NOTE: Passing angular momentum through this function is temporary: in the future this will be done consistently with rotation/gravity field. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="211" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="211" bodyend="229"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to proivide settings for typical relativistic corrections to the dynamics of an orbiter. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to proivide settings for typical relativistic corrections to the dynamics of an orbiter: the Schwarzschild, Lense-Thirring and de Sitter terms. An excellent introduction to these models is given in &apos;General relativity and Space Geodesy&apos; by L. Combrinck (2012). </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>primaryBody_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="197" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="198" bodyend="246"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a61a6c91bf73a293adb523ebe2b71f379" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>AccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1aaf1f7742077003cf7055c96ec934e4d8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>accelerationType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1a995e1fcea8b84cc85a26b38426bbe7c1" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>calculateDeSitterCorrection_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1a2c3f1b3fc12802af641e908e40cd407a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>calculateLenseThirringCorrection_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1a6781555a26095bfaf3d29fd21c2384f8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>calculateSchwarzschildCorrection_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1adb2ca86337153aedbee9223d1d941f8e" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>centralBodyAngularMomentum_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1ac49ec9bc45dba2f87f9fdb37c7d00cd1" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>primaryBody_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings_1a5a8f4096357052bef53f9bf99c32389f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>RelativisticAccelerationCorrectionSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a66bf9df8526ebaf6ed16a1100811a3ef" prot="public" virt="virtual"><scope>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</scope><name>~AccelerationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

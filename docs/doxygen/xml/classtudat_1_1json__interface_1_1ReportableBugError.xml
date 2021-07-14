@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1json__interface_1_1ReportableBugError" kind="class" language="C++" prot="public">
+    <compoundname>tudat::json_interface::ReportableBugError</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">std::exception</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1json__interface_1_1AutoReportableBugError" prot="public" virt="non-virtual">tudat::json_interface::AutoReportableBugError</derivedcompoundref>
+    <includes refid="errorHandling_8h" local="no">errorHandling.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1json__interface_1_1ReportableBugError_1a41f82ebc3a5d1295095a7b7fbec62d80" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::json_interface::ReportableBugError::errorMessage</definition>
+        <argsstring></argsstring>
+        <name>errorMessage</name>
+        <briefdescription>
+<para>The message to print before the error link. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" line="227" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1json__interface_1_1ReportableBugError_1aabdeeda0d737590a1f7b17220b134d17" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::json_interface::ReportableBugError::reportURL</definition>
+        <argsstring></argsstring>
+        <name>reportURL</name>
+        <briefdescription>
+<para>The URL that can be used to report the error. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" line="230" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1ReportableBugError_1a1a2e9bf795f2409909e2c48dcb80f731" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::json_interface::ReportableBugError::ReportableBugError</definition>
+        <argsstring>(const std::string &amp;errorMessage=&quot;Internal Tudat error. Please, report this bug by using this link: &quot;, const std::string &amp;reportURL=&quot;https://github.com/Tudat/tudat/issues&quot;)</argsstring>
+        <name>ReportableBugError</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>errorMessage</declname>
+          <defval>&quot;Internal Tudat error. Please, report this bug by using this link: &quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>reportURL</declname>
+          <defval>&quot;https://github.com/Tudat/tudat/issues&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>errorMessage</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The message to print before the error link.</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reportURL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The URL that can be used to report the error.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" line="211" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" bodystart="211" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1ReportableBugError_1a16b0d638287012ce6f62a3f4478e810b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>const char *</type>
+        <definition>virtual const char* tudat::json_interface::ReportableBugError::what</definition>
+        <argsstring>() const</argsstring>
+        <name>what</name>
+        <exceptions> throw ( )</exceptions>
+        <briefdescription>
+<para>Full error message. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" line="217" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" bodystart="217" bodyend="223"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for errors that print a report bug link. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for errors that print a report bug link. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::json_interface::ReportableBugError</label>
+        <link refid="classtudat_1_1json__interface_1_1ReportableBugError"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::json_interface::UnimplementedEnumError&lt; EnumType &gt;</label>
+        <link refid="classtudat_1_1json__interface_1_1UnimplementedEnumError"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::exception</label>
+      </node>
+      <node id="3">
+        <label>tudat::json_interface::AutoReportableBugError</label>
+        <link refid="classtudat_1_1json__interface_1_1AutoReportableBugError"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::json_interface::nullptrPointerError&lt; T &gt;</label>
+        <link refid="classtudat_1_1json__interface_1_1nullptrPointerError"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::json_interface::ReportableBugError</label>
+        <link refid="classtudat_1_1json__interface_1_1ReportableBugError"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>errorMessage</edgelabel>
+          <edgelabel>reportURL</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="2">
+        <label>std::exception</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" line="202" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/errorHandling.h" bodystart="203" bodyend="231"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1json__interface_1_1ReportableBugError_1a41f82ebc3a5d1295095a7b7fbec62d80" prot="protected" virt="non-virtual"><scope>tudat::json_interface::ReportableBugError</scope><name>errorMessage</name></member>
+      <member refid="classtudat_1_1json__interface_1_1ReportableBugError_1a1a2e9bf795f2409909e2c48dcb80f731" prot="public" virt="non-virtual"><scope>tudat::json_interface::ReportableBugError</scope><name>ReportableBugError</name></member>
+      <member refid="classtudat_1_1json__interface_1_1ReportableBugError_1aabdeeda0d737590a1f7b17220b134d17" prot="protected" virt="non-virtual"><scope>tudat::json_interface::ReportableBugError</scope><name>reportURL</name></member>
+      <member refid="classtudat_1_1json__interface_1_1ReportableBugError_1a16b0d638287012ce6f62a3f4478e810b" prot="public" virt="virtual"><scope>tudat::json_interface::ReportableBugError</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

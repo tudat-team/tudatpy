@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1GroundStationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::GroundStationSettings</compoundname>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1GroundStationSettings_1a42e572c75b1b8a9cf2a6e328d24aa7c1" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::GroundStationSettings::stationName_</definition>
+        <argsstring></argsstring>
+        <name>stationName_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" line="52" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1GroundStationSettings_1ac8ef4f77ceb6d808dbc0158f9ad93c8f" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::GroundStationSettings::groundStationPosition_</definition>
+        <argsstring></argsstring>
+        <name>groundStationPosition_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" line="54" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1GroundStationSettings_1a72971ccedd46e665eb495dd9dc9f919b" prot="protected" static="no" mutable="no">
+        <type>coordinate_conversions::PositionElementTypes</type>
+        <definition>coordinate_conversions::PositionElementTypes tudat::simulation_setup::GroundStationSettings::positionElementType_</definition>
+        <argsstring></argsstring>
+        <name>positionElementType_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" line="56" column="50" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1GroundStationSettings_1aa28ed6c7dce1af7fd4cfbe853bdb6bb4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::GroundStationSettings::GroundStationSettings</definition>
+        <argsstring>(const std::string &amp;stationName, const Eigen::Vector3d &amp;groundStationPosition, const coordinate_conversions::PositionElementTypes positionElementType=coordinate_conversions::cartesian_position)</argsstring>
+        <name>GroundStationSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>stationName</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>groundStationPosition</declname>
+        </param>
+        <param>
+          <type>const coordinate_conversions::PositionElementTypes</type>
+          <declname>positionElementType</declname>
+          <defval>coordinate_conversions::cartesian_position</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" line="26" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" bodystart="26" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1GroundStationSettings_1a1e14ef61ac7cf75058d08aac0e6d25de" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::GroundStationSettings::getStationName</definition>
+        <argsstring>()</argsstring>
+        <name>getStationName</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" line="35" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" bodystart="35" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1GroundStationSettings_1ae41e24fc9653c094879dff8253a601cc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::GroundStationSettings::getGroundStationPosition</definition>
+        <argsstring>()</argsstring>
+        <name>getGroundStationPosition</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" line="40" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" bodystart="40" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1GroundStationSettings_1a1d5f2b476513e689aa9ea81ff00fc85b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>coordinate_conversions::PositionElementTypes</type>
+        <definition>coordinate_conversions::PositionElementTypes tudat::simulation_setup::GroundStationSettings::getPositionElementType</definition>
+        <argsstring>()</argsstring>
+        <name>getPositionElementType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" line="45" column="50" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" bodystart="45" bodyend="48"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::GroundStationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1GroundStationSettings"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>stationName_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" line="23" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGroundStations.h" bodystart="24" bodyend="57"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1GroundStationSettings_1ae41e24fc9653c094879dff8253a601cc" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::GroundStationSettings</scope><name>getGroundStationPosition</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GroundStationSettings_1a1d5f2b476513e689aa9ea81ff00fc85b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::GroundStationSettings</scope><name>getPositionElementType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GroundStationSettings_1a1e14ef61ac7cf75058d08aac0e6d25de" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::GroundStationSettings</scope><name>getStationName</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GroundStationSettings_1ac8ef4f77ceb6d808dbc0158f9ad93c8f" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::GroundStationSettings</scope><name>groundStationPosition_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GroundStationSettings_1aa28ed6c7dce1af7fd4cfbe853bdb6bb4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::GroundStationSettings</scope><name>GroundStationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GroundStationSettings_1a72971ccedd46e665eb495dd9dc9f919b" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::GroundStationSettings</scope><name>positionElementType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GroundStationSettings_1a42e572c75b1b8a9cf2a6e328d24aa7c1" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::GroundStationSettings</scope><name>stationName_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

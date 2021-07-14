@@ -1,0 +1,191 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::EstimationConvergenceChecker</compoundname>
+    <includes refid="podInputOutputTypes_8h" local="no">podInputOutputTypes.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1a78302ca23542f361e19e957f2be3cabd" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::EstimationConvergenceChecker::maximumNumberOfIterations_</definition>
+        <argsstring></argsstring>
+        <name>maximumNumberOfIterations_</name>
+        <briefdescription>
+<para>Maximum number of allowed iterations for estimation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="420" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="420" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1abde0aae2cb3643ec29b97ec3dded63cf" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::EstimationConvergenceChecker::minimumResidualChange_</definition>
+        <argsstring></argsstring>
+        <name>minimumResidualChange_</name>
+        <briefdescription>
+<para>Minimum required change in residual between two iterations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="423" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="423" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1a818e28aba12eaf715f2d13e5562d7cf3" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::EstimationConvergenceChecker::minimumResidual_</definition>
+        <argsstring></argsstring>
+        <name>minimumResidual_</name>
+        <briefdescription>
+<para>Minimum value of observation residual below which estimation is converged. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="426" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="426" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1aef1ab2e781d88b4354f292da4e7fa04e" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::simulation_setup::EstimationConvergenceChecker::numberOfIterationsWithoutImprovement_</definition>
+        <argsstring></argsstring>
+        <name>numberOfIterationsWithoutImprovement_</name>
+        <briefdescription>
+<para>Number of iterations without reduction of residual. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="429" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="429" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1ae750b2c04d22e59e6748bf0d86f077bd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::EstimationConvergenceChecker::EstimationConvergenceChecker</definition>
+        <argsstring>(const unsigned int maximumNumberOfIterations=5, const double minimumResidualChange=0.0, const double minimumResidual=1.0E-20, const int numberOfIterationsWithoutImprovement=2)</argsstring>
+        <name>EstimationConvergenceChecker</name>
+        <param>
+          <type>const unsigned int</type>
+          <declname>maximumNumberOfIterations</declname>
+          <defval>5</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumResidualChange</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumResidual</declname>
+          <defval>1.0E-20</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfIterationsWithoutImprovement</declname>
+          <defval>2</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets a number of values for stopping conditions. The estimation stops if one of these is met. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumNumberOfIterations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of allowed iterations for estimation </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumResidualChange</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum required change in residual between two iterations </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumResidual</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum value of observation residual below which estimation is converged </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfIterationsWithoutImprovement</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of iterations without reduction of residual </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="370" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="370" bodyend="378"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1a73596d5c195a30fb7d10773d0663f010" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::EstimationConvergenceChecker::isEstimationConverged</definition>
+        <argsstring>(const int numberOfIterations, const std::vector&lt; double &gt; rmsResidualHistory)</argsstring>
+        <name>isEstimationConverged</name>
+        <param>
+          <type>const int</type>
+          <declname>numberOfIterations</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>rmsResidualHistory</declname>
+        </param>
+        <briefdescription>
+<para>Function to determine whether the estimation is deemed to be converged. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to determine whether the estimation is deemed to be converged (i.e. if it should terminate) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>numberOfIterations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of iterations of estimation procedure that have been completed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rmsResidualHistory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rms residuals at current and all previous iterations </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if estimation is to be terminated </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="387" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="387" bodyend="416"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" line="358" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/podInputOutputTypes.h" bodystart="359" bodyend="430"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1ae750b2c04d22e59e6748bf0d86f077bd" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::EstimationConvergenceChecker</scope><name>EstimationConvergenceChecker</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1a73596d5c195a30fb7d10773d0663f010" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::EstimationConvergenceChecker</scope><name>isEstimationConverged</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1a78302ca23542f361e19e957f2be3cabd" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::EstimationConvergenceChecker</scope><name>maximumNumberOfIterations_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1a818e28aba12eaf715f2d13e5562d7cf3" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::EstimationConvergenceChecker</scope><name>minimumResidual_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1abde0aae2cb3643ec29b97ec3dded63cf" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::EstimationConvergenceChecker</scope><name>minimumResidualChange_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_1aef1ab2e781d88b4354f292da4e7fa04e" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::EstimationConvergenceChecker</scope><name>numberOfIterationsWithoutImprovement_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

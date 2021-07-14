@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="twoLineElementsFileReader_8h" kind="file" language="C++">
+    <compoundname>twoLineElementsFileReader.h</compoundname>
+    <includes local="no">fstream</includes>
+    <includes local="no">map</includes>
+    <includes local="no">string</includes>
+    <includes local="no">vector</includes>
+    <includes local="no">memory</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>string</label>
+      </node>
+      <node id="3">
+        <label>map</label>
+      </node>
+      <node id="2">
+        <label>fstream</label>
+      </node>
+      <node id="5">
+        <label>vector</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/twoLineElementsFileReader.h</label>
+        <link refid="twoLineElementsFileReader_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader" prot="public">tudat::input_output::TwoLineElementsFileReader</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1input__output">tudat::input_output</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2020,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_TWO_LINE_ELEMENTS_FILE_READER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_TWO_LINE_ELEMENTS_FILE_READER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;fstream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;map&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">input_output</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader" kindref="compound">TwoLineElementsFileReader</ref></highlight></codeline>
+<codeline lineno="37"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a393e59fb3bb326d928b73b87a5fc7542" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a393e59fb3bb326d928b73b87a5fc7542" kindref="member">TwoLineElementsFileReader</ref>(<sp/>std::string&amp;<sp/>fileName,<sp/>std::string&amp;<sp/>absoluteDirectoryPath,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfHeaderLines<sp/>=<sp/>0,<sp/>std::string<sp/>lineCommentChar<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;#&quot;</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a79148644b718d94644ebd51102838b8c" kindref="member">numberOfHeaderLines_</ref>(<sp/>numberOfHeaderLines<sp/>),</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a467d67eabe5cae5730d47b06a1abb015" kindref="member">dataFile_</ref>(<sp/>),</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ab88309f6cb23a98893a9da0361efe1ad" kindref="member">fileName_</ref>(<sp/>fileName<sp/>),</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a484c9eeb2e72e99c39521b288cc35dcc" kindref="member">stringOfData_</ref>(<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal"><sp/>),</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ad0012b2fb8cdaf12a59865ad79d1167d" kindref="member">absoluteFilePath_</ref>(<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal"><sp/>),</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1abb8c8a5f14c6e0f7800756483e094689" kindref="member">absoluteDirectoryPath_</ref>(<sp/>absoluteDirectoryPath<sp/>),</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1acb2b077b9061347178b72e704e127073" kindref="member">relativeDirectoryPath_</ref>(<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal"><sp/>),</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1af0ee320fc0b55b1ea3c2d52e09d8d5a0" kindref="member">lineCommentChar_</ref>(<sp/>lineCommentChar<sp/>),</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>numberOfObjects_(<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1aef5294617b5090b0753ec3b835581b7d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1aef5294617b5090b0753ec3b835581b7d" kindref="member">~TwoLineElementsFileReader</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a467d67eabe5cae5730d47b06a1abb015" kindref="member">dataFile_</ref>.is_open(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a467d67eabe5cae5730d47b06a1abb015" kindref="member">dataFile_</ref>.close(<sp/>);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a3307260fb1bacc5ac83067ab7c9c025b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a3307260fb1bacc5ac83067ab7c9c025b" kindref="member">setAbsoluteDirectoryPath</ref>(<sp/>std::string&amp;<sp/>absoluteDirectoryPath<sp/>)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1acb2b077b9061347178b72e704e127073" kindref="member">relativeDirectoryPath_</ref><sp/>=<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1abb8c8a5f14c6e0f7800756483e094689" kindref="member">absoluteDirectoryPath_</ref><sp/>=<sp/>absoluteDirectoryPath;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a24049a1020046cf3c636c3e3fe8f6069" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a24049a1020046cf3c636c3e3fe8f6069" kindref="member">setRelativeDirectoryPath</ref>(<sp/>std::string<sp/>relativeDirectoryPath<sp/>)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1abb8c8a5f14c6e0f7800756483e094689" kindref="member">absoluteDirectoryPath_</ref><sp/>=<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1acb2b077b9061347178b72e704e127073" kindref="member">relativeDirectoryPath_</ref><sp/>=<sp/>relativeDirectoryPath;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1aa4ef75b70a1ae7b4e7bc7f0f440e24f4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1aa4ef75b70a1ae7b4e7bc7f0f440e24f4" kindref="member">setFileName</ref>(<sp/>std::string<sp/>fileName<sp/>)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ab88309f6cb23a98893a9da0361efe1ad" kindref="member">fileName_</ref><sp/>=<sp/>fileName;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ad8bf353b2e890c1c292588c53851d534" kindref="member">openFile</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a8247405340d53a8e28820a57065a8790" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a8247405340d53a8e28820a57065a8790" kindref="member">setNumberOfHeaderLines</ref>(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfHeaderLines<sp/>)</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a79148644b718d94644ebd51102838b8c" kindref="member">numberOfHeaderLines_</ref><sp/>=<sp/>numberOfHeaderLines;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a01715e9fb6be7bd20a8d0bbdedd94815" kindref="member">readAndStoreData</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1add94f101b51726d2169ade6e7a91cbdd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1add94f101b51726d2169ade6e7a91cbdd" kindref="member">getNumberOfObjects</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>numberOfObjects_;<sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::string,<sp/>std::string<sp/>&gt;<sp/>getTleMap(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tlePairs_;<sp/>};</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a79148644b718d94644ebd51102838b8c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a79148644b718d94644ebd51102838b8c" kindref="member">numberOfHeaderLines_</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a467d67eabe5cae5730d47b06a1abb015" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::ifstream<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a467d67eabe5cae5730d47b06a1abb015" kindref="member">dataFile_</ref>;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ab88309f6cb23a98893a9da0361efe1ad" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ab88309f6cb23a98893a9da0361efe1ad" kindref="member">fileName_</ref>;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a484c9eeb2e72e99c39521b288cc35dcc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1a484c9eeb2e72e99c39521b288cc35dcc" kindref="member">stringOfData_</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ad0012b2fb8cdaf12a59865ad79d1167d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ad0012b2fb8cdaf12a59865ad79d1167d" kindref="member">absoluteFilePath_</ref>;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1abb8c8a5f14c6e0f7800756483e094689" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1abb8c8a5f14c6e0f7800756483e094689" kindref="member">absoluteDirectoryPath_</ref>;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1acb2b077b9061347178b72e704e127073" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1acb2b077b9061347178b72e704e127073" kindref="member">relativeDirectoryPath_</ref>;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1af0ee320fc0b55b1ea3c2d52e09d8d5a0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1af0ee320fc0b55b1ea3c2d52e09d8d5a0" kindref="member">lineCommentChar_</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::string,<sp/>std::string<sp/>&gt;<sp/>tlePairs_;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ad7be6f3a7049f59a6cf6a2d802428321" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::string<sp/>&gt;<sp/><ref refid="classtudat_1_1input__output_1_1TwoLineElementsFileReader_1ad7be6f3a7049f59a6cf6a2d802428321" kindref="member">headerLines_</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfObjects_;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>input_output</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_TWO_LINE_ELEMENTS_FILE_READER_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/twoLineElementsFileReader.h"/>
+  </compounddef>
+</doxygen>

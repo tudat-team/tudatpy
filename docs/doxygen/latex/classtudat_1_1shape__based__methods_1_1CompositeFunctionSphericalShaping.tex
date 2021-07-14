@@ -1,0 +1,91 @@
+\hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping}{}\doxysection{tudat\+::shape\+\_\+based\+\_\+methods\+::Composite\+Function\+Spherical\+Shaping Class Reference}
+\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping}\index{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping@{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping}}
+Inheritance diagram for tudat\+::shape\+\_\+based\+\_\+methods\+::Composite\+Function\+Spherical\+Shaping\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.255605cm]{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a0395c5e6585ccd5ea81688d9d2d22200}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a0395c5e6585ccd5ea81688d9d2d22200}} 
+\mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a0395c5e6585ccd5ea81688d9d2d22200}{Composite\+Function\+Spherical\+Shaping}} ()
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_ad5255e489b9e577301e82a8e067eb1d8}{$\sim$\+Composite\+Function\+Spherical\+Shaping}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a1c644b25c7f4bb1ed6ac82939d1e7cc2}{get\+Composite\+Function\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Return coefficients. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a685e28634a7b1b4ed45a09839714b4ce}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a685e28634a7b1b4ed45a09839714b4ce}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping}{Base\+Function\+Spherical\+Shaping}} $>$ $>$ {\bfseries get\+Composite\+Components} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_abcec868fc382496e402af3585c697090}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_abcec868fc382496e402af3585c697090}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping}{Base\+Function\+Spherical\+Shaping}} $>$ {\bfseries get\+Composite\+Component} (int index\+Component)
+\item 
+void \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_ab35f2b633dc991dd2fca8ab7f44bcddd}{reset\+Composite\+Function\+Coefficients}} (const Eigen\+::\+Vector\+Xd \&composite\+Function\+Coefficients)
+\begin{DoxyCompactList}\small\item\em Reset coefficients. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a144521d41ec8174306f42cabac9ad51e}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a144521d41ec8174306f42cabac9ad51e}} 
+double {\bfseries evaluate\+Composite\+Function} (const double independent\+Variable)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a89affbe6e4762c302363d6855ef0ae48}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a89affbe6e4762c302363d6855ef0ae48}} 
+double {\bfseries evaluate\+Composite\+Function\+First\+Derivative} (const double independent\+Variable)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a7de9e89791e42a221cf7e85884bb26cf}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a7de9e89791e42a221cf7e85884bb26cf}} 
+double {\bfseries evaluate\+Composite\+Function\+Second\+Derivative} (const double independent\+Variable)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_ae15feb2697c713439d3590f8534a0996}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_ae15feb2697c713439d3590f8534a0996}} 
+double {\bfseries evaluate\+Composite\+Function\+Third\+Derivative} (const double independent\+Variable)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a2485473178367e7e992394013e3ebdfc}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a2485473178367e7e992394013e3ebdfc}} 
+double {\bfseries get\+Component\+Function\+Current\+Value} (const int component\+Index, const double current\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a3440d1b6da55570c7885e74cdcdf061b}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a3440d1b6da55570c7885e74cdcdf061b}} 
+double {\bfseries get\+Component\+Function\+First\+Derivative} (const int component\+Index, const double current\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a97b7dadd44203756141e87308d035342}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a97b7dadd44203756141e87308d035342}} 
+double {\bfseries get\+Component\+Function\+Second\+Derivative} (const int component\+Index, const double current\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a8c9f71c54f29f15507b9976f314a3504}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a8c9f71c54f29f15507b9976f314a3504}} 
+double {\bfseries get\+Component\+Function\+Third\+Derivative} (const int component\+Index, const double current\+Time)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_ad5255e489b9e577301e82a8e067eb1d8}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_ad5255e489b9e577301e82a8e067eb1d8}} 
+\index{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping@{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping}!````~CompositeFunctionSphericalShaping@{$\sim$CompositeFunctionSphericalShaping}}
+\index{````~CompositeFunctionSphericalShaping@{$\sim$CompositeFunctionSphericalShaping}!tudat::shape\_based\_methods::CompositeFunctionSphericalShaping@{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping}}
+\doxysubsubsection{\texorpdfstring{$\sim$CompositeFunctionSphericalShaping()}{~CompositeFunctionSphericalShaping()}}
+{\footnotesize\ttfamily tudat\+::shape\+\_\+based\+\_\+methods\+::\+Composite\+Function\+Spherical\+Shaping\+::$\sim$\+Composite\+Function\+Spherical\+Shaping (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default destructor. 
+
+Default destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a1c644b25c7f4bb1ed6ac82939d1e7cc2}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_a1c644b25c7f4bb1ed6ac82939d1e7cc2}} 
+\index{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping@{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping}!getCompositeFunctionCoefficients@{getCompositeFunctionCoefficients}}
+\index{getCompositeFunctionCoefficients@{getCompositeFunctionCoefficients}!tudat::shape\_based\_methods::CompositeFunctionSphericalShaping@{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping}}
+\doxysubsubsection{\texorpdfstring{getCompositeFunctionCoefficients()}{getCompositeFunctionCoefficients()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::shape\+\_\+based\+\_\+methods\+::\+Composite\+Function\+Spherical\+Shaping\+::get\+Composite\+Function\+Coefficients (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return coefficients. 
+
+Returns coefficients of composite function. \mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_ab35f2b633dc991dd2fca8ab7f44bcddd}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping_ab35f2b633dc991dd2fca8ab7f44bcddd}} 
+\index{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping@{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping}!resetCompositeFunctionCoefficients@{resetCompositeFunctionCoefficients}}
+\index{resetCompositeFunctionCoefficients@{resetCompositeFunctionCoefficients}!tudat::shape\_based\_methods::CompositeFunctionSphericalShaping@{tudat::shape\_based\_methods::CompositeFunctionSphericalShaping}}
+\doxysubsubsection{\texorpdfstring{resetCompositeFunctionCoefficients()}{resetCompositeFunctionCoefficients()}}
+{\footnotesize\ttfamily void tudat\+::shape\+\_\+based\+\_\+methods\+::\+Composite\+Function\+Spherical\+Shaping\+::reset\+Composite\+Function\+Coefficients (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector\+Xd \&}]{composite\+Function\+Coefficients }\end{DoxyParamCaption})}
+
+
+
+Reset coefficients. 
+
+Resets the coefficients of the composite function. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/shape\+\_\+based/composite\+Function\+Spherical\+Shaping.\+h\end{DoxyCompactItemize}

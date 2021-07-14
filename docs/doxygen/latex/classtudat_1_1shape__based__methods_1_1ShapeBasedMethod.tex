@@ -1,0 +1,38 @@
+\hypertarget{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod}{}\doxysection{tudat\+::shape\+\_\+based\+\_\+methods\+::Shape\+Based\+Method Class Reference}
+\label{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod}\index{tudat::shape\_based\_methods::ShapeBasedMethod@{tudat::shape\_based\_methods::ShapeBasedMethod}}
+Inheritance diagram for tudat\+::shape\+\_\+based\+\_\+methods\+::Shape\+Based\+Method\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.745098cm]{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a1f09a86e50235d853e55bce69af8f3c2}\label{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a1f09a86e50235d853e55bce69af8f3c2}} 
+\mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a1f09a86e50235d853e55bce69af8f3c2}{Shape\+Based\+Method}} (const Eigen\+::\+Vector6d \&state\+At\+Departure, const Eigen\+::\+Vector6d \&state\+At\+Arrival, const double time\+Of\+Flight)
+\begin{DoxyCompactList}\small\item\em Empty constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a8f7268d8606524de69e63a1e3f9c79bc}\label{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a8f7268d8606524de69e63a1e3f9c79bc}} 
+virtual \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a8f7268d8606524de69e63a1e3f9c79bc}{$\sim$\+Shape\+Based\+Method}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a27694499333b7e3d601a0a80e769532a}\label{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a27694499333b7e3d601a0a80e769532a}} 
+virtual double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a27694499333b7e3d601a0a80e769532a}{get\+Initial\+Value\+Inpendent\+Variable}} ()=0
+\begin{DoxyCompactList}\small\item\em Returns initial value of the independent variable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_acd5dd9a01a531ffe926643fc7a3d9b30}\label{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_acd5dd9a01a531ffe926643fc7a3d9b30}} 
+virtual double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_acd5dd9a01a531ffe926643fc7a3d9b30}{get\+Final\+Value\+Inpendent\+Variable}} ()=0
+\begin{DoxyCompactList}\small\item\em Returns final value of the independent variable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a0fbd3bd709cbcb1292e0f464adf8aee2}\label{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a0fbd3bd709cbcb1292e0f464adf8aee2}} 
+void \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_a0fbd3bd709cbcb1292e0f464adf8aee2}{get\+Trajectory}} (std\+::vector$<$ double $>$ \&epochs\+Vector, std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&propagated\+Trajectory)
+\begin{DoxyCompactList}\small\item\em Returns state history. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_af20fa8973ec35ee2ec54dd3b49033d60}\label{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_af20fa8973ec35ee2ec54dd3b49033d60}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__quadrature_1_1QuadratureSettings}{numerical\+\_\+quadrature\+::\+Quadrature\+Settings}}$<$ double $>$ $>$ \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1ShapeBasedMethod_af20fa8973ec35ee2ec54dd3b49033d60}{quadrature\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Numerical quadrature settings, required to compute the time of flight and total deltaV. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/shape\+\_\+based/shape\+Based\+Method.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/shape\+\_\+based/shape\+Based\+Method.\+cpp\end{DoxyCompactItemize}

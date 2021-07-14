@@ -1,0 +1,717 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" kind="class" language="C++" prot="public">
+    <compoundname>tudat::electromagnetism::RadiationPressureInterface</compoundname>
+    <derivedcompoundref refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface" prot="public" virt="non-virtual">tudat::electromagnetism::PanelledRadiationPressureInterface</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface" prot="public" virt="non-virtual">tudat::electromagnetism::SolarSailingRadiationPressureInterface</derivedcompoundref>
+    <includes refid="radiationPressureInterface_8h" local="no">radiationPressureInterface.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a649500ecb7092ec3b0e0304df9bb7e57" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::electromagnetism::RadiationPressureInterface::sourcePower_</definition>
+        <argsstring></argsstring>
+        <name>sourcePower_</name>
+        <briefdescription>
+<para>Function returning the current total power (in W) emitted by the source body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="272" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="272" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a8b1e3589ef7f05e340de24e65c053f1f" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::RadiationPressureInterface::sourcePositionFunction_</definition>
+        <argsstring></argsstring>
+        <name>sourcePositionFunction_</name>
+        <briefdescription>
+<para>Function returning the current position of the source body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="275" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="275" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ac93f1f970d7d5a6277692c58dce24b47" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::RadiationPressureInterface::targetPositionFunction_</definition>
+        <argsstring></argsstring>
+        <name>targetPositionFunction_</name>
+        <briefdescription>
+<para>Function returning the current position of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="278" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="278" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af23389ab985239758021e95a52eb7ac2" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::radiationPressureCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureCoefficient_</name>
+        <briefdescription>
+<para>Radiation pressure coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="281" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="281" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a49136e9a7ef2e4dd136e32fe852f1f79" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::electromagnetism::RadiationPressureInterface::radiationPressureCoefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureCoefficientFunction_</name>
+        <briefdescription>
+<para>Function to reset a constant radiation pressure coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="284" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="284" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a04e2d7077622e88aa02832215350d4f6" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::area_</definition>
+        <argsstring></argsstring>
+        <name>area_</name>
+        <briefdescription>
+<para>Reflecting area of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="287" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="287" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a53cfee0cbf69298d4a0d05bff7810132" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; Eigen::Vector3d( ) &gt; &gt; tudat::electromagnetism::RadiationPressureInterface::occultingBodyPositions_</definition>
+        <argsstring></argsstring>
+        <name>occultingBodyPositions_</name>
+        <briefdescription>
+<para>List of functions returning the positions of the bodies causing occultations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="290" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="290" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1aaf264645d6f27dbcef1352bec0d8c2ec" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::electromagnetism::RadiationPressureInterface::occultingBodyRadii_</definition>
+        <argsstring></argsstring>
+        <name>occultingBodyRadii_</name>
+        <briefdescription>
+<para>List of radii of the bodies causing occultations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="293" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="293" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af0b463560f437c33a7aa5b62c6a5ed4c" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::sourceRadius_</definition>
+        <argsstring></argsstring>
+        <name>sourceRadius_</name>
+        <briefdescription>
+<para>Radius of the source body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="296" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="296" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a3dff0ed23972323dec47c69afed013f6" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::currentRadiationPressure_</definition>
+        <argsstring></argsstring>
+        <name>currentRadiationPressure_</name>
+        <briefdescription>
+<para>Current radiation pressure due to source at target (in N/m^2). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="299" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="299" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a1be95ff189b5346b83a03ab52a0f7fae" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::RadiationPressureInterface::currentSolarVector_</definition>
+        <argsstring></argsstring>
+        <name>currentSolarVector_</name>
+        <briefdescription>
+<para>Current vector from the target to the source. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="302" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="302" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a5f4c8a1288b0d61f06a0fef2e5e0215a" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::currentTime_</definition>
+        <argsstring></argsstring>
+        <name>currentTime_</name>
+        <briefdescription>
+<para>Current time of interface (i.e. time of last updateInterface call). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="305" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="305" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a31cc26c88dd8f55447042462bdfddca3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::electromagnetism::RadiationPressureInterface::RadiationPressureInterface</definition>
+        <argsstring>(const std::function&lt; double() &gt; sourcePower, const std::function&lt; Eigen::Vector3d() &gt; sourcePositionFunction, const std::function&lt; Eigen::Vector3d() &gt; targetPositionFunction, const double radiationPressureCoefficient, const double area, const std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt; occultingBodyPositions=std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;(), const std::vector&lt; double &gt; occultingBodyRadii=std::vector&lt; double &gt;(), const double sourceRadius=0.0)</argsstring>
+        <name>RadiationPressureInterface</name>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>sourcePower</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>sourcePositionFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>targetPositionFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>radiationPressureCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;</type>
+          <declname>occultingBodyPositions</declname>
+          <defval>std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>occultingBodyRadii</declname>
+          <defval>std::vector&lt; double &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sourceRadius</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Class construtor for radiation pressure interface. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sourcePower</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current total power (in W) emitted by the source body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sourcePositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current position of the source body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetPositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current position of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressureCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reflectivity coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reflecting area of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>occultingBodyPositions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of functions returning the positions of the bodies causing occultations (default none) NOTE: Multiple concurrent occultations may currently result in slighlty underestimted radiation pressure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>occultingBodyRadii</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of radii of the bodies causing occultations (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sourceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radius of the source body (used for occultation calculations) (default 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="67" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="67" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a6fac7e11f591ca2c87d1588ecaa79428" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::electromagnetism::RadiationPressureInterface::RadiationPressureInterface</definition>
+        <argsstring>(const std::function&lt; double() &gt; sourcePower, const std::function&lt; Eigen::Vector3d() &gt; sourcePositionFunction, const std::function&lt; Eigen::Vector3d() &gt; targetPositionFunction, std::function&lt; double(const double) &gt; radiationPressureCoefficientFunction, const double area, const std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt; occultingBodyPositions=std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;(), const std::vector&lt; double &gt; occultingBodyRadii=std::vector&lt; double &gt;(), const double sourceRadius=0.0)</argsstring>
+        <name>RadiationPressureInterface</name>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>sourcePower</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>sourcePositionFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>targetPositionFunction</declname>
+        </param>
+        <param>
+          <type>std::function&lt; double(const double) &gt;</type>
+          <declname>radiationPressureCoefficientFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;</type>
+          <declname>occultingBodyPositions</declname>
+          <defval>std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>occultingBodyRadii</declname>
+          <defval>std::vector&lt; double &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sourceRadius</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="89" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="89" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af75e0844a60cdb32afcf1059f9fd804e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::electromagnetism::RadiationPressureInterface::~RadiationPressureInterface</definition>
+        <argsstring>()</argsstring>
+        <name>~RadiationPressureInterface</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="112" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="112" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ab48c69a870e547367bb260a633085662" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::electromagnetism::RadiationPressureInterface::updateInterfaceBase</definition>
+        <argsstring>(const double currentTime)</argsstring>
+        <name>updateInterfaceBase</name>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Base class function to update the current properties of radiation pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Base class function to update the current properties of radiation pressure. This function is nominally called by the updateInterface function, which may be overridden by derived classes. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="120" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/radiationPressureInterface.cpp" bodystart="31" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a0a6d161420b52a1a00d2c13db4c39d85" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::electromagnetism::RadiationPressureInterface::updateInterface</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateInterface</name>
+        <reimplementedby refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a0ac11f2d616da3d40e092e80e283a545">updateInterface</reimplementedby>
+        <reimplementedby refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a79f523f1311843d143ebe6efe4f1dcf0">updateInterface</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function to update the current value of the radiation pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the current value of the radiation pressure, based on functions returning the positions of the bodies involved and the source power. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="129" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/radiationPressureInterface.cpp" bodystart="64" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a209a53f46c57d4ecc439669b4a66034f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::getCurrentRadiationPressure</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentRadiationPressure</name>
+        <briefdescription>
+<para>Function to return the current radiation pressure due to source at target (in N/m^2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current radiation pressure due to source at target (in N/m^2). <simplesect kind="return"><para>Current radiation pressure due to source at target (in N/m^2). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="136" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="136" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af8257a4166fd41c27cb046ac98dd9142" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::RadiationPressureInterface::getCurrentSolarVector</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentSolarVector</name>
+        <briefdescription>
+<para>Function to return the current vector from the target to the source. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current vector from the target to the source. <simplesect kind="return"><para>Current vector from the target to the source. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="146" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="146" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1aa2cc240947befd9fe22a4285667b034d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::RadiationPressureInterface::getSourcePositionFunction</definition>
+        <argsstring>() const</argsstring>
+        <name>getSourcePositionFunction</name>
+        <briefdescription>
+<para>Function to return the function returning the current position of the source body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the function returning the current position of the source body. <simplesect kind="return"><para>The function returning the current position of the source body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="156" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="156" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a6ce4e08815ae5bce50eb705b603976ee" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::RadiationPressureInterface::getTargetPositionFunction</definition>
+        <argsstring>() const</argsstring>
+        <name>getTargetPositionFunction</name>
+        <briefdescription>
+<para>Function to return the function returning the current position of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the function returning the current position of the target body. <simplesect kind="return"><para>The function returning the current position of the target body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="166" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="166" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a8ba190d3660cba1a3e680d4cbf066595" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::getArea</definition>
+        <argsstring>() const</argsstring>
+        <name>getArea</name>
+        <briefdescription>
+<para>Function to return the reflecting area of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the reflecting area of the target body. <simplesect kind="return"><para>The reflecting area of the target body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="176" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="176" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a092b541d1978c4c00e21a87356de70ff" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::getRadiationPressureCoefficient</definition>
+        <argsstring>() const</argsstring>
+        <name>getRadiationPressureCoefficient</name>
+        <briefdescription>
+<para>Function to return the radiation pressure coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the radiation pressure coefficient of the target body. <simplesect kind="return"><para>The radiation pressure coefficient of the target body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="186" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="186" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a97e5df2678ff204facdcfb7fd2113d61" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::electromagnetism::RadiationPressureInterface::resetRadiationPressureCoefficient</definition>
+        <argsstring>(const double radiationPressureCoefficient)</argsstring>
+        <name>resetRadiationPressureCoefficient</name>
+        <param>
+          <type>const double</type>
+          <declname>radiationPressureCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset a constant radiation pressure coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset a constant radiation pressure coefficient of the target body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radiationPressureCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The new radiation pressure coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="196" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="196" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a965b7d578ec0b90c8724f2ab013b631d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::electromagnetism::RadiationPressureInterface::resetRadiationPressureCoefficientFunction</definition>
+        <argsstring>(const std::function&lt; double(const double) &gt; radiationPressureCoefficientFunction)</argsstring>
+        <name>resetRadiationPressureCoefficientFunction</name>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>radiationPressureCoefficientFunction</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the function to obtain the radiation pressure coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the function to obtain the radiation pressure coefficient of the target body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radiationPressureCoefficientFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New function to obtain the radiation pressure coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="207" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="207" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ac1b08085990ede1988dd21f5151adb35" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::electromagnetism::RadiationPressureInterface::getSourcePowerFunction</definition>
+        <argsstring>() const</argsstring>
+        <name>getSourcePowerFunction</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the function returning the current total power (in W) emitted by the source body.</para>
+<para>Function to return the function returning the current total power (in W) emitted by the source body. <simplesect kind="return"><para>The function returning the current total power emitted by the source body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="220" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="220" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a95472ae33b7e22da62099cc0d0dfd5e0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::getCurrentTime</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentTime</name>
+        <briefdescription>
+<para>Function to return the current time of interface (i.e. time of last updateInterface call). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current time of interface (i.e. time of last updateInterface call). <simplesect kind="return"><para>Current time of interface (i.e. time of last updateInterface call). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="230" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="230" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a17cfffd8b6e1c27c27c4fda95653abbf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; Eigen::Vector3d( ) &gt; &gt; tudat::electromagnetism::RadiationPressureInterface::getOccultingBodyPositions</definition>
+        <argsstring>()</argsstring>
+        <name>getOccultingBodyPositions</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the list of functions returning the positions of the bodies causing occultations</para>
+<para>Function to return the list of functions returning the positions of the bodies causing occultations <simplesect kind="return"><para>List of functions returning the positions of the bodies causing occultations </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="243" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="243" bodyend="246"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a9bb6a065c0f04b1075644aadd802332c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::electromagnetism::RadiationPressureInterface::getOccultingBodyRadii</definition>
+        <argsstring>()</argsstring>
+        <name>getOccultingBodyRadii</name>
+        <briefdescription>
+<para>Function to return the list of radii of the bodies causing occultations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the list of radii of the bodies causing occultations <simplesect kind="return"><para>List of radii of the bodies causing occultations </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="253" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="253" bodyend="256"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a611624c603a1276624899d043bc20e90" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::RadiationPressureInterface::getSourceRadius</definition>
+        <argsstring>()</argsstring>
+        <name>getSourceRadius</name>
+        <briefdescription>
+<para>Function to return the radius of the source body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the source radius of the target body. <simplesect kind="return"><para>The source radius of the target body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="263" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="263" bodyend="266"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class in which the properties of a solar radiation pressure acceleration model are stored. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class in which the properties of a solar radiation pressure acceleration model are stored and the current radiation pressure is calculated based on the source power and geometry. The current implementation is limited to a cannonball model. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::electromagnetism::PanelledRadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::electromagnetism::SolarSailingRadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::electromagnetism::RadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface"/>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="49" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="49" bodyend="306"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a04e2d7077622e88aa02832215350d4f6" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>area_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a3dff0ed23972323dec47c69afed013f6" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>currentRadiationPressure_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a1be95ff189b5346b83a03ab52a0f7fae" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>currentSolarVector_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a5f4c8a1288b0d61f06a0fef2e5e0215a" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a8ba190d3660cba1a3e680d4cbf066595" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getArea</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a209a53f46c57d4ecc439669b4a66034f" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getCurrentRadiationPressure</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af8257a4166fd41c27cb046ac98dd9142" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getCurrentSolarVector</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a95472ae33b7e22da62099cc0d0dfd5e0" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getCurrentTime</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a17cfffd8b6e1c27c27c4fda95653abbf" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getOccultingBodyPositions</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a9bb6a065c0f04b1075644aadd802332c" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getOccultingBodyRadii</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a092b541d1978c4c00e21a87356de70ff" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getRadiationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1aa2cc240947befd9fe22a4285667b034d" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getSourcePositionFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ac1b08085990ede1988dd21f5151adb35" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getSourcePowerFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a611624c603a1276624899d043bc20e90" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getSourceRadius</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a6ce4e08815ae5bce50eb705b603976ee" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>getTargetPositionFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a53cfee0cbf69298d4a0d05bff7810132" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>occultingBodyPositions_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1aaf264645d6f27dbcef1352bec0d8c2ec" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>occultingBodyRadii_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af23389ab985239758021e95a52eb7ac2" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>radiationPressureCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a49136e9a7ef2e4dd136e32fe852f1f79" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>radiationPressureCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a31cc26c88dd8f55447042462bdfddca3" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>RadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a6fac7e11f591ca2c87d1588ecaa79428" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>RadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a97e5df2678ff204facdcfb7fd2113d61" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>resetRadiationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a965b7d578ec0b90c8724f2ab013b631d" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>resetRadiationPressureCoefficientFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a8b1e3589ef7f05e340de24e65c053f1f" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>sourcePositionFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a649500ecb7092ec3b0e0304df9bb7e57" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>sourcePower_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af0b463560f437c33a7aa5b62c6a5ed4c" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>sourceRadius_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ac93f1f970d7d5a6277692c58dce24b47" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>targetPositionFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a0a6d161420b52a1a00d2c13db4c39d85" prot="public" virt="virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>updateInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ab48c69a870e547367bb260a633085662" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>updateInterfaceBase</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af75e0844a60cdb32afcf1059f9fd804e" prot="public" virt="virtual"><scope>tudat::electromagnetism::RadiationPressureInterface</scope><name>~RadiationPressureInterface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

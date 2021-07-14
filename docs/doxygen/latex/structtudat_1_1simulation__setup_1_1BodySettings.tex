@@ -1,0 +1,54 @@
+\hypertarget{structtudat_1_1simulation__setup_1_1BodySettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Body\+Settings Struct Reference}
+\label{structtudat_1_1simulation__setup_1_1BodySettings}\index{tudat::simulation\_setup::BodySettings@{tudat::simulation\_setup::BodySettings}}
+
+
+Struct holding settings for a body to be created.  
+
+
+
+
+{\ttfamily \#include $<$create\+Bodies.\+h$>$}
+
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_a3910f77d120039ce365c3840b696762e}\label{structtudat_1_1simulation__setup_1_1BodySettings_a3910f77d120039ce365c3840b696762e}} 
+double \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_a3910f77d120039ce365c3840b696762e}{constant\+Mass}} = TUDAT\+\_\+\+NAN
+\begin{DoxyCompactList}\small\item\em Constant mass. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_a2f4a14bdd31a977e32fb206c8bb048ca}\label{structtudat_1_1simulation__setup_1_1BodySettings_a2f4a14bdd31a977e32fb206c8bb048ca}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1AtmosphereSettings}{Atmosphere\+Settings}} $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_a2f4a14bdd31a977e32fb206c8bb048ca}{atmosphere\+Settings}}
+\begin{DoxyCompactList}\small\item\em Settings for the atmosphere model that the body is to contain. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_a0ee7f34f33a0c1a1e1d30562db3ab917}\label{structtudat_1_1simulation__setup_1_1BodySettings_a0ee7f34f33a0c1a1e1d30562db3ab917}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EphemerisSettings}{Ephemeris\+Settings}} $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_a0ee7f34f33a0c1a1e1d30562db3ab917}{ephemeris\+Settings}}
+\begin{DoxyCompactList}\small\item\em Settings for the ephemeris model that the body is to contain. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_a50f2d608d48545b1f310a0d733190b11}\label{structtudat_1_1simulation__setup_1_1BodySettings_a50f2d608d48545b1f310a0d733190b11}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1GravityFieldSettings}{Gravity\+Field\+Settings}} $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_a50f2d608d48545b1f310a0d733190b11}{gravity\+Field\+Settings}}
+\begin{DoxyCompactList}\small\item\em Settings for the gravity field model that the body is to contain. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_a6f7993ea5656f6b145f4cea2887023e5}\label{structtudat_1_1simulation__setup_1_1BodySettings_a6f7993ea5656f6b145f4cea2887023e5}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings}{Rotation\+Model\+Settings}} $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_a6f7993ea5656f6b145f4cea2887023e5}{rotation\+Model\+Settings}}
+\begin{DoxyCompactList}\small\item\em Settings for the rotation model that the body is to contain. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_a3ee11a34d99b4219622a54640b9ba5dd}\label{structtudat_1_1simulation__setup_1_1BodySettings_a3ee11a34d99b4219622a54640b9ba5dd}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1BodyShapeSettings}{Body\+Shape\+Settings}} $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_a3ee11a34d99b4219622a54640b9ba5dd}{shape\+Model\+Settings}}
+\begin{DoxyCompactList}\small\item\em Settings for the shape model that the body is to contain. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_a97f9e95d58ab26ecb9e9455ab28c918f}\label{structtudat_1_1simulation__setup_1_1BodySettings_a97f9e95d58ab26ecb9e9455ab28c918f}} 
+std\+::map$<$ std\+::string, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings}{Radiation\+Pressure\+Interface\+Settings}} $>$ $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_a97f9e95d58ab26ecb9e9455ab28c918f}{radiation\+Pressure\+Settings}}
+\begin{DoxyCompactList}\small\item\em Settings for the radiations pressure interfaces that the body is to contain (source body as key). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_abd0f747b550eb1ce22a8232b849e744a}\label{structtudat_1_1simulation__setup_1_1BodySettings_abd0f747b550eb1ce22a8232b849e744a}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings}{Aerodynamic\+Coefficient\+Settings}} $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_abd0f747b550eb1ce22a8232b849e744a}{aerodynamic\+Coefficient\+Settings}}
+\begin{DoxyCompactList}\small\item\em Settings for the aerodynamic coefficients that the body is to contain. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_ae7d1e5f3c342f0df6771669ccdc43368}\label{structtudat_1_1simulation__setup_1_1BodySettings_ae7d1e5f3c342f0df6771669ccdc43368}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1GravityFieldVariationSettings}{Gravity\+Field\+Variation\+Settings}} $>$ $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings_ae7d1e5f3c342f0df6771669ccdc43368}{gravity\+Field\+Variation\+Settings}}
+\begin{DoxyCompactList}\small\item\em Settings for variations of the gravity field of the body. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1BodySettings_a38b65a9ff84e0e0e1938847b37962c76}\label{structtudat_1_1simulation__setup_1_1BodySettings_a38b65a9ff84e0e0e1938847b37962c76}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1GroundStationSettings}{Ground\+Station\+Settings}} $>$ $>$ {\bfseries ground\+Station\+Settings}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Struct holding settings for a body to be created. 
+
+Struct holding settings for a body to be created. From the settings, a \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} object is created by the create\+Bodies function. Default values can be generated from the function in \mbox{\hyperlink{defaultBodies_8h_source}{default\+Bodies.\+h}}. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Bodies.\+h\end{DoxyCompactItemize}

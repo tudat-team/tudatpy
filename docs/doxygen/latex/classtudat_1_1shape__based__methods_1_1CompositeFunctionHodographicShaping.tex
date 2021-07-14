@@ -1,0 +1,86 @@
+\hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping}{}\doxysection{tudat\+::shape\+\_\+based\+\_\+methods\+::Composite\+Function\+Hodographic\+Shaping Class Reference}
+\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping}\index{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_aa18ec276bdcc91eeca000c00f28d9d28}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_aa18ec276bdcc91eeca000c00f28d9d28}} 
+\mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_aa18ec276bdcc91eeca000c00f28d9d28}{Composite\+Function\+Hodographic\+Shaping}} (const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping}{Base\+Function\+Hodographic\+Shaping}} $>$ $>$ \&composite\+Function\+Components, const Eigen\+::\+Vector\+Xd \&composite\+Function\+Coefficients)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_aeb7b0141b3e080077c7aad4834894da9}{$\sim$\+Composite\+Function\+Hodographic\+Shaping}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a5994521c8448822b019877917612c588}{get\+Composite\+Function\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Return coefficients. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a5bf9213614d1f0d3e13f9072b617af59}{reset\+Composite\+Function\+Coefficients}} (const Eigen\+::\+Vector\+Xd \&composite\+Function\+Coefficients)
+\begin{DoxyCompactList}\small\item\em Reset coefficients. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a39f60de65be69943e63ca96843355a15}{get\+Number\+Of\+Composite\+Function\+Components}} ()
+\begin{DoxyCompactList}\small\item\em Returns number of composite function components. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_aa7133c3623b28cb21d3126e60b60e512}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_aa7133c3623b28cb21d3126e60b60e512}} 
+double {\bfseries evaluate\+Composite\+Function\+Current\+Time} (const double independent\+Variable)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_ae68358a418c2190531f5d2320b4a1977}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_ae68358a418c2190531f5d2320b4a1977}} 
+double {\bfseries evaluate\+Composite\+Function\+Derivative\+Current\+Time} (const double independent\+Variable)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_ab5c02f35a164d1b7253bca38759d9052}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_ab5c02f35a164d1b7253bca38759d9052}} 
+double {\bfseries evaluate\+Composite\+Function\+Integral\+Current\+Time} (const double independent\+Variable)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_abc64e4cb57d60951a4f325dd0cfebf2d}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_abc64e4cb57d60951a4f325dd0cfebf2d}} 
+double {\bfseries get\+Component\+Function\+Current\+Value} (const int component\+Index, const double current\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_addbc2b1c9d0145616eee1d9e75dbcd08}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_addbc2b1c9d0145616eee1d9e75dbcd08}} 
+double {\bfseries get\+Component\+Function\+Derivative\+Current\+Time} (const int component\+Index, const double current\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a7dab0bd671e2e1a8e5db6c6a0c12f3aa}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a7dab0bd671e2e1a8e5db6c6a0c12f3aa}} 
+double {\bfseries get\+Component\+Function\+Integral\+Current\+Time} (const int component\+Index, const double current\+Time)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_aeb7b0141b3e080077c7aad4834894da9}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_aeb7b0141b3e080077c7aad4834894da9}} 
+\index{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}!````~CompositeFunctionHodographicShaping@{$\sim$CompositeFunctionHodographicShaping}}
+\index{````~CompositeFunctionHodographicShaping@{$\sim$CompositeFunctionHodographicShaping}!tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}}
+\doxysubsubsection{\texorpdfstring{$\sim$CompositeFunctionHodographicShaping()}{~CompositeFunctionHodographicShaping()}}
+{\footnotesize\ttfamily tudat\+::shape\+\_\+based\+\_\+methods\+::\+Composite\+Function\+Hodographic\+Shaping\+::$\sim$\+Composite\+Function\+Hodographic\+Shaping (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default destructor. 
+
+Default destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a5994521c8448822b019877917612c588}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a5994521c8448822b019877917612c588}} 
+\index{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}!getCompositeFunctionCoefficients@{getCompositeFunctionCoefficients}}
+\index{getCompositeFunctionCoefficients@{getCompositeFunctionCoefficients}!tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}}
+\doxysubsubsection{\texorpdfstring{getCompositeFunctionCoefficients()}{getCompositeFunctionCoefficients()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::shape\+\_\+based\+\_\+methods\+::\+Composite\+Function\+Hodographic\+Shaping\+::get\+Composite\+Function\+Coefficients (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return coefficients. 
+
+Returns coefficients of composite function. \mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a39f60de65be69943e63ca96843355a15}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a39f60de65be69943e63ca96843355a15}} 
+\index{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}!getNumberOfCompositeFunctionComponents@{getNumberOfCompositeFunctionComponents}}
+\index{getNumberOfCompositeFunctionComponents@{getNumberOfCompositeFunctionComponents}!tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}}
+\doxysubsubsection{\texorpdfstring{getNumberOfCompositeFunctionComponents()}{getNumberOfCompositeFunctionComponents()}}
+{\footnotesize\ttfamily int tudat\+::shape\+\_\+based\+\_\+methods\+::\+Composite\+Function\+Hodographic\+Shaping\+::get\+Number\+Of\+Composite\+Function\+Components (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns number of composite function components. 
+
+Returns number of composite function components. \mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a5bf9213614d1f0d3e13f9072b617af59}\label{classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_a5bf9213614d1f0d3e13f9072b617af59}} 
+\index{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}!resetCompositeFunctionCoefficients@{resetCompositeFunctionCoefficients}}
+\index{resetCompositeFunctionCoefficients@{resetCompositeFunctionCoefficients}!tudat::shape\_based\_methods::CompositeFunctionHodographicShaping@{tudat::shape\_based\_methods::CompositeFunctionHodographicShaping}}
+\doxysubsubsection{\texorpdfstring{resetCompositeFunctionCoefficients()}{resetCompositeFunctionCoefficients()}}
+{\footnotesize\ttfamily void tudat\+::shape\+\_\+based\+\_\+methods\+::\+Composite\+Function\+Hodographic\+Shaping\+::reset\+Composite\+Function\+Coefficients (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector\+Xd \&}]{composite\+Function\+Coefficients }\end{DoxyParamCaption})}
+
+
+
+Reset coefficients. 
+
+Resets the coefficients of the composite function. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/shape\+\_\+based/composite\+Function\+Hodographic\+Shaping.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/shape\+\_\+based/composite\+Function\+Hodographic\+Shaping.\+cpp\end{DoxyCompactItemize}

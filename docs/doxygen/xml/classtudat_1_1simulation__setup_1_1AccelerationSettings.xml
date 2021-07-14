@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1AccelerationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::AccelerationSettings</compoundname>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::CustomAccelerationSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::DirectTidalDissipationAccelerationSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::EmpiricalAccelerationSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::MomentumWheelDesaturationAccelerationSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1MutualSphericalHarmonicAccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::MutualSphericalHarmonicAccelerationSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings" prot="public" virt="non-virtual">tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::SphericalHarmonicAccelerationSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::ThrustAccelerationSettings</derivedcompoundref>
+    <includes refid="accelerationSettings_8h" local="no">accelerationSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1AccelerationSettings_1aaf1f7742077003cf7055c96ec934e4d8" prot="public" static="no" mutable="no">
+        <type>basic_astrodynamics::AvailableAcceleration</type>
+        <definition>basic_astrodynamics::AvailableAcceleration tudat::simulation_setup::AccelerationSettings::accelerationType_</definition>
+        <argsstring></argsstring>
+        <name>accelerationType_</name>
+        <briefdescription>
+<para>Type of acceleration from AvailableAcceleration enum. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="60" column="48" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a61a6c91bf73a293adb523ebe2b71f379" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::AccelerationSettings::AccelerationSettings</definition>
+        <argsstring>(const basic_astrodynamics::AvailableAcceleration accelerationType)</argsstring>
+        <name>AccelerationSettings</name>
+        <param>
+          <type>const basic_astrodynamics::AvailableAcceleration</type>
+          <declname>accelerationType</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, sets type of acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets type of acceleration. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>accelerationType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of acceleration from AvailableAcceleration enum. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="53" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="53" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a66bf9df8526ebaf6ed16a1100811a3ef" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::simulation_setup::AccelerationSettings::~AccelerationSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~AccelerationSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="57" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="57" bodyend="57"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for providing settings for acceleration model. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for providing settings for acceleration model. This class is a functional (base) class for settings of acceleration models that require no information in addition to their type. Classes defining settings for acceleration models requiring additional information must be derived from this class. Bodies exerting and undergong acceleration are set externally from this class. This class can be used for the easy setup of acceleration models (see <ref refid="createAccelerationModels_8h_source" kindref="compound">createAccelerationModels.h</ref>), but users may also chose to do so manually. (Derived) Class members are all public, for ease of access and modification. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::CustomAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::simulation_setup::EmpiricalAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+      <node id="9">
+        <label>tudat::simulation_setup::ThrustAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat::simulation_setup::MutualSphericalHarmonicAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1MutualSphericalHarmonicAccelerationSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat::simulation_setup::RelativisticAccelerationCorrectionSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RelativisticAccelerationCorrectionSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::simulation_setup::MomentumWheelDesaturationAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::simulation_setup::DirectTidalDissipationAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="44" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="45" bodyend="62"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a61a6c91bf73a293adb523ebe2b71f379" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::AccelerationSettings</scope><name>AccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1aaf1f7742077003cf7055c96ec934e4d8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::AccelerationSettings</scope><name>accelerationType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a66bf9df8526ebaf6ed16a1100811a3ef" prot="public" virt="virtual"><scope>tudat::simulation_setup::AccelerationSettings</scope><name>~AccelerationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Propagator::Acceleration::Thrust</compoundname>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1_1Direction" prot="public">tudat::json_interface::Keys::Propagator::Acceleration::Thrust::Direction</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1_1Magnitude" prot="public">tudat::json_interface::Keys::Propagator::Acceleration::Thrust::Magnitude</innerclass>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1af40acda9beb300a835e2c10cbdc54002" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::Acceleration::Thrust::direction</definition>
+        <argsstring></argsstring>
+        <name>direction</name>
+        <initializer>= &quot;direction&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="399" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="399" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1a4c512e34bc953a58818057f50ff2a7dc" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::Acceleration::Thrust::magnitude</definition>
+        <argsstring></argsstring>
+        <name>magnitude</name>
+        <initializer>= &quot;magnitude&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="408" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="408" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1a4b6d21da4a7e20701afaec8b6e37b97b" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::Acceleration::Thrust::dataInterpolation</definition>
+        <argsstring></argsstring>
+        <name>dataInterpolation</name>
+        <initializer>= &quot;dataInterpolation&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="419" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="419" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1acaa9dacacb96e4d1e82e3047d0d57562" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::Acceleration::Thrust::specificImpulse</definition>
+        <argsstring></argsstring>
+        <name>specificImpulse</name>
+        <initializer>= &quot;specificImpulse&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="420" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="420" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1a9578e0525b5466804b80bf93d4c2545d" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::Acceleration::Thrust::frame</definition>
+        <argsstring></argsstring>
+        <name>frame</name>
+        <initializer>= &quot;frame&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="421" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="421" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1a5f30feb69548d913a2463a8890ef6ee3" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::Acceleration::Thrust::centralBody</definition>
+        <argsstring></argsstring>
+        <name>centralBody</name>
+        <initializer>= &quot;centralBody&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="422" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="422" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="397" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="398" bodyend="423"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1a5f30feb69548d913a2463a8890ef6ee3" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::Acceleration::Thrust</scope><name>centralBody</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1a4b6d21da4a7e20701afaec8b6e37b97b" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::Acceleration::Thrust</scope><name>dataInterpolation</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1af40acda9beb300a835e2c10cbdc54002" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::Acceleration::Thrust</scope><name>direction</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1a9578e0525b5466804b80bf93d4c2545d" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::Acceleration::Thrust</scope><name>frame</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1a4c512e34bc953a58818057f50ff2a7dc" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::Acceleration::Thrust</scope><name>magnitude</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1Acceleration_1_1Thrust_1acaa9dacacb96e4d1e82e3047d0d57562" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::Acceleration::Thrust</scope><name>specificImpulse</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

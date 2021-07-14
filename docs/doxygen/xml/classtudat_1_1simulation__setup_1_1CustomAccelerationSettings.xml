@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::CustomAccelerationSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1AccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AccelerationSettings</basecompoundref>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings_1a0ca71af6f1def52632a19fe447b1c1c9" prot="public" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::simulation_setup::CustomAccelerationSettings::accelerationFunction_</definition>
+        <argsstring></argsstring>
+        <name>accelerationFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="641" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="641" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings_1ab73e1d667a03c5a094df99860b9a4215" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::CustomAccelerationSettings::CustomAccelerationSettings</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d(const double) &gt; accelerationFunction)</argsstring>
+        <name>CustomAccelerationSettings</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>accelerationFunction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="628" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="628" bodyend="631"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings_1a3184d8bef924db5b50300da7e9b76533" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::CustomAccelerationSettings::CustomAccelerationSettings</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d(const double) &gt; accelerationFunction, const std::function&lt; double(const double) &gt; scalingFunction)</argsstring>
+        <name>CustomAccelerationSettings</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>accelerationFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>scalingFunction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="633" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="633" bodyend="639"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::CustomAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::CustomAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="624" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="625" bodyend="642"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings_1a0ca71af6f1def52632a19fe447b1c1c9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomAccelerationSettings</scope><name>accelerationFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a61a6c91bf73a293adb523ebe2b71f379" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomAccelerationSettings</scope><name>AccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1aaf1f7742077003cf7055c96ec934e4d8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomAccelerationSettings</scope><name>accelerationType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings_1ab73e1d667a03c5a094df99860b9a4215" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomAccelerationSettings</scope><name>CustomAccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomAccelerationSettings_1a3184d8bef924db5b50300da7e9b76533" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomAccelerationSettings</scope><name>CustomAccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a66bf9df8526ebaf6ed16a1100811a3ef" prot="public" virt="virtual"><scope>tudat::simulation_setup::CustomAccelerationSettings</scope><name>~AccelerationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

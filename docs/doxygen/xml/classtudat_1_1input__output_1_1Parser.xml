@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1Parser" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::input_output::Parser</compoundname>
+    <derivedcompoundref refid="classtudat_1_1input__output_1_1TextParser" prot="public" virt="non-virtual">tudat::input_output::TextParser</derivedcompoundref>
+    <includes refid="parser_8h" local="no">parser.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1Parser_1a92b1c3e6592eee050c09d28504225aa1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::Parser::Parser</definition>
+        <argsstring>()</argsstring>
+        <name>Parser</name>
+        <briefdescription>
+<para>Default constructor, interface therefore empty. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parser.h" line="43" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parser.h" bodystart="43" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1Parser_1a2f1426cf83f5b023aaf5ecb34d16350f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::input_output::Parser::~Parser</definition>
+        <argsstring>()</argsstring>
+        <name>~Parser</name>
+        <briefdescription>
+<para>Default destructor, interface therefore empty. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parser.h" line="46" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parser.h" bodystart="46" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1Parser_1a136ddd9ae7adf905c38bd60ef4138593" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>parsed_data_vector_utilities::ParsedDataVectorPtr</type>
+        <definition>virtual parsed_data_vector_utilities::ParsedDataVectorPtr tudat::input_output::Parser::parse</definition>
+        <argsstring>(std::string &amp;string)=0</argsstring>
+        <name>parse</name>
+        <reimplementedby refid="classtudat_1_1input__output_1_1TextParser_1a3644442307eb67b0f2422ae3a88db7d5">parse</reimplementedby>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>string</declname>
+        </param>
+        <briefdescription>
+<para>Parse data from a string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>string</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String reference to parse. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Parsed data from the string as ParsedDataVector. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parser.h" line="53" column="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1Parser_1a896eecdb14f86e361dc9d0bdeccdc915" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>parsed_data_vector_utilities::ParsedDataVectorPtr</type>
+        <definition>virtual parsed_data_vector_utilities::ParsedDataVectorPtr tudat::input_output::Parser::parse</definition>
+        <argsstring>(std::istream &amp;stream)=0</argsstring>
+        <name>parse</name>
+        <reimplementedby refid="classtudat_1_1input__output_1_1TextParser_1aed0200deca3a30deb07165f60c5b6229">parse</reimplementedby>
+        <param>
+          <type>std::istream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Parse data from a stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream reference to parse. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Parsed data from the stream as ParsedDataVector. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parser.h" line="60" column="63"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1input__output_1_1Parser" kindref="compound">Parser</ref> interface, indicates that the class can parse passed string and stream data. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A parser is an interface to parse a specific file or filegroup. This can be either plain text (e.g. ascii) or a binary file. When the data has been parsed, it returns a vector of parsed lines or equivalent. Each line contains a map of (FieldType, <ref refid="classtudat_1_1input__output_1_1FieldValue" kindref="compound">FieldValue</ref>). This key of the map is the type of the specific field (e.g. date) and the entry is the parsed value for the specific line (e.g. 2000-1-1)</para>
+<para>The data vector can then be passed to an extractor to extract, for example, the date in Julian date form</para>
+<para>NOTE: This <ref refid="classtudat_1_1input__output_1_1TextParser" kindref="compound">TextParser</ref> works with the FieldValue/FieldType architecture. For simpler file reading, use, for instance, matrixTextFileReader. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::input_output::TextParser</label>
+        <link refid="classtudat_1_1input__output_1_1TextParser"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::input_output::SeparatedParser</label>
+        <link refid="classtudat_1_1input__output_1_1SeparatedParser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::input_output::FixedWidthParser</label>
+        <link refid="classtudat_1_1input__output_1_1FixedWidthParser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::input_output::solar_activity::ParseSolarActivityData</label>
+        <link refid="classtudat_1_1input__output_1_1solar__activity_1_1ParseSolarActivityData"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::input_output::Parser</label>
+        <link refid="classtudat_1_1input__output_1_1Parser"/>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parser.h" line="38" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/parser.h" bodystart="39" bodyend="65"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1Parser_1a136ddd9ae7adf905c38bd60ef4138593" prot="public" virt="pure-virtual"><scope>tudat::input_output::Parser</scope><name>parse</name></member>
+      <member refid="classtudat_1_1input__output_1_1Parser_1a896eecdb14f86e361dc9d0bdeccdc915" prot="public" virt="pure-virtual"><scope>tudat::input_output::Parser</scope><name>parse</name></member>
+      <member refid="classtudat_1_1input__output_1_1Parser_1a92b1c3e6592eee050c09d28504225aa1" prot="public" virt="non-virtual"><scope>tudat::input_output::Parser</scope><name>Parser</name></member>
+      <member refid="classtudat_1_1input__output_1_1Parser_1a2f1426cf83f5b023aaf5ecb34d16350f" prot="public" virt="virtual"><scope>tudat::input_output::Parser</scope><name>~Parser</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

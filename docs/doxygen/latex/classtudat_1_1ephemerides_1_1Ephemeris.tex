@@ -1,0 +1,311 @@
+\hypertarget{classtudat_1_1ephemerides_1_1Ephemeris}{}\doxysection{tudat\+::ephemerides\+::Ephemeris Class Reference}
+\label{classtudat_1_1ephemerides_1_1Ephemeris}\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+
+
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} base class.  
+
+
+
+
+{\ttfamily \#include $<$ephemeris.\+h$>$}
+
+Inheritance diagram for tudat\+::ephemerides\+::Ephemeris\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=6.430063cm]{classtudat_1_1ephemerides_1_1Ephemeris}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a84b2fe561ee07d270ed3cb5e0738b6cb}{Ephemeris}} (const std\+::string \&reference\+Frame\+Origin=\char`\"{}\char`\"{}, const std\+::string \&reference\+Frame\+Orientation=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_ac9c54e2db132b832948e18267736fcdb}{$\sim$\+Ephemeris}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a9ffa2e6b00aa190385d87266bc6ca091}{get\+Cartesian\+State}} (const double seconds\+Since\+Epoch)=0
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a11508af5994ac79a571b8c7c53c2f01a}{get\+Cartesian\+Position}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Get position from ephemeris. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a1b18b53a45423bd1b17f0e0c0f459e32}{get\+Cartesian\+Velocity}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Get velocity from ephemeris. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Matrix$<$ long double, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a2b4485db49528e74903e2448e9a277ea}{get\+Cartesian\+Long\+State}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris (with long double as state scalar). \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a4953c48335220b8c1b46fcd6c408b2d3}{get\+Cartesian\+State\+From\+Extended\+Time}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&current\+Time)
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris (with double as state scalar and \mbox{\hyperlink{classtudat_1_1Time}{Time}} as time type). \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Matrix$<$ long double, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a0dc15b6ec16fea02fa3af1a7ffbdeefe}{get\+Cartesian\+Long\+State\+From\+Extended\+Time}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&current\+Time)
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris (with long double as state scalar and \mbox{\hyperlink{classtudat_1_1Time}{Time}} as time type). \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename State\+Scalar\+Type , typename Time\+Type $>$ }\\Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_aab6239fef97c6bc476ba7c0ea9c6e10b}{get\+Templated\+State\+From\+Ephemeris}} (const Time\+Type \&time)
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris, with state scalar as template type. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a6a81880bac3b4737ea522e232b40807b}{get\+Reference\+Frame\+Origin}} ()
+\begin{DoxyCompactList}\small\item\em Get reference frame origin. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a9c03fe22d322ffecda1f60d91021f842}{get\+Reference\+Frame\+Orientation}} ()
+\begin{DoxyCompactList}\small\item\em Get reference frame orientation. \end{DoxyCompactList}\item 
+template$<$$>$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a74f968788b24caea12669f65f66b691a}{get\+Templated\+State\+From\+Ephemeris}} (const double \&time)
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris, with state scalar as template type (double specialization). \end{DoxyCompactList}\item 
+template$<$$>$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a0ec66ebe15e2bf0516448ff79cdd3012}{get\+Templated\+State\+From\+Ephemeris}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time)
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris, with state scalar as template type (double specialization with \mbox{\hyperlink{classtudat_1_1Time}{Time}} input). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a69d6996ff459ef971f07b4f826528531}{reference\+Frame\+Origin\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Reference frame origin. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a423f4cfbc075f421a16b07bea53ca939}{reference\+Frame\+Orientation\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Reference frame orientation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} base class. 
+
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} base class. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a84b2fe561ee07d270ed3cb5e0738b6cb}\label{classtudat_1_1ephemerides_1_1Ephemeris_a84b2fe561ee07d270ed3cb5e0738b6cb}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!Ephemeris@{Ephemeris}}
+\index{Ephemeris@{Ephemeris}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{Ephemeris()}{Ephemeris()}}
+{\footnotesize\ttfamily tudat\+::ephemerides\+::\+Ephemeris\+::\+Ephemeris (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{reference\+Frame\+Origin = {\ttfamily \char`\"{}\char`\"{}},  }\item[{const std\+::string \&}]{reference\+Frame\+Orientation = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor, sets reference frame associated with ephemeris (default empty). 
+\begin{DoxyParams}{Parameters}
+{\em reference\+Frame\+Origin} & Origin of reference frame (string identifier). \\
+\hline
+{\em reference\+Frame\+Orientation} & Orientation of reference frame (string identifier). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_ac9c54e2db132b832948e18267736fcdb}\label{classtudat_1_1ephemerides_1_1Ephemeris_ac9c54e2db132b832948e18267736fcdb}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!````~Ephemeris@{$\sim$Ephemeris}}
+\index{````~Ephemeris@{$\sim$Ephemeris}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{$\sim$Ephemeris()}{~Ephemeris()}}
+{\footnotesize\ttfamily virtual tudat\+::ephemerides\+::\+Ephemeris\+::$\sim$\+Ephemeris (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Default destructor. 
+
+Default destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a2b4485db49528e74903e2448e9a277ea}\label{classtudat_1_1ephemerides_1_1Ephemeris_a2b4485db49528e74903e2448e9a277ea}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getCartesianLongState@{getCartesianLongState}}
+\index{getCartesianLongState@{getCartesianLongState}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianLongState()}{getCartesianLongState()}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Matrix$<$ long double, 6, 1 $>$ tudat\+::ephemerides\+::\+Ephemeris\+::get\+Cartesian\+Long\+State (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get state from ephemeris (with long double as state scalar). 
+
+Returns state from ephemeris with long double as state scalar at given time. By default, this function casts the double get\+Cartesian\+State to long double. It may be overridden by derived classes to make use of full long double computations. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State from ephemeris with long double as state scalar 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_aef18d8e626a576707dbba56eab518d25}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_ad6689481604f8550eec53289f8b205bf}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_aa9edaf70020832f121e9d983e084fd00}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a55aa870a6f1432838fc623be6cac755e}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a0b73d788a6c6c33954ccec06971b3491}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1MultiArcEphemeris_aed9997a8403dcf770a2e069f6e1d6914}{tudat\+::ephemerides\+::\+Multi\+Arc\+Ephemeris}}, and \mbox{\hyperlink{classtudat_1_1ephemerides_1_1CompositeEphemeris_a42bbb7b71d00f1a9ae2dc70aa1e63b94}{tudat\+::ephemerides\+::\+Composite\+Ephemeris$<$ Time\+Type, State\+Scalar\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a0dc15b6ec16fea02fa3af1a7ffbdeefe}\label{classtudat_1_1ephemerides_1_1Ephemeris_a0dc15b6ec16fea02fa3af1a7ffbdeefe}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getCartesianLongStateFromExtendedTime@{getCartesianLongStateFromExtendedTime}}
+\index{getCartesianLongStateFromExtendedTime@{getCartesianLongStateFromExtendedTime}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianLongStateFromExtendedTime()}{getCartesianLongStateFromExtendedTime()}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Matrix$<$ long double, 6, 1 $>$ tudat\+::ephemerides\+::\+Ephemeris\+::get\+Cartesian\+Long\+State\+From\+Extended\+Time (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{current\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get state from ephemeris (with long double as state scalar and \mbox{\hyperlink{classtudat_1_1Time}{Time}} as time type). 
+
+Returns state from ephemeris with long double as state scalar at given time (as custom \mbox{\hyperlink{classtudat_1_1Time}{Time}} type). By default, this function casts the double get\+Cartesian\+State to long double. It may be overridden by derived classes to make use of full long double computations. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which state is to be evaluated \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State from ephemeris with long double as state scalar 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a5bafdd5035b24bbad539dbc6c9bdc5f6}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a6c84006f04f4b1d9f49df37e032fe640}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a5c8ee1d1343a8e2dd452e219a607da30}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_ae930e74da31db7f99aaa8e9c13bc9305}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a6243b4b5b33eaca2407df79d0032788b}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1MultiArcEphemeris_abce6815fc993642d44b6bf40dbde27b8}{tudat\+::ephemerides\+::\+Multi\+Arc\+Ephemeris}}, and \mbox{\hyperlink{classtudat_1_1ephemerides_1_1CompositeEphemeris_ac539a6b811fbbe82ff38461fb21f8e66}{tudat\+::ephemerides\+::\+Composite\+Ephemeris$<$ Time\+Type, State\+Scalar\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a11508af5994ac79a571b8c7c53c2f01a}\label{classtudat_1_1ephemerides_1_1Ephemeris_a11508af5994ac79a571b8c7c53c2f01a}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getCartesianPosition@{getCartesianPosition}}
+\index{getCartesianPosition@{getCartesianPosition}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianPosition()}{getCartesianPosition()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::ephemerides\+::\+Ephemeris\+::get\+Cartesian\+Position (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get position from ephemeris. 
+
+Returns position from ephemeris at given time. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Position from ephemeris. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a9ffa2e6b00aa190385d87266bc6ca091}\label{classtudat_1_1ephemerides_1_1Ephemeris_a9ffa2e6b00aa190385d87266bc6ca091}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getCartesianState@{getCartesianState}}
+\index{getCartesianState@{getCartesianState}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianState()}{getCartesianState()}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Vector6d tudat\+::ephemerides\+::\+Ephemeris\+::get\+Cartesian\+State (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Get state from ephemeris. 
+
+Returns state from ephemeris at given time 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State from ephemeris. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1ephemerides_1_1CustomEphemeris_aa02b2df425bff1ca1ff5b010af30bd49}{tudat\+::ephemerides\+::\+Custom\+Ephemeris}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ConstantEphemeris_ae7f535c4585ecf1d7a20fa0aedfbc91f}{tudat\+::ephemerides\+::\+Constant\+Ephemeris}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TleEphemeris_a34b1d67f39c43d4ad19b795d0cd10ab2}{tudat\+::ephemerides\+::\+Tle\+Ephemeris}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SpiceEphemeris_aef29e7e00cb70ad756d6c329f1edc712}{tudat\+::ephemerides\+::\+Spice\+Ephemeris}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_aec6aafbcce0b0fc6f4b13e4559bb96ce}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1MultiArcEphemeris_af39fdecaf7980a6463874758b1cad084}{tudat\+::ephemerides\+::\+Multi\+Arc\+Ephemeris}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1KeplerEphemeris_a75c1764cd02061e2de18b09202e479e5}{tudat\+::ephemerides\+::\+Kepler\+Ephemeris}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ScaledEphemeris_a280f2fab97395424d05737140dcc7175}{tudat\+::ephemerides\+::\+Scaled\+Ephemeris}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1CompositeEphemeris_adaf00c6374bab84ecfa0a9f7e92d5f36}{tudat\+::ephemerides\+::\+Composite\+Ephemeris$<$ Time\+Type, State\+Scalar\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsCircularCoplanar_a72e87b71ccd875c6a349c1a9a0bcb544}{tudat\+::ephemerides\+::\+Approximate\+Planet\+Positions\+Circular\+Coplanar}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_a76a58a0bc977fb72020cda1837be1ddf}{tudat\+::ephemerides\+::\+Approximate\+Planet\+Positions}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a321f9933c367faef57c15085de67fa0c}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a0362abf2bb057dbae379940a771a2f21}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_aefc1db30cf83a0c16cbf67d478ef5383}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a151d308f81c5f10c695bc0d9dbb6c252}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a4953c48335220b8c1b46fcd6c408b2d3}\label{classtudat_1_1ephemerides_1_1Ephemeris_a4953c48335220b8c1b46fcd6c408b2d3}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getCartesianStateFromExtendedTime@{getCartesianStateFromExtendedTime}}
+\index{getCartesianStateFromExtendedTime@{getCartesianStateFromExtendedTime}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianStateFromExtendedTime()}{getCartesianStateFromExtendedTime()}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Vector6d tudat\+::ephemerides\+::\+Ephemeris\+::get\+Cartesian\+State\+From\+Extended\+Time (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{current\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get state from ephemeris (with double as state scalar and \mbox{\hyperlink{classtudat_1_1Time}{Time}} as time type). 
+
+Returns state from ephemeris with double as state scalar at given time (as custom \mbox{\hyperlink{classtudat_1_1Time}{Time}} type). By default, this function casts the double get\+Cartesian\+State to double. It may be overridden by derived classes. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which state is to be evaluated \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State from ephemeris with double as state scalar 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a32750e1a0f7526d12a09916b6d9a0f58}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_ab95f5154f7b164c583804e343eaf6f97}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_a08ccece7c76d34f4e9c0b9a47a3e70c3}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_afccd9b0b0a402c3261cb9f7baf8a39f1}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris_ae85412c7f3d9925b17656d5adf45949e}{tudat\+::ephemerides\+::\+Tabulated\+Cartesian\+Ephemeris$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1ephemerides_1_1MultiArcEphemeris_a14feaab6003f9880d7a882745c9a50fe}{tudat\+::ephemerides\+::\+Multi\+Arc\+Ephemeris}}, and \mbox{\hyperlink{classtudat_1_1ephemerides_1_1CompositeEphemeris_a91b0a66e98778b9ff6f3f70aae93fe88}{tudat\+::ephemerides\+::\+Composite\+Ephemeris$<$ Time\+Type, State\+Scalar\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a1b18b53a45423bd1b17f0e0c0f459e32}\label{classtudat_1_1ephemerides_1_1Ephemeris_a1b18b53a45423bd1b17f0e0c0f459e32}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getCartesianVelocity@{getCartesianVelocity}}
+\index{getCartesianVelocity@{getCartesianVelocity}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianVelocity()}{getCartesianVelocity()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::ephemerides\+::\+Ephemeris\+::get\+Cartesian\+Velocity (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get velocity from ephemeris. 
+
+Returns velocity from ephemeris at given time. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Velocity from ephemeris. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a9c03fe22d322ffecda1f60d91021f842}\label{classtudat_1_1ephemerides_1_1Ephemeris_a9c03fe22d322ffecda1f60d91021f842}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getReferenceFrameOrientation@{getReferenceFrameOrientation}}
+\index{getReferenceFrameOrientation@{getReferenceFrameOrientation}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getReferenceFrameOrientation()}{getReferenceFrameOrientation()}}
+{\footnotesize\ttfamily std\+::string tudat\+::ephemerides\+::\+Ephemeris\+::get\+Reference\+Frame\+Orientation (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get reference frame orientation. 
+
+Returns the reference frame orientation as a string. \begin{DoxyReturn}{Returns}
+Reference frame orientation 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a6a81880bac3b4737ea522e232b40807b}\label{classtudat_1_1ephemerides_1_1Ephemeris_a6a81880bac3b4737ea522e232b40807b}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getReferenceFrameOrigin@{getReferenceFrameOrigin}}
+\index{getReferenceFrameOrigin@{getReferenceFrameOrigin}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getReferenceFrameOrigin()}{getReferenceFrameOrigin()}}
+{\footnotesize\ttfamily std\+::string tudat\+::ephemerides\+::\+Ephemeris\+::get\+Reference\+Frame\+Origin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get reference frame origin. 
+
+Returns reference frame origin as a string. \begin{DoxyReturn}{Returns}
+Reference frame origin. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a74f968788b24caea12669f65f66b691a}\label{classtudat_1_1ephemerides_1_1Ephemeris_a74f968788b24caea12669f65f66b691a}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getTemplatedStateFromEphemeris@{getTemplatedStateFromEphemeris}}
+\index{getTemplatedStateFromEphemeris@{getTemplatedStateFromEphemeris}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getTemplatedStateFromEphemeris()}{getTemplatedStateFromEphemeris()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily template$<$$>$ \\
+Eigen\+::\+Matrix$<$ long double, 6, 1 $>$ tudat\+::ephemerides\+::\+Ephemeris\+::get\+Templated\+State\+From\+Ephemeris (\begin{DoxyParamCaption}\item[{const double \&}]{time }\end{DoxyParamCaption})}
+
+
+
+Get state from ephemeris, with state scalar as template type (double specialization). 
+
+Get state from ephemeris, with state scalar as template type (long double specialization). \mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a0ec66ebe15e2bf0516448ff79cdd3012}\label{classtudat_1_1ephemerides_1_1Ephemeris_a0ec66ebe15e2bf0516448ff79cdd3012}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getTemplatedStateFromEphemeris@{getTemplatedStateFromEphemeris}}
+\index{getTemplatedStateFromEphemeris@{getTemplatedStateFromEphemeris}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getTemplatedStateFromEphemeris()}{getTemplatedStateFromEphemeris()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily template$<$$>$ \\
+Eigen\+::\+Matrix$<$ long double, 6, 1 $>$ tudat\+::ephemerides\+::\+Ephemeris\+::get\+Templated\+State\+From\+Ephemeris (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time }\end{DoxyParamCaption})}
+
+
+
+Get state from ephemeris, with state scalar as template type (double specialization with \mbox{\hyperlink{classtudat_1_1Time}{Time}} input). 
+
+Get state from ephemeris, with state scalar as template type (long double specialization with \mbox{\hyperlink{classtudat_1_1Time}{Time}} input). \mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_aab6239fef97c6bc476ba7c0ea9c6e10b}\label{classtudat_1_1ephemerides_1_1Ephemeris_aab6239fef97c6bc476ba7c0ea9c6e10b}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!getTemplatedStateFromEphemeris@{getTemplatedStateFromEphemeris}}
+\index{getTemplatedStateFromEphemeris@{getTemplatedStateFromEphemeris}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{getTemplatedStateFromEphemeris()}{getTemplatedStateFromEphemeris()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type , typename Time\+Type $>$ \\
+Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$ tudat\+::ephemerides\+::\+Ephemeris\+::get\+Templated\+State\+From\+Ephemeris (\begin{DoxyParamCaption}\item[{const Time\+Type \&}]{time }\end{DoxyParamCaption})}
+
+
+
+Get state from ephemeris, with state scalar as template type. 
+
+Returns state from ephemeris (state scalar as template type) at given time. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which ephemeris is to be evaluated \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State from ephemeris with requested state scalar type. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a423f4cfbc075f421a16b07bea53ca939}\label{classtudat_1_1ephemerides_1_1Ephemeris_a423f4cfbc075f421a16b07bea53ca939}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!referenceFrameOrientation\_@{referenceFrameOrientation\_}}
+\index{referenceFrameOrientation\_@{referenceFrameOrientation\_}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{referenceFrameOrientation\_}{referenceFrameOrientation\_}}
+{\footnotesize\ttfamily std\+::string tudat\+::ephemerides\+::\+Ephemeris\+::reference\+Frame\+Orientation\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Reference frame orientation. 
+
+Reference frame orientation. This identifier gives only the orientation of the reference frame, the origin is defined by the reference\+Frame\+Origin\+\_\+ variable. \mbox{\Hypertarget{classtudat_1_1ephemerides_1_1Ephemeris_a69d6996ff459ef971f07b4f826528531}\label{classtudat_1_1ephemerides_1_1Ephemeris_a69d6996ff459ef971f07b4f826528531}} 
+\index{tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}!referenceFrameOrigin\_@{referenceFrameOrigin\_}}
+\index{referenceFrameOrigin\_@{referenceFrameOrigin\_}!tudat::ephemerides::Ephemeris@{tudat::ephemerides::Ephemeris}}
+\doxysubsubsection{\texorpdfstring{referenceFrameOrigin\_}{referenceFrameOrigin\_}}
+{\footnotesize\ttfamily std\+::string tudat\+::ephemerides\+::\+Ephemeris\+::reference\+Frame\+Origin\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Reference frame origin. 
+
+Reference frame origin. This identifier gives only the origin of the reference frame, its orientation is defined by the reference\+Frame\+Orientation\+\_\+ variable. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/ephemerides/ephemeris.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/ephemerides/ephemeris.\+cpp\end{DoxyCompactItemize}

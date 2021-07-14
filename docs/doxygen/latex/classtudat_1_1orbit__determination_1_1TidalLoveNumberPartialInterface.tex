@@ -1,0 +1,581 @@
+\hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface}{}\doxysection{tudat\+::orbit\+\_\+determination\+::Tidal\+Love\+Number\+Partial\+Interface Class Reference}
+\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface}\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+
+
+(Base) class for calculating the partial of a spherical harmonic acceleration w.\+r.\+t. a tidal love number.  
+
+
+
+
+{\ttfamily \#include $<$tidal\+Love\+Number\+Partial\+Interface.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a079e5b2ed5ef7a52aca41214da9bf1e0}{Tidal\+Love\+Number\+Partial\+Interface}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations}{gravitation\+::\+Basic\+Solid\+Body\+Tide\+Gravity\+Field\+Variations}} $>$ gravity\+Field\+Variations, const std\+::function$<$ Eigen\+::\+Vector3d() $>$ deformed\+Body\+Position\+Function, const std\+::vector$<$ std\+::function$<$ Eigen\+::\+Vector3d() $>$ $>$ deforming\+Body\+State\+Functions, const std\+::function$<$ Eigen\+::\+Quaterniond() $>$ rotation\+To\+Deformed\+Body\+Frame\+Frame\+Function, const std\+::string \&deformed\+Body)
+\begin{DoxyCompactList}\small\item\em Constructor from objects. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a37385a563ebaecb86654c076abab59f7}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a37385a563ebaecb86654c076abab59f7}} 
+virtual \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a37385a563ebaecb86654c076abab59f7}{$\sim$\+Tidal\+Love\+Number\+Partial\+Interface}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ int $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a549d60a093f66d773b66f254c276fc18}{get\+Selected\+Deforming\+Body\+Ids}} (const std\+::vector$<$ std\+::string $>$ \&selected\+Body\+Names)
+\begin{DoxyCompactList}\small\item\em Function to obtain the indices of given list of body names in deforming\+Bodies\+\_\+ member vector. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a0b119193176f052f71f98627339f8af2}{calculate\+Spherical\+Harmonic\+Coefficients\+Partial\+Wrt\+Complex\+Tidal\+Love\+Numbers}} (const int degree, const std\+::vector$<$ int $>$ \&orders, const std\+::vector$<$ int $>$ \&deforming\+Body\+Indices, const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. complex tidal love numbers. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a581cb5c8deb759876e2cc6827b7b0b91}{calculate\+Spherical\+Harmonic\+Coefficients\+Partial\+Wrt\+Complex\+Tidal\+Love\+Number}} (const int degree, const std\+::vector$<$ int $>$ \&deforming\+Body\+Indices, const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. complex tidal love numbers. \end{DoxyCompactList}\item 
+virtual std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a58d2e1db51ca9af4cbe5ea8d5d886671}{calculate\+Spherical\+Harmonic\+Coefficients\+Partial\+Wrt\+Real\+Tidal\+Love\+Numbers}} (const int degree, const std\+::vector$<$ int $>$ \&orders, const std\+::vector$<$ int $>$ \&deforming\+Body\+Indices, const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. real tidal love numbers. \end{DoxyCompactList}\item 
+virtual std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa1c9f3092bb7a5427c9cfbb1a326fe0a}{calculate\+Spherical\+Harmonic\+Coefficients\+Partial\+Wrt\+Real\+Tidal\+Love\+Number}} (const int degree, const std\+::vector$<$ int $>$ \&deforming\+Body\+Indices, const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. real tidal love numbers. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa802e4d2c29c2bee5fedc206dfdcbddd}{update}} (const double current\+Time)
+\begin{DoxyCompactList}\small\item\em Update tidal Love number interface to current time. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a313d789c86136202035597b668b33e60}{reset\+Time}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Reset current time of tidal Love number interface. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7f55fa0abd2a586d19f88788d4bb7066}{update\+Parameter\+Partials}} ()
+\begin{DoxyCompactList}\small\item\em Function to update the values of the partial derivatives to current state and time. \end{DoxyCompactList}\item 
+virtual std\+::pair$<$ int, std\+::pair$<$ int, int $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa32f92c6eefa3f927de7d3d6c432fa97}{set\+Parameter\+Partial\+Function}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$ parameter, const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to set a dependency of this partial object w.\+r.\+t. a given double parameter. \end{DoxyCompactList}\item 
+virtual std\+::pair$<$ int, std\+::pair$<$ int, int $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_af69335e274da99d144f908aa8b3a3f3e}{set\+Parameter\+Partial\+Function}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$ parameter, const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to set a dependency of this partial object w.\+r.\+t. a given vector parameter. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \& \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_adec321add0269262c122edc6e0b6a1da}{get\+Current\+Parameter\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$ parameter, const std\+::pair$<$ int, int $>$ maximum\+Degree\+And\+Order)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a partial w.\+r.\+t. a double parameter. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \& \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa32278b7ce55d4cb1e6d15bdd9cd55e9}{get\+Current\+Double\+Parameter\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$ parameter, const std\+::pair$<$ int, int $>$ maximum\+Degree\+And\+Order)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a partial w.\+r.\+t. a double parameter. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \& \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad52e8f4d4a66b298d783bf9d32be76f6}{get\+Current\+Parameter\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$ parameter, const std\+::pair$<$ int, int $>$ maximum\+Degree\+And\+Order)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a partial w.\+r.\+t. a vector parameter. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \& \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a071c7954ff27d507c3c45483c054d409}{get\+Current\+Vector\+Parameter\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$ parameter, const std\+::pair$<$ int, int $>$ maximum\+Degree\+And\+Order)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a partial w.\+r.\+t. a vector parameter. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a6095452453458b6749735b6fd7890956}{calculate\+Spherical\+Harmonic\+Coefficient\+Partial\+Matrix}} (const std\+::vector$<$ Eigen\+::\+Vector2d $>$ \&coefficient\+Partials\+Per\+Order, const std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$, Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \&coefficient\+Partial\+Scalers)
+\begin{DoxyCompactList}\small\item\em Function to compute Love number partials from pre-\/computed partials and provided scaling values. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Vector2d $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a4558451ab48d12628c3e3fe2650b73a0}{calculate\+Coefficient\+Partial\+Wrt\+Real\+Tidal\+Love\+Number}} (const int degree, const std\+::vector$<$ int $>$ \&orders, const std\+::vector$<$ int $>$ \&deforming\+Body\+Indices, const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to calculate the partial of spherical harmonic coefficients w.\+r.\+t. real part of tidal love numbers. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a0cdaf01ebec326b4f5144c7d02446547}{update\+Current\+Tidal\+Body\+States}} (const std\+::vector$<$ int $>$ \&deforming\+Bodies\+To\+Update)
+\begin{DoxyCompactList}\small\item\em Function to pre-\/calculate all states of bodies involved. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a296621787f3405eab33e9309aa825a86}{set\+Current\+Tidal\+Body\+States}} (const int degree, const int order, const int body)
+\begin{DoxyCompactList}\small\item\em Function to set current state of single body and derived quantities. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a6df410b97e44947d6e9eed4c89da5b13}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a6df410b97e44947d6e9eed4c89da5b13}} 
+double \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a6df410b97e44947d6e9eed4c89da5b13}{deformed\+Body\+Reference\+Radius\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Reference radius used by tidal deformation model. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Vector3d() $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad243549f78fc4d7efd24aef7181c7602}{deformed\+Body\+Position\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function to retrieve current state of body being tidally deformed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aef2c3147d66f3f85b9372c36c1d5bd57}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aef2c3147d66f3f85b9372c36c1d5bd57}} 
+std\+::function$<$ Eigen\+::\+Vector3d() $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aef2c3147d66f3f85b9372c36c1d5bd57}{accelerating\+Body\+Position\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function to retrieve current state of body being accelerated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aaffd41346358ea61c7ff4a74051c76dc}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aaffd41346358ea61c7ff4a74051c76dc}} 
+std\+::function$<$ double() $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aaffd41346358ea61c7ff4a74051c76dc}{deformed\+Body\+Gravitational\+Parameter\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function to retrieve current gravitational parameter of body being deformed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ac6bde8e61e23247f54cb3f79702b3a50}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ac6bde8e61e23247f54cb3f79702b3a50}} 
+double \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ac6bde8e61e23247f54cb3f79702b3a50}{deformed\+Body\+Gravitational\+Parameter\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current gravitational parameter of body being deformed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7ddf8b4d15189d9dae7d72e3299ecc2f}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7ddf8b4d15189d9dae7d72e3299ecc2f}} 
+std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7ddf8b4d15189d9dae7d72e3299ecc2f}{deforming\+Body\+Gravitational\+Parameters\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of function to retrieve current gravitational parameters of bodies causing deformation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ae83f77deef9f66fc96115a99611184a4}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ae83f77deef9f66fc96115a99611184a4}} 
+std\+::vector$<$ std\+::function$<$ Eigen\+::\+Vector3d() $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ae83f77deef9f66fc96115a99611184a4}{deforming\+Body\+State\+Functions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Functions for retrieving states at current time of bodies causing deformation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a3702e2a66b9086cab2d6a1c3883faa1b}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a3702e2a66b9086cab2d6a1c3883faa1b}} 
+std\+::function$<$ Eigen\+::\+Quaterniond() $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a3702e2a66b9086cab2d6a1c3883faa1b}{rotation\+To\+Deformed\+Body\+Frame\+Frame\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function returning the rotation from inertial to body-\/fixed frame of deformed body. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ae258e2104a786699030e7cc381b442dd}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ae258e2104a786699030e7cc381b442dd}} 
+double \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ae258e2104a786699030e7cc381b442dd}{current\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current time to which object has been updated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a93ed1e88bd5b40d2295389ea2402d2e3}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a93ed1e88bd5b40d2295389ea2402d2e3}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a93ed1e88bd5b40d2295389ea2402d2e3}{relative\+Deforming\+Body\+Position\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current relative position in inertial frame of body causing deformation, as set by set\+Current\+Tidal\+Body\+States function. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_acdf68260ed7dc58005d6964d55a87c88}{relative\+Deforming\+Body\+Spherical\+Position\+\_\+}}
+\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aaa7c5d49b68083af5073cc07a1fc1ec4}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aaa7c5d49b68083af5073cc07a1fc1ec4}} 
+double \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aaa7c5d49b68083af5073cc07a1fc1ec4}{mass\+Ratio\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current mass ratio of body causing, w.\+r.\+t. body undergoing, deformation, as set by set\+Current\+Tidal\+Body\+States function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a2b31b8731f61e78c325db384615c5192}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a2b31b8731f61e78c325db384615c5192}} 
+double \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a2b31b8731f61e78c325db384615c5192}{radius\+Ratio\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current radius ratio of body causing, w.\+r.\+t. body undergoing, deformation, as set by set\+Current\+Tidal\+Body\+States function. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ab285ed6873af72f1bb2a6e56a66eb191}{sine\+Of\+Latitude\+\_\+}}
+\item 
+std\+::complex$<$ double $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_acbcb03d84d41f040f47963e83ba3d839}{i\+Longitude\+\_\+}}
+\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a2dd7b9213fb147fe6d70c11b80f1ef01}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a2dd7b9213fb147fe6d70c11b80f1ef01}} 
+std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 2, 1 $>$, Eigen\+::\+Matrix$<$ double, 2, 1 $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a2dd7b9213fb147fe6d70c11b80f1ef01}{real\+Love\+Number\+Scaler\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Values used to scale real Love number partials to themselves (trivial, but required for interface) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_afb8b44dd85124a50476e6e3e062714ec}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_afb8b44dd85124a50476e6e3e062714ec}} 
+std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 2, 2 $>$, Eigen\+::\+Matrix$<$ double, 2, 2 $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_afb8b44dd85124a50476e6e3e062714ec}{complex\+Love\+Number\+Scaler\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Values used to scale real Love number partials to complex Love number partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_af94c88232a94f2af8e4edc4178b363bc}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_af94c88232a94f2af8e4edc4178b363bc}} 
+std\+::vector$<$ int $>$ {\bfseries all\+Deforming\+Body\+Indices\+\_\+}
+\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7d592d34b623a199d78d6ca85b5a386c}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7d592d34b623a199d78d6ca85b5a386c}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7d592d34b623a199d78d6ca85b5a386c}{deformed\+Body\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Name of body being deformed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a5c958feb7074df24178a05487cb6e3db}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a5c958feb7074df24178a05487cb6e3db}} 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a5c958feb7074df24178a05487cb6e3db}{deforming\+Bodies\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of bodies causing deformation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a5740947a75c96cb48b27be707773ed45}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a5740947a75c96cb48b27be707773ed45}} 
+Eigen\+::\+Quaterniond \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a5740947a75c96cb48b27be707773ed45}{rotation\+To\+Tidally\+Deformed\+Body\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current rotation from inertial frame to body-\/fixed frame of deformed body. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a289f32252ea884f43690083a337d943e}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a289f32252ea884f43690083a337d943e}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a289f32252ea884f43690083a337d943e}{position\+Of\+Tidally\+Deformed\+Body\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current position of deformed body. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a87594fadbd3057e58c4316d52157dc0a}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a87594fadbd3057e58c4316d52157dc0a}} 
+std\+::vector$<$ Eigen\+::\+Vector3d $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a87594fadbd3057e58c4316d52157dc0a}{positions\+Of\+Deforming\+Bodies\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of current positions of bodies causing deformation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a4f79143b3a2cda9780eb62465cfbe1c5}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a4f79143b3a2cda9780eb62465cfbe1c5}} 
+std\+::map$<$ std\+::pair$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$, std\+::pair$<$ int, int $>$ $>$, std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a4f79143b3a2cda9780eb62465cfbe1c5}{current\+Double\+Parameter\+Partials\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of functions to compute values of partials w.\+r.\+t. double parameter partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad0b5c8a47bee227566e2aaaa1c7e6977}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad0b5c8a47bee227566e2aaaa1c7e6977}} 
+std\+::map$<$ std\+::pair$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$, std\+::pair$<$ int, int $>$ $>$, std\+::function$<$ std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$) $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad0b5c8a47bee227566e2aaaa1c7e6977}{parameter\+Double\+Partial\+Functions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of functions to compute values of partials w.\+r.\+t. double parameter partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa6c9c37838b88434fa213ed8640dfc20}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa6c9c37838b88434fa213ed8640dfc20}} 
+std\+::map$<$ std\+::pair$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$, std\+::pair$<$ int, int $>$ $>$, std\+::function$<$ std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$) $>$ $>$\+::iterator \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa6c9c37838b88434fa213ed8640dfc20}{parameter\+Double\+Partial\+Function\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Iterator over list of functions to compute values of partials w.\+r.\+t. double parameter partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ada2107183ce9637f601040e27873169a}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ada2107183ce9637f601040e27873169a}} 
+std\+::map$<$ std\+::pair$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$, std\+::pair$<$ int, int $>$ $>$, std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ada2107183ce9637f601040e27873169a}{current\+Vector\+Parameter\+Partials\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of current values of partials w.\+r.\+t. double parameter values (emptied at beginning of every time step). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa94bf5a0e1a4ff9de063626bf02e3cb9}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa94bf5a0e1a4ff9de063626bf02e3cb9}} 
+std\+::map$<$ std\+::pair$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$, std\+::pair$<$ int, int $>$ $>$, std\+::function$<$ std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$) $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa94bf5a0e1a4ff9de063626bf02e3cb9}{parameter\+Vector\+Partial\+Functions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of functions to compute values of partials w.\+r.\+t. vector parameter partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a46c3e13dd35033188349d25d3fb12fae}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a46c3e13dd35033188349d25d3fb12fae}} 
+std\+::map$<$ std\+::pair$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$, std\+::pair$<$ int, int $>$ $>$, std\+::function$<$ std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$) $>$ $>$\+::iterator \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a46c3e13dd35033188349d25d3fb12fae}{parameter\+Vector\+Partial\+Function\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Iterator over list of functions to compute values of partials w.\+r.\+t. vector parameter partials. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+(Base) class for calculating the partial of a spherical harmonic acceleration w.\+r.\+t. a tidal love number. 
+
+(Base) class for calculating the partial of a spherical harmonic acceleration w.\+r.\+t. a tidal love number. These calculations are implemented separately from the Spherical\+Harmonics\+Gravity\+Partial class as its functionality is quite specific and only used by the Spherical\+Harmonics\+Gravity\+Partial for certain cases. Also, this architecture allows different implementations for different tidal models. This base class assumes no direct tidal lag in the calculations, i.\+e. state and rotation functions are all evaluated at same time and lag is implemented by the possibility of complex love numbers (for non-\/zonal terms). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a079e5b2ed5ef7a52aca41214da9bf1e0}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a079e5b2ed5ef7a52aca41214da9bf1e0}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!TidalLoveNumberPartialInterface@{TidalLoveNumberPartialInterface}}
+\index{TidalLoveNumberPartialInterface@{TidalLoveNumberPartialInterface}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{TidalLoveNumberPartialInterface()}{TidalLoveNumberPartialInterface()}}
+{\footnotesize\ttfamily tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::\+Tidal\+Love\+Number\+Partial\+Interface (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations}{gravitation\+::\+Basic\+Solid\+Body\+Tide\+Gravity\+Field\+Variations}} $>$}]{gravity\+Field\+Variations,  }\item[{const std\+::function$<$ Eigen\+::\+Vector3d() $>$}]{deformed\+Body\+Position\+Function,  }\item[{const std\+::vector$<$ std\+::function$<$ Eigen\+::\+Vector3d() $>$ $>$}]{deforming\+Body\+State\+Functions,  }\item[{const std\+::function$<$ Eigen\+::\+Quaterniond() $>$}]{rotation\+To\+Deformed\+Body\+Frame\+Frame\+Function,  }\item[{const std\+::string \&}]{deformed\+Body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor from objects. 
+
+Constructor from objects. 
+\begin{DoxyParams}{Parameters}
+{\em gravity\+Field\+Variations} & Gravity field variation object which calculates spherical harmonic coefficient variations due to considered love number(s). \\
+\hline
+{\em deformed\+Body\+Position\+Function} & Function to retrieve current state of body being tidally deformed \\
+\hline
+{\em deforming\+Body\+State\+Functions} & Functions for retrieving states at current time of bodies causing deformation. \\
+\hline
+{\em rotation\+To\+Deformed\+Body\+Frame\+Frame\+Function} & Function returning the rotation from inertial to body-\/fixed frame of deformed body. \\
+\hline
+{\em deformed\+Body} & Name of body being tidally deformed. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a4558451ab48d12628c3e3fe2650b73a0}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a4558451ab48d12628c3e3fe2650b73a0}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!calculateCoefficientPartialWrtRealTidalLoveNumber@{calculateCoefficientPartialWrtRealTidalLoveNumber}}
+\index{calculateCoefficientPartialWrtRealTidalLoveNumber@{calculateCoefficientPartialWrtRealTidalLoveNumber}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{calculateCoefficientPartialWrtRealTidalLoveNumber()}{calculateCoefficientPartialWrtRealTidalLoveNumber()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Vector2d $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::calculate\+Coefficient\+Partial\+Wrt\+Real\+Tidal\+Love\+Number (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const std\+::vector$<$ int $>$ \&}]{orders,  }\item[{const std\+::vector$<$ int $>$ \&}]{deforming\+Body\+Indices,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Function to calculate the partial of spherical harmonic coefficients w.\+r.\+t. real part of tidal love numbers. 
+
+Function to calculate the partial of spherical harmonic coefficients w.\+r.\+t. real part of tidal love numbers. Partials at a single degree are calculated, with the desired orders required as input. 
+\begin{DoxyParams}{Parameters}
+{\em degree} & Spherical harmonic degree at which partials are to be taken. \\
+\hline
+{\em orders} & Spherical harmonic orders at given degree at which partials are to be taken (if vector is empty, all orders at given degree are used, in ascending order). \\
+\hline
+{\em deforming\+Body\+Indices} & Indices of deforming bodies (in deforming\+Bodies\+\_\+ member vector) due to which the deformation is to be taken into account \\
+\hline
+{\em maximum\+Degree} & Maximum degree of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+{\em maximum\+Order} & Maximum order of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of partials of Spherical harmonic coefficients (\mbox{[}C\+\_\+\{nm\};S\+\_\+\{nm\}\mbox{]}). w.\+r.\+t. real part of tidal love number Entries of return vector correspond to orders given by corresponding entry in orders vector. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a6095452453458b6749735b6fd7890956}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a6095452453458b6749735b6fd7890956}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!calculateSphericalHarmonicCoefficientPartialMatrix@{calculateSphericalHarmonicCoefficientPartialMatrix}}
+\index{calculateSphericalHarmonicCoefficientPartialMatrix@{calculateSphericalHarmonicCoefficientPartialMatrix}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{calculateSphericalHarmonicCoefficientPartialMatrix()}{calculateSphericalHarmonicCoefficientPartialMatrix()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::calculate\+Spherical\+Harmonic\+Coefficient\+Partial\+Matrix (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector2d $>$ \&}]{coefficient\+Partials\+Per\+Order,  }\item[{const std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$, Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ \&}]{coefficient\+Partial\+Scalers }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Function to compute Love number partials from pre-\/computed partials and provided scaling values. 
+
+Function to compute Love number partials from pre-\/computed partials and provided scaling values. This function is used to compute, for instance, the partials of complex Love numbers from the partials of the real components, which are obtained from a simple sclaing 
+\begin{DoxyParams}{Parameters}
+{\em coefficient\+Partials\+Per\+Order} & Partial derivatives of C and S coefficients (row 0 and 1) that are to be scaled by coefficient\+Partial\+Scalers. \\
+\hline
+{\em coefficient\+Partial\+Scalers} & Pair of values by which to scale C and S coefficients (first and second of pair, respectively). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Love number partials obtained from pre-\/computed partials and provided scaling values 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a581cb5c8deb759876e2cc6827b7b0b91}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a581cb5c8deb759876e2cc6827b7b0b91}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber@{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber}}
+\index{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber@{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber()}{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::calculate\+Spherical\+Harmonic\+Coefficients\+Partial\+Wrt\+Complex\+Tidal\+Love\+Number (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const std\+::vector$<$ int $>$ \&}]{deforming\+Body\+Indices,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. complex tidal love numbers. 
+
+Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. complex tidal love numbers at all orders of a single degree. 
+\begin{DoxyParams}{Parameters}
+{\em degree} & Degree of love numbers w.\+r.\+t. which partials are to be taken \\
+\hline
+{\em deforming\+Body\+Indices} & Indices of deforming bodies (in deforming\+Bodies\+\_\+ member vector) due to which the deformation is to be taken into account \\
+\hline
+{\em maximum\+Degree} & Maximum degree of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+{\em maximum\+Order} & Maximum order of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial derivatives of spherical harmonic coefficients. Stl vector entries denote values at all orders at degree, Eigen vector rows denote C and S coefficient, respectively; columns denote real and complex tidal Love number components. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a0b119193176f052f71f98627339f8af2}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a0b119193176f052f71f98627339f8af2}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers@{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers}}
+\index{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers@{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers()}{calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::calculate\+Spherical\+Harmonic\+Coefficients\+Partial\+Wrt\+Complex\+Tidal\+Love\+Numbers (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const std\+::vector$<$ int $>$ \&}]{orders,  }\item[{const std\+::vector$<$ int $>$ \&}]{deforming\+Body\+Indices,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})}
+
+
+
+Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. complex tidal love numbers. 
+
+Function to calculate the partial of spherical harmonic acceleration wrt complex tidal love numbers.
+
+Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. complex tidal love numbers at a single degree. The orders of the love numbers w.\+r.\+t. which the partials to be taken are required as input. 
+\begin{DoxyParams}{Parameters}
+{\em degree} & Degree of love numbers w.\+r.\+t. which partials are to be taken \\
+\hline
+{\em orders} & Spherical harmonic orders in current degree at which the partials are to be taken. \\
+\hline
+{\em deforming\+Body\+Indices} & Indices of deforming bodies (in deforming\+Bodies\+\_\+ member vector) due to which the deformation is to be taken into account \\
+\hline
+{\em maximum\+Degree} & Maximum degree of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+{\em maximum\+Order} & Maximum order of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial derivatives of spherical harmonic coefficients. Stl vector entries denote values at requested orders, Eigen vector rows denote C and S coefficient, respectively; columns denote real and complex tidal Love number components. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa1c9f3092bb7a5427c9cfbb1a326fe0a}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa1c9f3092bb7a5427c9cfbb1a326fe0a}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber@{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber}}
+\index{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber@{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber()}{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber()}}
+{\footnotesize\ttfamily virtual std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::calculate\+Spherical\+Harmonic\+Coefficients\+Partial\+Wrt\+Real\+Tidal\+Love\+Number (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const std\+::vector$<$ int $>$ \&}]{deforming\+Body\+Indices,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. real tidal love numbers. 
+
+Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. real tidal love numbers at all orders of a single degree. 
+\begin{DoxyParams}{Parameters}
+{\em degree} & Degree of love numbers w.\+r.\+t. which partials are to be taken \\
+\hline
+{\em deforming\+Body\+Indices} & Indices of deforming bodies (in deforming\+Bodies\+\_\+ member vector) due to which the deformation is to be taken into account \\
+\hline
+{\em maximum\+Degree} & Maximum degree of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+{\em maximum\+Order} & Maximum order of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial derivatives of spherical harmonic coefficients. Stl vector entries denote values at all orders at degree, Eigen vector rows denote C and S coefficient, respectively; Eigen vector has one column, denoting real part of tidal Love number. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a58d2e1db51ca9af4cbe5ea8d5d886671}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a58d2e1db51ca9af4cbe5ea8d5d886671}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers@{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers}}
+\index{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers@{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers()}{calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::calculate\+Spherical\+Harmonic\+Coefficients\+Partial\+Wrt\+Real\+Tidal\+Love\+Numbers (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const std\+::vector$<$ int $>$ \&}]{orders,  }\item[{const std\+::vector$<$ int $>$ \&}]{deforming\+Body\+Indices,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. real tidal love numbers. 
+
+Function to calculate the partial of spherical harmonic acceleration wrt real tidal love numbers.
+
+Function to calculate the partial of spherical harmonic acceleration w.\+r.\+t. real tidal love numbers at a single degree. The orders of the love numbers w.\+r.\+t. which the partials to be taken are required as input. 
+\begin{DoxyParams}{Parameters}
+{\em degree} & Degree of love numbers w.\+r.\+t. which partials are to be taken \\
+\hline
+{\em orders} & Spherical harmonic orders in current degree at which the partials are to be taken. \\
+\hline
+{\em deforming\+Body\+Indices} & Indices of deforming bodies (in deforming\+Bodies\+\_\+ member vector) due to which the deformation is to be taken into account \\
+\hline
+{\em maximum\+Degree} & Maximum degree of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+{\em maximum\+Order} & Maximum order of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial derivatives of spherical harmonic coefficients. Stl vector entries denote values at requested orders, Eigen vector rows denote C and S coefficient, respectively; Eigen vector has one column, denoting real part of tidal Love number. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa32278b7ce55d4cb1e6d15bdd9cd55e9}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa32278b7ce55d4cb1e6d15bdd9cd55e9}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!getCurrentDoubleParameterPartial@{getCurrentDoubleParameterPartial}}
+\index{getCurrentDoubleParameterPartial@{getCurrentDoubleParameterPartial}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{getCurrentDoubleParameterPartial()}{getCurrentDoubleParameterPartial()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$\& tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::get\+Current\+Double\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$}]{parameter,  }\item[{const std\+::pair$<$ int, int $>$}]{maximum\+Degree\+And\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a partial w.\+r.\+t. a double parameter. 
+
+Function to retrieve a partial w.\+r.\+t. a double parameter. An error is thrown if there is no dependency w.\+r.\+t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which a parameter is to be computed \\
+\hline
+{\em maximum\+Degree\+And\+Order} & Maximum degree and order that are to be used. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of state derivative w.\+r.\+t. given parameter 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_adec321add0269262c122edc6e0b6a1da}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_adec321add0269262c122edc6e0b6a1da}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!getCurrentParameterPartial@{getCurrentParameterPartial}}
+\index{getCurrentParameterPartial@{getCurrentParameterPartial}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{getCurrentParameterPartial()}{getCurrentParameterPartial()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$\& tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::get\+Current\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$}]{parameter,  }\item[{const std\+::pair$<$ int, int $>$}]{maximum\+Degree\+And\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a partial w.\+r.\+t. a double parameter. 
+
+Function to retrieve a partial w.\+r.\+t. a double parameter. An error is thrown if there is no dependency w.\+r.\+t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which a parameter is to be computed \\
+\hline
+{\em maximum\+Degree\+And\+Order} & Maximum degree and order that are to be used. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of state derivative w.\+r.\+t. given parameter 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad52e8f4d4a66b298d783bf9d32be76f6}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad52e8f4d4a66b298d783bf9d32be76f6}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!getCurrentParameterPartial@{getCurrentParameterPartial}}
+\index{getCurrentParameterPartial@{getCurrentParameterPartial}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{getCurrentParameterPartial()}{getCurrentParameterPartial()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$\& tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::get\+Current\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$}]{parameter,  }\item[{const std\+::pair$<$ int, int $>$}]{maximum\+Degree\+And\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a partial w.\+r.\+t. a vector parameter. 
+
+Function to retrieve a partial w.\+r.\+t. a vector parameter. An error is thrown if there is no dependency w.\+r.\+t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which a parameter is to be computed \\
+\hline
+{\em maximum\+Degree\+And\+Order} & Maximum degree and order that are to be used. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of state derivative w.\+r.\+t. given parameter 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a071c7954ff27d507c3c45483c054d409}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a071c7954ff27d507c3c45483c054d409}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!getCurrentVectorParameterPartial@{getCurrentVectorParameterPartial}}
+\index{getCurrentVectorParameterPartial@{getCurrentVectorParameterPartial}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{getCurrentVectorParameterPartial()}{getCurrentVectorParameterPartial()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 2, Eigen\+::\+Dynamic $>$ $>$\& tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::get\+Current\+Vector\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$}]{parameter,  }\item[{const std\+::pair$<$ int, int $>$}]{maximum\+Degree\+And\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a partial w.\+r.\+t. a vector parameter. 
+
+Function to retrieve a partial w.\+r.\+t. a vector parameter. An error is thrown if there is no dependency w.\+r.\+t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which a parameter is to be computed \\
+\hline
+{\em maximum\+Degree\+And\+Order} & Maximum degree and order that are to be used. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of state derivative w.\+r.\+t. given parameter 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a549d60a093f66d773b66f254c276fc18}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a549d60a093f66d773b66f254c276fc18}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!getSelectedDeformingBodyIds@{getSelectedDeformingBodyIds}}
+\index{getSelectedDeformingBodyIds@{getSelectedDeformingBodyIds}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{getSelectedDeformingBodyIds()}{getSelectedDeformingBodyIds()}}
+{\footnotesize\ttfamily std\+::vector$<$ int $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::get\+Selected\+Deforming\+Body\+Ids (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::string $>$ \&}]{selected\+Body\+Names }\end{DoxyParamCaption})}
+
+
+
+Function to obtain the indices of given list of body names in deforming\+Bodies\+\_\+ member vector. 
+
+Function to obtain the indices of given list of body names in deforming\+Bodies\+\_\+ member vector. Function throws an exception if the input vector contains names of bodies not contained in the deforming\+Bodies\+\_\+ vector 
+\begin{DoxyParams}{Parameters}
+{\em selected\+Body\+Names} & List of bodies for which the indices in the deforming\+Bodies\+\_\+ vector are to be obtained \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The indices of given list of body names in deforming\+Bodies\+\_\+ member vector 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a313d789c86136202035597b668b33e60}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a313d789c86136202035597b668b33e60}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!resetTime@{resetTime}}
+\index{resetTime@{resetTime}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{resetTime()}{resetTime()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::reset\+Time (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Reset current time of tidal Love number interface. 
+
+Reset current time of tidal Love number interface, typically used to set NaN time, signalling that an update of the object is required 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & Current time to which interface is to be set. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a296621787f3405eab33e9309aa825a86}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a296621787f3405eab33e9309aa825a86}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!setCurrentTidalBodyStates@{setCurrentTidalBodyStates}}
+\index{setCurrentTidalBodyStates@{setCurrentTidalBodyStates}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{setCurrentTidalBodyStates()}{setCurrentTidalBodyStates()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::set\+Current\+Tidal\+Body\+States (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const int}]{order,  }\item[{const int}]{body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function to set current state of single body and derived quantities. 
+
+Function to set current state of single body and derived quantities Sets the variables used in calculation loop from pre-\/calculations of update\+Current\+Tidal\+Body\+States function. 
+\begin{DoxyParams}{Parameters}
+{\em body} & Index of body for which variables are to be computed. \\
+\hline
+{\em order} & Degree of field at which updated is to be performed (not used; may be used in derived class function) \\
+\hline
+{\em degree} & Degree of field at which updated is to be performed (not used; may be used in derived class function) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa32f92c6eefa3f927de7d3d6c432fa97}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa32f92c6eefa3f927de7d3d6c432fa97}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!setParameterPartialFunction@{setParameterPartialFunction}}
+\index{setParameterPartialFunction@{setParameterPartialFunction}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{setParameterPartialFunction()}{setParameterPartialFunction()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily std\+::pair$<$ int, std\+::pair$<$ int, int $>$ $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::set\+Parameter\+Partial\+Function (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$}]{parameter,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to set a dependency of this partial object w.\+r.\+t. a given double parameter. 
+
+Function to set a dependency of this partial object w.\+r.\+t. a given double parameter. If a dependency exists, the given partial is recomputed on every call of update\+Parameter\+Partials. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which dependency is to be checked and set. \\
+\hline
+{\em maximum\+Degree} & Maximum degree of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+{\em maximum\+Order} & Maximum order of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pair, with first\+: Size (number of columns) of parameter partial. Zero if no dependency, 1 otherwise. Pair second\+: maximum degree and order of gravity field that are affected by the partials (NaN if no dependency). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_af69335e274da99d144f908aa8b3a3f3e}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_af69335e274da99d144f908aa8b3a3f3e}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!setParameterPartialFunction@{setParameterPartialFunction}}
+\index{setParameterPartialFunction@{setParameterPartialFunction}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{setParameterPartialFunction()}{setParameterPartialFunction()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily std\+::pair$<$ int, std\+::pair$<$ int, int $>$ $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::set\+Parameter\+Partial\+Function (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$}]{parameter,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to set a dependency of this partial object w.\+r.\+t. a given vector parameter. 
+
+Function to set a dependency of this partial object w.\+r.\+t. a given vector parameter. If a dependency exists, the given partial is recomputed on every call of update\+Parameter\+Partials. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which dependency is to be checked and set. \\
+\hline
+{\em maximum\+Degree} & Maximum degree of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+{\em maximum\+Order} & Maximum order of the acceleration for which the partial derivatives are to be calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pair, with first\+: Size (number of columns) of parameter partial. Zero if no dependency. Pair second\+: maximum degree and order of gravity field that are affected by the partials (NaN if no dependency). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa802e4d2c29c2bee5fedc206dfdcbddd}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_aa802e4d2c29c2bee5fedc206dfdcbddd}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!update@{update}}
+\index{update@{update}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::update (\begin{DoxyParamCaption}\item[{const double}]{current\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Update tidal Love number interface to current time. 
+
+Update tidal Love number interface to current time. NOTE\+: This function currently has very limited functionality, resulting in reduced computational efficiency of the class. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & Current time to which interface is to be set. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a0cdaf01ebec326b4f5144c7d02446547}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a0cdaf01ebec326b4f5144c7d02446547}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!updateCurrentTidalBodyStates@{updateCurrentTidalBodyStates}}
+\index{updateCurrentTidalBodyStates@{updateCurrentTidalBodyStates}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{updateCurrentTidalBodyStates()}{updateCurrentTidalBodyStates()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::update\+Current\+Tidal\+Body\+States (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ int $>$ \&}]{deforming\+Bodies\+To\+Update }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function to pre-\/calculate all states of bodies involved. 
+
+Function to pre-\/calculate all states of bodies involved. Implemented here assuming no time lag, derived classes could provide modified implementations. 
+\begin{DoxyParams}{Parameters}
+{\em deforming\+Bodies\+To\+Update} & Indices of deforming bodies (in deforming\+Bodies\+\_\+ member vector) due to which the deformationis to be taken into accountused. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7f55fa0abd2a586d19f88788d4bb7066}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_a7f55fa0abd2a586d19f88788d4bb7066}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!updateParameterPartials@{updateParameterPartials}}
+\index{updateParameterPartials@{updateParameterPartials}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{updateParameterPartials()}{updateParameterPartials()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::update\+Parameter\+Partials (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to update the values of the partial derivatives to current state and time. 
+
+Function to update the values of the partial derivatives to current state and time. The list of functions computing the partial derivatives is determined by the calls to the set\+Parameter\+Partial\+Function functions of this class. 
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad243549f78fc4d7efd24aef7181c7602}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ad243549f78fc4d7efd24aef7181c7602}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!deformedBodyPositionFunction\_@{deformedBodyPositionFunction\_}}
+\index{deformedBodyPositionFunction\_@{deformedBodyPositionFunction\_}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{deformedBodyPositionFunction\_}{deformedBodyPositionFunction\_}}
+{\footnotesize\ttfamily std\+::function$<$ Eigen\+::\+Vector3d( ) $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::deformed\+Body\+Position\+Function\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Function to retrieve current state of body being tidally deformed. 
+
+Function to retrieve current state of body being tidally deformed. Typically linked to spherical harmonic acceleration model. Function is also used for tidal spherical harmonic variation calculations in case of no tidal time delay. \mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_acbcb03d84d41f040f47963e83ba3d839}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_acbcb03d84d41f040f47963e83ba3d839}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!iLongitude\_@{iLongitude\_}}
+\index{iLongitude\_@{iLongitude\_}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{iLongitude\_}{iLongitude\_}}
+{\footnotesize\ttfamily std\+::complex$<$ double $>$ tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::i\+Longitude\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+Current sine of longitude of body causing deformation, in frame fixed to body being deformed, times i (sqrt(-\/1)) as set by set\+Current\+Tidal\+Body\+States function \mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_acdf68260ed7dc58005d6964d55a87c88}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_acdf68260ed7dc58005d6964d55a87c88}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!relativeDeformingBodySphericalPosition\_@{relativeDeformingBodySphericalPosition\_}}
+\index{relativeDeformingBodySphericalPosition\_@{relativeDeformingBodySphericalPosition\_}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{relativeDeformingBodySphericalPosition\_}{relativeDeformingBodySphericalPosition\_}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::relative\+Deforming\+Body\+Spherical\+Position\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+Current relative position of body causing deformation in body-\/fixed frame of deformed body, as set by set\+Current\+Tidal\+Body\+States function \mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ab285ed6873af72f1bb2a6e56a66eb191}\label{classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface_ab285ed6873af72f1bb2a6e56a66eb191}} 
+\index{tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}!sineOfLatitude\_@{sineOfLatitude\_}}
+\index{sineOfLatitude\_@{sineOfLatitude\_}!tudat::orbit\_determination::TidalLoveNumberPartialInterface@{tudat::orbit\_determination::TidalLoveNumberPartialInterface}}
+\doxysubsubsection{\texorpdfstring{sineOfLatitude\_}{sineOfLatitude\_}}
+{\footnotesize\ttfamily double tudat\+::orbit\+\_\+determination\+::\+Tidal\+Love\+Number\+Partial\+Interface\+::sine\+Of\+Latitude\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+Current sine of latitude of body causing deformation, in frame fixed to body being deformed, as set by set\+Current\+Tidal\+Body\+States function 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/acceleration\+\_\+partials/tidal\+Love\+Number\+Partial\+Interface.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/acceleration\+\_\+partials/tidal\+Love\+Number\+Partial\+Interface.\+cpp\end{DoxyCompactItemize}

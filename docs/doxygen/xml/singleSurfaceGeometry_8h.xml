@@ -1,0 +1,830 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="singleSurfaceGeometry_8h" kind="file" language="C++">
+    <compoundname>singleSurfaceGeometry.h</compoundname>
+    <includes local="no">memory</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes refid="mathematicalConstants_8h" local="yes">tudat/math/basic/mathematicalConstants.h</includes>
+    <includes refid="surfaceGeometry_8h" local="yes">tudat/math/geometric/surfaceGeometry.h</includes>
+    <includedby refid="compositeSurfaceGeometry_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/compositeSurfaceGeometry.h</includedby>
+    <includedby refid="conicalFrustum_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/conicalFrustum.h</includedby>
+    <includedby refid="geometricShapesToFile_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/geometricShapesToFile.h</includedby>
+    <includedby refid="lawgsPartGeometry_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h</includedby>
+    <includedby refid="quadrilateralMeshedSurfaceGeometry_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/quadrilateralMeshedSurfaceGeometry.h</includedby>
+    <includedby refid="sphereSegment_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/sphereSegment.h</includedby>
+    <includedby refid="torus_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h</includedby>
+    <includedby refid="geometric_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric.h</includedby>
+    <includedby refid="singleSurfaceGeometry_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/singleSurfaceGeometry.cpp</includedby>
+    <incdepgraph>
+      <node id="7">
+        <label>limits</label>
+      </node>
+      <node id="6">
+        <label>cmath</label>
+      </node>
+      <node id="3">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="8">
+        <label>tudat/math/geometric/surfaceGeometry.h</label>
+        <link refid="surfaceGeometry_8h_source"/>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/singleSurfaceGeometry.h</label>
+        <link refid="singleSurfaceGeometry_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>complex</label>
+      </node>
+      <node id="2">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="35">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h</label>
+        <link refid="dynamicsSimulator_8h_source"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h</label>
+        <link refid="hypersonicLocalInclinationAnalysis_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="68">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h</label>
+        <link refid="propagationTermination_8h_source"/>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="67">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutput.h</label>
+        <link refid="propagationOutput_8h_source"/>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h</label>
+        <link refid="constantDragCoefficient_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/acceleration.h</label>
+        <link refid="acceleration_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h</label>
+        <link refid="aerodynamicAccelerationPartial_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/getZeroProperModeRotationalInitialState.h</label>
+        <link refid="getZeroProperModeRotationalInitialState_8h_source"/>
+        <childnode refid="61" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="66">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationLowThrustProblem.h</label>
+        <link refid="propagationLowThrustProblem_8h_source"/>
+      </node>
+      <node id="74">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h</label>
+        <link refid="torus_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/defaultBodies.h</label>
+        <link refid="defaultBodies_8h_source"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/conicalFrustum.h</label>
+        <link refid="conicalFrustum_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createStateDerivativeModel.h</label>
+        <link refid="createStateDerivativeModel_8h_source"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h</label>
+        <link refid="createBodies_8h_source"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createAccelerationModels.h</label>
+        <link refid="createAccelerationModels_8h_source"/>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h</label>
+        <link refid="propagationSettings_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createTorquePartials.h</label>
+        <link refid="createTorquePartials_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination.h</label>
+        <link refid="orbit__determination_8h_source"/>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators.h</label>
+        <link refid="propagators_8h_source"/>
+      </node>
+      <node id="34">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="72">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/quadrilateralMeshedSurfaceGeometry.h</label>
+        <link refid="quadrilateralMeshedSurfaceGeometry_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/state.h</label>
+        <link refid="state_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNumericalSimulator.h</label>
+        <link refid="createNumericalSimulator_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/export.h</label>
+        <link refid="export_8h_source"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="73">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/sphereSegment.h</label>
+        <link refid="sphereSegment_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createFlightConditions.h</label>
+        <link refid="createFlightConditions_8h_source"/>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createThrustModelGuidance.h</label>
+        <link refid="createThrustModelGuidance_8h_source"/>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/thrust.h</label>
+        <link refid="thrust_8h_source"/>
+      </node>
+      <node id="37">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createAccelerationPartials.h</label>
+        <link refid="createAccelerationPartials_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/geometricShapesToFile.h</label>
+        <link refid="geometricShapesToFile_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/compositeSurfaceGeometry.h</label>
+        <link refid="compositeSurfaceGeometry_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="44">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h</label>
+        <link refid="createAerodynamicCoefficientInterface_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="70">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h</label>
+        <link refid="setNumericallyIntegratedStates_8h_source"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="62">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/unitTestSupport.h</label>
+        <link refid="unitTestSupport_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h</label>
+        <link refid="propagationLambertTargeterFullProblem_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h</label>
+        <link refid="customAerodynamicCoefficientInterface_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h</label>
+        <link refid="accelerationSettings_8h_source"/>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h</label>
+        <link refid="testApolloCapsuleCoefficients_8h_source"/>
+      </node>
+      <node id="51">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup.h</label>
+        <link refid="environment__setup_8h_source"/>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/singleSurfaceGeometry.h</label>
+        <link refid="singleSurfaceGeometry_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="40">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h</label>
+        <link refid="variationalEquationsSolver_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/capsule.h</label>
+        <link refid="capsule_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric.h</label>
+        <link refid="geometric_8h_source"/>
+      </node>
+      <node id="71">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h</label>
+        <link refid="thrustSettings_8h_source"/>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="27">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="43">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createEstimatableParameters.h</label>
+        <link refid="createEstimatableParameters_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createStateDerivativePartials.h</label>
+        <link refid="createStateDerivativePartials_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/aerodynamics.h</label>
+        <link refid="interface_2json_2environment_2aerodynamics_8h_source"/>
+      </node>
+      <node id="29">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h</label>
+        <link refid="lawgsPartGeometry_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="64">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createEnvironmentUpdater.h</label>
+        <link refid="createEnvironmentUpdater_8h_source"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/body.h</label>
+        <link refid="interface_2json_2environment_2body_8h_source"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/environmentUpdater.h</label>
+        <link refid="environmentUpdater_8h_source"/>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="69">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h</label>
+        <link refid="integrateEquations_8h_source"/>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics.h</label>
+        <link refid="astro_2aerodynamics_8h_source"/>
+      </node>
+      <node id="33">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" prot="public">tudat::geometric_shapes::SingleSurfaceGeometry</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1geometric__shapes">tudat::geometric_shapes</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>Notes</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Contents<sp/>of<sp/>this<sp/>file<sp/>used<sp/>to<sp/>be<sp/>in<sp/>singleGeometry.h,<sp/>but<sp/>as<sp/>this<sp/>class<sp/>has<sp/>been<sp/>split</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>into<sp/>single<sp/>and<sp/>composite<sp/>surface<sp/>geometry,<sp/>the<sp/>contents<sp/>have<sp/>been<sp/>moved,<sp/>with<sp/>most<sp/>of<sp/>the</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>SurfaceGeometry<sp/>class<sp/>now<sp/>belonging<sp/>to<sp/>the<sp/>SingleSurfaceGeometry<sp/>class.</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_SINGLE_SURFACE_GEOMETRY_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_SINGLE_SURFACE_GEOMETRY_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/basic/mathematicalConstants.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/geometric/surfaceGeometry.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">geometric_shapes</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" kindref="compound">SingleSurfaceGeometry</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1SurfaceGeometry" kindref="compound">SurfaceGeometry</ref></highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66" kindref="member">IndependentVariables</ref></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>firstIndependentVariable<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>secondIndependentVariable<sp/>=<sp/>2</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a84a7a555f2d51bbf05417aa696e18a20" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a84a7a555f2d51bbf05417aa696e18a20" kindref="member">SingleSurfaceGeometry</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a47690cfd9b5f3aabfd411f5ac561b153" kindref="member">minimumIndependentVariable1_</ref>(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad293722bccd5fd354b37d392278272ab" kindref="member">maximumIndependentVariable1_</ref>(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8bb8a8501f7095d4fc92b04b557c2f13" kindref="member">minimumIndependentVariable2_</ref>(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a351c28e0101e03b52804290ef28c64f5" kindref="member">maximumIndependentVariable2_</ref>(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a801c01c437b48a0066cda10f5f2fc896" kindref="member">parameter_</ref>(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8f811cfd5b699c23341a79e271bb3cb2" kindref="member">independentVariable_</ref>(<sp/>firstIndependentVariable<sp/>),</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa23bba50be6214d1621308761d8e3bb1" kindref="member">cartesianPositionVector_</ref>(<sp/>Eigen::VectorXd::Zero(<sp/>3<sp/>)<sp/>),</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a221abc0887c99ceb7368bf0bcfbcee98" kindref="member">offset_</ref>(<sp/>Eigen::VectorXd::Zero(<sp/>3<sp/>)<sp/>),</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a61a1d7b8952fb3d283ad409a2a5c4bd1" kindref="member">rotationMatrix_</ref>(<sp/>Eigen::MatrixXd::Identity(<sp/>3,<sp/>3<sp/>)<sp/>),</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ade223ab8cae98c7c90ad339e47e2fae8" kindref="member">scalingMatrix_</ref>(<sp/>Eigen::MatrixXd::Identity(<sp/>3,<sp/>3<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ac276f4deb7405652e3e0521218910996" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ac276f4deb7405652e3e0521218910996" kindref="member">~SingleSurfaceGeometry</ref>(<sp/>)<sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a97575d937668eb0079cce753ce08fabf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a97575d937668eb0079cce753ce08fabf" kindref="member">setOffset</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::VectorXd&amp;<sp/>offset<sp/>)<sp/>{<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a221abc0887c99ceb7368bf0bcfbcee98" kindref="member">offset_</ref><sp/>=<sp/>offset;<sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa47f4c3453f2d5365f41c23c6c1cf2e5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa47f4c3453f2d5365f41c23c6c1cf2e5" kindref="member">setRotationMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::MatrixXd&amp;<sp/>rotationMatrix<sp/>)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a61a1d7b8952fb3d283ad409a2a5c4bd1" kindref="member">rotationMatrix_</ref><sp/>=<sp/>rotationMatrix;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a7c8b995d50fa752ec0447d2bd18cd6b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a7c8b995d50fa752ec0447d2bd18cd6b7" kindref="member">setScalingMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::MatrixXd&amp;<sp/>scalingMatrix<sp/>)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ade223ab8cae98c7c90ad339e47e2fae8" kindref="member">scalingMatrix_</ref><sp/>=<sp/>scalingMatrix;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a17437a185d1bc67dd7dc3cdfb43d92a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a17437a185d1bc67dd7dc3cdfb43d92a6" kindref="member">getParameter</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>parameterIndex<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a64b41f34c562915f6b2842d460298d1d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a64b41f34c562915f6b2842d460298d1d" kindref="member">getOffset</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a221abc0887c99ceb7368bf0bcfbcee98" kindref="member">offset_</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaf75807f06b998e8c8aaa3f6ef537f85" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaf75807f06b998e8c8aaa3f6ef537f85" kindref="member">getRotationMatrix</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a61a1d7b8952fb3d283ad409a2a5c4bd1" kindref="member">rotationMatrix_</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1adcfa4b03a384ce4982b62136c018f91f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1adcfa4b03a384ce4982b62136c018f91f" kindref="member">getScalingMatrix</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ade223ab8cae98c7c90ad339e47e2fae8" kindref="member">scalingMatrix_</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1afd3d72e02db05e1ccb8702e73b42be01" kindref="member">getMinimumIndependentVariable</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>parameterIndex<sp/>);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a0c27b60cd7bb0dabd008c8512b9329b0" kindref="member">getMaximumIndependentVariable</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>parameterIndex<sp/>);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aec5c9957aa261662b34ddb0acf5eac40" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>Eigen::VectorXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aec5c9957aa261662b34ddb0acf5eac40" kindref="member">getSurfacePoint</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>independentVariable1,</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>independentVariable2<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad5d412eff63b46b71cc774d222131795" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>Eigen::VectorXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad5d412eff63b46b71cc774d222131795" kindref="member">getSurfaceDerivative</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>independentVariable1,</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>independentVariable2,</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>powerOfDerivative1,</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>powerOfDerivative2<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaa8631cc37a83c042e39fc2ebc87fc91" kindref="member">transformPoint</ref>(<sp/>Eigen::VectorXd&amp;<sp/>point<sp/>);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aec4e218b11c994b5bfc451dace813b6c" kindref="member">setMinimumIndependentVariable</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>parameterIndex,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>minimumValue<sp/>);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaefc36efe1b4f165628a1e6bcd5ce8b0" kindref="member">setMaximumIndependentVariable</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>parameterIndex,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>maximumValue<sp/>);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a47690cfd9b5f3aabfd411f5ac561b153" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a47690cfd9b5f3aabfd411f5ac561b153" kindref="member">minimumIndependentVariable1_</ref>;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad293722bccd5fd354b37d392278272ab" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad293722bccd5fd354b37d392278272ab" kindref="member">maximumIndependentVariable1_</ref>;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8bb8a8501f7095d4fc92b04b557c2f13" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8bb8a8501f7095d4fc92b04b557c2f13" kindref="member">minimumIndependentVariable2_</ref>;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a351c28e0101e03b52804290ef28c64f5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a351c28e0101e03b52804290ef28c64f5" kindref="member">maximumIndependentVariable2_</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a801c01c437b48a0066cda10f5f2fc896" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a801c01c437b48a0066cda10f5f2fc896" kindref="member">parameter_</ref>;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="248" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8f811cfd5b699c23341a79e271bb3cb2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66" kindref="member">IndependentVariables</ref><sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8f811cfd5b699c23341a79e271bb3cb2" kindref="member">independentVariable_</ref>;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa23bba50be6214d1621308761d8e3bb1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa23bba50be6214d1621308761d8e3bb1" kindref="member">cartesianPositionVector_</ref>;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a221abc0887c99ceb7368bf0bcfbcee98" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a221abc0887c99ceb7368bf0bcfbcee98" kindref="member">offset_</ref>;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a61a1d7b8952fb3d283ad409a2a5c4bd1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a61a1d7b8952fb3d283ad409a2a5c4bd1" kindref="member">rotationMatrix_</ref>;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274" refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ade223ab8cae98c7c90ad339e47e2fae8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ade223ab8cae98c7c90ad339e47e2fae8" kindref="member">scalingMatrix_</ref>;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="277"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>SingleSurfaceGeometry<sp/>&gt;<sp/>SingleSurfaceGeometryPointer;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>geometric_shapes</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_SINGLE_SURFACE_GEOMETRY_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/singleSurfaceGeometry.h"/>
+  </compounddef>
+</doxygen>

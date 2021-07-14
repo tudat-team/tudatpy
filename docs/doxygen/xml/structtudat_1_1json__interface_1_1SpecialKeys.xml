@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1SpecialKeys" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::SpecialKeys</compoundname>
+    <includes refid="keys_8h" local="no">keys.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1SpecialKeys_1a3b83abf2a465cf9b139bea8328eae035" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::SpecialKeys::root</definition>
+        <argsstring></argsstring>
+        <name>root</name>
+        <initializer>= &quot;~&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="25" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1SpecialKeys_1a0c8e91d103a9ad17e1caa86fc6be4879" prot="public" static="yes" mutable="no">
+        <type>const char</type>
+        <definition>const char tudat::json_interface::SpecialKeys::dot</definition>
+        <argsstring></argsstring>
+        <name>dot</name>
+        <initializer>= &apos;.&apos;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="26" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1SpecialKeys_1a1da8fdf131fb0070624427ba96643a60" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::SpecialKeys::up</definition>
+        <argsstring></argsstring>
+        <name>up</name>
+        <initializer>= &quot;&lt;-&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="27" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1SpecialKeys_1a81e749c353b47fb319f705711e648fcf" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::SpecialKeys::rootObject</definition>
+        <argsstring></argsstring>
+        <name>rootObject</name>
+        <initializer>= &quot;#root&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="28" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1SpecialKeys_1aca824c26935647b09b23da1bfb595dff" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::SpecialKeys::keyPath</definition>
+        <argsstring></argsstring>
+        <name>keyPath</name>
+        <initializer>= &quot;#keypath&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="29" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1SpecialKeys_1a39a6b7db2669efff63f2b6608cd0cd2c" prot="public" static="yes" mutable="no">
+        <type>const std::vector&lt; std::string &gt;</type>
+        <definition>const std::vector&lt; std::string &gt; tudat::json_interface::SpecialKeys::objectContaining</definition>
+        <argsstring></argsstring>
+        <name>objectContaining</name>
+        <initializer>=
+{
+    SpecialKeys::rootObject,
+    SpecialKeys::keyPath
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="31" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1SpecialKeys_1a4eb7526384565cc63f4310673c192c6c" prot="public" static="yes" mutable="no">
+        <type>const std::vector&lt; std::string &gt;</type>
+        <definition>const std::vector&lt; std::string &gt; tudat::json_interface::SpecialKeys::all</definition>
+        <argsstring></argsstring>
+        <name>all</name>
+        <initializer>=
+{
+    SpecialKeys::root,
+    SpecialKeys::up,
+    SpecialKeys::rootObject,
+    SpecialKeys::keyPath
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="32" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Special keys (used internally by json_interface, can&apos;t be used in JSON files). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="23" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="24" bodyend="33"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1SpecialKeys_1a4eb7526384565cc63f4310673c192c6c" prot="public" virt="non-virtual"><scope>tudat::json_interface::SpecialKeys</scope><name>all</name></member>
+      <member refid="structtudat_1_1json__interface_1_1SpecialKeys_1a0c8e91d103a9ad17e1caa86fc6be4879" prot="public" virt="non-virtual"><scope>tudat::json_interface::SpecialKeys</scope><name>dot</name></member>
+      <member refid="structtudat_1_1json__interface_1_1SpecialKeys_1aca824c26935647b09b23da1bfb595dff" prot="public" virt="non-virtual"><scope>tudat::json_interface::SpecialKeys</scope><name>keyPath</name></member>
+      <member refid="structtudat_1_1json__interface_1_1SpecialKeys_1a39a6b7db2669efff63f2b6608cd0cd2c" prot="public" virt="non-virtual"><scope>tudat::json_interface::SpecialKeys</scope><name>objectContaining</name></member>
+      <member refid="structtudat_1_1json__interface_1_1SpecialKeys_1a3b83abf2a465cf9b139bea8328eae035" prot="public" virt="non-virtual"><scope>tudat::json_interface::SpecialKeys</scope><name>root</name></member>
+      <member refid="structtudat_1_1json__interface_1_1SpecialKeys_1a81e749c353b47fb319f705711e648fcf" prot="public" virt="non-virtual"><scope>tudat::json_interface::SpecialKeys</scope><name>rootObject</name></member>
+      <member refid="structtudat_1_1json__interface_1_1SpecialKeys_1a1da8fdf131fb0070624427ba96643a60" prot="public" virt="non-virtual"><scope>tudat::json_interface::SpecialKeys</scope><name>up</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

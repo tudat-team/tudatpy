@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1TorqueSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::TorqueSettings</compoundname>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1CustomTorqueSettings" prot="public" virt="non-virtual">tudat::simulation_setup::CustomTorqueSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings" prot="public" virt="non-virtual">tudat::simulation_setup::SphericalHarmonicTorqueSettings</derivedcompoundref>
+    <includes refid="torqueSettings_8h" local="no">torqueSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1TorqueSettings_1a04c4dd13b71338767ccb7f4d794b8307" prot="public" static="no" mutable="no">
+        <type>basic_astrodynamics::AvailableTorque</type>
+        <definition>basic_astrodynamics::AvailableTorque tudat::simulation_setup::TorqueSettings::torqueType_</definition>
+        <argsstring></argsstring>
+        <name>torqueType_</name>
+        <briefdescription>
+<para>Type of torque that is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" line="52" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TorqueSettings_1aef8135ab1ca20c15545331a3ca9f2ed3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::TorqueSettings::TorqueSettings</definition>
+        <argsstring>(const basic_astrodynamics::AvailableTorque torqueType)</argsstring>
+        <name>TorqueSettings</name>
+        <param>
+          <type>const basic_astrodynamics::AvailableTorque</type>
+          <declname>torqueType</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, sets type of torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets type of torque. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>torqueType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of torque from AvailableTorque enum. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" bodystart="45" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TorqueSettings_1ab2913703e491f276cfa956383d7a72d9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::simulation_setup::TorqueSettings::~TorqueSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~TorqueSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" line="49" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" bodystart="49" bodyend="49"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for providing settings for torque model. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for providing settings for torque model. This class is a functional (base) class for settings of torque models that require no information in addition to their type. Classes defining settings for torque models requiring additional information must be derived from this class. Bodies exerting and undergong torque are set externally from this class. This class can be used for the easy setup of torque models (see createTorqueModels.h), but users may also chose to do so manually. (Derived) Class members are all public, for ease of access and modification. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::TorqueSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1TorqueSettings"/>
+      </node>
+      <node id="3">
+        <label>tudat::simulation_setup::SphericalHarmonicTorqueSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::CustomTorqueSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CustomTorqueSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" line="36" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" bodystart="37" bodyend="54"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1TorqueSettings_1aef8135ab1ca20c15545331a3ca9f2ed3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TorqueSettings</scope><name>TorqueSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TorqueSettings_1a04c4dd13b71338767ccb7f4d794b8307" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TorqueSettings</scope><name>torqueType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TorqueSettings_1ab2913703e491f276cfa956383d7a72d9" prot="public" virt="virtual"><scope>tudat::simulation_setup::TorqueSettings</scope><name>~TorqueSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

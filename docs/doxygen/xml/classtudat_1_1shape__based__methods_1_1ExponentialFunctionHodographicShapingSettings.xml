@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" prot="public" virt="non-virtual">tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</basecompoundref>
+    <includes refid="createBaseFunctionHodographicShaping_8h" local="no">createBaseFunctionHodographicShaping.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3b97b0635ba044091b7c0a8ff5eb85ca" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings::exponent_</definition>
+        <argsstring></argsstring>
+        <name>exponent_</name>
+        <briefdescription>
+<para>Exponent of the exponential function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="72" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3dbdd87feb778fcd6fb81bc630fcaf12" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings::scaleFactor_</definition>
+        <argsstring></argsstring>
+        <name>scaleFactor_</name>
+        <briefdescription>
+<para>Scale factor, to be used for a scaled exponential function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="75" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a1f0d21d268011b013e3a61f7b58c2df1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings::ExponentialFunctionHodographicShapingSettings</definition>
+        <argsstring>(const double exponent, const double scaleFactor=1.0)</argsstring>
+        <name>ExponentialFunctionHodographicShapingSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>exponent</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>scaleFactor</declname>
+          <defval>1.0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor to set exponent, and possibly scaling factor for the exponential function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor to set exponent, and possibly scaling factor for the exponential function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>exponent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Exponent of the exponential function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scaleFactor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scaling factor for the exponential function. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="67" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="67" bodyend="69"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Settings class for hodographic shaping exponential function. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="57" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="58" bodyend="76"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1ab0b7695f6126237c44e06bda38b7cecc" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</scope><name>BaseFunctionHodographicShapingSettings</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3b97b0635ba044091b7c0a8ff5eb85ca" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</scope><name>exponent_</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a1f0d21d268011b013e3a61f7b58c2df1" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</scope><name>ExponentialFunctionHodographicShapingSettings</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3dbdd87feb778fcd6fb81bc630fcaf12" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</scope><name>scaleFactor_</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1af6d1203a4edd1c772949548dbf9590e0" prot="public" virt="virtual"><scope>tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</scope><name>~BaseFunctionHodographicShapingSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_d0a7c00fa3ca6a5c4d9f3fcc4116cee7" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro</compoundname>
+    <innerdir refid="dir_dc637f6903e54835bc2f54d519d11e97">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics</innerdir>
+    <innerdir refid="dir_d60102eddb27ce0822d5d6921730915d">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro</innerdir>
+    <innerdir refid="dir_aeb7b70c9916090d6b1dacdce87a6f6b">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation</innerdir>
+    <innerdir refid="dir_44a97b521c84414cc4c1ed691b93d2a2">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism</innerdir>
+    <innerdir refid="dir_0f3f41e661251f5af4cbcff922e9f9aa">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides</innerdir>
+    <innerdir refid="dir_a49e319b3dfcb93caa664057545f8592">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation</innerdir>
+    <innerdir refid="dir_183bdd46db79e5312bbbeb9112e2fbe0">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations</innerdir>
+    <innerdir refid="dir_bfb016db7aa6607ad04d655a72df8ae3">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust</innerdir>
+    <innerdir refid="dir_8941148a7172d6959e7c700f3618ee5c">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments</innerdir>
+    <innerdir refid="dir_de97b511b4a6ca7ac95584854e87325c">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/observation_models</innerdir>
+    <innerdir refid="dir_b37afa8354f0e70a75e24b60a7a7b3be">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination</innerdir>
+    <innerdir refid="dir_88de902236220b4a06b1a79f566f1e6e">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propagators</innerdir>
+    <innerdir refid="dir_549d01df0fe6e018bc54b55a65e1a631">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion</innerdir>
+    <innerdir refid="dir_8d3d808ecf75b8a445d5ea370643e14a">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames</innerdir>
+    <innerdir refid="dir_883f3d29ce369780a4c8530c2fc3d911">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/relativity</innerdir>
+    <innerdir refid="dir_5951ecf696d27f8a7b68f7c2df52b0a6">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/system_models</innerdir>
+    <innerdir refid="dir_24d5b7f888bb60260a9c1d988e6a9031">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/"/>
+  </compounddef>
+</doxygen>

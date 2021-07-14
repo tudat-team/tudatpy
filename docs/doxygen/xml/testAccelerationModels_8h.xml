@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="testAccelerationModels_8h" kind="file" language="C++">
+    <compoundname>testAccelerationModels.h</compoundname>
+    <includes local="no">functional</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes refid="accelerationModel_8h" local="yes">tudat/astro/basic_astro/accelerationModel.h</includes>
+    <incdepgraph>
+      <node id="2">
+        <label>functional</label>
+      </node>
+      <node id="12">
+        <label>limits</label>
+      </node>
+      <node id="4">
+        <label>tudat/astro/basic_astro/accelerationModel.h</label>
+        <link refid="accelerationModel_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>cmath</label>
+      </node>
+      <node id="3">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="6">
+        <label>map</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h</label>
+        <link refid="testAccelerationModels_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>vector</label>
+      </node>
+      <node id="9">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>unordered_map</label>
+      </node>
+      <node id="10">
+        <label>complex</label>
+      </node>
+      <node id="8">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel" prot="public">tudat::unit_tests::DerivedAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel" prot="public">tudat::unit_tests::AnotherDerivedAccelerationModel</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1unit__tests">tudat::unit_tests</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_TEST_ACCELERATION_MODELS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_TEST_ACCELERATION_MODELS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;functional&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/accelerationModel.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">unit_tests</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>AccelerationDataType<sp/>=<sp/>Eigen::Vector3d,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>PositionDataType<sp/>=<sp/>Eigen::Vector3d,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeDataType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="41" refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel" kindref="compound">DerivedAccelerationModel</ref></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" kindref="compound">basic_astrodynamics::AccelerationModel</ref>&lt;<sp/>AccelerationDataType<sp/>&gt;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>PositionDataType(<sp/>)<sp/>&gt;<sp/>PositionReturningFunction;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>TimeDataType(<sp/>)<sp/>&gt;<sp/>TimeReturningFunction;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1a3166b0d93f5259915d997f7ebed3c4c8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1a3166b0d93f5259915d997f7ebed3c4c8" kindref="member">DerivedAccelerationModel</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>PositionReturningFunction<sp/>aPositionFunction,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeReturningFunction<sp/>aTimeFunction<sp/>)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>getPosition(<sp/>aPositionFunction<sp/>),</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>getTime(<sp/>aTimeFunction<sp/>)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1ae0f1908a1c80dfafc01e4c11e69e1373" kindref="member">updateMembers</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1a18a9f073e9f83d021d94b9df8144d253" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>AccelerationDataType<sp/><ref refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1a18a9f073e9f83d021d94b9df8144d253" kindref="member">getAcceleration</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>position<sp/>/<sp/>(<sp/>time<sp/>*<sp/>time<sp/>);<sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1ae0f1908a1c80dfafc01e4c11e69e1373" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1ae0f1908a1c80dfafc01e4c11e69e1373" kindref="member">updateMembers</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)<sp/>{<sp/>position<sp/>=<sp/>getPosition(<sp/>);<sp/>time<sp/>=<sp/>getTime(<sp/>);<sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>PositionReturningFunction<sp/>getPosition;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>TimeReturningFunction<sp/>getTime;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>PositionDataType<sp/>position;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>TimeDataType<sp/>time;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>AccelerationDataType<sp/>=<sp/>Eigen::Vector3d,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>PositionDataType<sp/>=<sp/>Eigen::Vector3d,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>VelocityDataType<sp/>=<sp/>Eigen::Vector3d,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeDataType<sp/>=<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="137" refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel" kindref="compound">AnotherDerivedAccelerationModel</ref></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" kindref="compound">basic_astrodynamics::AccelerationModel</ref>&lt;<sp/>AccelerationDataType<sp/>&gt;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143" refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a0562b4a90a1f0d0ac0dbac0846a6b259" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>PositionDataType(<sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a0562b4a90a1f0d0ac0dbac0846a6b259" kindref="member">PositionReturningFunction</ref>;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a3a602171a8131b0daf94cc3b3b281a29" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>VelocityDataType(<sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a3a602171a8131b0daf94cc3b3b281a29" kindref="member">VelocityReturningFunction</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149" refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a2c1c58f3a90044d279dbd11ea72cae22" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>TimeDataType(<sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a2c1c58f3a90044d279dbd11ea72cae22" kindref="member">TimeReturningFunction</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160" refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1aaacbc7b46b24df7e6313f2a041cd6cac" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1aaacbc7b46b24df7e6313f2a041cd6cac" kindref="member">AnotherDerivedAccelerationModel</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a0562b4a90a1f0d0ac0dbac0846a6b259" kindref="member">PositionReturningFunction</ref><sp/>aPositionFunction,</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a3a602171a8131b0daf94cc3b3b281a29" kindref="member">VelocityReturningFunction</ref><sp/>aVelocityFunction,</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a2c1c58f3a90044d279dbd11ea72cae22" kindref="member">TimeReturningFunction</ref><sp/>aTimeFunction<sp/>)</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>getPosition(<sp/>aPositionFunction<sp/>),</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>getVelocity(<sp/>aVelocityFunction<sp/>),</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>getTime(<sp/>aTimeFunction<sp/>)</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" kindref="member">updateMembers</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177" refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1ab025d414ca6b01e768198e2ab1f9c9d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>AccelerationDataType<sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1ab025d414ca6b01e768198e2ab1f9c9d0" kindref="member">getAcceleration</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.5<sp/>*<sp/>position<sp/>/<sp/>(<sp/>3.2<sp/>*<sp/>(<sp/>time<sp/>+<sp/>3.4<sp/>)<sp/>*<sp/>time<sp/>)<sp/>+<sp/>velocity<sp/>/<sp/>time;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189" refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa" kindref="member">updateMembers</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>position<sp/>=<sp/>getPosition(<sp/>);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>velocity<sp/>=<sp/>getVelocity(<sp/>);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>=<sp/>getTime(<sp/>);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a0562b4a90a1f0d0ac0dbac0846a6b259" kindref="member">PositionReturningFunction</ref><sp/>getPosition;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a3a602171a8131b0daf94cc3b3b281a29" kindref="member">VelocityReturningFunction</ref><sp/>getVelocity;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1a2c1c58f3a90044d279dbd11ea72cae22" kindref="member">TimeReturningFunction</ref><sp/>getTime;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/>PositionDataType<sp/>position;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/>VelocityDataType<sp/>velocity;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/>TimeDataType<sp/>time;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>unit_tests</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_TEST_ACCELERATION_MODELS_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/testAccelerationModels.h"/>
+  </compounddef>
+</doxygen>

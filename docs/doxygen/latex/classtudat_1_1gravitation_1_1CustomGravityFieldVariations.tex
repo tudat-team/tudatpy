@@ -1,0 +1,59 @@
+\hypertarget{classtudat_1_1gravitation_1_1CustomGravityFieldVariations}{}\doxysection{tudat\+::gravitation\+::Custom\+Gravity\+Field\+Variations Class Reference}
+\label{classtudat_1_1gravitation_1_1CustomGravityFieldVariations}\index{tudat::gravitation::CustomGravityFieldVariations@{tudat::gravitation::CustomGravityFieldVariations}}
+
+
+Class for variations in spherical harmonic coefficients, directly provided as a function.  
+
+
+
+
+{\ttfamily \#include $<$custom\+Gravity\+Field\+Variations.\+h$>$}
+
+Inheritance diagram for tudat\+::gravitation\+::Custom\+Gravity\+Field\+Variations\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1gravitation_1_1CustomGravityFieldVariations}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1CustomGravityFieldVariations_adcd347cfc7e7f454d8cf666141083be2}\label{classtudat_1_1gravitation_1_1CustomGravityFieldVariations_adcd347cfc7e7f454d8cf666141083be2}} 
+{\bfseries Custom\+Gravity\+Field\+Variations} (std\+::function$<$ double, std\+::pair$<$ Eigen\+::\+Matrix\+Xd $>$(const double) $>$ custom\+Correction\+Function, const int minimum\+Degree, const int minimum\+Order)
+\item 
+std\+::pair$<$ Eigen\+::\+Matrix\+Xd, Eigen\+::\+Matrix\+Xd $>$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1CustomGravityFieldVariations_a0b9a614dc5973126bd88bb7cb7c2a1dd}{calculate\+Spherical\+Harmonics\+Corrections}} (const double time)
+\begin{DoxyCompactList}\small\item\em Pure virtual function for calculating corrections. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for variations in spherical harmonic coefficients, directly provided as a function. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1CustomGravityFieldVariations_a0b9a614dc5973126bd88bb7cb7c2a1dd}\label{classtudat_1_1gravitation_1_1CustomGravityFieldVariations_a0b9a614dc5973126bd88bb7cb7c2a1dd}} 
+\index{tudat::gravitation::CustomGravityFieldVariations@{tudat::gravitation::CustomGravityFieldVariations}!calculateSphericalHarmonicsCorrections@{calculateSphericalHarmonicsCorrections}}
+\index{calculateSphericalHarmonicsCorrections@{calculateSphericalHarmonicsCorrections}!tudat::gravitation::CustomGravityFieldVariations@{tudat::gravitation::CustomGravityFieldVariations}}
+\doxysubsubsection{\texorpdfstring{calculateSphericalHarmonicsCorrections()}{calculateSphericalHarmonicsCorrections()}}
+{\footnotesize\ttfamily std\+::pair$<$ Eigen\+::\+Matrix\+Xd, Eigen\+::\+Matrix\+Xd $>$ tudat\+::gravitation\+::\+Custom\+Gravity\+Field\+Variations\+::calculate\+Spherical\+Harmonics\+Corrections (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Pure virtual function for calculating corrections. 
+
+Pure virtual function for calculating corrections at given time. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which variations are to be calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pair of matrices containing variations in (cosine, sine) coefficients at block positions in total matrices defined by minimum\+Degree\+\_\+, minimum\+Order\+\_\+, number\+Of\+Degrees\+\_\+, number\+Of\+Orders\+\_\+; 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldVariations_ab42ff0b801e14ac4becc0619cc2a28d7}{tudat\+::gravitation\+::\+Gravity\+Field\+Variations}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/gravitation/custom\+Gravity\+Field\+Variations.\+h\end{DoxyCompactItemize}

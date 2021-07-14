@@ -1,0 +1,118 @@
+\hypertarget{classtudat_1_1earth__orientation_1_1PolarMotionCalculator}{}\doxysection{tudat\+::earth\+\_\+orientation\+::Polar\+Motion\+Calculator Class Reference}
+\label{classtudat_1_1earth__orientation_1_1PolarMotionCalculator}\index{tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}}
+
+
+Object to compute polar motion variables x\+\_\+\{p\} and y\+\_\+\{p\}.  
+
+
+
+
+{\ttfamily \#include $<$polar\+Motion\+Calculator.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_ac903ebffbf11c684e6249544fa08abd4}{Polar\+Motion\+Calculator}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator}{interpolators\+::\+One\+Dimensional\+Interpolator}}$<$ double, Eigen\+::\+Vector2d $>$ $>$ daily\+Iers\+Value\+Interpolator, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{Short\+Period\+Earth\+Orientation\+Correction\+Calculator}}$<$ Eigen\+::\+Vector2d $>$ $>$ short\+Period\+Polar\+Motion\+Calculator)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector2d \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a343ca00adb68f5225af058597ee562ea}{get\+Position\+Of\+Cip\+In\+Itrs}} (const double tt\+Since\+Epoch, const double utc\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Calculate the position of the Celestial Intermediate Pole in the ITRS. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector2d \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a3948c87680d284bd8e9dd196c2832d32}{get\+Position\+Of\+Cip\+In\+Itrs}} (Eigen\+::\+Vector6d fundamental\+Arguments, const double utc\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Calculate the position of the Celestial Intermediate Pole in the ITRS. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator}{interpolators\+::\+One\+Dimensional\+Interpolator}}$<$ double, Eigen\+::\+Vector2d $>$ $>$ \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a87d1517796d812a756c8f3e559f7cd80}{get\+Daily\+Iers\+Value\+Interpolator}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve interpolator for daily IERS-\/measured pole offsets. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{Short\+Period\+Earth\+Orientation\+Correction\+Calculator}}$<$ Eigen\+::\+Vector2d $>$ $>$ \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a429eb3aa64b29ed0aae399dee5f4394b}{get\+Short\+Period\+Polar\+Motion\+Calculator}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve object calculating short period polar motion variations. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Object to compute polar motion variables x\+\_\+\{p\} and y\+\_\+\{p\}. 
+
+Object to compute polar motion variables x\+\_\+\{p\} and y\+\_\+\{p\}, describing the motion of the Earth pole in ITRS. This class combines the measured daily data as published by the IERS with the short-\/period variation models due to libration and ocean tides as described in Sections 5.\+5.\+1 and 8.\+2 of IERS 2010 Conventions. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_ac903ebffbf11c684e6249544fa08abd4}\label{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_ac903ebffbf11c684e6249544fa08abd4}} 
+\index{tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}!PolarMotionCalculator@{PolarMotionCalculator}}
+\index{PolarMotionCalculator@{PolarMotionCalculator}!tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}}
+\doxysubsubsection{\texorpdfstring{PolarMotionCalculator()}{PolarMotionCalculator()}}
+{\footnotesize\ttfamily tudat\+::earth\+\_\+orientation\+::\+Polar\+Motion\+Calculator\+::\+Polar\+Motion\+Calculator (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator}{interpolators\+::\+One\+Dimensional\+Interpolator}}$<$ double, Eigen\+::\+Vector2d $>$ $>$}]{daily\+Iers\+Value\+Interpolator,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{Short\+Period\+Earth\+Orientation\+Correction\+Calculator}}$<$ Eigen\+::\+Vector2d $>$ $>$}]{short\+Period\+Polar\+Motion\+Calculator }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em daily\+Iers\+Value\+Interpolator} & Interpolator, with time in UTC since J2000 as input and interpolated measured daily pole offset values as output. \\
+\hline
+{\em short\+Period\+Polar\+Motion\+Calculator} & Object calculating short period polar motion variations. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a87d1517796d812a756c8f3e559f7cd80}\label{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a87d1517796d812a756c8f3e559f7cd80}} 
+\index{tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}!getDailyIersValueInterpolator@{getDailyIersValueInterpolator}}
+\index{getDailyIersValueInterpolator@{getDailyIersValueInterpolator}!tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}}
+\doxysubsubsection{\texorpdfstring{getDailyIersValueInterpolator()}{getDailyIersValueInterpolator()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator}{interpolators\+::\+One\+Dimensional\+Interpolator}}$<$ double, Eigen\+::\+Vector2d $>$ $>$ tudat\+::earth\+\_\+orientation\+::\+Polar\+Motion\+Calculator\+::get\+Daily\+Iers\+Value\+Interpolator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve interpolator for daily IERS-\/measured pole offsets. 
+
+Function to retrieve interpolator for daily IERS-\/measured pole offsets \begin{DoxyReturn}{Returns}
+Interpolator for daily IERS-\/measured pole offsets 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a343ca00adb68f5225af058597ee562ea}\label{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a343ca00adb68f5225af058597ee562ea}} 
+\index{tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}!getPositionOfCipInItrs@{getPositionOfCipInItrs}}
+\index{getPositionOfCipInItrs@{getPositionOfCipInItrs}!tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}}
+\doxysubsubsection{\texorpdfstring{getPositionOfCipInItrs()}{getPositionOfCipInItrs()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily Eigen\+::\+Vector2d tudat\+::earth\+\_\+orientation\+::\+Polar\+Motion\+Calculator\+::get\+Position\+Of\+Cip\+In\+Itrs (\begin{DoxyParamCaption}\item[{const double}]{tt\+Since\+Epoch,  }\item[{const double}]{utc\+Since\+Epoch }\end{DoxyParamCaption})}
+
+
+
+Calculate the position of the Celestial Intermediate Pole in the ITRS. 
+
+Calculate the position of the Celestial Intermediate Pole in the ITRS, i.\+e. x\+\_\+\{p\} and y\+\_\+\{p\}. The fundamental arguments are calculated internally in this function. If these are available to the user from a more computationally efficient solution (such as an interpolator), the overloaded version of this function is adviced for use. 
+\begin{DoxyParams}{Parameters}
+{\em tt\+Since\+Epoch} & Terrestrial time since J2000 \\
+\hline
+{\em utc\+Since\+Epoch} & UTC since the J2000 \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a3948c87680d284bd8e9dd196c2832d32}\label{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a3948c87680d284bd8e9dd196c2832d32}} 
+\index{tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}!getPositionOfCipInItrs@{getPositionOfCipInItrs}}
+\index{getPositionOfCipInItrs@{getPositionOfCipInItrs}!tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}}
+\doxysubsubsection{\texorpdfstring{getPositionOfCipInItrs()}{getPositionOfCipInItrs()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily Eigen\+::\+Vector2d tudat\+::earth\+\_\+orientation\+::\+Polar\+Motion\+Calculator\+::get\+Position\+Of\+Cip\+In\+Itrs (\begin{DoxyParamCaption}\item[{Eigen\+::\+Vector6d}]{fundamental\+Arguments,  }\item[{const double}]{utc\+Since\+Epoch }\end{DoxyParamCaption})}
+
+
+
+Calculate the position of the Celestial Intermediate Pole in the ITRS. 
+
+Calculate the position of the Celestial Intermediate Pole in the ITRS, i.\+e. x\+\_\+\{p\} and y\+\_\+\{p\}. The fundamental arguments are provided as input to this function for computation of short-\/period variations. 
+\begin{DoxyParams}{Parameters}
+{\em fundamental\+Arguments} & Fundamental arguments used for short-\/period polar motion corrections \\
+\hline
+{\em utc\+Since\+Epoch} & UTC since the J2000 \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a429eb3aa64b29ed0aae399dee5f4394b}\label{classtudat_1_1earth__orientation_1_1PolarMotionCalculator_a429eb3aa64b29ed0aae399dee5f4394b}} 
+\index{tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}!getShortPeriodPolarMotionCalculator@{getShortPeriodPolarMotionCalculator}}
+\index{getShortPeriodPolarMotionCalculator@{getShortPeriodPolarMotionCalculator}!tudat::earth\_orientation::PolarMotionCalculator@{tudat::earth\_orientation::PolarMotionCalculator}}
+\doxysubsubsection{\texorpdfstring{getShortPeriodPolarMotionCalculator()}{getShortPeriodPolarMotionCalculator()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{Short\+Period\+Earth\+Orientation\+Correction\+Calculator}}$<$ Eigen\+::\+Vector2d $>$ $>$ tudat\+::earth\+\_\+orientation\+::\+Polar\+Motion\+Calculator\+::get\+Short\+Period\+Polar\+Motion\+Calculator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve object calculating short period polar motion variations. 
+
+Function to retrieve object calculating short period polar motion variations. \begin{DoxyReturn}{Returns}
+Object calculating short period polar motion variations. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/earth\+\_\+orientation/polar\+Motion\+Calculator.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/earth\+\_\+orientation/polar\+Motion\+Calculator.\+cpp\end{DoxyCompactItemize}

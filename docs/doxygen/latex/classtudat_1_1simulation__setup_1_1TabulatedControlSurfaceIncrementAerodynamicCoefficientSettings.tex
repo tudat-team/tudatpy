@@ -1,0 +1,148 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings$<$ Number\+Of\+Dimensions $>$ Class Template Reference}
+\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}\index{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}}
+
+
+Object for setting aerodynamic coefficients from a user-\/defined N-\/dimensional table.  
+
+
+
+
+{\ttfamily \#include $<$create\+Aerodynamic\+Control\+Surfaces.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings$<$ Number\+Of\+Dimensions $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.664190cm]{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_ab4e9d9bea4de8bd5ca83b725cfad5da3}{Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}} (const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ independent\+Variables, const boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$(Number\+Of\+Dimensions) $>$ force\+Coefficients, const boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$(Number\+Of\+Dimensions) $>$ moment\+Coefficients, const std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$ independent\+Variable\+Names)
+\begin{DoxyCompactList}\small\item\em Constructor, sets properties of aerodynamic coefficients. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a1bc0cfc512d5a93fbd5dcc26c327a762}{Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}} (const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ independent\+Variables, const boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$(Number\+Of\+Dimensions) $>$ force\+Coefficients, const std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$ independent\+Variable\+Names)
+\begin{DoxyCompactList}\small\item\em Constructor, sets properties of force coefficients (and zero moment coefficients). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a6237a12c16607dc783a0c3a7acf836d1}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a6237a12c16607dc783a0c3a7acf836d1}} 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a6237a12c16607dc783a0c3a7acf836d1}{$\sim$\+Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a0e5581659e64b17b88a26fbf3af23270}{get\+Independent\+Variables}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the values of the indepependent variables of tables of coefficients. \end{DoxyCompactList}\item 
+boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_aad5c27ba4ae94181a6833c18ddd81595}{get\+Force\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Function to return values of force coefficients in table. \end{DoxyCompactList}\item 
+boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_ab5eb9a8a55972b8a64b155c2db096ebb}{get\+Moment\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Function to return values of moment coefficients in table. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a78cbcce947a29df38ee245091e1cd4e9}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a78cbcce947a29df38ee245091e1cd4e9}} 
+const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a78cbcce947a29df38ee245091e1cd4e9}{independent\+Variables\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Values of the indepependent variables of tables of coefficients. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a10b74249093736a0fe9ffe658bb65424}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a10b74249093736a0fe9ffe658bb65424}} 
+boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a10b74249093736a0fe9ffe658bb65424}{force\+Coefficients\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Values of force coefficients in table. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a78b99580a308ff47b153c31e761cb049}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a78b99580a308ff47b153c31e761cb049}} 
+boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a78b99580a308ff47b153c31e761cb049}{moment\+Coefficients\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Values of moment coefficients in table. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$unsigned int Number\+Of\+Dimensions$>$\newline
+class tudat\+::simulation\+\_\+setup\+::\+Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings$<$ Number\+Of\+Dimensions $>$}
+
+Object for setting aerodynamic coefficients from a user-\/defined N-\/dimensional table. 
+
+Object for setting aerodynamic coefficients from a user-\/defined N-\/dimensional table (with N$>$1). The user must provide the force (and moment) coefficients in boost multi\+\_\+arrays, and define the physical meaning of each of the independent variables. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_ab4e9d9bea4de8bd5ca83b725cfad5da3}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_ab4e9d9bea4de8bd5ca83b725cfad5da3}} 
+\index{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}!TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings@{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}}
+\index{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings@{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}!tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings()}{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$unsigned int Number\+Of\+Dimensions$>$ \\
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}{tudat\+::simulation\+\_\+setup\+::\+Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}}$<$ Number\+Of\+Dimensions $>$\+::\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}{Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}} (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::vector$<$ double $>$ $>$}]{independent\+Variables,  }\item[{const boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$(Number\+Of\+Dimensions) $>$}]{force\+Coefficients,  }\item[{const boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$(Number\+Of\+Dimensions) $>$}]{moment\+Coefficients,  }\item[{const std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$}]{independent\+Variable\+Names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets properties of aerodynamic coefficients. 
+
+Constructor, sets properties of aerodynamic coefficients. 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variables} & Values of indepependent variables at which the coefficients in the input multi arrays are defined. \\
+\hline
+{\em force\+Coefficients} & Values of force coefficients at independent variables defined by independent\+Variables. \\
+\hline
+{\em moment\+Coefficients} & Values of moment coefficients at independent variables defined by independent\+Variables. \\
+\hline
+{\em independent\+Variable\+Names} & Vector with identifiers the physical meaning of each independent variable of the aerodynamic coefficients (must contain exactly one entry of control\+\_\+surface\+\_\+deflection\+\_\+dependent). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a1bc0cfc512d5a93fbd5dcc26c327a762}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a1bc0cfc512d5a93fbd5dcc26c327a762}} 
+\index{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}!TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings@{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}}
+\index{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings@{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}!tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings()}{TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$unsigned int Number\+Of\+Dimensions$>$ \\
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}{tudat\+::simulation\+\_\+setup\+::\+Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}}$<$ Number\+Of\+Dimensions $>$\+::\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}{Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}} (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::vector$<$ double $>$ $>$}]{independent\+Variables,  }\item[{const boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$(Number\+Of\+Dimensions) $>$}]{force\+Coefficients,  }\item[{const std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$}]{independent\+Variable\+Names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets properties of force coefficients (and zero moment coefficients). 
+
+Constructor, sets properties of force coefficients (and zero moment coefficients). 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variables} & Values of indepependent variables at which the coefficients in the input multi arrays are defined. \\
+\hline
+{\em force\+Coefficients} & Values of force coefficients at independent variables defined by independent\+Variables. \\
+\hline
+{\em independent\+Variable\+Names} & Vector with identifiers the physical meaning of each independent variable of the aerodynamic coefficients (must contain exactly one entry of control\+\_\+surface\+\_\+deflection\+\_\+dependent). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_aad5c27ba4ae94181a6833c18ddd81595}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_aad5c27ba4ae94181a6833c18ddd81595}} 
+\index{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}!getForceCoefficients@{getForceCoefficients}}
+\index{getForceCoefficients@{getForceCoefficients}!tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{getForceCoefficients()}{getForceCoefficients()}}
+{\footnotesize\ttfamily template$<$unsigned int Number\+Of\+Dimensions$>$ \\
+boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions ) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}{tudat\+::simulation\+\_\+setup\+::\+Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}}$<$ Number\+Of\+Dimensions $>$\+::get\+Force\+Coefficients (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return values of force coefficients in table. 
+
+Function to return values of force coefficients in table. \begin{DoxyReturn}{Returns}
+Values of force coefficients in table. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a0e5581659e64b17b88a26fbf3af23270}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_a0e5581659e64b17b88a26fbf3af23270}} 
+\index{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}!getIndependentVariables@{getIndependentVariables}}
+\index{getIndependentVariables@{getIndependentVariables}!tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{getIndependentVariables()}{getIndependentVariables()}}
+{\footnotesize\ttfamily template$<$unsigned int Number\+Of\+Dimensions$>$ \\
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}{tudat\+::simulation\+\_\+setup\+::\+Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}}$<$ Number\+Of\+Dimensions $>$\+::get\+Independent\+Variables (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the values of the indepependent variables of tables of coefficients. 
+
+Function to return the values of the indepependent variables of tables of coefficients. \begin{DoxyReturn}{Returns}
+Values of the indepependent variables of tables of coefficients. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_ab5eb9a8a55972b8a64b155c2db096ebb}\label{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_ab5eb9a8a55972b8a64b155c2db096ebb}} 
+\index{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}!getMomentCoefficients@{getMomentCoefficients}}
+\index{getMomentCoefficients@{getMomentCoefficients}!tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$@{tudat::simulation\_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings$<$ NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{getMomentCoefficients()}{getMomentCoefficients()}}
+{\footnotesize\ttfamily template$<$unsigned int Number\+Of\+Dimensions$>$ \\
+boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions ) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings}{tudat\+::simulation\+\_\+setup\+::\+Tabulated\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}}$<$ Number\+Of\+Dimensions $>$\+::get\+Moment\+Coefficients (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return values of moment coefficients in table. 
+
+Function to return values of moment coefficients in table. \begin{DoxyReturn}{Returns}
+Values of moment coefficients in table. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Aerodynamic\+Control\+Surfaces.\+h\end{DoxyCompactItemize}

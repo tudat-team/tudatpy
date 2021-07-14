@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameterSettings</basecompoundref>
+    <includes refid="estimatableParameterSettings_8h" local="no">estimatableParameterSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings_1ae57aba6d65381f08f4cab4a35c1212c4" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings::deformingBodies_</definition>
+        <argsstring></argsstring>
+        <name>deformingBodies_</name>
+        <briefdescription>
+<para>Names of bodies causing tidal deformation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="718" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="718" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings_1aabe72f6402a9ceb08c3a8b3a22858564" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings::DirectTidalTimeLagEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const std::string &amp;deformingBody)</argsstring>
+        <name>DirectTidalTimeLagEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>deformingBody</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body being deformed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>deformingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body causing deformed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="695" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="695" bodyend="703"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings_1ad8dec633bafbd04901423c031b7dfcbb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings::DirectTidalTimeLagEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const std::vector&lt; std::string &gt; &amp;deformingBodies)</argsstring>
+        <name>DirectTidalTimeLagEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>deformingBodies</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body being deformed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>deformingBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Names of bodies causing tidal deformation </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="711" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="711" bodyend="714"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for estimating the tidal time lag of a direct tidal acceleration model. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more objects of type DirectTidalDissipationAcceleration. The user can provide a list of bodies cause deformation, and the associated DirectTidalDissipationAcceleration objects will be used. If the list of bodies causing deformation is left empty, all DirectTidalDissipationAcceleration objects for the given body undergoing deformation will be used </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="685" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="686" bodyend="720"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings_1ae57aba6d65381f08f4cab4a35c1212c4" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</scope><name>deformingBodies_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings_1aabe72f6402a9ceb08c3a8b3a22858564" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</scope><name>DirectTidalTimeLagEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings_1ad8dec633bafbd04901423c031b7dfcbb" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</scope><name>DirectTidalTimeLagEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a9daf25d39f47b7253d0705460760c79c" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</scope><name>EstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a5879aeacc6f924dd33459251044bdc6e" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</scope><name>parameterType_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a337ccc9c7a09be382677b818d3042082" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</scope><name>~EstimatableParameterSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

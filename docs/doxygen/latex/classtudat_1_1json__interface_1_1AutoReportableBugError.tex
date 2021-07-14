@@ -1,0 +1,111 @@
+\hypertarget{classtudat_1_1json__interface_1_1AutoReportableBugError}{}\doxysection{tudat\+::json\+\_\+interface\+::Auto\+Reportable\+Bug\+Error Class Reference}
+\label{classtudat_1_1json__interface_1_1AutoReportableBugError}\index{tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}}
+
+
+Class for errors that print a report bug link to open an issue on Git\+Hub (optionally pre-\/filled).  
+
+
+
+
+{\ttfamily \#include $<$error\+Handling.\+h$>$}
+
+Inheritance diagram for tudat\+::json\+\_\+interface\+::Auto\+Reportable\+Bug\+Error\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.051771cm]{classtudat_1_1json__interface_1_1AutoReportableBugError}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1AutoReportableBugError_a4acd1ff4884d519a8b420a805eb20d5b}{Auto\+Reportable\+Bug\+Error}} (const std\+::string \&\mbox{\hyperlink{classtudat_1_1json__interface_1_1ReportableBugError_a41f82ebc3a5d1295095a7b7fbec62d80}{error\+Message}}=\char`\"{}Internal Tudat error. Please, report this bug by using this link\+: \char`\"{}, const std\+::string \&issue\+Title=\char`\"{}\char`\"{}, const std\+::string \&issue\+Body=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1AutoReportableBugError_a42c0296ac9f11121d0b9c1d7e3a02f05}{set\+Issue\+Title}} (const std\+::string \&title)
+\begin{DoxyCompactList}\small\item\em Change the issue\textquotesingle{}s title and update the report URL. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1AutoReportableBugError_a283f0794ab0809d2e308eb27b20dbf55}{set\+Issue\+Body}} (const std\+::string \&body)
+\begin{DoxyCompactList}\small\item\em Change the issue\textquotesingle{}s body and update the report URL. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1AutoReportableBugError_a7754c3b5f5c2a1e0ef06f4b15a041a06}{set\+Issue}} (const std\+::string \&title, const std\+::string \&body)
+\begin{DoxyCompactList}\small\item\em Change the issue\textquotesingle{}s title and body and update the report URL. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for errors that print a report bug link to open an issue on Git\+Hub (optionally pre-\/filled). 
+
+Class for errors that print a report bug link to open an issue on Git\+Hub (optionally pre-\/filled). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1AutoReportableBugError_a4acd1ff4884d519a8b420a805eb20d5b}\label{classtudat_1_1json__interface_1_1AutoReportableBugError_a4acd1ff4884d519a8b420a805eb20d5b}} 
+\index{tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}!AutoReportableBugError@{AutoReportableBugError}}
+\index{AutoReportableBugError@{AutoReportableBugError}!tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}}
+\doxysubsubsection{\texorpdfstring{AutoReportableBugError()}{AutoReportableBugError()}}
+{\footnotesize\ttfamily tudat\+::json\+\_\+interface\+::\+Auto\+Reportable\+Bug\+Error\+::\+Auto\+Reportable\+Bug\+Error (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{error\+Message = {\ttfamily \char`\"{}Internal~Tudat~error.~Please,~report~this~bug~by~using~this~link\+:~\char`\"{}},  }\item[{const std\+::string \&}]{issue\+Title = {\ttfamily \char`\"{}\char`\"{}},  }\item[{const std\+::string \&}]{issue\+Body = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em error\+Message} & First part of the message. \\
+\hline
+{\em issue\+Title} & \\
+\hline
+{\em issue\+Body} & \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1AutoReportableBugError_a7754c3b5f5c2a1e0ef06f4b15a041a06}\label{classtudat_1_1json__interface_1_1AutoReportableBugError_a7754c3b5f5c2a1e0ef06f4b15a041a06}} 
+\index{tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}!setIssue@{setIssue}}
+\index{setIssue@{setIssue}!tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}}
+\doxysubsubsection{\texorpdfstring{setIssue()}{setIssue()}}
+{\footnotesize\ttfamily void tudat\+::json\+\_\+interface\+::\+Auto\+Reportable\+Bug\+Error\+::set\+Issue (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{title,  }\item[{const std\+::string \&}]{body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Change the issue\textquotesingle{}s title and body and update the report URL. 
+
+Change the issue\textquotesingle{}s title and body and update the report URL. 
+\begin{DoxyParams}{Parameters}
+{\em title} & New issue\textquotesingle{}s title. \\
+\hline
+{\em body} & New issue\textquotesingle{}s body. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1AutoReportableBugError_a283f0794ab0809d2e308eb27b20dbf55}\label{classtudat_1_1json__interface_1_1AutoReportableBugError_a283f0794ab0809d2e308eb27b20dbf55}} 
+\index{tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}!setIssueBody@{setIssueBody}}
+\index{setIssueBody@{setIssueBody}!tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}}
+\doxysubsubsection{\texorpdfstring{setIssueBody()}{setIssueBody()}}
+{\footnotesize\ttfamily void tudat\+::json\+\_\+interface\+::\+Auto\+Reportable\+Bug\+Error\+::set\+Issue\+Body (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Change the issue\textquotesingle{}s body and update the report URL. 
+
+Change the issue\textquotesingle{}s body and update the report URL. 
+\begin{DoxyParams}{Parameters}
+{\em body} & New issue\textquotesingle{}s body. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1AutoReportableBugError_a42c0296ac9f11121d0b9c1d7e3a02f05}\label{classtudat_1_1json__interface_1_1AutoReportableBugError_a42c0296ac9f11121d0b9c1d7e3a02f05}} 
+\index{tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}!setIssueTitle@{setIssueTitle}}
+\index{setIssueTitle@{setIssueTitle}!tudat::json\_interface::AutoReportableBugError@{tudat::json\_interface::AutoReportableBugError}}
+\doxysubsubsection{\texorpdfstring{setIssueTitle()}{setIssueTitle()}}
+{\footnotesize\ttfamily void tudat\+::json\+\_\+interface\+::\+Auto\+Reportable\+Bug\+Error\+::set\+Issue\+Title (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{title }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Change the issue\textquotesingle{}s title and update the report URL. 
+
+Change the issue\textquotesingle{}s title and update the report URL. 
+\begin{DoxyParams}{Parameters}
+{\em title} & New issue\textquotesingle{}s title. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/interface/json/support/error\+Handling.\+h\end{DoxyCompactItemize}

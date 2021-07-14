@@ -1,0 +1,218 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::earth_orientation::PrecessionNutationCalculator</compoundname>
+    <includes refid="precessionNutationCalculator_8h" local="no">precessionNutationCalculator.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a895c3d024baef681aa5c1c4e7edaecfc" prot="private" static="no" mutable="no">
+        <type>basic_astrodynamics::IAUConventions</type>
+        <definition>basic_astrodynamics::IAUConventions tudat::earth_orientation::PrecessionNutationCalculator::precessionNutationTheory_</definition>
+        <argsstring></argsstring>
+        <name>precessionNutationTheory_</name>
+        <briefdescription>
+<para>IAU precession-nutation theory that is to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="98" column="41" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a88d3f3adfdb131b7c896134dbfaf7c08" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector2d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator &lt; double, Eigen::Vector2d &gt; &gt; tudat::earth_orientation::PrecessionNutationCalculator::dailyCorrectionInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>dailyCorrectionInterpolator_</name>
+        <briefdescription>
+<para>Interpolator for daily measured values of precession-nutation corrections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Interpolator taking UTC time since J2000 as input and returning interpolated daily measured values of precession-nutation corrections. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="106" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a634ecdc70cdeee30a41fa01349bcf892" prot="private" static="no" mutable="no">
+        <type>std::function&lt; std::pair&lt; Eigen::Vector2d, double &gt; const double) &gt;</type>
+        <definition>std::function&lt; std::pair&lt; Eigen::Vector2d, double &gt; const double ) &gt; tudat::earth_orientation::PrecessionNutationCalculator::nominalCipPositionFunction_</definition>
+        <argsstring></argsstring>
+        <name>nominalCipPositionFunction_</name>
+        <briefdescription>
+<para>Function pointer returning the nominal CIP position in the GCRS and CIO locator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning the nominal CIP position in the GCRS (X and Y, see IERS Conventions 2010), first pair argument, and CIO locator (s, see IERS Conventions 2010), second pair argument. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="113" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a6068e6d80d483c9c4eb6b2e566770581" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::earth_orientation::PrecessionNutationCalculator::PrecessionNutationCalculator</definition>
+        <argsstring>(const basic_astrodynamics::IAUConventions precessionNutationTheory, const std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, Eigen::Vector2d &gt; &gt; dailyCorrectionInterpolator)</argsstring>
+        <name>PrecessionNutationCalculator</name>
+        <param>
+          <type>const basic_astrodynamics::IAUConventions</type>
+          <declname>precessionNutationTheory</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector2d &gt; &gt;</type>
+          <declname>dailyCorrectionInterpolator</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for (CIO-based) precession-nutation calculation object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for CIO-based precession-nutation calculation object. This constructor binds the SOFA function wrapper for the indicated precession-nutation model internally. If one wishes to use a different function (such as) an interpolator, the alternative constructor should be used. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>precessionNutationTheory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IAU precession-nutation theory that is to be used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dailyCorrectionInterpolator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Interpolator taking UTC time since J2000 as input and returning interpolated daily measured values of precession-nutation corrections. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/precessionNutationCalculator.cpp" bodystart="27" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a4bd9df9e6de5d9d359e24856a7820851" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::Vector2d, double &gt;</type>
+        <definition>std::pair&lt; Eigen::Vector2d, double &gt; tudat::earth_orientation::PrecessionNutationCalculator::getPositionOfCipInGcrs</definition>
+        <argsstring>(const double terrestrialTime)</argsstring>
+        <name>getPositionOfCipInGcrs</name>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator. Only TT is taken as input, UTC is calculated internally by using the SOFA wrappers. If UTC is known when calling this function, use the overloaded version, instead. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TT at which calculation is to be performed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of CIP position in GCRS (X and Y) and CIO-locator (s). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="58" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/precessionNutationCalculator.cpp" bodystart="41" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a984e193bbe05c593b41f732b7ebc79d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::Vector2d, double &gt;</type>
+        <definition>std::pair&lt; Eigen::Vector2d, double &gt; tudat::earth_orientation::PrecessionNutationCalculator::getPositionOfCipInGcrs</definition>
+        <argsstring>(const double terrestrialTime, const double utc)</argsstring>
+        <name>getPositionOfCipInGcrs</name>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>utc</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator. TT and UTC is taken as input,If UTC is not known when calling this function, use the overloaded version, instead. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TT at which calculation is to be performed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>utc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UTC at which calculation is to be performed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of CIP position in GCRS (X and Y) and CIO-locator (s). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="69" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/precessionNutationCalculator.cpp" bodystart="52" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1ab5e1f419c99e6e7c8096780daf8ab77e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector2d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator &lt; double, Eigen::Vector2d &gt; &gt; tudat::earth_orientation::PrecessionNutationCalculator::getDailyCorrectionInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>getDailyCorrectionInterpolator</name>
+        <briefdescription>
+<para>Function to retrieve the interpolator for daily measured values of precession-nutation corrections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the interpolator for daily measured values of precession-nutation corrections. <simplesect kind="return"><para>Interpolator for daily measured values of precession-nutation corrections. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="79" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" bodystart="79" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a616ebd2a5b607e7c1fec915624ba180f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>basic_astrodynamics::IAUConventions</type>
+        <definition>basic_astrodynamics::IAUConventions tudat::earth_orientation::PrecessionNutationCalculator::getPrecessionNutationTheory</definition>
+        <argsstring>()</argsstring>
+        <name>getPrecessionNutationTheory</name>
+        <briefdescription>
+<para>Function to retrieve the IAU precession-nutation theory that is to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the IAU precession-nutation theory that is to be used. <simplesect kind="return"><para>IAU precession-nutation theory that is to be used. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="89" column="41" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" bodystart="89" bodyend="92"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Function to compute precession/nutation angles,. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Function to compute precession/nutation angles, defined by position of CIP in GCRS (X and Y parameters of IERS 2010 Conventions, Section 5). Computed by combining IAU theory output with daily IERS corrections. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" line="32" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/precessionNutationCalculator.h" bodystart="33" bodyend="115"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a88d3f3adfdb131b7c896134dbfaf7c08" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::PrecessionNutationCalculator</scope><name>dailyCorrectionInterpolator_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1ab5e1f419c99e6e7c8096780daf8ab77e" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PrecessionNutationCalculator</scope><name>getDailyCorrectionInterpolator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a4bd9df9e6de5d9d359e24856a7820851" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PrecessionNutationCalculator</scope><name>getPositionOfCipInGcrs</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a984e193bbe05c593b41f732b7ebc79d2" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PrecessionNutationCalculator</scope><name>getPositionOfCipInGcrs</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a616ebd2a5b607e7c1fec915624ba180f" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PrecessionNutationCalculator</scope><name>getPrecessionNutationTheory</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a634ecdc70cdeee30a41fa01349bcf892" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::PrecessionNutationCalculator</scope><name>nominalCipPositionFunction_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a6068e6d80d483c9c4eb6b2e566770581" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PrecessionNutationCalculator</scope><name>PrecessionNutationCalculator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator_1a895c3d024baef681aa5c1c4e7edaecfc" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::PrecessionNutationCalculator</scope><name>precessionNutationTheory_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

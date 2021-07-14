@@ -1,0 +1,47 @@
+\hypertarget{classtudat_1_1ephemerides_1_1ScaledEphemeris}{}\doxysection{tudat\+::ephemerides\+::Scaled\+Ephemeris Class Reference}
+\label{classtudat_1_1ephemerides_1_1ScaledEphemeris}\index{tudat::ephemerides::ScaledEphemeris@{tudat::ephemerides::ScaledEphemeris}}
+Inheritance diagram for tudat\+::ephemerides\+::Scaled\+Ephemeris\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1ephemerides_1_1ScaledEphemeris}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1ScaledEphemeris_af17ad567004c06bbf96e906ad957a806}\label{classtudat_1_1ephemerides_1_1ScaledEphemeris_af17ad567004c06bbf96e906ad957a806}} 
+{\bfseries Scaled\+Ephemeris} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} $>$ base\+Ephemeris, const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$ state\+Scaling\+Function, const bool is\+Scaling\+Absolute=true)
+\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ScaledEphemeris_a280f2fab97395424d05737140dcc7175}{get\+Cartesian\+State}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1ScaledEphemeris_a280f2fab97395424d05737140dcc7175}\label{classtudat_1_1ephemerides_1_1ScaledEphemeris_a280f2fab97395424d05737140dcc7175}} 
+\index{tudat::ephemerides::ScaledEphemeris@{tudat::ephemerides::ScaledEphemeris}!getCartesianState@{getCartesianState}}
+\index{getCartesianState@{getCartesianState}!tudat::ephemerides::ScaledEphemeris@{tudat::ephemerides::ScaledEphemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianState()}{getCartesianState()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::ephemerides\+::\+Scaled\+Ephemeris\+::get\+Cartesian\+State (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get state from ephemeris. 
+
+Returns state from ephemeris at given time 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State from ephemeris. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a9ffa2e6b00aa190385d87266bc6ca091}{tudat\+::ephemerides\+::\+Ephemeris}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/ephemerides/ephemeris.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,162 @@
+\hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface}{}\doxysection{tudat\+::propagators\+::Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface Class Reference}
+\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface}\index{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}}
+
+
+Base class for interface object of interpolation of numerically propagated state transition and sensitivity matrices.  
+
+
+
+
+{\ttfamily \#include $<$state\+Transition\+Matrix\+Interface.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.761905cm]{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a9b6e7cdf19757be3d53adac83058583a}{Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} (const int number\+Of\+Initial\+Dynamical\+Parameters, const int number\+Of\+Parameters)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a6d9636366ea19edc8271d148b1d36d8f}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a6d9636366ea19edc8271d148b1d36d8f}} 
+virtual \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a6d9636366ea19edc8271d148b1d36d8f}{$\sim$\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_ac878b1cd7e3fe120915a55b8da3c5be2}{get\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix}} (const double evaluation\+Time)=0
+\begin{DoxyCompactList}\small\item\em Function to get the concatenated state transition and sensitivity matrix at a given time. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_aa97426509a0575040633ca39345f2bf8}{get\+Full\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix}} (const double evaluation\+Time)=0
+\item 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a3c43147e2f396a4ac17de7aa17ba4be5}{get\+State\+Transition\+Matrix\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the size of state transition matrix. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a395cef103204010f38262618ceb39874}{get\+Sensitivity\+Matrix\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the number of columns of sensitivity matrix. \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_af8e2ec2755dfecf36731e372c7828554}{get\+Full\+Parameter\+Vector\+Size}} ()=0
+\begin{DoxyCompactList}\small\item\em Function to get the size of the total parameter vector. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a2419c077b45a1d425985ba800760d51d}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a2419c077b45a1d425985ba800760d51d}} 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a2419c077b45a1d425985ba800760d51d}{state\+Transition\+Matrix\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Size of state transition matrix. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a0809a46cc2fcb71ad5bcabaf75afff20}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a0809a46cc2fcb71ad5bcabaf75afff20}} 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a0809a46cc2fcb71ad5bcabaf75afff20}{sensitivity\+Matrix\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of columns of sensitivity matrix. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for interface object of interpolation of numerically propagated state transition and sensitivity matrices. 
+
+Base class for interface object of interpolation of numerically propagated state transition and sensitivity matrices. Derived classes implement the case of single-\/arc/multi-\/arc/combined dynamics. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a9b6e7cdf19757be3d53adac83058583a}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a9b6e7cdf19757be3d53adac83058583a}} 
+\index{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}!CombinedStateTransitionAndSensitivityMatrixInterface@{CombinedStateTransitionAndSensitivityMatrixInterface}}
+\index{CombinedStateTransitionAndSensitivityMatrixInterface@{CombinedStateTransitionAndSensitivityMatrixInterface}!tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{CombinedStateTransitionAndSensitivityMatrixInterface()}{CombinedStateTransitionAndSensitivityMatrixInterface()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface (\begin{DoxyParamCaption}\item[{const int}]{number\+Of\+Initial\+Dynamical\+Parameters,  }\item[{const int}]{number\+Of\+Parameters }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em number\+Of\+Initial\+Dynamical\+Parameters} & Size of the estimated initial state vector (and size of square state transition matrix. \\
+\hline
+{\em number\+Of\+Parameters} & Total number of estimated parameters (initial states and other parameters). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_ac878b1cd7e3fe120915a55b8da3c5be2}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_ac878b1cd7e3fe120915a55b8da3c5be2}} 
+\index{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}!getCombinedStateTransitionAndSensitivityMatrix@{getCombinedStateTransitionAndSensitivityMatrix}}
+\index{getCombinedStateTransitionAndSensitivityMatrix@{getCombinedStateTransitionAndSensitivityMatrix}!tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{getCombinedStateTransitionAndSensitivityMatrix()}{getCombinedStateTransitionAndSensitivityMatrix()}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Matrix\+Xd tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::get\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix (\begin{DoxyParamCaption}\item[{const double}]{evaluation\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function to get the concatenated state transition and sensitivity matrix at a given time. 
+
+Function to get the concatenated state transition and sensitivity matrix at a given time. 
+\begin{DoxyParams}{Parameters}
+{\em evaluation\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which to evaluate matrix interpolators \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Concatenated state transition and sensitivity matrices. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a94f906b95b40f8eb0e85f784528b9bf0}{tudat\+::propagators\+::\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_a6f3a60ebc3e4e6da0c6a56db5f9f81a6}{tudat\+::propagators\+::\+Multi\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_aaeddcfa1c7e7ab77673d3ebf6e10b6f3}{tudat\+::propagators\+::\+Single\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_aa97426509a0575040633ca39345f2bf8}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_aa97426509a0575040633ca39345f2bf8}} 
+\index{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}!getFullCombinedStateTransitionAndSensitivityMatrix@{getFullCombinedStateTransitionAndSensitivityMatrix}}
+\index{getFullCombinedStateTransitionAndSensitivityMatrix@{getFullCombinedStateTransitionAndSensitivityMatrix}!tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{getFullCombinedStateTransitionAndSensitivityMatrix()}{getFullCombinedStateTransitionAndSensitivityMatrix()}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Matrix\+Xd tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::get\+Full\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix (\begin{DoxyParamCaption}\item[{const double}]{evaluation\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+Function to get the concatenated state transition and sensitivity matrix at a given time, which includes zero values for parameters not active in current arc.
+
+Function to get the concatenated state transition and sensitivity matrix at a given time, which includes zero values for parameters not active in current arc. 
+\begin{DoxyParams}{Parameters}
+{\em evaluation\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which to evaluate matrix interpolators \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Concatenated state transition and sensitivity matrices, including inactive parameters at evaluation\+Time. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a1f5e5daa169b4a5c277ed2313b3ae126}{tudat\+::propagators\+::\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_a8ff79b788906efc891f54a40ad96b273}{tudat\+::propagators\+::\+Multi\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_a436d658d8eabf9ec56497d81f7c2b11c}{tudat\+::propagators\+::\+Single\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_af8e2ec2755dfecf36731e372c7828554}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_af8e2ec2755dfecf36731e372c7828554}} 
+\index{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}!getFullParameterVectorSize@{getFullParameterVectorSize}}
+\index{getFullParameterVectorSize@{getFullParameterVectorSize}!tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{getFullParameterVectorSize()}{getFullParameterVectorSize()}}
+{\footnotesize\ttfamily virtual int tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::get\+Full\+Parameter\+Vector\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function to get the size of the total parameter vector. 
+
+Function to get the size of the total parameter vector (both global and all local parameters). \begin{DoxyReturn}{Returns}
+Size of the total parameter vector. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_adcfef42a112a1f70782b95d914c15120}{tudat\+::propagators\+::\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_ab80c77c996127ec3329da31da405f525}{tudat\+::propagators\+::\+Multi\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_aeffc7ae729edd8188b499e969f712004}{tudat\+::propagators\+::\+Single\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a395cef103204010f38262618ceb39874}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a395cef103204010f38262618ceb39874}} 
+\index{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}!getSensitivityMatrixSize@{getSensitivityMatrixSize}}
+\index{getSensitivityMatrixSize@{getSensitivityMatrixSize}!tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{getSensitivityMatrixSize()}{getSensitivityMatrixSize()}}
+{\footnotesize\ttfamily int tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::get\+Sensitivity\+Matrix\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the number of columns of sensitivity matrix. 
+
+Function to get the number of columns of sensitivity matrix. \begin{DoxyReturn}{Returns}
+Number of columns of sensitivity matrix. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a3c43147e2f396a4ac17de7aa17ba4be5}\label{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_a3c43147e2f396a4ac17de7aa17ba4be5}} 
+\index{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}!getStateTransitionMatrixSize@{getStateTransitionMatrixSize}}
+\index{getStateTransitionMatrixSize@{getStateTransitionMatrixSize}!tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{getStateTransitionMatrixSize()}{getStateTransitionMatrixSize()}}
+{\footnotesize\ttfamily int tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::get\+State\+Transition\+Matrix\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the size of state transition matrix. 
+
+Function to get the size of state transition matrix \begin{DoxyReturn}{Returns}
+Size of state transition matrix 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propagators/state\+Transition\+Matrix\+Interface.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,91 @@
+\hypertarget{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface}{}\doxysection{tudat\+::aerodynamics\+::Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface Class Reference}
+\label{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface}\index{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface@{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface}}
+
+
+{\ttfamily \#include $<$control\+Surface\+Aerodynamic\+Coefficient\+Interface.\+h$>$}
+
+Inheritance diagram for tudat\+::aerodynamics\+::Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_a29bfa3497097846c507d24aae4f3dcbb}{Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface}} (const std\+::function$<$ Eigen\+::\+Vector6d(const std\+::vector$<$ double $>$ \&) $>$ coefficient\+Function, const std\+::vector$<$ Aerodynamic\+Coefficients\+Independent\+Variables $>$ independent\+Variable\+Names)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_a195788ea6d359c6163732581b8fed366}\label{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_a195788ea6d359c6163732581b8fed366}} 
+{\bfseries Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface} (const std\+::function$<$ Eigen\+::\+Vector3d(const std\+::vector$<$ double $>$ \&) $>$ force\+Coefficient\+Function, const std\+::function$<$ Eigen\+::\+Vector3d(const std\+::vector$<$ double $>$ \&) $>$ moment\+Coefficient\+Function, const std\+::vector$<$ Aerodynamic\+Coefficients\+Independent\+Variables $>$ independent\+Variable\+Names)
+\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_af1a7104d7b3c2c3a15e7104697a61919}\label{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_af1a7104d7b3c2c3a15e7104697a61919}} 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_af1a7104d7b3c2c3a15e7104697a61919}{$\sim$\+Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_a8c5c91fb0c3fb66e5b4a599f117a8ddc}{update\+Current\+Coefficients}} (std\+::vector$<$ double $>$ \&independent\+Variables)
+\begin{DoxyCompactList}\small\item\em Compute the aerodynamic coefficient increments of the control surface. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::function$<$ Eigen\+::\+Vector6d(const std\+::vector$<$ double $>$ \&) $>$ \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_ac8a02f5bcedcd8d11aeaa6a821e9485d}{coefficient\+Function\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Control surface aerodynamic coefficient interface taking function pointers providing aerodynamics coefficient increments as a function of independent variables (doubles).
+
+Control surface aerodynamic coefficient interface taking function pointers providing aerodynamic coefficient increments as a function of independent variables (doubles). The origin of the coefficients or the nature of the independent variables is irrelevant for this class. A typical use of this class is to interface interpolated tabulated control surface increments. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_a29bfa3497097846c507d24aae4f3dcbb}\label{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_a29bfa3497097846c507d24aae4f3dcbb}} 
+\index{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface@{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface}!CustomControlSurfaceIncrementAerodynamicInterface@{CustomControlSurfaceIncrementAerodynamicInterface}}
+\index{CustomControlSurfaceIncrementAerodynamicInterface@{CustomControlSurfaceIncrementAerodynamicInterface}!tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface@{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface}}
+\doxysubsubsection{\texorpdfstring{CustomControlSurfaceIncrementAerodynamicInterface()}{CustomControlSurfaceIncrementAerodynamicInterface()}}
+{\footnotesize\ttfamily tudat\+::aerodynamics\+::\+Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface\+::\+Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Vector6d(const std\+::vector$<$ double $>$ \&) $>$}]{coefficient\+Function,  }\item[{const std\+::vector$<$ Aerodynamic\+Coefficients\+Independent\+Variables $>$}]{independent\+Variable\+Names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em coefficient\+Function} & Function returning the concatenated aerodynamic force and moment coefficient increments as function of the set of independent variables. \\
+\hline
+{\em independent\+Variable\+Names} & Vector with identifiers for the physical meaning of each independent variable of the aerodynamic coefficients. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_a8c5c91fb0c3fb66e5b4a599f117a8ddc}\label{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_a8c5c91fb0c3fb66e5b4a599f117a8ddc}} 
+\index{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface@{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface}!updateCurrentCoefficients@{updateCurrentCoefficients}}
+\index{updateCurrentCoefficients@{updateCurrentCoefficients}!tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface@{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface}}
+\doxysubsubsection{\texorpdfstring{updateCurrentCoefficients()}{updateCurrentCoefficients()}}
+{\footnotesize\ttfamily void tudat\+::aerodynamics\+::\+Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface\+::update\+Current\+Coefficients (\begin{DoxyParamCaption}\item[{std\+::vector$<$ double $>$ \&}]{independent\+Variables }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Compute the aerodynamic coefficient increments of the control surface. 
+
+Computes the current force and moment coefficients increments of the control surface. Input is a set of independent variables (doubles) which represent the variables from which the coefficients are calculated 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variables} & Independent variables of force and moment coefficient determination implemented by derived class \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_a50d3f4808de9cab082355ba42a9121cf}{tudat\+::aerodynamics\+::\+Control\+Surface\+Increment\+Aerodynamic\+Interface}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_ac8a02f5bcedcd8d11aeaa6a821e9485d}\label{classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_ac8a02f5bcedcd8d11aeaa6a821e9485d}} 
+\index{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface@{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface}!coefficientFunction\_@{coefficientFunction\_}}
+\index{coefficientFunction\_@{coefficientFunction\_}!tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface@{tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface}}
+\doxysubsubsection{\texorpdfstring{coefficientFunction\_}{coefficientFunction\_}}
+{\footnotesize\ttfamily std\+::function$<$ Eigen\+::\+Vector6d( const std\+::vector$<$ double $>$\& ) $>$ tudat\+::aerodynamics\+::\+Custom\+Control\+Surface\+Increment\+Aerodynamic\+Interface\+::coefficient\+Function\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+Function returning the concatenated aerodynamic force and moment coefficient increments as function of the set of independent variables. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/aerodynamics/control\+Surface\+Aerodynamic\+Coefficient\+Interface.\+h\end{DoxyCompactItemize}

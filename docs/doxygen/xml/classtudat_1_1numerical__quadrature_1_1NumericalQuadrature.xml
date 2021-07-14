@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::numerical_quadrature::NumericalQuadrature</compoundname>
+    <derivedcompoundref refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadrature" prot="public" virt="non-virtual">tudat::numerical_quadrature::GaussianQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature" prot="public" virt="non-virtual">tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</derivedcompoundref>
+    <includes refid="numericalQuadrature_8h" local="no">numericalQuadrature.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+      <param>
+        <type>typename DependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1a602011cbb2341401407f5221bc016a79" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::numerical_quadrature::NumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::~NumericalQuadrature</definition>
+        <argsstring>()</argsstring>
+        <name>~NumericalQuadrature</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/numericalQuadrature.h" line="35" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/numericalQuadrature.h" bodystart="35" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1ab47826b9612a50e5dfc1b1c17d0d0b1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>DependentVariableType</type>
+        <definition>virtual DependentVariableType tudat::numerical_quadrature::NumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::getQuadrature</definition>
+        <argsstring>()=0</argsstring>
+        <name>getQuadrature</name>
+        <reimplementedby refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadrature_1a311da146741ae13308662eab7da771ca">getQuadrature</reimplementedby>
+        <reimplementedby refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a07f87eae9444f7bbafb53fb83318d356">getQuadrature</reimplementedby>
+        <briefdescription>
+<para>This function returns the value of the numerical integration performed by quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns the value of the numerical integration. It must be implemented in derived classes. <simplesect kind="return"><para>Integral of the data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/numericalQuadrature.h" line="42" column="35"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1a878612c6ed5f9f606ac537071ca67f15" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::numerical_quadrature::NumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;::performQuadrature</definition>
+        <argsstring>()=0</argsstring>
+        <name>performQuadrature</name>
+        <reimplementedby refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadrature_1a652f9f7d7ecc1b071d5acb1039d78173">performQuadrature</reimplementedby>
+        <reimplementedby refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature_1a2f675b21a3a8176da38893bd7632c702">performQuadrature</reimplementedby>
+        <briefdescription>
+<para>Function that is called to perform the numerical quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that is called to perform the numerical quadrature. It must be implemented in derived classes. Any implementation of performQuadrature must be made consistent with that of getQuadrature. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/numericalQuadrature.h" line="51" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for numerical quadrature. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for the numerical quadrature methods included in Tudat, the dependent and independent variable types are specified as template parameters. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::numerical_quadrature::NumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature"/>
+      </node>
+      <node id="2">
+        <label>tudat::numerical_quadrature::GaussianQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadrature"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::numerical_quadrature::TrapezoidNumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/numericalQuadrature.h" line="30" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/numericalQuadrature.h" bodystart="31" bodyend="55"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1ab47826b9612a50e5dfc1b1c17d0d0b1c" prot="public" virt="pure-virtual"><scope>tudat::numerical_quadrature::NumericalQuadrature</scope><name>getQuadrature</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1a878612c6ed5f9f606ac537071ca67f15" prot="protected" virt="pure-virtual"><scope>tudat::numerical_quadrature::NumericalQuadrature</scope><name>performQuadrature</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature_1a602011cbb2341401407f5221bc016a79" prot="public" virt="virtual"><scope>tudat::numerical_quadrature::NumericalQuadrature</scope><name>~NumericalQuadrature</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

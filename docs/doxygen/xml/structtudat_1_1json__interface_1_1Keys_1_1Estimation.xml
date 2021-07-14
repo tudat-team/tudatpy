@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Estimation" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Estimation</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a7e684484138ea81ae562977d72dbd3a1" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::inverseAprioriCovariance</definition>
+        <argsstring></argsstring>
+        <name>inverseAprioriCovariance</name>
+        <initializer>= &quot;inverseAprioriCovariance&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="337" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="337" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1ac9970234c6da7bc673ae7c960f752a77" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::reintegrateEquationsOnFirstIteration</definition>
+        <argsstring></argsstring>
+        <name>reintegrateEquationsOnFirstIteration</name>
+        <initializer>= &quot;reintegrateOnFirstIteration&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="338" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="338" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a87b676e9bc12eaffedb0b14f10974e51" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::reintegrateVariationalEquations</definition>
+        <argsstring></argsstring>
+        <name>reintegrateVariationalEquations</name>
+        <initializer>= &quot;reintegrateVariationalEquations&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="339" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="339" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a04703e66c2ef11e4ea838e71e2a99b20" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::saveInformationMatrix</definition>
+        <argsstring></argsstring>
+        <name>saveInformationMatrix</name>
+        <initializer>= &quot;savePartials&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="340" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="340" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a064739df9084676134ca94a2a9197754" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::printOutput</definition>
+        <argsstring></argsstring>
+        <name>printOutput</name>
+        <initializer>= &quot;printOutput&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="341" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="341" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a06ee297585506f41b59c862f80d05fe6" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::saveResidualsAndParametersFromEachIteration</definition>
+        <argsstring></argsstring>
+        <name>saveResidualsAndParametersFromEachIteration</name>
+        <initializer>= &quot;saveEstimationHistory&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="342" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="342" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a51db77fb469b5e711848f5116fde5633" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::saveStateHistoryForEachIteration</definition>
+        <argsstring></argsstring>
+        <name>saveStateHistoryForEachIteration</name>
+        <initializer>= &quot;saveStateHistory&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="343" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="343" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1af8252f83f68e796fe8feb3d2be271581" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::maximumNumberOfIterations</definition>
+        <argsstring></argsstring>
+        <name>maximumNumberOfIterations</name>
+        <initializer>= &quot;maximumIteration&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="345" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="345" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1af36b2a3d278f321f6ce1674bce2b3430" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::minimumResidualChange</definition>
+        <argsstring></argsstring>
+        <name>minimumResidualChange</name>
+        <initializer>= &quot;minimumResidualChange&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="346" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="346" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a4a31cd70eed2d04fadd5b8443fd8a2c7" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::minimumResidual</definition>
+        <argsstring></argsstring>
+        <name>minimumResidual</name>
+        <initializer>= &quot;minimumResidual&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="347" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="347" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a50c2b2d1d02e1395211ee552cf3198ef" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::numberOfIterationsWithoutImprovement</definition>
+        <argsstring></argsstring>
+        <name>numberOfIterationsWithoutImprovement</name>
+        <initializer>= &quot;numberOfUnimprovedIterations&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="348" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="348" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a4e34a3e077d036e6fda4486928f2c5f5" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Estimation::dataWeights</definition>
+        <argsstring></argsstring>
+        <name>dataWeights</name>
+        <initializer>= &quot;dataWeights&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="350" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="350" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="335" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="336" bodyend="351"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a4e34a3e077d036e6fda4486928f2c5f5" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>dataWeights</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a7e684484138ea81ae562977d72dbd3a1" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>inverseAprioriCovariance</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1af8252f83f68e796fe8feb3d2be271581" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>maximumNumberOfIterations</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a4a31cd70eed2d04fadd5b8443fd8a2c7" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>minimumResidual</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1af36b2a3d278f321f6ce1674bce2b3430" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>minimumResidualChange</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a50c2b2d1d02e1395211ee552cf3198ef" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>numberOfIterationsWithoutImprovement</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a064739df9084676134ca94a2a9197754" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>printOutput</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1ac9970234c6da7bc673ae7c960f752a77" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>reintegrateEquationsOnFirstIteration</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a87b676e9bc12eaffedb0b14f10974e51" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>reintegrateVariationalEquations</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a04703e66c2ef11e4ea838e71e2a99b20" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>saveInformationMatrix</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a06ee297585506f41b59c862f80d05fe6" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>saveResidualsAndParametersFromEachIteration</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Estimation_1a51db77fb469b5e711848f5116fde5633" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Estimation</scope><name>saveStateHistoryForEachIteration</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

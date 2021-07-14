@@ -1,0 +1,284 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="testMacros_8h" kind="file" language="C++">
+    <compoundname>testMacros.h</compoundname>
+    <includes local="no">Eigen/Core</includes>
+    <includes local="no">boost/format.hpp</includes>
+    <includes local="no">boost/test/unit_test.hpp</includes>
+    <includedby refid="hodographicShapingOptimisationSetup_8h" local="no">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h</includedby>
+    <includedby refid="unitTestSupport_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/unitTestSupport.h</includedby>
+    <includedby refid="solarActivityData_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/solarActivityData.cpp</includedby>
+    <incdepgraph>
+      <node id="4">
+        <label>boost/test/unit_test.hpp</label>
+      </node>
+      <node id="3">
+        <label>boost/format.hpp</label>
+      </node>
+      <node id="2">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h</label>
+        <link refid="testMacros_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h</label>
+        <link refid="testMacros_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/unitTestSupport.h</label>
+        <link refid="unitTestSupport_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h</label>
+        <link refid="hodographicShapingOptimisationSetup_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceboost">boost</innernamespace>
+    <innernamespace refid="namespaceboost_1_1math">boost::math</innernamespace>
+    <innernamespace refid="namespaceboost_1_1math_1_1fpc">boost::math::fpc</innernamespace>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="testMacros_8h_1ab0fcb1eaf519fd38d1201ef7511ded2f" prot="public" static="no">
+        <name>_TUDAT_CHECK_MATRIX_MESSAGE</name>
+        <initializer>&quot;Element [%d, %d] not within expected tolerance (delta %e): expected %f, was %f, tolerance %e %s.&quot;</initializer>
+        <briefdescription>
+<para>Default message to display for matrix checks. If you define this, then that format will be used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" line="28" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="testMacros_8h_1a03e396975233a1b8cac64d3a5481cb11" prot="public" static="no">
+        <name>_TUDAT_CHECK_MESSAGE</name>
+        <param><defname>L</defname></param>
+        <param><defname>R</defname></param>
+        <param><defname>T</defname></param>
+        <param><defname>additionalString</defname></param>
+        <initializer>    boost::str( boost::format( _TUDAT_CHECK_MATRIX_MESSAGE )                                    \
+            % row                                                                               \
+            % col                                                                               \
+            % std::abs(L.coeff( row, col ) - R.coeff( row, col ))                               \
+            % L.coeff( row, col )                                                               \
+            % R.coeff( row, col )                                                               \
+            % T                                                                                 \
+            % additionalString )</initializer>
+        <briefdescription>
+<para>Creates error message used by TUDAT_CHECK_MATRIX_CLOSE and TUDAT_CHECK_MATRIX_CLOSE_FRACTION. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates an error message which displays row/col/left/right/tolerance and and additional string. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" line="36" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="testMacros_8h_1a66deb6e0f0e82bb7615fd2af10c975eb" prot="public" static="no">
+        <name>_TUDAT_USING_PERCENT_TOLERANCE</name>
+        <initializer>    using namespace ::boost::math::fpc; using namespace ::boost::test_tools;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" line="53" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="testMacros_8h_1ad70da8e892953f36887382e441657ebb" prot="public" static="no">
+        <name>TUDAT_CHECK_MATRIX_BASE</name>
+        <param><defname>L</defname></param>
+        <param><defname>R</defname></param>
+        <initializer>    boost::test_tools::predicate_result equalRows =                                             \
+        boost::test_tools::tt_detail::equal_impl( L.rows( ), R.rows( ) );                       \
+    BOOST_CHECK_MESSAGE( equalRows, boost::str( boost::format(                                  \
+        &quot;Matrix number of rows not equal: %d != %d&quot; ) % L.rows( ) % R.rows( ) ) );              \
+    boost::test_tools::predicate_result equalCols =                                             \
+        boost::test_tools::tt_detail::equal_impl( L.cols( ), R.cols( ) );                       \
+    BOOST_CHECK_MESSAGE( equalCols, boost::str( boost::format(                                  \
+        &quot;Matrix number of columns not equal: %d != %d&quot; ) % L.cols( ) % R.cols( ) ) );           \
+    if ( equalRows.p_predicate_value &amp;&amp; equalCols.p_predicate_value )                           \
+        for ( signed int row = 0; row &lt; L.rows( ); row++ )                                      \
+        for ( signed int col = 0; col &lt; L.cols( ); col++ )</initializer>
+        <briefdescription>
+<para>Base macro for various matrix tests. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This macro tests if both matrices are equal in size. If they are non-equal, an error is shown with the mismatching dimension. If they are equal, then this macro initiates a loop over each Element in the matrix using counters &apos;row&apos; and &apos;col&apos;. The next statement after this macro is the statement executed for each element.</para>
+<para>The row and col variables are declared, so only a single instance of the macro may exist in a single scope!</para>
+<para>Usage example: TUDAT_CHECK_MATRIX_BASE( matrix1, matrix2 ) BOOST_CHECK_EQUAL(matrix1.coeff(row, col), matrix2.coeff(row, col)); This will check all corresponding elements from the two matrices if they are equal. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" line="75" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="testMacros_8h_1a77f674cc72cf2bb923dfe862a30d2c96" prot="public" static="no">
+        <name>TUDAT_CHECK_MATRIX_CLOSE</name>
+        <param><defname>L</defname></param>
+        <param><defname>R</defname></param>
+        <param><defname>T</defname></param>
+        <initializer>    {                                                   \
+    _TUDAT_USING_PERCENT_TOLERANCE                                                              \
+    TUDAT_CHECK_MATRIX_BASE( L, R )                                                             \
+        BOOST_CHECK_MESSAGE(                                                                    \
+            ::boost::test_tools::check_is_close( L.coeff( row, col ), R.coeff( row, col ),      \
+                percent_tolerance( T ) ).p_predicate_value,                                     \
+            _TUDAT_CHECK_MESSAGE( L, R, T, &quot;%&quot; ) );                                             \
+}</initializer>
+        <briefdescription>
+<para>Same as BOOST_CHECK_CLOSE, but operates on Eigen vectors/matrices. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks for an equal amount of rows/columns and if each element falls with the passed tolerance The actual comparison is done element wise using BOOST_CHECK_CLOSE(L, R, T). <simplesect kind="see"><para><ulink url="http://www.boost.org/libs/test/doc/html/utf/testing-tools/reference.html">http://www.boost.org/libs/test/doc/html/utf/testing-tools/reference.html</ulink> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" line="94" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="testMacros_8h_1a278e2ba35d58f35666c08e1b456da454" prot="public" static="no">
+        <name>TUDAT_CHECK_MATRIX_CLOSE_FRACTION</name>
+        <param><defname>L</defname></param>
+        <param><defname>R</defname></param>
+        <param><defname>T</defname></param>
+        <initializer>    {                                          \
+    _TUDAT_USING_PERCENT_TOLERANCE                                                              \
+    TUDAT_CHECK_MATRIX_BASE( L, R )                                                             \
+        BOOST_CHECK_MESSAGE(                                                                    \
+            ::boost::test_tools::check_is_close( L.coeff( row, col ), R.coeff( row, col ),      \
+                percent_tolerance( T * 100 ) ).p_predicate_value,                               \
+            _TUDAT_CHECK_MESSAGE( L, R, T, &quot;&quot; ) );                                              \
+}</initializer>
+        <briefdescription>
+<para>Same as BOOST_CHECK_CLOSE_FRACTION, but operates on Eigen vectors/matrices. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks for an equal amount of rows/columns and if each element falls with the passed tolerance The actual comparison is done element wise using BOOST_CHECK_CLOSE_FRACTION(L, R, T). <simplesect kind="see"><para><ulink url="http://www.boost.org/libs/test/doc/html/utf/testing-tools/reference.html">http://www.boost.org/libs/test/doc/html/utf/testing-tools/reference.html</ulink></para>
+</simplesect>
+Note: the percent_tolerance( T * 100 ) is required because in some versions you need to pass an fraction_tolerance struct and in others this struct does not exist. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" line="112" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_TEST_MACROS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_TEST_MACROS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Include<sp/>Eigen<sp/>for<sp/>the<sp/>matrix<sp/>operations,<sp/>format<sp/>to<sp/>generate<sp/>a<sp/>fancy<sp/>error<sp/>message<sp/>and<sp/>unit_test</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="comment">//<sp/>to<sp/>delegate<sp/>the<sp/>actual<sp/>tests<sp/>to.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/format.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/test/unit_test.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">/************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>INTERNAL<sp/>MACROS<sp/>(Not<sp/>for<sp/>use<sp/>by<sp/>general<sp/>users,<sp/>use<sp/>with<sp/>caution)<sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">/************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor">#ifndef<sp/>_TUDAT_CHECK_MATRIX_MESSAGE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>_TUDAT_CHECK_MATRIX_MESSAGE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor">&quot;Element<sp/>[%d,<sp/>%d]<sp/>not<sp/>within<sp/>expected<sp/>tolerance<sp/>(delta<sp/>%e):<sp/>expected<sp/>%f,<sp/>was<sp/>%f,<sp/>tolerance<sp/>%e<sp/>%s.&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>_TUDAT_CHECK_MESSAGE(<sp/>L,<sp/>R,<sp/>T,<sp/>additionalString<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>boost::str(<sp/>boost::format(<sp/>_TUDAT_CHECK_MATRIX_MESSAGE<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="38"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>%<sp/>row<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="39"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>%<sp/>col<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="40"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>%<sp/>std::abs(L.coeff(<sp/>row,<sp/>col<sp/>)<sp/>-<sp/>R.coeff(<sp/>row,<sp/>col<sp/>))<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>%<sp/>L.coeff(<sp/>row,<sp/>col<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>%<sp/>R.coeff(<sp/>row,<sp/>col<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>%<sp/>T<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>%<sp/>additionalString<sp/>)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="namespaceboost" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceboost" kindref="compound">boost</ref><sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">math<sp/>{<sp/></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">fpc<sp/>{<sp/>}<sp/>}<sp/>}</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>_TUDAT_USING_PERCENT_TOLERANCE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>using<sp/>namespace<sp/>::boost::math::fpc;<sp/>using<sp/>namespace<sp/>::boost::test_tools;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">/************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>GENERAL<sp/>TESTING<sp/>MACROS<sp/>(use<sp/>these<sp/>macros<sp/>to<sp/>test<sp/>your<sp/>code)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="comment">/************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_CHECK_MATRIX_BASE(<sp/>L,<sp/>R<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>boost::test_tools::predicate_result<sp/>equalRows<sp/>=<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boost::test_tools::tt_detail::equal_impl(<sp/>L.rows(<sp/>),<sp/>R.rows(<sp/>)<sp/>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>BOOST_CHECK_MESSAGE(<sp/>equalRows,<sp/>boost::str(<sp/>boost::format(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;Matrix<sp/>number<sp/>of<sp/>rows<sp/>not<sp/>equal:<sp/>%d<sp/>!=<sp/>%d&quot;</highlight><highlight class="normal"><sp/>)<sp/>%<sp/>L.rows(<sp/>)<sp/>%<sp/>R.rows(<sp/>)<sp/>)<sp/>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>boost::test_tools::predicate_result<sp/>equalCols<sp/>=<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boost::test_tools::tt_detail::equal_impl(<sp/>L.cols(<sp/>),<sp/>R.cols(<sp/>)<sp/>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>BOOST_CHECK_MESSAGE(<sp/>equalCols,<sp/>boost::str(<sp/>boost::format(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;Matrix<sp/>number<sp/>of<sp/>columns<sp/>not<sp/>equal:<sp/>%d<sp/>!=<sp/>%d&quot;<sp/>)<sp/>%<sp/>L.cols(<sp/>)<sp/>%<sp/>R.cols(<sp/>)<sp/>)<sp/>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(<sp/>equalRows.p_predicate_value<sp/>&amp;&amp;<sp/>equalCols.p_predicate_value<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(<sp/>signed<sp/>int<sp/>row<sp/>=<sp/>0;<sp/>row<sp/>&lt;<sp/>L.rows(<sp/>);<sp/>row++<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(<sp/>signed<sp/>int<sp/>col<sp/>=<sp/>0;<sp/>col<sp/>&lt;<sp/>L.cols(<sp/>);<sp/>col++<sp/>)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_CHECK_MATRIX_CLOSE(<sp/>L,<sp/>R,<sp/>T<sp/>)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>_TUDAT_USING_PERCENT_TOLERANCE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>TUDAT_CHECK_MATRIX_BASE(<sp/>L,<sp/>R<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BOOST_CHECK_MESSAGE(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>::boost::test_tools::check_is_close(<sp/>L.coeff(<sp/>row,<sp/>col<sp/>),<sp/>R.coeff(<sp/>row,<sp/>col<sp/>),<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>percent_tolerance(<sp/>T<sp/>)<sp/>).p_predicate_value,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_TUDAT_CHECK_MESSAGE(<sp/>L,<sp/>R,<sp/>T,<sp/>&quot;%&quot;</highlight><highlight class="normal"><sp/>)<sp/>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_CHECK_MATRIX_CLOSE_FRACTION(<sp/>L,<sp/>R,<sp/>T<sp/>)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>_TUDAT_USING_PERCENT_TOLERANCE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="114"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>TUDAT_CHECK_MATRIX_BASE(<sp/>L,<sp/>R<sp/>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BOOST_CHECK_MESSAGE(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>::boost::test_tools::check_is_close(<sp/>L.coeff(<sp/>row,<sp/>col<sp/>),<sp/>R.coeff(<sp/>row,<sp/>col<sp/>),<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>percent_tolerance(<sp/>T<sp/>*<sp/>100<sp/>)<sp/>).p_predicate_value,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_TUDAT_CHECK_MESSAGE(<sp/>L,<sp/>R,<sp/>T,<sp/>&quot;&quot;</highlight><highlight class="normal"><sp/>)<sp/>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_TEST_MACROS_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h"/>
+  </compounddef>
+</doxygen>

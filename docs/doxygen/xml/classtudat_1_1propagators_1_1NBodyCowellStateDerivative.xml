@@ -1,0 +1,319 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1NBodyCowellStateDerivative" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::NBodyCowellStateDerivative</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1NBodyStateDerivative" prot="public" virt="non-virtual">tudat::propagators::NBodyStateDerivative&lt; double, double &gt;</basecompoundref>
+    <includes refid="nBodyCowellStateDerivative_8h" local="no">nBodyCowellStateDerivative.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1a90e28d349a10ab4f7db3ba3db32412d0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::NBodyCowellStateDerivative&lt; StateScalarType, TimeType &gt;::NBodyCowellStateDerivative</definition>
+        <argsstring>(const basic_astrodynamics::AccelerationMap &amp;accelerationModelsPerBody, const std::shared_ptr&lt; CentralBodyData&lt; StateScalarType, TimeType &gt; &gt; centralBodyData, const std::vector&lt; std::string &gt; &amp;bodiesToIntegrate)</argsstring>
+        <name>NBodyCowellStateDerivative</name>
+        <param>
+          <type>const basic_astrodynamics::AccelerationMap &amp;</type>
+          <declname>accelerationModelsPerBody</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1CentralBodyData" kindref="compound">CentralBodyData</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+          <declname>centralBodyData</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToIntegrate</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>accelerationModelsPerBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A map containing the list of accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object responsible for providing the current integration origins from the global origins. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToIntegrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of names of bodies that are to be integrated numerically. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" line="41" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" bodystart="41" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1a96d7e00e616b51750f0f366da21baf38" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::NBodyCowellStateDerivative&lt; StateScalarType, TimeType &gt;::~NBodyCowellStateDerivative</definition>
+        <argsstring>()</argsstring>
+        <name>~NBodyCowellStateDerivative</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" line="48" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" bodystart="48" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1a0be6f4ae1ff3e940eabb556e87bea38e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::NBodyCowellStateDerivative&lt; StateScalarType, TimeType &gt;::calculateSystemStateDerivative</definition>
+        <argsstring>(const TimeType time, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;stateOfSystemToBeIntegrated, Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &gt; stateDerivative)</argsstring>
+        <name>calculateSystemStateDerivative</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>stateOfSystemToBeIntegrated</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &gt;</type>
+          <declname>stateDerivative</declname>
+        </param>
+        <briefdescription>
+<para>Calculates the state derivative of the translational motion of the system. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the state derivative (velocity+acceleration of each body) of the translational motion of the system at the given time and position/velocity of bodies. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> (TDB seconds since J2000) at which the system is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateOfSystemToBeIntegrated</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of 6 * bodiesToBeIntegratedNumerically_.size( ), containing Caartesian position/velocity of the bodies being integrated. The order of the values is defined by the order of bodies in bodiesToBeIntegratedNumerically_ </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current state derivative (velocity+acceleration) of system of bodies integrated numerically (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" line="61" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" bodystart="61" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1ac9b98ba54b33e191adf8c65c170eac57" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; tudat::propagators::NBodyCowellStateDerivative&lt; StateScalarType, TimeType &gt;::convertFromOutputSolution</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;cartesianSolution, const TimeType &amp;time)</argsstring>
+        <name>convertFromOutputSolution</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;</type>
+          <declname>cartesianSolution</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert the state in the conventional form to the propagator-specific form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert the state in the conventional form to the propagator-specific form. For the Cowell propagator, the two are equivalent, and this function returns the input state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State in &apos;conventional form&apos; </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time at which the state is valid (not used in this class). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State (outputSolution), converted to the &apos;propagator-specific form&apos; (which is equal to outputSolution). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" line="78" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" bodystart="78" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1a5121de8ef25e600d6efa821aa03635c9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::NBodyCowellStateDerivative&lt; StateScalarType, TimeType &gt;::convertToOutputSolution</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;internalSolution, const TimeType &amp;time, Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; currentCartesianLocalSoluton)</argsstring>
+        <name>convertToOutputSolution</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;</type>
+          <declname>internalSolution</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt;</type>
+          <declname>currentCartesianLocalSoluton</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert the propagator-specific form of the state to the conventional form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert the propagator-specific form of the state to the conventional form. For the Cowell propagator, the two are equivalent, and this function returns the input state. In contrast to the convertCurrentStateToGlobalRepresentation function, this function does not provide the state in the inertial frame, but instead provides it in the frame in which it is propagated. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>internalSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State in propagator-specific form (i.e. form that is used in numerical integration, equal to conventional form for this class). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time at which the state is valid (not used in this class). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentCartesianLocalSoluton</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State (internalSolution), converted to the &apos;conventional form&apos;, which is equal to outputSolution for this class (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" line="97" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" bodystart="97" bodyend="102"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for computing the state derivative of translational motion of N bodies, using a Cowell propagator. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative"/>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::NBodyStateDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1NBodyStateDerivative"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::NBodyCowellStateDerivative&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1NBodyCowellStateDerivative"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative"/>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::NBodyStateDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1NBodyStateDerivative"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::NBodyCowellStateDerivative&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1NBodyCowellStateDerivative"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" line="24" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h" bodystart="25" bodyend="104"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a3bf393ea506289558ca62ac0ba2b6fd2" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>accelerationModelList_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1aa9ae6d8dfda131ffca5b23c1564342af" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>accelerationModelsPerBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a87be0b1f42e3315d24947a9434c84db7" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>bodiesToBeIntegratedNumerically_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a04d54fb3449d2859a301feb7efc8aa8f" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>bodyOrder_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1a0be6f4ae1ff3e940eabb556e87bea38e" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>calculateSystemStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ae3f4427ef5aee571271cbaa23bda3cb1" prot="public" virt="pure-virtual" ambiguityscope="NBodyStateDerivative&lt; double, double &gt;::"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>calculateSystemStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a15e48d54c9b438f14176be7f3bde5d4c" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>centralBodyData_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a300ed482766d9b3174f9b8c0f5f05093" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>centralBodyStatesWrtGlobalOrigin_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1aa1485260a3a591741454070ce4b89fb2" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>clearDerivedTranslationalStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a1a4df6d3bc026a5d7d780f812fc10ba3" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>clearStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a24ded178bab0fdf4155b5c2fea461e9a" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>clearTranslationalStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a17b2f9c92c77ced3cfa2b563878c84eb" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>convertCurrentStateToGlobalRepresentation</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1ac9b98ba54b33e191adf8c65c170eac57" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>convertFromOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ad12197357ad23bc815274f69c0c9a6c3" prot="public" virt="pure-virtual" ambiguityscope="NBodyStateDerivative&lt; double, double &gt;::"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>convertFromOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1a5121de8ef25e600d6efa821aa03635c9" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>convertToOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1aeab2b2a9eae937200a5def64dcf18960" prot="public" virt="pure-virtual" ambiguityscope="NBodyStateDerivative&lt; double, double &gt;::"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>convertToOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a107c7354c39b9793ddee9eb6b363a4da" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>createAccelerationModelList</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a3c8a3939cf0e2a6b2ea1c23e44196ac7" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getAccelerationsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a6371faac2a8c345ff0b585708e5df1f8" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getBodiesToBeIntegratedNumerically</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a15dc1d66a3f98bbc141837c7af7a8036" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getCentralBodyData</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a164f88f2c4be12c243fb99a035213a66" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getConventionalStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1ace7b03eeaa9a2571af87d578d3b747c7" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getFullAccelerationsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a2dbb19e97c9fde342788832fece0a5ff" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getIntegratedStateType</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1af203ca28dbf9eeacb76aca2a5d4f384f" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getPropagatedStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a2f6fa526b5bfa1e80a7c4a80fa36ea91" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getTotalAccelerationForBody</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a30ba3219d9c3d11106854bbc44893421" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>getTranslationalPropagatorType</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1abfc18254cb8d42534c8b882ed7651319" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>innerAccelerationIterator</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a741436a816b5d018f80f061d15fdac74" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>integratedStateType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a8541ff94360e103cd1157899969c6bb3" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>isStateToBePostProcessed</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1a90e28d349a10ab4f7db3ba3db32412d0" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>NBodyCowellStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a644208a4db876c3567c8ee9b009b098c" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>NBodyStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1ab653453a93ffff1189e3c595c0aac304" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>outerAccelerationIterator</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a03145882db4c90a63a72d0c855b27f11" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a90c770ae1cc36edb43d6363416f3461f" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a0b30df07d47b0cf367fe633fd15c5736" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>propagatorType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1acbb10b6a3ae3413f136520475f93ceab" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>SingleStateTypeDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1ad2b77f7a84f48a43d62ee2fe18ce8f27" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>sumStateDerivativeContributions</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a730fbb1106524ba0955957679d597c7a" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>sumStateDerivativeContributions</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a28e844a8e7c5716d091c7504a5c98815" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>unprocessedState_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a1db2b5b538eeb857e040a8744d886e61" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>updateStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyCowellStateDerivative_1a96d7e00e616b51750f0f366da21baf38" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>~NBodyCowellStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a350b843b4f15844b59b0187e00022313" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>~NBodyStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a08576def80c16bfe0169693d1abc0dfc" prot="public" virt="virtual"><scope>tudat::propagators::NBodyCowellStateDerivative</scope><name>~SingleStateTypeDerivative</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,54 @@
+\hypertarget{classtudat_1_1json__interface_1_1ExportSettings}{}\doxysection{tudat\+::json\+\_\+interface\+::Export\+Settings Class Reference}
+\label{classtudat_1_1json__interface_1_1ExportSettings}\index{tudat::json\_interface::ExportSettings@{tudat::json\_interface::ExportSettings}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_a10f64ca9d5d913ae8ecfb0f07ec48e30}\label{classtudat_1_1json__interface_1_1ExportSettings_a10f64ca9d5d913ae8ecfb0f07ec48e30}} 
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_a10f64ca9d5d913ae8ecfb0f07ec48e30}{Export\+Settings}} (const boost\+::filesystem\+::path \&output\+File, const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1VariableSettings}{propagators\+::\+Variable\+Settings}} $>$ $>$ \&variables)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_a6ea3b01ab43614cfb80e42bb79319591}\label{classtudat_1_1json__interface_1_1ExportSettings_a6ea3b01ab43614cfb80e42bb79319591}} 
+virtual \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_a6ea3b01ab43614cfb80e42bb79319591}{$\sim$\+Export\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_ad8f74c47adcc40136d248f194fba76fa}\label{classtudat_1_1json__interface_1_1ExportSettings_ad8f74c47adcc40136d248f194fba76fa}} 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_ad8f74c47adcc40136d248f194fba76fa}{set\+Output\+File}} (const boost\+::filesystem\+::path \&output\+File)
+\begin{DoxyCompactList}\small\item\em Set the path of the output file the results will be written to. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_aaedbc0b5d62aee310c7b147ff52ad479}\label{classtudat_1_1json__interface_1_1ExportSettings_aaedbc0b5d62aee310c7b147ff52ad479}} 
+boost\+::filesystem\+::path \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_aaedbc0b5d62aee310c7b147ff52ad479}{output\+File\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Path of the output file the results will be written to. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1VariableSettings}{propagators\+::\+Variable\+Settings}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_ac41e981b37b0728518338c1ac7ad16da}{variables\+\_\+}}
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_a0366bc68e292cc6801e230b1c52e5644}\label{classtudat_1_1json__interface_1_1ExportSettings_a0366bc68e292cc6801e230b1c52e5644}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_a0366bc68e292cc6801e230b1c52e5644}{header\+\_\+}} = \char`\"{}\char`\"{}
+\begin{DoxyCompactList}\small\item\em Header to be included in the first line of the output file. If empty, no header will be added. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_a9058d5328fc3ae6788aad428cad1b9f1}\label{classtudat_1_1json__interface_1_1ExportSettings_a9058d5328fc3ae6788aad428cad1b9f1}} 
+bool \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_a9058d5328fc3ae6788aad428cad1b9f1}{epochs\+In\+First\+Column\+\_\+}} = true
+\begin{DoxyCompactList}\small\item\em Whether to include the epochs in the first column of the results table. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_aa845a9ba5a2f2ea9e0aefe8394c05182}\label{classtudat_1_1json__interface_1_1ExportSettings_aa845a9ba5a2f2ea9e0aefe8394c05182}} 
+unsigned int \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_aa845a9ba5a2f2ea9e0aefe8394c05182}{numerical\+Precision\+\_\+}} = 15
+\begin{DoxyCompactList}\small\item\em Number of significant digits for the exported results. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_ab6f1c29bb8fdaf659aa555e4187a4a82}\label{classtudat_1_1json__interface_1_1ExportSettings_ab6f1c29bb8fdaf659aa555e4187a4a82}} 
+bool \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_ab6f1c29bb8fdaf659aa555e4187a4a82}{only\+Initial\+Step\+\_\+}} = false
+\begin{DoxyCompactList}\small\item\em Whether to print only the values corresponding to the initial integration step. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_a4b977730952a9c9c705305891212fd2a}\label{classtudat_1_1json__interface_1_1ExportSettings_a4b977730952a9c9c705305891212fd2a}} 
+bool \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_a4b977730952a9c9c705305891212fd2a}{only\+Final\+Step\+\_\+}} = false
+\begin{DoxyCompactList}\small\item\em Whether to print only the values corresponding to the final integration step. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_abdebbd7d1eb8eb516a2306fb564323c9}\label{classtudat_1_1json__interface_1_1ExportSettings_abdebbd7d1eb8eb516a2306fb564323c9}} 
+bool \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings_abdebbd7d1eb8eb516a2306fb564323c9}{print\+Variable\+Indices\+To\+Terminal\+\_\+}} = false
+\begin{DoxyCompactList}\small\item\em Whether to show, in the terminal, the indices in the output vector where variables are saved. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ExportSettings_ac41e981b37b0728518338c1ac7ad16da}\label{classtudat_1_1json__interface_1_1ExportSettings_ac41e981b37b0728518338c1ac7ad16da}} 
+\index{tudat::json\_interface::ExportSettings@{tudat::json\_interface::ExportSettings}!variables\_@{variables\_}}
+\index{variables\_@{variables\_}!tudat::json\_interface::ExportSettings@{tudat::json\_interface::ExportSettings}}
+\doxysubsubsection{\texorpdfstring{variables\_}{variables\_}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1VariableSettings}{propagators\+::\+Variable\+Settings}} $>$ $>$ tudat\+::json\+\_\+interface\+::\+Export\+Settings\+::variables\+\_\+}
+
+Variables to export. The variables will be exported to a table in which each row corresponds to an epoch, and the columns contain the values of the variables specified in this vector in the provided order. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/interface/json/propagation/export.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_0f3f41e661251f5af4cbcff922e9f9aa" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides</compoundname>
+    <innerfile refid="approximatePlanetPositions_8cpp">approximatePlanetPositions.cpp</innerfile>
+    <innerfile refid="approximatePlanetPositionsBase_8cpp">approximatePlanetPositionsBase.cpp</innerfile>
+    <innerfile refid="approximatePlanetPositionsCircularCoplanar_8cpp">approximatePlanetPositionsCircularCoplanar.cpp</innerfile>
+    <innerfile refid="cartesianStateExtractor_8cpp">cartesianStateExtractor.cpp</innerfile>
+    <innerfile refid="compositeEphemeris_8cpp">compositeEphemeris.cpp</innerfile>
+    <innerfile refid="astro_2ephemerides_2ephemeris_8cpp">ephemeris.cpp</innerfile>
+    <innerfile refid="frameManager_8cpp">frameManager.cpp</innerfile>
+    <innerfile refid="fullPlanetaryRotationModel_8cpp">fullPlanetaryRotationModel.cpp</innerfile>
+    <innerfile refid="keplerEphemeris_8cpp">keplerEphemeris.cpp</innerfile>
+    <innerfile refid="keplerStateExtractor_8cpp">keplerStateExtractor.cpp</innerfile>
+    <innerfile refid="rotationalEphemeris_8cpp">rotationalEphemeris.cpp</innerfile>
+    <innerfile refid="simpleRotationalEphemeris_8cpp">simpleRotationalEphemeris.cpp</innerfile>
+    <innerfile refid="synchronousRotationalEphemeris_8cpp">synchronousRotationalEphemeris.cpp</innerfile>
+    <innerfile refid="tabulatedEphemeris_8cpp">tabulatedEphemeris.cpp</innerfile>
+    <innerfile refid="tabulatedRotationalEphemeris_8cpp">tabulatedRotationalEphemeris.cpp</innerfile>
+    <innerfile refid="tleEphemeris_8cpp">tleEphemeris.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/"/>
+  </compounddef>
+</doxygen>

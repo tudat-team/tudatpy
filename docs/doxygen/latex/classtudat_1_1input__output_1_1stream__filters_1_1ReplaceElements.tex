@@ -1,0 +1,109 @@
+\hypertarget{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements}{}\doxysection{tudat\+::input\+\_\+output\+::stream\+\_\+filters\+::Replace\+Elements Class Reference}
+\label{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements}\index{tudat::input\_output::stream\_filters::ReplaceElements@{tudat::input\_output::stream\_filters::ReplaceElements}}
+
+
+Filter for searching and replacing text in a stream.  
+
+
+
+
+{\ttfamily \#include $<$stream\+Filters.\+h$>$}
+
+Inheritance diagram for tudat\+::input\+\_\+output\+::stream\+\_\+filters\+::Replace\+Elements\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_aa18b9e1b18df2d4cf0873637f2f647cc}{Replace\+Elements}} (boost\+::regex search\+Filter, std\+::string replace\+String=\char`\"{}\char`\"{}, bool is\+Omit\+If\+Empty=true)
+\begin{DoxyCompactList}\small\item\em Create filter with a regex object and replace string. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_aa29f1fd05b29803c0d4d64bfa609b1d8}{Replace\+Elements}} (std\+::string search\+Filter, std\+::string replace\+String=\char`\"{}\char`\"{}, bool is\+Omit\+If\+Empty=true)
+\begin{DoxyCompactList}\small\item\em Create filter with a basic search and replace string. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_ab74a73729a02c25a48413b02b1ff2961}{do\+\_\+filter}} (const std\+::string \&line)
+\begin{DoxyCompactList}\small\item\em Execute filter on a single line to replace matched elements with replace string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Filter for searching and replacing text in a stream. 
+
+This filter allows the user to perform a search\&replace operation on a stream (line based). If a match is found, it is replaced by the given replace string.
+
+The search pattern is created using a regex expression (boost\+::regex). The following are example search queries\+:
+
+Search for keyword\+: \textquotesingle{}my\+Key\+Word\textquotesingle{} This will match all exact matches of \textquotesingle{}my\+Key\+Word\textquotesingle{}.
+
+Search for entire line with keyword\+: \textquotesingle{}$^\wedge$.$\ast$my\+Key\+Word.$\ast$\$\textquotesingle{} This will match the line (from start to finish) if it contains the string \char`\"{}my\+Key\+Word\char`\"{}.
+
+Search for numbers with two decimals\+: \textquotesingle{}\mbox{[}+-\/\mbox{]}$\ast$\mbox{[}0-\/9\mbox{]}$\ast$.\mbox{[}0-\/9\mbox{]}\{2\}\textquotesingle{} This will match numbers up to two decimals (including preceding + and -\/).
+
+More examples\+: \href{http://www.boost.org/libs/regex/}{\texttt{ http\+://www.\+boost.\+org/libs/regex/}} \href{http://www.regular-expressions.info/examples.html}{\texttt{ http\+://www.\+regular-\/expressions.\+info/examples.\+html}} 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_aa18b9e1b18df2d4cf0873637f2f647cc}\label{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_aa18b9e1b18df2d4cf0873637f2f647cc}} 
+\index{tudat::input\_output::stream\_filters::ReplaceElements@{tudat::input\_output::stream\_filters::ReplaceElements}!ReplaceElements@{ReplaceElements}}
+\index{ReplaceElements@{ReplaceElements}!tudat::input\_output::stream\_filters::ReplaceElements@{tudat::input\_output::stream\_filters::ReplaceElements}}
+\doxysubsubsection{\texorpdfstring{ReplaceElements()}{ReplaceElements()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::input\+\_\+output\+::stream\+\_\+filters\+::\+Replace\+Elements\+::\+Replace\+Elements (\begin{DoxyParamCaption}\item[{boost\+::regex}]{search\+Filter,  }\item[{std\+::string}]{replace\+String = {\ttfamily \char`\"{}\char`\"{}},  }\item[{bool}]{is\+Omit\+If\+Empty = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Create filter with a regex object and replace string. 
+
+Creates a \mbox{\hyperlink{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements}{Replace\+Elements}} filter with a provided regex search pattern object and a replacement for any matches. If you want to remove any match leave replace\+String empty. Note that \char`\"{}line\+\_\+filter\char`\"{} is set to true, to indicate to Boost not to append newline characters. 
+\begin{DoxyParams}{Parameters}
+{\em search\+Filter} & Regex search pattern to search for. \\
+\hline
+{\em replace\+String} & String to replace any search matches with. \\
+\hline
+{\em is\+Omit\+If\+Empty} & True if a line should be removed when a complete line is filtered away. (If true, if an entire line is removed, no newline character will be returned.) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_aa29f1fd05b29803c0d4d64bfa609b1d8}\label{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_aa29f1fd05b29803c0d4d64bfa609b1d8}} 
+\index{tudat::input\_output::stream\_filters::ReplaceElements@{tudat::input\_output::stream\_filters::ReplaceElements}!ReplaceElements@{ReplaceElements}}
+\index{ReplaceElements@{ReplaceElements}!tudat::input\_output::stream\_filters::ReplaceElements@{tudat::input\_output::stream\_filters::ReplaceElements}}
+\doxysubsubsection{\texorpdfstring{ReplaceElements()}{ReplaceElements()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::input\+\_\+output\+::stream\+\_\+filters\+::\+Replace\+Elements\+::\+Replace\+Elements (\begin{DoxyParamCaption}\item[{std\+::string}]{search\+Filter,  }\item[{std\+::string}]{replace\+String = {\ttfamily \char`\"{}\char`\"{}},  }\item[{bool}]{is\+Omit\+If\+Empty = {\ttfamily true} }\end{DoxyParamCaption})}
+
+
+
+Create filter with a basic search and replace string. 
+
+Creates a \mbox{\hyperlink{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements}{Replace\+Elements}} filter with a provided search string object and a replacement for any matches. Note this is for exact matches only (creates a regex object and escapes the following charachters\+: .\mbox{[}\mbox{]}\{\}()$\ast$+?$\vert$$^\wedge$\$ ). If you want to remove any match leave replace\+String empty. 
+\begin{DoxyParams}{Parameters}
+{\em search\+Filter} & Regex search pattern to search for \\
+\hline
+{\em replace\+String} & String to replace any search matches with \\
+\hline
+{\em is\+Omit\+If\+Empty} & True if a line should be removed when a complete line is filtered away. (If true, if an entire line is removed, no newline character will be returned.) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_ab74a73729a02c25a48413b02b1ff2961}\label{classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_ab74a73729a02c25a48413b02b1ff2961}} 
+\index{tudat::input\_output::stream\_filters::ReplaceElements@{tudat::input\_output::stream\_filters::ReplaceElements}!do\_filter@{do\_filter}}
+\index{do\_filter@{do\_filter}!tudat::input\_output::stream\_filters::ReplaceElements@{tudat::input\_output::stream\_filters::ReplaceElements}}
+\doxysubsubsection{\texorpdfstring{do\_filter()}{do\_filter()}}
+{\footnotesize\ttfamily std\+::string tudat\+::input\+\_\+output\+::stream\+\_\+filters\+::\+Replace\+Elements\+::do\+\_\+filter (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{line }\end{DoxyParamCaption})}
+
+
+
+Execute filter on a single line to replace matched elements with replace string. 
+
+Find search pattern matches and replace them with a predefined string. For more information see boost\+::iostreams\+::line\+\_\+filter (overrides definition of line\+\_\+filter to enable chaining of filters). 
+\begin{DoxyParams}{Parameters}
+{\em line} & Unfiltered line. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Filtered line. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/io/stream\+Filters.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/io/stream\+Filters.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,1003 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1acceleration__partials_1_1TorquePartial" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::acceleration_partials::TorquePartial</compoundname>
+    <basecompoundref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" prot="public" virt="non-virtual">tudat::orbit_determination::StateDerivativePartial</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1acceleration__partials_1_1ConstantTorquePartial" prot="public" virt="non-virtual">tudat::acceleration_partials::ConstantTorquePartial</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1acceleration__partials_1_1InertialTorquePartial" prot="public" virt="non-virtual">tudat::acceleration_partials::InertialTorquePartial</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial" prot="public" virt="non-virtual">tudat::acceleration_partials::SecondDegreeGravitationalTorquePartial</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial" prot="public" virt="non-virtual">tudat::acceleration_partials::SphericalHarmonicGravitationalTorquePartial</derivedcompoundref>
+    <includes refid="torquePartial_8h" local="no">torquePartial.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a87154b3cdc955401b5dbd4c57df6a768" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::acceleration_partials::TorquePartial::bodyUndergoingTorque_</definition>
+        <argsstring></argsstring>
+        <name>bodyUndergoingTorque_</name>
+        <briefdescription>
+<para>Name of the body undergoing torque. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="327" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="327" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1ad7fec53792cf06fd95b5d77249262aa3" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::acceleration_partials::TorquePartial::bodyExertingTorque_</definition>
+        <argsstring></argsstring>
+        <name>bodyExertingTorque_</name>
+        <briefdescription>
+<para>Name of the body exerting torque. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="330" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="330" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a3d4542f70bed87e5e15ef766e2a065e5" prot="protected" static="no" mutable="no">
+        <type>basic_astrodynamics::AvailableTorque</type>
+        <definition>basic_astrodynamics::AvailableTorque tudat::acceleration_partials::TorquePartial::torqueType_</definition>
+        <argsstring></argsstring>
+        <name>torqueType_</name>
+        <briefdescription>
+<para>Type of torque w.r.t. which partial is taken.. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="333" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="333" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a299c5f5462d73b955f0af51e5823c39f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::acceleration_partials::TorquePartial::TorquePartial</definition>
+        <argsstring>(const std::string &amp;bodyUndergoingTorque, const std::string &amp;bodyExertingTorque, const basic_astrodynamics::AvailableTorque torqueType)</argsstring>
+        <name>TorquePartial</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyUndergoingTorque</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyExertingTorque</declname>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::AvailableTorque</type>
+          <declname>torqueType</declname>
+        </param>
+        <briefdescription>
+<para>Base class constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of base class, sets the base class member variables identifying the body undergoing and exerting the torque. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyUndergoingTorque</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body undergoing torque. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyExertingTorque</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body exerting torque. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>torqueType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of torque w.r.t. which partial is taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="52" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="52" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1aedbf70284739dca3507d31ae53f1866f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::acceleration_partials::TorquePartial::~TorquePartial</definition>
+        <argsstring>()</argsstring>
+        <name>~TorquePartial</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="58" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="58" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1abd32c3a39bd48fe77a2223580d44ea57" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::acceleration_partials::TorquePartial::isStateDerivativeDependentOnIntegratedAdditionalStateTypes</definition>
+        <argsstring>(const std::pair&lt; std::string, std::string &gt; &amp;stateReferencePoint, const propagators::IntegratedStateType integratedStateType)</argsstring>
+        <name>isStateDerivativeDependentOnIntegratedAdditionalStateTypes</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7d6dc0c6a70e33af5aefedf00dee1959">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplements>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_1aec785a36a4fab48930ca67263da3a469">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_1a6c7db8f8ebb688b9281316cc78012a17">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>stateReferencePoint</declname>
+        </param>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <briefdescription>
+<para>Function for determining if the torque is dependent on a non-rotational integrated state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for determining if the torque is dependent on a non-rotational integrated state. Default none, may be overridden by derived class <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point id of propagated state </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagated state for which dependency is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if dependency exists (non-zero partial), false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="68" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="68" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a00abe63e3789cd2f42bc1b0c7d1fdb9e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::Block&lt; Eigen::MatrixXd &gt;) &gt;, int &gt;</type>
+        <definition>std::pair&lt; std::function&lt; void( Eigen::Block&lt; Eigen::MatrixXd &gt; ) &gt;, int &gt; tudat::acceleration_partials::TorquePartial::getDerivativeFunctionWrtStateOfIntegratedBody</definition>
+        <argsstring>(const std::pair&lt; std::string, std::string &gt; &amp;stateReferencePoint, const propagators::IntegratedStateType integratedStateType)</argsstring>
+        <name>getDerivativeFunctionWrtStateOfIntegratedBody</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ab4fa1fbffa888476633642ca3e1a1dd1">getDerivativeFunctionWrtStateOfIntegratedBody</reimplements>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>stateReferencePoint</declname>
+        </param>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the function that returns the partial derivative w.r.t. a propagated state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the function that returns the partial derivative w.r.t. a propagated state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point (id) for propagated state (i.e. body name for rotational dynamics). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagated state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair with function, returning partial derivative, and number of columns in partial vector, </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="83" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="83" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a38831ab1542356953153d3893e60e9e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::acceleration_partials::TorquePartial::wrtOrientationOfAcceleratedBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=0)=0</argsstring>
+        <name>wrtOrientationOfAcceleratedBody</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_1a437a908242744ba6e9355b126ff92683">wrtOrientationOfAcceleratedBody</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1InertialTorquePartial_1acd7c0ea26712a5441134b06a6d8ff363">wrtOrientationOfAcceleratedBody</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_1a2cf6f3ac27371a33d4b7cce436eb77c4">wrtOrientationOfAcceleratedBody</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_1a6fa6e48742bf586ac5dca25da9b9ebb7">wrtOrientationOfAcceleratedBody</reimplementedby>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the accelerated body and adding it to the existing partial block. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. Orientation of body undergoing torque where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="156" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a207df1139b3ca8b14bb48ab132d5dbc6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::acceleration_partials::TorquePartial::wrtRotationalVelocityOfAcceleratedBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=3)</argsstring>
+        <name>wrtRotationalVelocityOfAcceleratedBody</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_1a8753136f31225c9f8cf42d78e23c6988">wrtRotationalVelocityOfAcceleratedBody</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1InertialTorquePartial_1a0f9de03a8f87e0a32cfb766a0be330cd">wrtRotationalVelocityOfAcceleratedBody</reimplementedby>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>3</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. angular velocity of body undergoing torque where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="170" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="170" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a719cf5be0b45b2710009aa27988c56cb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::TorquePartial::wrtRotationalStateOfAcceleratedBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix)</argsstring>
+        <name>wrtRotationalStateOfAcceleratedBody</name>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the torque w.r.t. the rotational state of the body undergoing torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the torque w.r.t. the rotational state of the body undergoing torque and adding it to the existing partial block. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. Cartesian state of body undergoing torque where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="182" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="182" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1acdbf61da830ff7b43d9bf10df22e98e8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::acceleration_partials::TorquePartial::wrtOrientationOfAcceleratingBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=0)</argsstring>
+        <name>wrtOrientationOfAcceleratingBody</name>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the body exerting torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the body exerting torque and adding it to the existing partial block. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. Orientation of body exerting torque where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="198" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="198" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a473ff90b6fa28e4234a97a42bd3a4cb7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::acceleration_partials::TorquePartial::wrtRotationalVelocityOfAcceleratingBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=3)</argsstring>
+        <name>wrtRotationalVelocityOfAcceleratingBody</name>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>3</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the torque w.r.t. the angular velocity of the body exerting torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the torque w.r.t. the angular velocity of the body exerting a torque. . Function may be overridden in derived class, default dependency is none. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. angular velocity of body exerting torque where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="213" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="213" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a611d8d213abeb99286dd519340c10995" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::TorquePartial::wrtRotationalStateOfAcceleratingBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix)</argsstring>
+        <name>wrtRotationalStateOfAcceleratingBody</name>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the torque w.r.t. the Cartesian state of the body exerting torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the torque w.r.t. the Cartesian state of the body exerting torque and adding it to the existing partial block. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. Cartesian state of body exerting torque where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="224" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="224" bodyend="228"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a7e1f33a40cb2590d9e47297179f03fac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::acceleration_partials::TorquePartial::wrtOrientationOfAdditionalBody</definition>
+        <argsstring>(const std::string &amp;bodyName, Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=0)</argsstring>
+        <name>wrtOrientationOfAdditionalBody</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the torque w.r.t. the orientation of the third body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the torque w.r.t. the orientation of the third body and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of third body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. Orientation of third body where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="241" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="241" bodyend="243"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a3fdff9e53798d90a4e6350a8b35e3df3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::acceleration_partials::TorquePartial::wrtRotationalVelocityOfAdditionalBody</definition>
+        <argsstring>(const std::string &amp;bodyName, Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=3)</argsstring>
+        <name>wrtRotationalVelocityOfAdditionalBody</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>3</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the torque w.r.t. the angular velocity of the third body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the torque w.r.t. the angular velocity of the third body and adding it to the existing partial block. . Function may be overridden in derived class, default dependency is none. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of third body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. angular velocity of third body where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="257" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="257" bodyend="259"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a79b5b432d9d68b85a95deb43ba52a476" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::TorquePartial::wrtRotationalStateOfAdditionalBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const std::string &amp;bodyName)</argsstring>
+        <name>wrtRotationalStateOfAdditionalBody</name>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the torque w.r.t. the Cartesian state of the third body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the torque w.r.t. the Cartesian state of the third body and adding it to the existing partial block. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of third body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of torque w.r.t. Cartesian state of third body where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="269" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="269" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a1c958e33def353759e8b37037b70b52b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::acceleration_partials::TorquePartial::wrtNonRotationalStateOfAdditionalBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const std::pair&lt; std::string, std::string &gt; &amp;stateReferencePoint, const propagators::IntegratedStateType integratedStateType)</argsstring>
+        <name>wrtNonRotationalStateOfAdditionalBody</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_1aa85530bcc0f7a71702ffa8b4cb7ef057">wrtNonRotationalStateOfAdditionalBody</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_1a05b6eede6226834d2da05f36c26e8b66">wrtNonRotationalStateOfAdditionalBody</reimplementedby>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>stateReferencePoint</declname>
+        </param>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the torque w.r.t. a non-rotational integrated state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the torque w.r.t. a non-rotational integrated state and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point id of propagated state </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagated state for which partial is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="284" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="284" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a5e6b9ae0d2f7c1f35c19dbdca5832658" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::acceleration_partials::TorquePartial::isTorquePartialWrtAdditionalBodyNonNull</definition>
+        <argsstring>(const std::string &amp;bodyName)</argsstring>
+        <name>isTorquePartialWrtAdditionalBodyNonNull</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+<para>Function to check whether the partial derivative w.r.t. the rotational state of a third body is non-zero. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to check whether the partial derivative w.r.t. the rotational state of a third body is non-zero. This function returns false by default, should be redefined in derived class if any third-bodyd dependencies exist. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of third body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if third body dependency exists, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="296" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="296" bodyend="299"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a4565abdd57a8089e37072e7e2937d851" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::acceleration_partials::TorquePartial::getBodyUndergoingTorque</definition>
+        <argsstring>()</argsstring>
+        <name>getBodyUndergoingTorque</name>
+        <briefdescription>
+<para>Function to retrieve the name of the body undergoing torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the name of the body undergoing torque. <simplesect kind="return"><para>Name of the body undergoing torque. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="306" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="306" bodyend="306"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a25563b04d9f774820b14cea830a180b3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::acceleration_partials::TorquePartial::getBodyExertingTorque</definition>
+        <argsstring>()</argsstring>
+        <name>getBodyExertingTorque</name>
+        <briefdescription>
+<para>Function to retrieve the name of the body exerting torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the name of the body exerting torque. <simplesect kind="return"><para>Name of the body exerting torque. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="313" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="313" bodyend="313"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1TorquePartial_1a8265a9582a46b95b9ece012142207f82" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>basic_astrodynamics::AvailableTorque</type>
+        <definition>basic_astrodynamics::AvailableTorque tudat::acceleration_partials::TorquePartial::getTorqueType</definition>
+        <argsstring>()</argsstring>
+        <name>getTorqueType</name>
+        <briefdescription>
+<para>Function to retrieve the type of torque w.r.t. which partial is taken.. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the type of torque w.r.t. which partial is taken.. <simplesect kind="return"><para>Type of torque w.r.t. which partial is taken.. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="320" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="320" bodyend="323"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for objects calculating partial derivatives of torques w.r.t. states, model parameters. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for objects calculating partial derivatives of torques w.r.t. states, model parameters. Such calculations are used in orbit determination, for the computation of the state transition; sensitivity matrices. Derived classes implement derivative-calculating models for specific torque models, so that the calculation of all partials of a single type torque model is encompassed in a single derived class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::orbit_determination::StateDerivativePartial</label>
+        <link refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial"/>
+      </node>
+      <node id="6">
+        <label>tudat::acceleration_partials::SphericalHarmonicGravitationalTorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::acceleration_partials::InertialTorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1InertialTorquePartial"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::acceleration_partials::TorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1TorquePartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::acceleration_partials::SecondDegreeGravitationalTorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::acceleration_partials::ConstantTorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1ConstantTorquePartial"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>iterator</label>
+      </node>
+      <node id="2">
+        <label>tudat::orbit_determination::StateDerivativePartial</label>
+        <link refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>isCurrentDoubleParameterPartialSetIterator_</edgelabel>
+          <edgelabel>isCurrentVectorParameterPartialSetIterator_</edgelabel>
+          <edgelabel>parameterDoublePartialFunctionIterator_</edgelabel>
+          <edgelabel>parameterVectorPartialFunctionIterator_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::acceleration_partials::TorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1TorquePartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>bodyExertingTorque_</edgelabel>
+          <edgelabel>bodyUndergoingTorque_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" line="40" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h" bodystart="41" bodyend="334"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>accelerationSize_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1ad7fec53792cf06fd95b5d77249262aa3" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>bodyExertingTorque_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a87154b3cdc955401b5dbd4c57df6a768" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>bodyUndergoingTorque_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>currentDoubleParameterPartials_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1abbca0ac294a29b7d1efc16a68d7c4582" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>currentVectorParameterPartials_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a25563b04d9f774820b14cea830a180b3" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getBodyExertingTorque</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a4565abdd57a8089e37072e7e2937d851" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getBodyUndergoingTorque</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ac31393221aeef20ea4ee5d7d0ad59aba" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getCurrentDoubleParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getCurrentParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1acdfcbf63330d5b2b04fbaeb3787c8f68" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getCurrentParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a2ba60d5dd1c131412a8f1aae8dd47a21" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getCurrentVectorParameterPartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a00abe63e3789cd2f42bc1b0c7d1fdb9e" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getDerivativeFunctionWrtStateOfIntegratedBody</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a01893338e6faedd93cc0410bb692ce12" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getIntegratedStateType</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adbe24dfd4085ec6343ccf18478b52bc0" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getIntegrationReferencePoint</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a849b14fede905e4e26ee2e752fbc95cc" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a8265a9582a46b95b9ece012142207f82" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>getTorqueType</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>integratedStateType_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>integrationReferencePoint_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>isCurrentDoubleParameterPartialSet_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>isCurrentDoubleParameterPartialSetIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>isCurrentVectorParameterPartialSet_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>isCurrentVectorParameterPartialSetIterator_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1abd32c3a39bd48fe77a2223580d44ea57" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>isStateDerivativeDependentOnIntegratedAdditionalStateTypes</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a5e6b9ae0d2f7c1f35c19dbdca5832658" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>isTorquePartialWrtAdditionalBodyNonNull</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>parameterDoublePartialFunctionIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>parameterDoublePartialFunctions_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>parameterVectorPartialFunctionIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>parameterVectorPartialFunctions_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7b26a08bb4990220a7d2f40f3681274a" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>resetCurrentParameterValues</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3654d540045886559b6592dc4f30bab8" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aa0245f5f6b58423905b64709dac39a4c" prot="protected" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>resetTimeOfMemberObjects</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a481fc771c0a87996bc469b34ead49db9" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>setParameterPartialUpdateFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a646f021c7c884446d482b9b0ab1e14f4" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>setParameterPartialUpdateFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a4827d172b38b466f65f4da68500f53ea" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>StateDerivativePartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a299c5f5462d73b955f0af51e5823c39f" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>TorquePartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a3d4542f70bed87e5e15ef766e2a065e5" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>torqueType_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6801a8f31cc0fcdb9679c2db6be3b157" prot="public" virt="pure-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>update</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7a6f8bf919e2a0c16bc254738123b5b4" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>updateParameterPartials</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a53491f7d5c94bd64b71c5190b9793a64" prot="protected" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>updateParameterPartialsOfMemberObjects</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a1c958e33def353759e8b37037b70b52b" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtNonRotationalStateOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a38831ab1542356953153d3893e60e9e2" prot="public" virt="pure-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtOrientationOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1acdbf61da830ff7b43d9bf10df22e98e8" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtOrientationOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a7e1f33a40cb2590d9e47297179f03fac" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtOrientationOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a17003fa377113426b3e556a78f147941" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtParameter</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae12101f97027e73084d3d80dbc7059b3" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtParameter</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a719cf5be0b45b2710009aa27988c56cb" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtRotationalStateOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a611d8d213abeb99286dd519340c10995" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtRotationalStateOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a79b5b432d9d68b85a95deb43ba52a476" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtRotationalStateOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a207df1139b3ca8b14bb48ab132d5dbc6" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtRotationalVelocityOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a473ff90b6fa28e4234a97a42bd3a4cb7" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtRotationalVelocityOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a3fdff9e53798d90a4e6350a8b35e3df3" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>wrtRotationalVelocityOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a05f085a890b27518ca24446ac22bdb3e" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>~StateDerivativePartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1aedbf70284739dca3507d31ae53f1866f" prot="public" virt="virtual"><scope>tudat::acceleration_partials::TorquePartial</scope><name>~TorquePartial</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

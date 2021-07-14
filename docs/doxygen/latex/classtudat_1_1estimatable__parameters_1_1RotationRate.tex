@@ -1,0 +1,118 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1RotationRate}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Rotation\+Rate Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1RotationRate}\index{tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}}
+
+
+Interface class for estimation of a body\textquotesingle{}s constant rotation rate parameter.  
+
+
+
+
+{\ttfamily \#include $<$constant\+Rotation\+Rate.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Rotation\+Rate\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1RotationRate}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RotationRate_a2cd5fd596307fc443dd1f891e2a640ea}{Rotation\+Rate}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SimpleRotationalEphemeris}{ephemerides\+::\+Simple\+Rotational\+Ephemeris}} $>$ rotation\+Model, const std\+::string \&associated\+Body)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RotationRate_af282dfdb148c288b937abc6a3df6562d}\label{classtudat_1_1estimatable__parameters_1_1RotationRate_af282dfdb148c288b937abc6a3df6562d}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RotationRate_af282dfdb148c288b937abc6a3df6562d}{$\sim$\+Rotation\+Rate}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RotationRate_ac024f33645b293e73cb610f402e7a7ee}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Get value of rotation rate. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RotationRate_afad73852fa105de2616b9be5c607f489}{set\+Parameter\+Value}} (double parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Reset value of rotation rate. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RotationRate_a9d0c87adc47873d0b8ec3fc59408fa03}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for estimation of a body\textquotesingle{}s constant rotation rate parameter. 
+
+Interface class for estimation of a body\textquotesingle{}s constant rotation rate parameter. Interfaces the estimation with the rotation rate parameter of a Simple\+Rotational\+Ephemeris object 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RotationRate_a2cd5fd596307fc443dd1f891e2a640ea}\label{classtudat_1_1estimatable__parameters_1_1RotationRate_a2cd5fd596307fc443dd1f891e2a640ea}} 
+\index{tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}!RotationRate@{RotationRate}}
+\index{RotationRate@{RotationRate}!tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}}
+\doxysubsubsection{\texorpdfstring{RotationRate()}{RotationRate()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Rotation\+Rate\+::\+Rotation\+Rate (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SimpleRotationalEphemeris}{ephemerides\+::\+Simple\+Rotational\+Ephemeris}} $>$}]{rotation\+Model,  }\item[{const std\+::string \&}]{associated\+Body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em rotation\+Model} & Simple\+Rotational\+Ephemeris object of which rotation rate parameter is a property \\
+\hline
+{\em associated\+Body} & Name of body of which parameter is a property. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RotationRate_a9d0c87adc47873d0b8ec3fc59408fa03}\label{classtudat_1_1estimatable__parameters_1_1RotationRate_a9d0c87adc47873d0b8ec3fc59408fa03}} 
+\index{tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Rotation\+Rate\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter. 
+
+Function to retrieve the size of the parameter \begin{DoxyReturn}{Returns}
+Size of parameter value, 1 for this parameter 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RotationRate_ac024f33645b293e73cb610f402e7a7ee}\label{classtudat_1_1estimatable__parameters_1_1RotationRate_ac024f33645b293e73cb610f402e7a7ee}} 
+\index{tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily double tudat\+::estimatable\+\_\+parameters\+::\+Rotation\+Rate\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get value of rotation rate. 
+
+Get value of rotation rate. \begin{DoxyReturn}{Returns}
+Value of rotation rate 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RotationRate_afad73852fa105de2616b9be5c607f489}\label{classtudat_1_1estimatable__parameters_1_1RotationRate_afad73852fa105de2616b9be5c607f489}} 
+\index{tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::RotationRate@{tudat::estimatable\_parameters::RotationRate}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Rotation\+Rate\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{double}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reset value of rotation rate. 
+
+Reset value of rotation rate. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New value of rotation rate \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/constant\+Rotation\+Rate.\+h\end{DoxyCompactItemize}

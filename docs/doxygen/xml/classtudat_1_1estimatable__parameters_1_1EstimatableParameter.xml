@@ -1,0 +1,370 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::estimatable_parameters::EstimatableParameter</compoundname>
+    <includes refid="estimatableParameter_8h" local="no">estimatableParameter.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ParameterType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a3d43d2db730c707b789768dad4de5ae6" prot="protected" static="no" mutable="no">
+        <type>EstimatebleParameterIdentifier</type>
+        <definition>EstimatebleParameterIdentifier tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::parameterName_</definition>
+        <argsstring></argsstring>
+        <name>parameterName_</name>
+        <briefdescription>
+<para>Identifier of parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="230" column="36" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a4012bde7f5f26c5c590c0a149283dd4d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::EstimatableParameter</definition>
+        <argsstring>(const EstimatebleParametersEnum parameterName, const std::string &amp;associatedBody, const std::string &amp;pointOnBodyId=&quot;&quot;)</argsstring>
+        <name>EstimatableParameter</name>
+        <param>
+          <type>const EstimatebleParametersEnum</type>
+          <declname>parameterName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>pointOnBodyId</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor taking parameter name and associated body. All parameters are identified by a these two variables. Any additional information that may be required for uniquely defining a parameter is to be defined in the derived class. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Enum value defining the type of the parameter. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body associated with patameters </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pointOnBodyId</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point on body associated with parameter (empty by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="135" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="135" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a211a379e14476e36a7693f43be29cb11" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::~EstimatableParameter</definition>
+        <argsstring>()</argsstring>
+        <name>~EstimatableParameter</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="141" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="141" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a63413b914f9e8b68705aba7048780200" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>ParameterType</type>
+        <definition>virtual ParameterType tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::getParameterValue</definition>
+        <argsstring>()=0</argsstring>
+        <name>getParameterValue</name>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantDragCoefficient_1a49bed98aad7116b0629ecacc5325209f">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseConstantDragCoefficient_1a93a38883ed7577213d90f5d561ccf9b4">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantRotationalOrientation_1ae5d7a223838d362632d8e1ac95833a88">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1RotationRate_1ac024f33645b293e73cb610f402e7a7ee">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1CoreFactor_1abfafa6d00e45db9577779f8016dddebf">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1DesaturationDeltaV_1a380ca625bad2879125b441e993933f09">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_1a3d8c1778af68733e619c2d48fe60878d">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_1a54e901322c00dff181a2a941d6d7b1a3">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseEmpiricalAccelerationCoefficientsParameter_1a7f0068498d268837e48f3e34e73b5597">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1EquivalencePrincipleLpiViolationParameter_1a6c8af1876306e86ca559902bc80e1ccc">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_1aa70f3314110c8e9e47e23c25facb26e1">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1GravitationalParameter_1a86a5d5c5cbc0c898525a0cc8385d931e">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a3b972d18c791d4da8009d8a76e69b39c">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_1aa14db93f1f9ec8116a0d509d8187c317">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a127b7255f01047b7e25b44ffa8a15870">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_1a877e0d957a05682f144360e0c56f83e0">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1MeanMomentOfInertiaParameter_1abf4f7bcf4784692df61eec31bb9575bd">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasParameter_1a8faafedfd68991cf3521eeb5183f9cd6">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a361577529520f9a590f289c5e7282d1c">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PeriodicSpinVariation_1a613dfe93987cb6ce8cc319db418be79b">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PolarMotionAmplitude_1aab997f7733d77a74df762e014f941825">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PPNParameterGamma_1abbd64a6c7f0fed881d477ff7c100a1a3">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PPNParameterBeta_1a6f6301aa850874f613e8e6e6929ed7e0">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_1a1ff0890df59c45352030750744f9d121">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a2c03c0e1056504f84bc431fef5754619">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_1af6d41ec450351355acfc0926a1f48c45">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a7f35c3406fdf98248ae2093dc10293e0">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1a2e8a0ea3fb367c4d2c8811fbf9527a32">getParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_1a9bb507095f70908d1991a9073384f932">getParameterValue</reimplementedby>
+        <briefdescription>
+<para>Pure virtual function to retrieve the value of the parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to retrieve the value of the parameter <simplesect kind="return"><para>Current value of parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="148" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5df35bde257a6db401ca3c3613056554" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::setParameterValue</definition>
+        <argsstring>(const ParameterType parameterValue)=0</argsstring>
+        <name>setParameterValue</name>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1CoreFactor_1ae72c6b3531073f8090372f39c1ec6210">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_1a77780ab05404b6d8e7d74976835c7dc1">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantRotationalOrientation_1a7bd1cbe847e0d1db60c8cd8e3f6c5943">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PeriodicSpinVariation_1a43cb27332c16453de26bcc45a449a8d2">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PolarMotionAmplitude_1afd89453f79b2034936875b238d314e69">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_1a83b148618a4198a251bf8c651c19427b">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1addf046d353ecbacb2564945ef44e7a42">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantDragCoefficient_1a8be6a8cd0423f7ff7c1d054ee9b9d70c">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1RotationRate_1afad73852fa105de2616b9be5c607f489">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_1a0ae0156463bb15faa2fbec0297d03ca6">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1EquivalencePrincipleLpiViolationParameter_1a5020fc6739c3f3946afc0daa740b984a">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1GravitationalParameter_1ab1610caa2f08b3b4988d56f60ab9ac89">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1MeanMomentOfInertiaParameter_1aafa402f3075e04733c3ee3e54db341d2">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PPNParameterGamma_1a2d4852df13fee38dd2145d28ca7838de">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PPNParameterBeta_1a8a56cc897b6724bcd36bdcfa3f090513">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_1afa6dd3600b17a9d92c64c804e3596319">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseConstantDragCoefficient_1af1717bf91a891dfbaa23c076f1a5c56a">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1DesaturationDeltaV_1ae83dbc1b42cf37a92c1968d33f0d6450">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_1af3c2e8a279c112d4d85e6bf1331bb618">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseEmpiricalAccelerationCoefficientsParameter_1a730907137b8392f54d4aa4c34d900e48">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1a02250330b056d7d1767eb4a2234fe4c3">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasParameter_1a64f0883c15afa97929581b1906d4fc15">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a331a08debdeae06fbd6df6f9dccf7691">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a32501e76464402fd47786bab8d82cdb1">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1afbc1e32c0ba9c2a096ed5e4d599484cf">setParameterValue</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_1a85b751090ced3f376ec5692c2513b8d8">setParameterValue</reimplementedby>
+        <param>
+          <type>const ParameterType</type>
+          <declname>parameterValue</declname>
+        </param>
+        <briefdescription>
+<para>Pure virtual function to (re)set the value of the parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to (re)set the value of the parameter. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>to which the parameter is to be set. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="155" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a23de3d6116f1414d5bb905f1b523cfdc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>EstimatebleParameterIdentifier</type>
+        <definition>EstimatebleParameterIdentifier tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::getParameterName</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterName</name>
+        <briefdescription>
+<para>Function to retrieve the type and associated body of the parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the type and associated body of the parameter. <simplesect kind="return"><para>Identifier of parameter as a pair of parameter type and body of which parameter is a property. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="162" column="36" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="162" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5c264285d7e3ce9ce1452928ad8e7425" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::string</type>
+        <definition>virtual std::string tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::getParameterDescription</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterDescription</name>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_1a4b40db894a23b76f451995d4b76ac22c">getParameterDescription</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasParameter_1a14614bfe7da82a05843e6f6a7d7856be">getParameterDescription</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1af03c58ff2b6466e2741008c7eebe5171">getParameterDescription</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_1a9d7d90552030db868cc27a402e601d3a">getParameterDescription</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1ab62f4a087cbe7057483ffc1488313915">getParameterDescription</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="164" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="164" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a989d54bab5c5e09ab6f1b709755b22e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>int</type>
+        <definition>virtual int tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::getParameterSize</definition>
+        <argsstring>()=0</argsstring>
+        <name>getParameterSize</name>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantDragCoefficient_1a3ac3bccfcfa4a1a68cfc00fd1badf7d2">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseConstantDragCoefficient_1a4efa86e69922a912fbe79b286fa79aa5">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantRotationalOrientation_1a4222aa85e840c929eda9b6185c35d519">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1RotationRate_1a9d0c87adc47873d0b8ec3fc59408fa03">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1CoreFactor_1ad5beffa0ec6fd08528b6835ede619c92">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1DesaturationDeltaV_1ad3946ff60f8d48a984670ab41479ff07">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_1a25a7399c3ff4d7f09b4bf0cdf2f514f5">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_1aaf2dd846801e345b6999bcbe00ca8394">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseEmpiricalAccelerationCoefficientsParameter_1a0e5c61bee2b306624c33843714a3a60c">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1EquivalencePrincipleLpiViolationParameter_1a988df59f9d629b91dffc247e73d51978">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_1a9d43e919537ea6967336933c385ded03">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1GravitationalParameter_1a2ba9a012c83544ca802ff58044c6bb78">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1GroundStationPosition_1ab7f862c3bed081deb13c6f70f7aa80ba">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_1a5dc2bfb0044b84f5e6f0871d51fda7e9">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1af5ed822fe6786c76b9d522ad37230fb1">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_1a5aff78af8fdeee8022a692fab7464ab4">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1MeanMomentOfInertiaParameter_1a86e83b46ecc9b9e7ca1cd96da706a5e1">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasParameter_1a3125e461b2a6c89232ee9835a6f185d3">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a1ab5c19cc04a0e3690180afcfbc57561">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PeriodicSpinVariation_1ae53c7e05fb873d624339ed6eaf31b68b">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PolarMotionAmplitude_1a9f37fab18ee2c49c17d4ee7e27e98b5c">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PPNParameterGamma_1a9507783ac9f0d3706ea51011ba6307eb">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1PPNParameterBeta_1a28f469182f443f50c31965ce9bc78849">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_1ae7282eeffa763137a4d633d7dec4e10f">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a2f465736205161cca2bb70245a0ade3d">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_1a321eb698efe3468fd266620fa426b042">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a6bc279795f8d3018b578a0bc519607d9">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a2759cf3ed2b33dffd603dc7db24f5419">getParameterSize</reimplementedby>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a2759cf3ed2b33dffd603dc7db24f5419">getParameterSize</reimplementedby>
+        <briefdescription>
+<para>Function to retrieve the size of the parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to retrieve the size of the parameter (i.e. 1 for double parameters) <simplesect kind="return"><para>Size of parameter value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="183" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1ae97f1a8ef867dcaf72ceeb5050e64629" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::string</type>
+        <definition>virtual std::string tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::getSecondaryIdentifier</definition>
+        <argsstring>()</argsstring>
+        <name>getSecondaryIdentifier</name>
+        <briefdescription>
+<para>Function to return additional identifier for parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return additional identifier for parameter, beyond information stored in parameterName_, default none. <simplesect kind="return"><para>Additional identifier for parameter (default empty string). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="191" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="191" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1af7db7b4da27ca2787b0090c409087cd7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::getConstraintSize</definition>
+        <argsstring>()</argsstring>
+        <name>getConstraintSize</name>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_1a0f14d7d78dd018757312b7a9fa698cd2">getConstraintSize</reimplementedby>
+        <briefdescription>
+<para>Function to retrieve size of constraint to be applied on parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve size of constraint to be applied on parameter, zero by default. Can be overridden in derived class <simplesect kind="return"><para>Size of constraint to be applied on parameter </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="201" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="201" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a9c6c6514f75b2efdbd30cc2292fa3d0f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>virtual Eigen::MatrixXd tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::getConstraintStateMultipler</definition>
+        <argsstring>()</argsstring>
+        <name>getConstraintStateMultipler</name>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_1a634a0384110a8bc0de021c4c47de286f">getConstraintStateMultipler</reimplementedby>
+        <briefdescription>
+<para>Function to retrieve multiplier for parameter linear constraint. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve multiplier for parameter linear constraint, empty by default. Can be overridden in derived class <simplesect kind="return"><para>Multiplier for parameter linear constraint </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="211" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="211" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1adc670898ad79d02d23cfcf82b5578ed0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>virtual Eigen::VectorXd tudat::estimatable_parameters::EstimatableParameter&lt; ParameterType &gt;::getConstraintRightHandSide</definition>
+        <argsstring>()</argsstring>
+        <name>getConstraintRightHandSide</name>
+        <reimplementedby refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_1a1978f76e0f82687a1eafdd3e591dfaea">getConstraintRightHandSide</reimplementedby>
+        <briefdescription>
+<para>Function to retrieve right-hand side for parameter linear constraint. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve right-hand side for parameter linear constraint, empty by default. Can be overridden in derived class <simplesect kind="return"><para>Right-hand side for parameter linear constraint </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="221" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="221" bodyend="224"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for a parameter that is to be estimated. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for a parameter that is to be estimated. A separate derived class is to be made for each type of parameter (i.e. gravitational parameter, initial translational state, etc. ). </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" line="123" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h" bodystart="124" bodyend="231"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a4012bde7f5f26c5c590c0a149283dd4d" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1adc670898ad79d02d23cfcf82b5578ed0" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>getConstraintRightHandSide</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1af7db7b4da27ca2787b0090c409087cd7" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>getConstraintSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a9c6c6514f75b2efdbd30cc2292fa3d0f" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>getConstraintStateMultipler</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5c264285d7e3ce9ce1452928ad8e7425" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>getParameterDescription</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a23de3d6116f1414d5bb905f1b523cfdc" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>getParameterName</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a989d54bab5c5e09ab6f1b709755b22e8" prot="public" virt="pure-virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>getParameterSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a63413b914f9e8b68705aba7048780200" prot="public" virt="pure-virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>getParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1ae97f1a8ef867dcaf72ceeb5050e64629" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a3d43d2db730c707b789768dad4de5ae6" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>parameterName_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5df35bde257a6db401ca3c3613056554" prot="public" virt="pure-virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>setParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a211a379e14476e36a7693f43be29cb11" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::EstimatableParameter</scope><name>~EstimatableParameter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

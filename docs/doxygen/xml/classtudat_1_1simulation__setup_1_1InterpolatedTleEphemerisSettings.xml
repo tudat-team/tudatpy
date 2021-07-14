@@ -1,0 +1,284 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::InterpolatedTleEphemerisSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" prot="public" virt="non-virtual">tudat::simulation_setup::EphemerisSettings</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1ac80cbf33b08976e0c8120a9238b7b2ec" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::InterpolatedTleEphemerisSettings::initialTime_</definition>
+        <argsstring></argsstring>
+        <name>initialTime_</name>
+        <briefdescription>
+<para>Initial time from which interpolated data from TLE should be created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="809" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="809" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1aa4ea895223690b42118c18356adf5abb" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::InterpolatedTleEphemerisSettings::finalTime_</definition>
+        <argsstring></argsstring>
+        <name>finalTime_</name>
+        <briefdescription>
+<para>Final time until which interpolated data from TLE should be created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="812" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="812" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1ab6ebddf96cddab6e260459021d23c2ba" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::InterpolatedTleEphemerisSettings::timeStep_</definition>
+        <argsstring></argsstring>
+        <name>timeStep_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> step with which interpolated data from TLE should be created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="815" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="815" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a7e950c6ebd2e2c547d24f30d9d722528" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; tudat::simulation_setup::InterpolatedTleEphemerisSettings::interpolatorSettings_</definition>
+        <argsstring></argsstring>
+        <name>interpolatorSettings_</name>
+        <briefdescription>
+<para>Settings to be used for the state interpolation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="818" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="818" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a22283d57ebeefea7eb649a70e767169c" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::InterpolatedTleEphemerisSettings::useLongDoubleStates_</definition>
+        <argsstring></argsstring>
+        <name>useLongDoubleStates_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="820" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="820" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1ad434f9ad68716a54e6a030c99f5a13ba" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Tle" kindref="compound">ephemerides::Tle</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ephemerides::Tle &gt; tudat::simulation_setup::InterpolatedTleEphemerisSettings::tle_</definition>
+        <argsstring></argsstring>
+        <name>tle_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="822" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="822" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a19913e9a373634ea46b5d2635f8c64c9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::InterpolatedTleEphemerisSettings::InterpolatedTleEphemerisSettings</definition>
+        <argsstring>(const double initialTime, const double finalTime, const double timeStep, std::shared_ptr&lt; ephemerides::Tle &gt; tle, std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; interpolatorSettings=std::make_shared&lt; interpolators::LagrangeInterpolatorSettings &gt;(6), const bool useLongDoubleStates=false, const std::string &amp;frameOrigin=&quot;Earth&quot;, const std::string &amp;frameOrientation=&quot;J2000&quot;)</argsstring>
+        <name>InterpolatedTleEphemerisSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>finalTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeStep</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Tle" kindref="compound">ephemerides::Tle</ref> &gt;</type>
+          <declname>tle</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+          <declname>interpolatorSettings</declname>
+          <defval>std::make_shared&lt; <ref refid="classtudat_1_1interpolators_1_1LagrangeInterpolatorSettings" kindref="compound">interpolators::LagrangeInterpolatorSettings</ref> &gt;(6)</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useLongDoubleStates</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrigin</declname>
+          <defval>&quot;Earth&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;J2000&quot;</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="765" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="765" bodyend="774"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1aeb37f579ee84223b55cb664a0c6b58e6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::InterpolatedTleEphemerisSettings::getInitialTime</definition>
+        <argsstring>() const</argsstring>
+        <name>getInitialTime</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="776" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="776" bodyend="779"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1ab9ad6fa6458d0fda9376d777b8a010ec" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::InterpolatedTleEphemerisSettings::getFinalTime</definition>
+        <argsstring>() const</argsstring>
+        <name>getFinalTime</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="781" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="781" bodyend="784"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a31395cb35305ef4cbb42ce22665bf616" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::InterpolatedTleEphemerisSettings::getTimeStep</definition>
+        <argsstring>() const</argsstring>
+        <name>getTimeStep</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="786" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="786" bodyend="789"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a6a0225abca5ad39983b23a961a3fd38d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+        <definition>const std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; tudat::simulation_setup::InterpolatedTleEphemerisSettings::getInterpolatorSettings</definition>
+        <argsstring>() const</argsstring>
+        <name>getInterpolatorSettings</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="791" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="791" bodyend="794"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a4dd30a047a6d045656c79abbadcd43d2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::InterpolatedTleEphemerisSettings::isUseLongDoubleStates</definition>
+        <argsstring>() const</argsstring>
+        <name>isUseLongDoubleStates</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="796" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="796" bodyend="799"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a9d1fd98b55399d127b4812bb31f592d4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Tle" kindref="compound">ephemerides::Tle</ref> &gt;</type>
+        <definition>const std::shared_ptr&lt;ephemerides::Tle&gt; tudat::simulation_setup::InterpolatedTleEphemerisSettings::getTle</definition>
+        <argsstring>() const</argsstring>
+        <name>getTle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="801" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="801" bodyend="804"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::EphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EphemerisSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::InterpolatedTleEphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::EphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EphemerisSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>frameOrientation_</edgelabel>
+          <edgelabel>frameOrigin_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::InterpolatedTleEphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="761" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="762" bodyend="823"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a7a92d768f7e34e35eb6be96f55dddd1b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>EphemerisSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ac988aa57dc2068b67fcc3515489577e6" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>ephemerisType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1aa4ea895223690b42118c18356adf5abb" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>finalTime_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ad492ff71210dd4d1b84275c7864cae6c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>frameOrientation_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a2a15cbc42f0a7fd548e71b05cad51ce7" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>frameOrigin_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a3256a2c33076cf34e070d269effa660a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getEphemerisType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1ab9ad6fa6458d0fda9376d777b8a010ec" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getFinalTime</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a02f84b6df414e81a4f72d6a5b2aceb33" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ad944818e2e49e527b955b39e3d09f608" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1aeb37f579ee84223b55cb664a0c6b58e6" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getInitialTime</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a6a0225abca5ad39983b23a961a3fd38d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getInterpolatorSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a56eef76275cf2922ec2bb45161228fc9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getMakeMultiArcEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a31395cb35305ef4cbb42ce22665bf616" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getTimeStep</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a9d1fd98b55399d127b4812bb31f592d4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>getTle</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1ac80cbf33b08976e0c8120a9238b7b2ec" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>initialTime_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a19913e9a373634ea46b5d2635f8c64c9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>InterpolatedTleEphemerisSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a7e950c6ebd2e2c547d24f30d9d722528" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>interpolatorSettings_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a4dd30a047a6d045656c79abbadcd43d2" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>isUseLongDoubleStates</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1af3964a8b9569c0d20b0c241fe40b924c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>makeMultiArcEphemeris_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1adad130efb8ba76972cb24f5787835e45" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>resetFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a2dbcb55a4542b28610c2a389b89c4447" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>resetFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a7c999329ffe7bbe7467bb293114c9305" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>resetMakeMultiArcEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1ab6ebddf96cddab6e260459021d23c2ba" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>timeStep_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1ad434f9ad68716a54e6a030c99f5a13ba" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>tle_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1InterpolatedTleEphemerisSettings_1a22283d57ebeefea7eb649a70e767169c" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>useLongDoubleStates_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a5b9ede78f5a09f7abbefe2631bc6f4bc" prot="public" virt="virtual"><scope>tudat::simulation_setup::InterpolatedTleEphemerisSettings</scope><name>~EphemerisSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

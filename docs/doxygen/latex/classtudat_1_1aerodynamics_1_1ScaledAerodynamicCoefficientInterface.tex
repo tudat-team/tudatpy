@@ -1,0 +1,46 @@
+\hypertarget{classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface}{}\doxysection{tudat\+::aerodynamics\+::Scaled\+Aerodynamic\+Coefficient\+Interface Class Reference}
+\label{classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface}\index{tudat::aerodynamics::ScaledAerodynamicCoefficientInterface@{tudat::aerodynamics::ScaledAerodynamicCoefficientInterface}}
+Inheritance diagram for tudat\+::aerodynamics\+::Scaled\+Aerodynamic\+Coefficient\+Interface\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_ab400269b41186d9318d7eedde525ff87}\label{classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_ab400269b41186d9318d7eedde525ff87}} 
+{\bfseries Scaled\+Aerodynamic\+Coefficient\+Interface} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface}{Aerodynamic\+Coefficient\+Interface}} $>$ base\+Coefficient\+Interface, const std\+::function$<$ Eigen\+::\+Vector3d(const double) $>$ force\+Coefficient\+Scaling\+Function, const std\+::function$<$ Eigen\+::\+Vector3d(const double) $>$ moment\+Coefficient\+Scaling\+Function, const bool is\+Scaling\+Relative=true)
+\item 
+void \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_a327b9fd37c20e5bf4184af116667b51d}{update\+Current\+Coefficients}} (const std\+::vector$<$ double $>$ \&independent\+Variables, const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Compute the aerodynamic coefficients of the body itself (without control surfaces) at current flight condition. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_a327b9fd37c20e5bf4184af116667b51d}\label{classtudat_1_1aerodynamics_1_1ScaledAerodynamicCoefficientInterface_a327b9fd37c20e5bf4184af116667b51d}} 
+\index{tudat::aerodynamics::ScaledAerodynamicCoefficientInterface@{tudat::aerodynamics::ScaledAerodynamicCoefficientInterface}!updateCurrentCoefficients@{updateCurrentCoefficients}}
+\index{updateCurrentCoefficients@{updateCurrentCoefficients}!tudat::aerodynamics::ScaledAerodynamicCoefficientInterface@{tudat::aerodynamics::ScaledAerodynamicCoefficientInterface}}
+\doxysubsubsection{\texorpdfstring{updateCurrentCoefficients()}{updateCurrentCoefficients()}}
+{\footnotesize\ttfamily void tudat\+::aerodynamics\+::\+Scaled\+Aerodynamic\+Coefficient\+Interface\+::update\+Current\+Coefficients (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{independent\+Variables,  }\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Compute the aerodynamic coefficients of the body itself (without control surfaces) at current flight condition. 
+
+Computes the current force and moment coefficients of the body itself (without control surfaces) and is to be implemented in derived classes. Input is a set of independent variables (doubles) which represent the variables from which the coefficients are calculated 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variables} & Independent variables of force and moment coefficient determination implemented by derived class \\
+\hline
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} to which coefficients are to be updated \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_a368494b2f082a82d39f83d1eb9ce103f}{tudat\+::aerodynamics\+::\+Aerodynamic\+Coefficient\+Interface}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/aerodynamics/aerodynamic\+Coefficient\+Interface.\+h\end{DoxyCompactItemize}

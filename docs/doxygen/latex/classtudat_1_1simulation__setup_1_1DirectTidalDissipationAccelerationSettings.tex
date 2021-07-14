@@ -1,0 +1,71 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Direct\+Tidal\+Dissipation\+Acceleration\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings}\index{tudat::simulation\_setup::DirectTidalDissipationAccelerationSettings@{tudat::simulation\_setup::DirectTidalDissipationAccelerationSettings}}
+
+
+Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..)  
+
+
+
+
+{\ttfamily \#include $<$acceleration\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Direct\+Tidal\+Dissipation\+Acceleration\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a2c8285cf51cb3d79f67a663537455e31}{Direct\+Tidal\+Dissipation\+Acceleration\+Settings}} (const double k2\+Love\+Number, const double time\+Lag, const bool include\+Direct\+Radial\+Component=true, const bool use\+Tide\+Raised\+On\+Planet=true)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_af885aae121f8c0159450af115a9b41be}\label{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_af885aae121f8c0159450af115a9b41be}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_af885aae121f8c0159450af115a9b41be}{k2\+Love\+Number\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Static k2 Love number of the satellite. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a08dccc9a8e5d75238d727473afbdf8ac}\label{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a08dccc9a8e5d75238d727473afbdf8ac}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a08dccc9a8e5d75238d727473afbdf8ac}{time\+Lag\+\_\+}}
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1Time}{Time}} lag of tidal bulge on satellite. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_ae8e165d147cb27ae29f84b382c99065f}\label{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_ae8e165d147cb27ae29f84b382c99065f}} 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_ae8e165d147cb27ae29f84b382c99065f}{include\+Direct\+Radial\+Component\+\_\+}}
+\begin{DoxyCompactList}\small\item\em True if term independent of time lag is to be included, false otherwise. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a3812b45c2f398391609219b17055f739}\label{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a3812b45c2f398391609219b17055f739}} 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a3812b45c2f398391609219b17055f739}{use\+Tide\+Raised\+On\+Planet\+\_\+}}
+\begin{DoxyCompactList}\small\item\em True if acceleration model is to model tide raised on planet by satellite, false if vice versa. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..) 
+
+Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..). Using this approach does includes the effect of tides raised by/on a planetary satelltie on the orbit of the satellite by a dedicated acceleration model, instead of modifying the gravity field coefficients of the satellite/host planet/ 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a2c8285cf51cb3d79f67a663537455e31}\label{classtudat_1_1simulation__setup_1_1DirectTidalDissipationAccelerationSettings_a2c8285cf51cb3d79f67a663537455e31}} 
+\index{tudat::simulation\_setup::DirectTidalDissipationAccelerationSettings@{tudat::simulation\_setup::DirectTidalDissipationAccelerationSettings}!DirectTidalDissipationAccelerationSettings@{DirectTidalDissipationAccelerationSettings}}
+\index{DirectTidalDissipationAccelerationSettings@{DirectTidalDissipationAccelerationSettings}!tudat::simulation\_setup::DirectTidalDissipationAccelerationSettings@{tudat::simulation\_setup::DirectTidalDissipationAccelerationSettings}}
+\doxysubsubsection{\texorpdfstring{DirectTidalDissipationAccelerationSettings()}{DirectTidalDissipationAccelerationSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Settings\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Settings (\begin{DoxyParamCaption}\item[{const double}]{k2\+Love\+Number,  }\item[{const double}]{time\+Lag,  }\item[{const bool}]{include\+Direct\+Radial\+Component = {\ttfamily true},  }\item[{const bool}]{use\+Tide\+Raised\+On\+Planet = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em k2\+Love\+Number} & Static k2 Love number of the satellite \\
+\hline
+{\em time\+Lag} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} lag of tidal bulge on satellite \\
+\hline
+{\em include\+Direct\+Radial\+Component} & True if term independent of time lag is to be included, false otherwise \\
+\hline
+{\em use\+Tide\+Raised\+On\+Planet} & True if acceleration model is to model tide raised on planet by satellite, false if vice versa \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/acceleration\+Settings.\+h\end{DoxyCompactItemize}

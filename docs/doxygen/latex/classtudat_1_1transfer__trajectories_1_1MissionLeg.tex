@@ -1,0 +1,293 @@
+\hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg}{}\doxysection{tudat\+::transfer\+\_\+trajectories\+::Mission\+Leg Class Reference}
+\label{classtudat_1_1transfer__trajectories_1_1MissionLeg}\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+
+
+Mission Leg base class.  
+
+
+
+
+{\ttfamily \#include $<$mission\+Leg.\+h$>$}
+
+Inheritance diagram for tudat\+::transfer\+\_\+trajectories\+::Mission\+Leg\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.057601cm]{classtudat_1_1transfer__trajectories_1_1MissionLeg}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_aceb225a36c934cdbf61e007b68a71dae}{Mission\+Leg}} (const Eigen\+::\+Vector3d \&departure\+Body\+Position, const double time\+Of\+Flight, const Eigen\+::\+Vector3d \&departure\+Body\+Velocity, const double central\+Body\+Gravitational\+Parameter)
+\begin{DoxyCompactList}\small\item\em Constructor with immediate definition of parameters. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_a0d45afc18d82a6a7d801bc0c4d7c6a09}{$\sim$\+Mission\+Leg}} ()
+\begin{DoxyCompactList}\small\item\em virtual destructor. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_a0bdf10878e59021546b758fdb0a9d24b}{calculate\+Leg}} (Eigen\+::\+Vector3d \&velocity\+Before\+Arrival\+Body, double \&deltaV)=0
+\begin{DoxyCompactList}\small\item\em Calculate the leg. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_a7f1c4013cb7deb3fdef99a906cf92c58}{intermediate\+Points}} (const double maximum\+Time\+Step, std\+::vector$<$ Eigen\+::\+Vector3d $>$ \&position\+Vector, std\+::vector$<$ double $>$ \&time\+Vector, const double starting\+Time=0.)=0
+\begin{DoxyCompactList}\small\item\em Calculate intermediate positions and their corresponding times. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_aa7775ea89421bce689fb774837e4cf38}{maneuvers}} (std\+::vector$<$ Eigen\+::\+Vector3d $>$ \&position\+Vector, std\+::vector$<$ double $>$ \&time\+Vector, std\+::vector$<$ double $>$ \&delta\+VVector, const double starting\+Time=0.)=0
+\begin{DoxyCompactList}\small\item\em Return maneuvres along the leg. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_a4add9b280b3c70bb22e7dff519400e97}{update\+Ephemeris}} (const Eigen\+::\+Vector3d \&departure\+Body\+Position, const Eigen\+::\+Vector3d \&arrival\+Body\+Position, const Eigen\+::\+Vector3d \&departure\+Body\+Velocity)=0
+\begin{DoxyCompactList}\small\item\em Update the ephemeris. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_aa507d6e5b1d3107e80d3af25c7c67cf4}{update\+Defining\+Variables}} (const Eigen\+::\+Vector\+Xd \&variable\+Vector)=0
+\begin{DoxyCompactList}\small\item\em Update the defining variables. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_a49fde6343f3591a7b80d83a72fbc7219}{return\+Departure\+Variables}} (Eigen\+::\+Vector3d \&departure\+Body\+Position, Eigen\+::\+Vector3d \&departure\+Body\+Velocity, Eigen\+::\+Vector3d \&velocity\+After\+Departure)
+\begin{DoxyCompactList}\small\item\em Return Departure Variables. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_a1d0f74660ee3b15dd983bf56a9791fff}{departure\+Body\+Position\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The departure body position. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_a4eead2edc9032dfd4e708013ca95208a}{time\+Of\+Flight\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The time of flight. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_a3c9e40fc0d71bd2e63c928c7fdc2dca8}{departure\+Body\+Velocity\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The departure body velocity. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_ae977167cc1bc2b5eefe64729ef970d9b}{central\+Body\+Gravitational\+Parameter\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The central body gravitational parameter. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_acb7414acd191de6b0414df6a4587bbc0}{velocity\+After\+Departure\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The velocity after departure. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1MissionLeg_ae0fa40d4efb56786cb052e0340663c67}{delta\+V\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The total deltaV of the leg. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Mission Leg base class. 
+
+Abstract base class for a mission leg. This base class is inherited by two types of legs\+: a space leg, which is a transfer from one body to another, and a capture leg, in which the spacecraft remains at a certain body for a specified time in a specified orbit. This base class contains the basic methods required in a trajectory class. These are a calculate leg function, an intermediate points function for plotting purposes and finally a maneuvers method to extract information about the maneuvers in the leg. Also the variables required for all variables are declared here. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_aceb225a36c934cdbf61e007b68a71dae}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_aceb225a36c934cdbf61e007b68a71dae}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!MissionLeg@{MissionLeg}}
+\index{MissionLeg@{MissionLeg}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{MissionLeg()}{MissionLeg()}}
+{\footnotesize\ttfamily tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::\+Mission\+Leg (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{departure\+Body\+Position,  }\item[{const double}]{time\+Of\+Flight,  }\item[{const Eigen\+::\+Vector3d \&}]{departure\+Body\+Velocity,  }\item[{const double}]{central\+Body\+Gravitational\+Parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with immediate definition of parameters. 
+
+Constructor, sets objects and functions from which relevant environment and state variables are retrieved. 
+\begin{DoxyParams}{Parameters}
+{\em departure\+Body\+Position} & location of the departure body. \\
+\hline
+{\em time\+Of\+Flight} & Length of the leg. \\
+\hline
+{\em departure\+Body\+Velocity} & velocity of the departure body. \\
+\hline
+{\em central\+Body\+Gravitational\+Parameter} & gravitational parameter of the cebtral body (most cases the Sun). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_a0d45afc18d82a6a7d801bc0c4d7c6a09}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_a0d45afc18d82a6a7d801bc0c4d7c6a09}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!````~MissionLeg@{$\sim$MissionLeg}}
+\index{````~MissionLeg@{$\sim$MissionLeg}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{$\sim$MissionLeg()}{~MissionLeg()}}
+{\footnotesize\ttfamily virtual tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::$\sim$\+Mission\+Leg (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+virtual destructor. 
+
+virtual destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_a0bdf10878e59021546b758fdb0a9d24b}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_a0bdf10878e59021546b758fdb0a9d24b}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!calculateLeg@{calculateLeg}}
+\index{calculateLeg@{calculateLeg}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{calculateLeg()}{calculateLeg()}}
+{\footnotesize\ttfamily virtual void tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::calculate\+Leg (\begin{DoxyParamCaption}\item[{Eigen\+::\+Vector3d \&}]{velocity\+Before\+Arrival\+Body,  }\item[{double \&}]{deltaV }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Calculate the leg. 
+
+Performs all calculations required for this leg, in this class it is pure virtual. 
+\begin{DoxyParams}{Parameters}
+{\em velocity\+Before\+Arrival\+Body} & the velocity of the spacecraft before it arrives at the target body. \\
+\hline
+{\em deltaV} & the delta V required to perform the leg. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmVelocity_a5c489f71a22a924610ba5ee5f673b0d3}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga1\+Dsm\+Velocity}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmPosition_a0e5fb47f7d723a793a75d9a869c9ef95}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga1\+Dsm\+Position}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga_afee3b53b78fa3841fe3a7d763fe560aa}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_a8daf0b67d6e0a86bd3d91354f294179a}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga1\+Dsm\+Velocity}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmPosition_a3d1280c219b5e85c07d27f191b871f56}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga1\+Dsm\+Position}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga_a7d693f26bc5258b84ced4c8dfc74150c}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga}}, and \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1CaptureLeg_abd485ad0b4ea4b9364624fbbafa2336f}{tudat\+::transfer\+\_\+trajectories\+::\+Capture\+Leg}}.
+
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_a7f1c4013cb7deb3fdef99a906cf92c58}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_a7f1c4013cb7deb3fdef99a906cf92c58}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!intermediatePoints@{intermediatePoints}}
+\index{intermediatePoints@{intermediatePoints}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{intermediatePoints()}{intermediatePoints()}}
+{\footnotesize\ttfamily virtual void tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::intermediate\+Points (\begin{DoxyParamCaption}\item[{const double}]{maximum\+Time\+Step,  }\item[{std\+::vector$<$ Eigen\+::\+Vector3d $>$ \&}]{position\+Vector,  }\item[{std\+::vector$<$ double $>$ \&}]{time\+Vector,  }\item[{const double}]{starting\+Time = {\ttfamily 0.} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Calculate intermediate positions and their corresponding times. 
+
+Calculates intermediate positions and their corresponding times in the leg, based on a maximum time between two points. 
+\begin{DoxyParams}{Parameters}
+{\em maximum\+Time\+Step} & the maximum time between two points along the trajectory. \\
+\hline
+{\em position\+Vector} & Vector of positions along the orbit, space according to the maximum time step. \\
+\hline
+{\em time\+Vector} & The times corresponding to the positions. \\
+\hline
+{\em starting\+Time} & the initial time from which the intermediate points are given. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga_ac5afbbc3afea5c592bde2804183dea13}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmVelocity_ac5a383f36eb74f6e4a192bd7334875e0}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga1\+Dsm\+Velocity}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmPosition_a82404c6a70a90d7a393d98b400874ebc}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga1\+Dsm\+Position}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga_a86c79844765393b9a6e999b6041dacf7}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_af63a51a37280eb2065343d3c6ff5e454}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga1\+Dsm\+Velocity}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmPosition_ab6ba3299b16801ab5957927b0fdbdf11}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga1\+Dsm\+Position}}, and \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1CaptureLeg_ac72b5b39690c81c3b7f779445c2bd29d}{tudat\+::transfer\+\_\+trajectories\+::\+Capture\+Leg}}.
+
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_aa7775ea89421bce689fb774837e4cf38}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_aa7775ea89421bce689fb774837e4cf38}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!maneuvers@{maneuvers}}
+\index{maneuvers@{maneuvers}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{maneuvers()}{maneuvers()}}
+{\footnotesize\ttfamily virtual void tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::maneuvers (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Eigen\+::\+Vector3d $>$ \&}]{position\+Vector,  }\item[{std\+::vector$<$ double $>$ \&}]{time\+Vector,  }\item[{std\+::vector$<$ double $>$ \&}]{delta\+VVector,  }\item[{const double}]{starting\+Time = {\ttfamily 0.} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Return maneuvres along the leg. 
+
+Returns the maneuver points, times and sizes along the trajectory. 
+\begin{DoxyParams}{Parameters}
+{\em position\+Vector} & Vector of the positions of the maneuvers. \\
+\hline
+{\em time\+Vector} & The times corresponding to the positions. \\
+\hline
+{\em delta\+VVector} & the delta V required for each maneuver. \\
+\hline
+{\em starting\+Time} & the initial time from which the maneuvers are given. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmVelocity_ab44e23d98de8cb0e615e8c15d92d5e1c}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga1\+Dsm\+Velocity}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmPosition_acff24e78631c88033ccb69c4ad4e3dc5}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga1\+Dsm\+Position}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga_a309997fa30bd63a363874620e5cb9f9c}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_a6e8ae0721bd205a4ded9df60077c43af}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga1\+Dsm\+Velocity}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmPosition_afbdfef9ab362b353f7367b080620fed8}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga1\+Dsm\+Position}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga_aa01f30b6830e61fd020c0c5150b4e254}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga}}, and \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1CaptureLeg_a4ecadc0acbd5b953f7f8d945d0fcec2c}{tudat\+::transfer\+\_\+trajectories\+::\+Capture\+Leg}}.
+
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_a49fde6343f3591a7b80d83a72fbc7219}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_a49fde6343f3591a7b80d83a72fbc7219}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!returnDepartureVariables@{returnDepartureVariables}}
+\index{returnDepartureVariables@{returnDepartureVariables}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{returnDepartureVariables()}{returnDepartureVariables()}}
+{\footnotesize\ttfamily void tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::return\+Departure\+Variables (\begin{DoxyParamCaption}\item[{Eigen\+::\+Vector3d \&}]{departure\+Body\+Position,  }\item[{Eigen\+::\+Vector3d \&}]{departure\+Body\+Velocity,  }\item[{Eigen\+::\+Vector3d \&}]{velocity\+After\+Departure }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return Departure Variables. 
+
+Returns the departure body position, velocity and the velocity after departure. Mainly used for getting the launch conditions for Tand\+EM like problems. 
+\begin{DoxyParams}{Parameters}
+{\em departure\+Body\+Position} & the departure body position. \\
+\hline
+{\em departure\+Body\+Velocity} & the velocity of the departure body. \\
+\hline
+{\em velocity\+After\+Departure} & the velocity of the spacecraft after the departure maneuver. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_aa507d6e5b1d3107e80d3af25c7c67cf4}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_aa507d6e5b1d3107e80d3af25c7c67cf4}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!updateDefiningVariables@{updateDefiningVariables}}
+\index{updateDefiningVariables@{updateDefiningVariables}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{updateDefiningVariables()}{updateDefiningVariables()}}
+{\footnotesize\ttfamily virtual void tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::update\+Defining\+Variables (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector\+Xd \&}]{variable\+Vector }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Update the defining variables. 
+
+Sets the trajectory defining variables to the newly specified values. Required for re-\/using the class, without re-\/initializing it. 
+\begin{DoxyParams}{Parameters}
+{\em variable\+Vector} & the new variable vector. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmVelocity_a3cb5cf2490ce041c0d2030ea3fc28a1f}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga1\+Dsm\+Velocity}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmPosition_aed9b0521d7c515fb75cb81fe2d466ca3}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga1\+Dsm\+Position}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLegMga_a05a6a7ceb044516bd02406c2fe09e9d6}{tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+Mga}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_a04cd2c06dddad5a9ed5b076615b10385}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga1\+Dsm\+Velocity}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmPosition_a57901d6c1cf90c7ec53067871a2a8889}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga1\+Dsm\+Position}}, \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLegMga_a1639924687a71ca26e4128bc69b9d77c}{tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+Mga}}, and \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1CaptureLeg_a5301c692b52209bbe6185fbf426dbe99}{tudat\+::transfer\+\_\+trajectories\+::\+Capture\+Leg}}.
+
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_a4add9b280b3c70bb22e7dff519400e97}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_a4add9b280b3c70bb22e7dff519400e97}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!updateEphemeris@{updateEphemeris}}
+\index{updateEphemeris@{updateEphemeris}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{updateEphemeris()}{updateEphemeris()}}
+{\footnotesize\ttfamily virtual void tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::update\+Ephemeris (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{departure\+Body\+Position,  }\item[{const Eigen\+::\+Vector3d \&}]{arrival\+Body\+Position,  }\item[{const Eigen\+::\+Vector3d \&}]{departure\+Body\+Velocity }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Update the ephemeris. 
+
+Sets the positions and the velocities to the newly specified values. Required for re-\/using the class, without re-\/initializing it. 
+\begin{DoxyParams}{Parameters}
+{\em departure\+Body\+Position} & sets the new departure body position. \\
+\hline
+{\em arrival\+Body\+Position} & sets the new arrival body position. \\
+\hline
+{\em departure\+Body\+Velocity} & sets the new departure body velocity. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SpaceLeg_aadd829e00f099643bcd9c7da262e7ca3}{tudat\+::transfer\+\_\+trajectories\+::\+Space\+Leg}}, and \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1CaptureLeg_af86fab882ebb91871137d50ce7992f47}{tudat\+::transfer\+\_\+trajectories\+::\+Capture\+Leg}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_ae977167cc1bc2b5eefe64729ef970d9b}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_ae977167cc1bc2b5eefe64729ef970d9b}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!centralBodyGravitationalParameter\_@{centralBodyGravitationalParameter\_}}
+\index{centralBodyGravitationalParameter\_@{centralBodyGravitationalParameter\_}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{centralBodyGravitationalParameter\_}{centralBodyGravitationalParameter\_}}
+{\footnotesize\ttfamily double tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::central\+Body\+Gravitational\+Parameter\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The central body gravitational parameter. 
+
+The gravitational parameter of the central body in the leg. \mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_ae0fa40d4efb56786cb052e0340663c67}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_ae0fa40d4efb56786cb052e0340663c67}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!deltaV\_@{deltaV\_}}
+\index{deltaV\_@{deltaV\_}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{deltaV\_}{deltaV\_}}
+{\footnotesize\ttfamily double tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::delta\+V\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The total deltaV of the leg. 
+
+The total deltaV that is required for this leg. \mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_a1d0f74660ee3b15dd983bf56a9791fff}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_a1d0f74660ee3b15dd983bf56a9791fff}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!departureBodyPosition\_@{departureBodyPosition\_}}
+\index{departureBodyPosition\_@{departureBodyPosition\_}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{departureBodyPosition\_}{departureBodyPosition\_}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::departure\+Body\+Position\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The departure body position. 
+
+The position of the departure body at the departure time. \mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_a3c9e40fc0d71bd2e63c928c7fdc2dca8}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_a3c9e40fc0d71bd2e63c928c7fdc2dca8}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!departureBodyVelocity\_@{departureBodyVelocity\_}}
+\index{departureBodyVelocity\_@{departureBodyVelocity\_}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{departureBodyVelocity\_}{departureBodyVelocity\_}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::departure\+Body\+Velocity\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The departure body velocity. 
+
+The velocity of the departure body at the departure time. \mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_a4eead2edc9032dfd4e708013ca95208a}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_a4eead2edc9032dfd4e708013ca95208a}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!timeOfFlight\_@{timeOfFlight\_}}
+\index{timeOfFlight\_@{timeOfFlight\_}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{timeOfFlight\_}{timeOfFlight\_}}
+{\footnotesize\ttfamily double tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::time\+Of\+Flight\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The time of flight. 
+
+The time of flight for this leg. \mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1MissionLeg_acb7414acd191de6b0414df6a4587bbc0}\label{classtudat_1_1transfer__trajectories_1_1MissionLeg_acb7414acd191de6b0414df6a4587bbc0}} 
+\index{tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}!velocityAfterDeparture\_@{velocityAfterDeparture\_}}
+\index{velocityAfterDeparture\_@{velocityAfterDeparture\_}!tudat::transfer\_trajectories::MissionLeg@{tudat::transfer\_trajectories::MissionLeg}}
+\doxysubsubsection{\texorpdfstring{velocityAfterDeparture\_}{velocityAfterDeparture\_}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::transfer\+\_\+trajectories\+::\+Mission\+Leg\+::velocity\+After\+Departure\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The velocity after departure. 
+
+The heliocentric velocity of the spacecraft right after the departure maneuver. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/trajectory\+\_\+design/mission\+Leg.\+h\end{DoxyCompactItemize}

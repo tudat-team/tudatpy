@@ -1,0 +1,114 @@
+\hypertarget{classtudat_1_1observation__partials_1_1OneWayRangeScaling}{}\doxysection{tudat\+::observation\+\_\+partials\+::One\+Way\+Range\+Scaling Class Reference}
+\label{classtudat_1_1observation__partials_1_1OneWayRangeScaling}\index{tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}}
+
+
+Derived class for scaling three-\/dimensional position partial to one-\/way range observable partial.  
+
+
+
+
+{\ttfamily \#include $<$one\+Way\+Range\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::One\+Way\+Range\+Scaling\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1OneWayRangeScaling}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a1f0524901f74fa1fcec744a2b64423f0}\label{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a1f0524901f74fa1fcec744a2b64423f0}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a1f0524901f74fa1fcec744a2b64423f0}{$\sim$\+One\+Way\+Range\+Scaling}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a35f8d0a80ab2b4445630848cc3aa6bb8}{update}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&link\+End\+States, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type fixed\+Link\+End, const Eigen\+::\+Vector\+Xd current\+Observation=Eigen\+::\+Vector\+Xd\+::\+Constant(1, TUDAT\+\_\+\+NAN))
+\begin{DoxyCompactList}\small\item\em Update the scaling object to the current times and states. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, 1, 3 $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_ad48761532e37d30f2247210c548d6894}{get\+Scaling\+Factor}} (const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Type)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the scaling factor for specific link end. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a211cb3792a626ac0110a104da56f796a}{get\+Light\+Time\+Partial\+Scaling\+Factor}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the factor by which the light-\/time partials should be scaled in one-\/way observation partial. \end{DoxyCompactList}\item 
+observation\+\_\+models\+::\+Link\+End\+Type \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_aea74cd04b7f19f89c0d8aaba886d0499}{get\+Current\+Link\+End\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the fixed link end for last computation of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a35f8d0a80ab2b4445630848cc3aa6bb8}{update()}} function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Derived class for scaling three-\/dimensional position partial to one-\/way range observable partial. 
+
+Derived class for scaling three-\/dimensional position partial to one-\/way range observable partial. Implementation is taken from Moyer(2000) and is separately implemented for fixed receiver and transmitter. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayRangeScaling_aea74cd04b7f19f89c0d8aaba886d0499}\label{classtudat_1_1observation__partials_1_1OneWayRangeScaling_aea74cd04b7f19f89c0d8aaba886d0499}} 
+\index{tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}!getCurrentLinkEndType@{getCurrentLinkEndType}}
+\index{getCurrentLinkEndType@{getCurrentLinkEndType}!tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}}
+\doxysubsubsection{\texorpdfstring{getCurrentLinkEndType()}{getCurrentLinkEndType()}}
+{\footnotesize\ttfamily observation\+\_\+models\+::\+Link\+End\+Type tudat\+::observation\+\_\+partials\+::\+One\+Way\+Range\+Scaling\+::get\+Current\+Link\+End\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the fixed link end for last computation of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a35f8d0a80ab2b4445630848cc3aa6bb8}{update()}} function. 
+
+Fixed link end for last computation of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a35f8d0a80ab2b4445630848cc3aa6bb8}{update()}} function. \begin{DoxyReturn}{Returns}
+Function to get the fixed link end for last computation of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a35f8d0a80ab2b4445630848cc3aa6bb8}{update()}} function. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a211cb3792a626ac0110a104da56f796a}\label{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a211cb3792a626ac0110a104da56f796a}} 
+\index{tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}!getLightTimePartialScalingFactor@{getLightTimePartialScalingFactor}}
+\index{getLightTimePartialScalingFactor@{getLightTimePartialScalingFactor}!tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}}
+\doxysubsubsection{\texorpdfstring{getLightTimePartialScalingFactor()}{getLightTimePartialScalingFactor()}}
+{\footnotesize\ttfamily double tudat\+::observation\+\_\+partials\+::\+One\+Way\+Range\+Scaling\+::get\+Light\+Time\+Partial\+Scaling\+Factor (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the factor by which the light-\/time partials should be scaled in one-\/way observation partial. 
+
+Function to retrieve the factor by which the light-\/time partials should be scaled in one-\/way observation partial. \begin{DoxyReturn}{Returns}
+Factor by which the light-\/time partials should be scaled in one-\/way observation partial. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayRangeScaling_ad48761532e37d30f2247210c548d6894}\label{classtudat_1_1observation__partials_1_1OneWayRangeScaling_ad48761532e37d30f2247210c548d6894}} 
+\index{tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}!getScalingFactor@{getScalingFactor}}
+\index{getScalingFactor@{getScalingFactor}!tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}}
+\doxysubsubsection{\texorpdfstring{getScalingFactor()}{getScalingFactor()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix$<$ double, 1, 3 $>$ tudat\+::observation\+\_\+partials\+::\+One\+Way\+Range\+Scaling\+::get\+Scaling\+Factor (\begin{DoxyParamCaption}\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the scaling factor for specific link end. 
+
+Function to retrieve the scaling factor for specific link end 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+Type} & Link end for which scaling factor is to be returned \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Position partial scaling factor at current link end 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a35f8d0a80ab2b4445630848cc3aa6bb8}\label{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a35f8d0a80ab2b4445630848cc3aa6bb8}} 
+\index{tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}!update@{update}}
+\index{update@{update}!tudat::observation\_partials::OneWayRangeScaling@{tudat::observation\_partials::OneWayRangeScaling}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::observation\+\_\+partials\+::\+One\+Way\+Range\+Scaling\+::update (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{link\+End\+States,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{fixed\+Link\+End,  }\item[{const Eigen\+::\+Vector\+Xd}]{current\+Observation = {\ttfamily Eigen\+:\+:VectorXd\+:\+:Constant(~1,~TUDAT\+\_\+NAN~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Update the scaling object to the current times and states. 
+
+Update the scaling object to the current times and states 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+States} & List of states at each link end during observation Index of vector maps to link end for a given Obsevable\+Type through get\+Link\+End\+Index function. \\
+\hline
+{\em times} & List of times at each link end during observation. \\
+\hline
+{\em fixed\+Link\+End} & Link end at which observation time is defined, i.\+e. link end for which associated time is kept constant when computing observable. \\
+\hline
+{\em current\+Observation} & Value of observation for which partial scaling is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling_a7bf12506127c4527eacae23c6a9cf469}{tudat\+::observation\+\_\+partials\+::\+Position\+Partial\+Scaling}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/one\+Way\+Range\+Partial.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/observation\+\_\+partials/one\+Way\+Range\+Partial.\+cpp\end{DoxyCompactItemize}

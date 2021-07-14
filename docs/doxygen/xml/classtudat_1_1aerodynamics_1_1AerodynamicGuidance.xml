@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::aerodynamics::AerodynamicGuidance</compoundname>
+    <includes refid="aerodynamicGuidance_8h" local="no">aerodynamicGuidance.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1abf93dc422542fbbbabd8102e105c0e50" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicGuidance::currentAngleOfAttack_</definition>
+        <argsstring></argsstring>
+        <name>currentAngleOfAttack_</name>
+        <briefdescription>
+<para>Current angle of attack, as set by last call to updateGuidance function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="74" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1ad1921668cf3feb2bedbb183713b03843" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicGuidance::currentAngleOfSideslip_</definition>
+        <argsstring></argsstring>
+        <name>currentAngleOfSideslip_</name>
+        <briefdescription>
+<para>Current angle of sideslip, as set by last call to updateGuidance function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="77" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a7bd38e6cef133b0ed8487d8d88cdc9ad" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicGuidance::currentBankAngle_</definition>
+        <argsstring></argsstring>
+        <name>currentBankAngle_</name>
+        <briefdescription>
+<para>Current bank angle, as set by last call to updateGuidance function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="80" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1aaf4f9cfc62d861c1e2c4438d9cfb84cb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::AerodynamicGuidance::AerodynamicGuidance</definition>
+        <argsstring>()</argsstring>
+        <name>AerodynamicGuidance</name>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="28" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="28" bodyend="29"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a01f1a9a23bc8d0794003909d61385ab1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::aerodynamics::AerodynamicGuidance::~AerodynamicGuidance</definition>
+        <argsstring>()</argsstring>
+        <name>~AerodynamicGuidance</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="32" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="32" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a97a6200cf74d60a2a5ad1616e159ffc5" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::aerodynamics::AerodynamicGuidance::updateGuidance</definition>
+        <argsstring>(const double currentTime)=0</argsstring>
+        <name>updateGuidance</name>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Pure virtual function to update the guidance to the current time and state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to update the guidance to the current time and state <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which the guidance object is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="39" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1ac8d09c3926209eb3d440484c0580f6ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentAngleOfAttack</name>
+        <briefdescription>
+<para>Function to retrieve the current angle of attack, as set by last call to updateGuidance function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current angle of attack, as set by last call to updateGuidance function <simplesect kind="return"><para>Current angle of attack, as set by last call to updateGuidance function </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="46" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="46" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a3ea3dcb8ee9f99f5107ad1aa86b23ae3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentAngleOfSideslip</name>
+        <briefdescription>
+<para>Function to retrieve the current angle of sideslip, as set by last call to updateGuidance function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current angle of sideslip, as set by last call to updateGuidance function <simplesect kind="return"><para>Current angle of sideslip, as set by last call to updateGuidance function </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="56" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="56" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a342513b4fa99f1f09365ff4f7a3c572f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicGuidance::getCurrentBankAngle</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentBankAngle</name>
+        <briefdescription>
+<para>Function to retrieve the current bank angle, as set by last call to updateGuidance function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current bank angle, as set by last call to updateGuidance function <simplesect kind="return"><para>Current bank angle, as set by last call to updateGuidance function </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="66" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="66" bodyend="69"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class in which the aerodynamic angles (angle of attack, sideslip and bank angle) are computed. A derived class implementing a specific guidance law is to be implemented by the user. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" line="23" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicGuidance.h" bodystart="24" bodyend="82"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1aaf4f9cfc62d861c1e2c4438d9cfb84cb" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>AerodynamicGuidance</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1abf93dc422542fbbbabd8102e105c0e50" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>currentAngleOfAttack_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1ad1921668cf3feb2bedbb183713b03843" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>currentAngleOfSideslip_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a7bd38e6cef133b0ed8487d8d88cdc9ad" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>currentBankAngle_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1ac8d09c3926209eb3d440484c0580f6ea" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>getCurrentAngleOfAttack</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a3ea3dcb8ee9f99f5107ad1aa86b23ae3" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>getCurrentAngleOfSideslip</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a342513b4fa99f1f09365ff4f7a3c572f" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>getCurrentBankAngle</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a97a6200cf74d60a2a5ad1616e159ffc5" prot="public" virt="pure-virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>updateGuidance</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicGuidance_1a01f1a9a23bc8d0794003909d61385ab1" prot="public" virt="virtual"><scope>tudat::aerodynamics::AerodynamicGuidance</scope><name>~AerodynamicGuidance</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

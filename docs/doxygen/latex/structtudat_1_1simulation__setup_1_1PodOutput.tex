@@ -1,0 +1,243 @@
+\hypertarget{structtudat_1_1simulation__setup_1_1PodOutput}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Pod\+Output$<$ Observation\+Scalar\+Type, Time\+Type $>$ Struct Template Reference}
+\label{structtudat_1_1simulation__setup_1_1PodOutput}\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+
+
+Data structure through which the output of the orbit determination is communicated.  
+
+
+
+
+{\ttfamily \#include $<$pod\+Input\+Output\+Types.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_ae848cbc8ad2a509976529b99b0871b8b}{Pod\+Output}} (const Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&parameter\+Estimate, const Eigen\+::\+Vector\+Xd \&residuals, const Eigen\+::\+Matrix\+Xd \&normalized\+Information\+Matrix, const Eigen\+::\+Vector\+Xd \&weights\+Matrix\+Diagonal, const Eigen\+::\+Vector\+Xd \&information\+Matrix\+Transformation\+Diagonal, const Eigen\+::\+Matrix\+Xd \&inverse\+Normalized\+Covariance\+Matrix, const double residual\+Standard\+Deviation, const std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \&residual\+History=std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$(), const std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \&parameter\+History=std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$(), const bool exception\+During\+Inversion=false, const bool exception\+During\+Propagation=false)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_aec4252e897c45b0a25eb964547da3fce}{get\+Unnormalized\+Inverse\+Covariance\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the unnormalized inverse estimation covariance matrix. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a16ddc78d66e4b77c13e4c5ef2666fade}{get\+Unnormalized\+Covariance\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the unnormalized estimation covariance matrix. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_ae9ca0683e28559d90102b3d22b5bd783}{get\+Unnormalized\+Partial\+Derivatives}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the matrix of unnormalized partial derivatives. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a0f2f0c832e05762fac1110e906a8f48d}{get\+Formal\+Error\+Vector}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the unnormalized formal error vector of the estimation result. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a71a7157bbc8047eb8b26a9ea2ff1cedd}{get\+Correlation\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the correlation matrix of the estimation result. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a3207bfdef6b59056197fc4d0ac296ad3}{get\+Residual\+History\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Function to get residual vectors per iteration concatenated into a matrix. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a8da03fb116fd20f3ed36d006d4159fa9}{get\+Parameter\+History\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Function to get parameter vectors per iteration concatenated into a matrix. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a050ee017191c645f83eea9c3b7812a4f}{set\+State\+Histories}} (std\+::vector$<$ std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ $>$ $>$ dynamics\+History\+Per\+Iteration, std\+::vector$<$ std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ $>$ $>$ dependent\+Variable\+History\+Per\+Iteration)
+\begin{DoxyCompactList}\small\item\em Function to set the full state histories of numerical solutions and dependent variables. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a43e911e602c17b54831e594b3037e555}\label{structtudat_1_1simulation__setup_1_1PodOutput_a43e911e602c17b54831e594b3037e555}} 
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a43e911e602c17b54831e594b3037e555}{parameter\+Estimate\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of estimated parameter values. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a904d45fee760d8e633a2eda58a554348}\label{structtudat_1_1simulation__setup_1_1PodOutput_a904d45fee760d8e633a2eda58a554348}} 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a904d45fee760d8e633a2eda58a554348}{residuals\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of postfit observation residuals. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_afcfd7fe6ff131b0ebb61cb11885f1ba7}\label{structtudat_1_1simulation__setup_1_1PodOutput_afcfd7fe6ff131b0ebb61cb11885f1ba7}} 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_afcfd7fe6ff131b0ebb61cb11885f1ba7}{normalized\+Information\+Matrix\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Matrix of observation partials (normalixed) used in estimation (may be empty if so requested) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a1e0b3e5072b6612187db8f96c518a57e}\label{structtudat_1_1simulation__setup_1_1PodOutput_a1e0b3e5072b6612187db8f96c518a57e}} 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a1e0b3e5072b6612187db8f96c518a57e}{weights\+Matrix\+Diagonal\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Diagonal of weights matrix used in the estimation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a95e31f03d17b747d9613f585b050df33}\label{structtudat_1_1simulation__setup_1_1PodOutput_a95e31f03d17b747d9613f585b050df33}} 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a95e31f03d17b747d9613f585b050df33}{information\+Matrix\+Transformation\+Diagonal\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of values by which the columns of the unnormalized information matrix were divided to normalize its entries. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a97210debdc4de391c21bbb04fac3e436}\label{structtudat_1_1simulation__setup_1_1PodOutput_a97210debdc4de391c21bbb04fac3e436}} 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a97210debdc4de391c21bbb04fac3e436}{inverse\+Normalized\+Covariance\+Matrix\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Inverse of postfit normalized covariance matrix. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a420b2aac03a8aa99b25d4a270c7258c7}\label{structtudat_1_1simulation__setup_1_1PodOutput_a420b2aac03a8aa99b25d4a270c7258c7}} 
+double \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a420b2aac03a8aa99b25d4a270c7258c7}{residual\+Standard\+Deviation\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Standard deviation of postfit residuals vector. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a07e58f0b5a4422867e4c61815b098313}\label{structtudat_1_1simulation__setup_1_1PodOutput_a07e58f0b5a4422867e4c61815b098313}} 
+std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a07e58f0b5a4422867e4c61815b098313}{residual\+History\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of residuals per iteration. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a20313b7df02b505063d21e2dc8d05eea}\label{structtudat_1_1simulation__setup_1_1PodOutput_a20313b7df02b505063d21e2dc8d05eea}} 
+std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a20313b7df02b505063d21e2dc8d05eea}{parameter\+History\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of parameter vectors per iteration (entry 0 is pre-\/estimation values) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a6e7ab71cb743196f99888be5a042aa5d}\label{structtudat_1_1simulation__setup_1_1PodOutput_a6e7ab71cb743196f99888be5a042aa5d}} 
+std\+::vector$<$ std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ $>$ $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a6e7ab71cb743196f99888be5a042aa5d}{dynamics\+History\+Per\+Iteration\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of numerical solutions of dynamics (per iteration, per arc) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a7af77a8895bc32250de528eb496c5b28}\label{structtudat_1_1simulation__setup_1_1PodOutput_a7af77a8895bc32250de528eb496c5b28}} 
+std\+::vector$<$ std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ $>$ $>$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a7af77a8895bc32250de528eb496c5b28}{dependent\+Variable\+History\+Per\+Iteration\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of numerical solutions of dependent variables (per iteration, per arc) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a034fe43d6a332260658a3f74dc785c34}\label{structtudat_1_1simulation__setup_1_1PodOutput_a034fe43d6a332260658a3f74dc785c34}} 
+bool \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_a034fe43d6a332260658a3f74dc785c34}{exception\+During\+Inversion\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean denoting whether an exception was caught during inversion of normal equations. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_af4d490ffc44ff1ee9e4723a2941f8efd}\label{structtudat_1_1simulation__setup_1_1PodOutput_af4d490ffc44ff1ee9e4723a2941f8efd}} 
+bool \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput_af4d490ffc44ff1ee9e4723a2941f8efd}{exception\+During\+Propagation\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Observation\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+struct tudat\+::simulation\+\_\+setup\+::\+Pod\+Output$<$ Observation\+Scalar\+Type, Time\+Type $>$}
+
+Data structure through which the output of the orbit determination is communicated. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_ae848cbc8ad2a509976529b99b0871b8b}\label{structtudat_1_1simulation__setup_1_1PodOutput_ae848cbc8ad2a509976529b99b0871b8b}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!PodOutput@{PodOutput}}
+\index{PodOutput@{PodOutput}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{PodOutput()}{PodOutput()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{Pod\+Output}} (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&}]{parameter\+Estimate,  }\item[{const Eigen\+::\+Vector\+Xd \&}]{residuals,  }\item[{const Eigen\+::\+Matrix\+Xd \&}]{normalized\+Information\+Matrix,  }\item[{const Eigen\+::\+Vector\+Xd \&}]{weights\+Matrix\+Diagonal,  }\item[{const Eigen\+::\+Vector\+Xd \&}]{information\+Matrix\+Transformation\+Diagonal,  }\item[{const Eigen\+::\+Matrix\+Xd \&}]{inverse\+Normalized\+Covariance\+Matrix,  }\item[{const double}]{residual\+Standard\+Deviation,  }\item[{const std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \&}]{residual\+History = {\ttfamily std\+:\+:vector$<$~Eigen\+:\+:VectorXd~$>$(~)},  }\item[{const std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \&}]{parameter\+History = {\ttfamily std\+:\+:vector$<$~Eigen\+:\+:VectorXd~$>$(~)},  }\item[{const bool}]{exception\+During\+Inversion = {\ttfamily false},  }\item[{const bool}]{exception\+During\+Propagation = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Estimate} & Vector of estimated parameter values. \\
+\hline
+{\em residuals} & Vector of postfit observation residuals \\
+\hline
+{\em normalized\+Information\+Matrix} & Matrix of observation partials (normalixed) used in estimation (may be empty if so requested) \\
+\hline
+{\em weights\+Matrix\+Diagonal} & Diagonal of weights matrix used in the estimation \\
+\hline
+{\em information\+Matrix\+Transformation\+Diagonal} & Vector of values by which the columns of the unnormalized information matrix were divided to normalize its entries. \\
+\hline
+{\em inverse\+Normalized\+Covariance\+Matrix} & Inverse of postfit normalized covariance matrix \\
+\hline
+{\em residual\+Standard\+Deviation} & Standard deviation of postfit residuals vector \\
+\hline
+{\em residual\+History} & Vector of residuals per iteration \\
+\hline
+{\em parameter\+History} & Vector of parameter vectors per iteration (entry 1 is pre-\/estimation values) \\
+\hline
+{\em exception\+During\+Inversion} & Boolean denoting whether an exception was caught during inversion of normal equations \\
+\hline
+{\em exception\+During\+Propagation} & Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a71a7157bbc8047eb8b26a9ea2ff1cedd}\label{structtudat_1_1simulation__setup_1_1PodOutput_a71a7157bbc8047eb8b26a9ea2ff1cedd}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!getCorrelationMatrix@{getCorrelationMatrix}}
+\index{getCorrelationMatrix@{getCorrelationMatrix}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getCorrelationMatrix()}{getCorrelationMatrix()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Correlation\+Matrix (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the correlation matrix of the estimation result. 
+
+Function to retrieve the correlation matrix of the estimation result. \begin{DoxyReturn}{Returns}
+Correlation matrix of the estimation result. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a0f2f0c832e05762fac1110e906a8f48d}\label{structtudat_1_1simulation__setup_1_1PodOutput_a0f2f0c832e05762fac1110e906a8f48d}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!getFormalErrorVector@{getFormalErrorVector}}
+\index{getFormalErrorVector@{getFormalErrorVector}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getFormalErrorVector()}{getFormalErrorVector()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Formal\+Error\+Vector (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the unnormalized formal error vector of the estimation result. 
+
+Function to retrieve the unnormalized formal error vector of the estimation result. \begin{DoxyReturn}{Returns}
+Formal error vector of the estimation result. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a8da03fb116fd20f3ed36d006d4159fa9}\label{structtudat_1_1simulation__setup_1_1PodOutput_a8da03fb116fd20f3ed36d006d4159fa9}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!getParameterHistoryMatrix@{getParameterHistoryMatrix}}
+\index{getParameterHistoryMatrix@{getParameterHistoryMatrix}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getParameterHistoryMatrix()}{getParameterHistoryMatrix()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Parameter\+History\+Matrix (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get parameter vectors per iteration concatenated into a matrix. 
+
+Function to get parameter vectors per iteration concatenated into a matrix (one column per iteration). Column 0 contains pre-\/estimation values \begin{DoxyReturn}{Returns}
+Parameter vectors per iteration concatenated into a matrix 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a3207bfdef6b59056197fc4d0ac296ad3}\label{structtudat_1_1simulation__setup_1_1PodOutput_a3207bfdef6b59056197fc4d0ac296ad3}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!getResidualHistoryMatrix@{getResidualHistoryMatrix}}
+\index{getResidualHistoryMatrix@{getResidualHistoryMatrix}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getResidualHistoryMatrix()}{getResidualHistoryMatrix()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Residual\+History\+Matrix (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get residual vectors per iteration concatenated into a matrix. 
+
+Function to get residual vectors per iteration concatenated into a matrix (one column per iteration). \begin{DoxyReturn}{Returns}
+Residual vectors per iteration concatenated into a matrix 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a16ddc78d66e4b77c13e4c5ef2666fade}\label{structtudat_1_1simulation__setup_1_1PodOutput_a16ddc78d66e4b77c13e4c5ef2666fade}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!getUnnormalizedCovarianceMatrix@{getUnnormalizedCovarianceMatrix}}
+\index{getUnnormalizedCovarianceMatrix@{getUnnormalizedCovarianceMatrix}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getUnnormalizedCovarianceMatrix()}{getUnnormalizedCovarianceMatrix()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Unnormalized\+Covariance\+Matrix (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the unnormalized estimation covariance matrix. 
+
+Function to retrieve the unnormalized estimation covariance matrix \begin{DoxyReturn}{Returns}
+estimation covariance matrix 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_aec4252e897c45b0a25eb964547da3fce}\label{structtudat_1_1simulation__setup_1_1PodOutput_aec4252e897c45b0a25eb964547da3fce}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!getUnnormalizedInverseCovarianceMatrix@{getUnnormalizedInverseCovarianceMatrix}}
+\index{getUnnormalizedInverseCovarianceMatrix@{getUnnormalizedInverseCovarianceMatrix}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getUnnormalizedInverseCovarianceMatrix()}{getUnnormalizedInverseCovarianceMatrix()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Unnormalized\+Inverse\+Covariance\+Matrix (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the unnormalized inverse estimation covariance matrix. 
+
+Function to retrieve the unnormalized inverse estimation covariance matrix \begin{DoxyReturn}{Returns}
+Isnverse estimation covariance matrix 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_ae9ca0683e28559d90102b3d22b5bd783}\label{structtudat_1_1simulation__setup_1_1PodOutput_ae9ca0683e28559d90102b3d22b5bd783}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!getUnnormalizedPartialDerivatives@{getUnnormalizedPartialDerivatives}}
+\index{getUnnormalizedPartialDerivatives@{getUnnormalizedPartialDerivatives}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getUnnormalizedPartialDerivatives()}{getUnnormalizedPartialDerivatives()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Unnormalized\+Partial\+Derivatives (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the matrix of unnormalized partial derivatives. 
+
+Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H) \begin{DoxyReturn}{Returns}
+Matrix of unnormalized partial derivatives 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1simulation__setup_1_1PodOutput_a050ee017191c645f83eea9c3b7812a4f}\label{structtudat_1_1simulation__setup_1_1PodOutput_a050ee017191c645f83eea9c3b7812a4f}} 
+\index{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}!setStateHistories@{setStateHistories}}
+\index{setStateHistories@{setStateHistories}!tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodOutput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{setStateHistories()}{setStateHistories()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1PodOutput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Output}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::set\+State\+Histories (\begin{DoxyParamCaption}\item[{std\+::vector$<$ std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ $>$ $>$}]{dynamics\+History\+Per\+Iteration,  }\item[{std\+::vector$<$ std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ $>$ $>$}]{dependent\+Variable\+History\+Per\+Iteration }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to set the full state histories of numerical solutions and dependent variables. 
+
+Function to set the full state histories of numerical solutions and dependent variables 
+\begin{DoxyParams}{Parameters}
+{\em dynamics\+History\+Per\+Iteration} & List of numerical solutions of dynamics (per iteration, per arc) \\
+\hline
+{\em dependent\+Variable\+History\+Per\+Iteration} & List of numerical solutions of dependent variables (per iteration, per arc) \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/pod\+Input\+Output\+Types.\+h\end{DoxyCompactItemize}

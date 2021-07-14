@@ -1,0 +1,135 @@
+\hypertarget{classtudat_1_1basic__astrodynamics_1_1AccelerationModel}{}\doxysection{tudat\+::basic\+\_\+astrodynamics\+::Acceleration\+Model$<$ Acceleration\+Data\+Type $>$ Class Template Reference}
+\label{classtudat_1_1basic__astrodynamics_1_1AccelerationModel}\index{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}}
+
+
+Base class for (translational) acceleration models.  
+
+
+
+
+{\ttfamily \#include $<$acceleration\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::basic\+\_\+astrodynamics\+::Acceleration\+Model$<$ Acceleration\+Data\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.645161cm]{classtudat_1_1basic__astrodynamics_1_1AccelerationModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a36f72cf81cc4ff658919a1b92cdc33ad}\label{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a36f72cf81cc4ff658919a1b92cdc33ad}} 
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a36f72cf81cc4ff658919a1b92cdc33ad}{Acceleration\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a131bb0f8b79b410810f602d9b8865968}{$\sim$\+Acceleration\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual Acceleration\+Data\+Type \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}{get\+Acceleration}} ()=0
+\begin{DoxyCompactList}\small\item\em Get acceleration. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}{update\+Members}} (const double current\+Time=TUDAT\+\_\+\+NAN)=0
+\begin{DoxyCompactList}\small\item\em Update member variables used by the acceleration model. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a325aae81896137d88b756aac15e188da}{reset\+Time}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Function to reset the current time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a70f6593c9eec30136ed648ca0e6c9e88}\label{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a70f6593c9eec30136ed648ca0e6c9e88}} 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a70f6593c9eec30136ed648ca0e6c9e88}{current\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Previous time to which acceleration model was updated. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Acceleration\+Data\+Type = Eigen\+::\+Vector3d$>$\newline
+class tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Acceleration\+Data\+Type $>$}
+
+Base class for (translational) acceleration models. 
+
+Base class for (translational) acceleration models. Derived classes should contain implementations to perform calculations of accelerations. Therefore, the \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}{get\+Acceleration()}} function has no arguments. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Acceleration\+Data\+Type} & Data type used to represent accelerations (default=Eigen\+::\+Vector3d). \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a131bb0f8b79b410810f602d9b8865968}\label{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a131bb0f8b79b410810f602d9b8865968}} 
+\index{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}!````~AccelerationModel@{$\sim$AccelerationModel}}
+\index{````~AccelerationModel@{$\sim$AccelerationModel}!tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}}
+\doxysubsubsection{\texorpdfstring{$\sim$AccelerationModel()}{~AccelerationModel()}}
+{\footnotesize\ttfamily template$<$typename Acceleration\+Data\+Type  = Eigen\+::\+Vector3d$>$ \\
+virtual \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model}}$<$ Acceleration\+Data\+Type $>$\+::$\sim$\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel}{Acceleration\+Model}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Virtual destructor. 
+
+Virtual destructor, necessary to ensure that derived class destructors get called correctly. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}\label{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}} 
+\index{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}!getAcceleration@{getAcceleration}}
+\index{getAcceleration@{getAcceleration}!tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}}
+\doxysubsubsection{\texorpdfstring{getAcceleration()}{getAcceleration()}}
+{\footnotesize\ttfamily template$<$typename Acceleration\+Data\+Type  = Eigen\+::\+Vector3d$>$ \\
+virtual Acceleration\+Data\+Type \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model}}$<$ Acceleration\+Data\+Type $>$\+::get\+Acceleration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Get acceleration. 
+
+Returns the acceleration. No arguments are passed to this function for generality. Instead, all data required for computation is to be obtained from pointers to functions/ classes/structs, etc which are to be set in a derived class and evaluated by the \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}{update\+Members()}} function below. \begin{DoxyReturn}{Returns}
+Acceleration. 
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}{update\+Members()}}. 
+\end{DoxySeeAlso}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a9692ca2bc1994606e67c22c61aac45d3}{tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction}}, \mbox{\hyperlink{classtudat_1_1reference__frames_1_1ApparentAccelerationModel_aa5c72a891752917421efb970407b2517}{tudat\+::reference\+\_\+frames\+::\+Apparent\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1propulsion_1_1MomentumWheelDesaturationThrustAcceleration_a3fb47f3d6cea868027bdc4f34014d132}{tudat\+::propulsion\+::\+Momentum\+Wheel\+Desaturation\+Thrust\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustAcceleration_a85c999d6b3fc6b093e6990e2997918f6}{tudat\+::propulsion\+::\+Thrust\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a691fd89ab76723ea07dd3df22468e9b2}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration$<$ Direct\+Acceleration\+Model\+Type, type $>$}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel_aae27d6f97cdbee300e8c532b2dc604b3}{tudat\+::gravitation\+::\+Spherical\+Harmonics\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_a9e317eb00b45c6890cdfc6b155b68175}{tudat\+::gravitation\+::\+Mutual\+Spherical\+Harmonics\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration_a93ecaefc007cbde3b8102d67ed65bbe3}{tudat\+::gravitation\+::\+Direct\+Tidal\+Dissipation\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2J3J4GravitationalAccelerationModel_a5a8e57485fff4546caec93841a947406}{tudat\+::gravitation\+::\+Central\+J2\+J3\+J4\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_a5b067a8787c813b6b08a5b83a3f415f9}{tudat\+::gravitation\+::\+Central\+J2\+J3\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_abd75fb71f44ab8dd56edfcf9458c78eb}{tudat\+::gravitation\+::\+Central\+J2\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel_a1dc811759664e99193f323e02b0a4fe9}{tudat\+::gravitation\+::\+Central\+Gravitational\+Acceleration\+Model$<$ State\+Matrix $>$}}, \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1SolarSailAcceleration_a7f04bb6f8b10efd1e0b9c9010d02401d}{tudat\+::electromagnetism\+::\+Solar\+Sail\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ac559adaac58b1ee26afecfddd18bfb06}{tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration_ab0b6aae19d99c11968f85e00e3a811b5}{tudat\+::electromagnetism\+::\+Cannon\+Ball\+Radiation\+Pressure\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_ab025d414ca6b01e768198e2ab1f9c9d0}{tudat\+::unit\+\_\+tests\+::\+Another\+Derived\+Acceleration\+Model$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Velocity\+Data\+Type, Time\+Data\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_a18a9f073e9f83d021d94b9df8144d253}{tudat\+::unit\+\_\+tests\+::\+Derived\+Acceleration\+Model$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Time\+Data\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_a47db6eb95ff14e9089658bdef02c256d}{tudat\+::basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_ab3dcc99da7bb98850550205f8395e023}{tudat\+::basic\+\_\+astrodynamics\+::\+Custom\+Acceleration\+Model}}, and \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicAcceleration_aca8adefed3eede69b980e46d045f46eb}{tudat\+::aerodynamics\+::\+Aerodynamic\+Acceleration}}.
+
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a325aae81896137d88b756aac15e188da}\label{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a325aae81896137d88b756aac15e188da}} 
+\index{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}!resetTime@{resetTime}}
+\index{resetTime@{resetTime}!tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}}
+\doxysubsubsection{\texorpdfstring{resetTime()}{resetTime()}}
+{\footnotesize\ttfamily template$<$typename Acceleration\+Data\+Type  = Eigen\+::\+Vector3d$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model}}$<$ Acceleration\+Data\+Type $>$\+::reset\+Time (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the current time. 
+
+Function to reset the current time of the acceleration model. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & Current time (default NaN). \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustAcceleration_a2ef613d32d6b4cad26aece57d6171127}{tudat\+::propulsion\+::\+Thrust\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_ad180bbba1d309a993723e12d166d0d82}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration$<$ Direct\+Acceleration\+Model\+Type, type $>$}}, and \mbox{\hyperlink{classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_a59385d672fe32ef2cc3f9cda959a0d18}{tudat\+::gravitation\+::\+Mutual\+Spherical\+Harmonics\+Gravitational\+Acceleration\+Model}}.
+
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}\label{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}} 
+\index{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$@{tudat::basic\_astrodynamics::AccelerationModel$<$ AccelerationDataType $>$}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily template$<$typename Acceleration\+Data\+Type  = Eigen\+::\+Vector3d$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model}}$<$ Acceleration\+Data\+Type $>$\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Update member variables used by the acceleration model. 
+
+Updates member variables used by the acceleration model. In the case of acceleration models containing varying parameters, function-\/pointers returning such a parameter (for instance the Cartesian state of a body) will be set as a member variable. This function evaluates such function-\/pointers and updates member variables to the \textquotesingle{}current\textquotesingle{} values of these parameters. Only these current values, not the function-\/pointers are then used by the \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}{get\+Acceleration()}} function.
+
+N.\+B.\+: This pure virtual function must be overridden by derived classes! 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which acceleration model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a10d4465b67b5acfa7e69cd79e03d80df}{tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction}}, \mbox{\hyperlink{classtudat_1_1reference__frames_1_1ApparentAccelerationModel_ae3704bca478d47f8ceb8888a58df5ad9}{tudat\+::reference\+\_\+frames\+::\+Apparent\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1propulsion_1_1MomentumWheelDesaturationThrustAcceleration_a1b89e5226e3008bb0025ef37f2a09328}{tudat\+::propulsion\+::\+Momentum\+Wheel\+Desaturation\+Thrust\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustAcceleration_a847904c69ea6ced5ac3396f7ecdf2f78}{tudat\+::propulsion\+::\+Thrust\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_aefb3a91250b7a304743f4dafd4f5b9e2}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration$<$ Direct\+Acceleration\+Model\+Type, type $>$}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel_a1da9ad8e2fd4daec7c60459175b264f6}{tudat\+::gravitation\+::\+Spherical\+Harmonics\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_a5924a6d967e6f2168c2dcc9cb8c3d627}{tudat\+::gravitation\+::\+Mutual\+Spherical\+Harmonics\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration_acf81f886b8ef26ce7080aaf5315e41cb}{tudat\+::gravitation\+::\+Direct\+Tidal\+Dissipation\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2J3J4GravitationalAccelerationModel_a8cdbef1b4414bf04628e603907aaae1c}{tudat\+::gravitation\+::\+Central\+J2\+J3\+J4\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_aa9cfafbe11efb4a60bb87ee5c6c06e1a}{tudat\+::gravitation\+::\+Central\+J2\+J3\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a29a5ea148a2db77b0f16809c699d480a}{tudat\+::gravitation\+::\+Central\+J2\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel_a9430ea27b71056959af94b2f92353f62}{tudat\+::gravitation\+::\+Central\+Gravitational\+Acceleration\+Model$<$ State\+Matrix $>$}}, \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1SolarSailAcceleration_a8817cdf729b907910cfd9c1ef1a33006}{tudat\+::electromagnetism\+::\+Solar\+Sail\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ad05ddf61744bb3c351d1b08e7ddda459}{tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration_a4ec31c87d62b1672d013eef67f836022}{tudat\+::electromagnetism\+::\+Cannon\+Ball\+Radiation\+Pressure\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_add07599d1c34c2479f2271b7703297aa}{tudat\+::unit\+\_\+tests\+::\+Another\+Derived\+Acceleration\+Model$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Velocity\+Data\+Type, Time\+Data\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_ae0f1908a1c80dfafc01e4c11e69e1373}{tudat\+::unit\+\_\+tests\+::\+Derived\+Acceleration\+Model$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Time\+Data\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_ae431ab2dc0d99d2f14afdcebaa95621e}{tudat\+::basic\+\_\+astrodynamics\+::\+Empirical\+Acceleration}}, \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_a4f7f311f0b5fca739deb793856dfe085}{tudat\+::basic\+\_\+astrodynamics\+::\+Custom\+Acceleration\+Model}}, and \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicAcceleration_a6cd45319bf7f5b7f376aa9357d1840ea}{tudat\+::aerodynamics\+::\+Aerodynamic\+Acceleration}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/basic\+\_\+astro/acceleration\+Model.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,231 @@
+\hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache}{}\doxysection{tudat\+::basic\+\_\+mathematics\+::Spherical\+Harmonics\+Cache Class Reference}
+\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache}\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+
+
+Cache object in which variables that are required for the computation of spherical harmonic potential are stored.  
+
+
+
+
+{\ttfamily \#include $<$spherical\+Harmonics.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a095621c3ae66d15a4da13f42b118f38c}{Spherical\+Harmonics\+Cache}} (const bool use\+Geodesy\+Normalization=1)
+\begin{DoxyCompactList}\small\item\em Default constructor, initializes cache object with 0 maximum degree and order. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_ad0d83a5214a9b9265a1183064e11c3a5}{Spherical\+Harmonics\+Cache}} (const int maximum\+Degree, const int maximum\+Order, const bool use\+Geodesy\+Normalization=1)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a7e962b37231d1f11ed3ce1a342aba1e8}{reset\+Maximum\+Degree\+And\+Order}} (const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Update maximum degree and order of cache. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_aaeb47f6f06a4c59c72fee1176041e863}{update}} (const double radius, const double polynomial\+Parameter, const double longitude, const double reference\+Radius)
+\begin{DoxyCompactList}\small\item\em Update cached variables to current state. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_acbc9bd4ed0a69f57e0cb2eb75c908cd5}{get\+Sine\+Of\+Multiple\+Longitude}} (const int order)
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to retrieve the current sine of m times the longitude. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a8ddfc0bda953fc78d70bd1dc9e0ce9ca}{get\+Cosine\+Of\+Multiple\+Longitude}} (const int order)
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to retrieve the current cosine of m times the longitude. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_afd6196f601d58c3737abfe0d6166cc13}{get\+Reference\+Radius\+Ratio\+Powers}} (const int degree\+Plus\+One)
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get an integer power of the distance divided by the reference radius. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a5c334cc9585e948a1e84d965e8c04783}{get\+Maximum\+Degree}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum degree of cache. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a31970fdb662cf7ad437c706d52a1beee}{get\+Maximum\+Order}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum order of cache. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a5fd04cdaaba4a3e9e7edebec0a39ac71}{get\+Current\+Longitude}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get current longitude. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache}{Legendre\+Cache}} $>$ \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a9daf822caaa61365f8e44db3304bd44b}{get\+Legendre\+Cache}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get object for caching and computing Legendre polynomials. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Cache object in which variables that are required for the computation of spherical harmonic potential are stored. 
+
+Cache object in which variables that are required for the computation of spherical harmonic potential are stored. The variables are the Legendre polynomials at the required degree and order, the cosine of the latitude, the sine and cosine of the order times the longitude, and the ratio of the distance and the reference radius to the power degree + 1. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a095621c3ae66d15a4da13f42b118f38c}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a095621c3ae66d15a4da13f42b118f38c}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!SphericalHarmonicsCache@{SphericalHarmonicsCache}}
+\index{SphericalHarmonicsCache@{SphericalHarmonicsCache}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{SphericalHarmonicsCache()}{SphericalHarmonicsCache()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::\+Spherical\+Harmonics\+Cache (\begin{DoxyParamCaption}\item[{const bool}]{use\+Geodesy\+Normalization = {\ttfamily 1} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor, initializes cache object with 0 maximum degree and order. 
+
+Default constructor, initializes cache object with 0 mazimum degree and order. 
+\begin{DoxyParams}{Parameters}
+{\em use\+Geodesy\+Normalization} & Parameter defining whether the cache is used for a normalized or unnormalized gravity field. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_ad0d83a5214a9b9265a1183064e11c3a5}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_ad0d83a5214a9b9265a1183064e11c3a5}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!SphericalHarmonicsCache@{SphericalHarmonicsCache}}
+\index{SphericalHarmonicsCache@{SphericalHarmonicsCache}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{SphericalHarmonicsCache()}{SphericalHarmonicsCache()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::\+Spherical\+Harmonics\+Cache (\begin{DoxyParamCaption}\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order,  }\item[{const bool}]{use\+Geodesy\+Normalization = {\ttfamily 1} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em maximum\+Degree} & Maximum degree to which to update cache \\
+\hline
+{\em maximum\+Order} & Maximum order to which to update cache \\
+\hline
+{\em use\+Geodesy\+Normalization} & Parameter defining whether the cache is used for a normalized or unnormalized gravity field. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a8ddfc0bda953fc78d70bd1dc9e0ce9ca}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a8ddfc0bda953fc78d70bd1dc9e0ce9ca}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!getCosineOfMultipleLongitude@{getCosineOfMultipleLongitude}}
+\index{getCosineOfMultipleLongitude@{getCosineOfMultipleLongitude}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{getCosineOfMultipleLongitude()}{getCosineOfMultipleLongitude()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::get\+Cosine\+Of\+Multiple\+Longitude (\begin{DoxyParamCaption}\item[{const int}]{order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to retrieve the current cosine of m times the longitude. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to retrieve the current cosine of order times the longitude. 
+\begin{DoxyParams}{Parameters}
+{\em order} & Order as input to cosine( order $\ast$ longitude ) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Cosine( order $\ast$ longitude ) 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a5fd04cdaaba4a3e9e7edebec0a39ac71}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a5fd04cdaaba4a3e9e7edebec0a39ac71}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!getCurrentLongitude@{getCurrentLongitude}}
+\index{getCurrentLongitude@{getCurrentLongitude}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{getCurrentLongitude()}{getCurrentLongitude()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::get\+Current\+Longitude (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get current longitude. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get current longitude \begin{DoxyReturn}{Returns}
+Current longitude 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a9daf822caaa61365f8e44db3304bd44b}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a9daf822caaa61365f8e44db3304bd44b}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!getLegendreCache@{getLegendreCache}}
+\index{getLegendreCache@{getLegendreCache}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{getLegendreCache()}{getLegendreCache()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache}{Legendre\+Cache}} $>$ tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::get\+Legendre\+Cache (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get object for caching and computing Legendre polynomials. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get object for caching and computing Legendre polynomials. \begin{DoxyReturn}{Returns}
+Object for caching and computing Legendre polynomials. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a5c334cc9585e948a1e84d965e8c04783}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a5c334cc9585e948a1e84d965e8c04783}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!getMaximumDegree@{getMaximumDegree}}
+\index{getMaximumDegree@{getMaximumDegree}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{getMaximumDegree()}{getMaximumDegree()}}
+{\footnotesize\ttfamily int tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::get\+Maximum\+Degree (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum degree of cache. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum degree of cache \begin{DoxyReturn}{Returns}
+Maximum degree of cache. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a31970fdb662cf7ad437c706d52a1beee}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a31970fdb662cf7ad437c706d52a1beee}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!getMaximumOrder@{getMaximumOrder}}
+\index{getMaximumOrder@{getMaximumOrder}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{getMaximumOrder()}{getMaximumOrder()}}
+{\footnotesize\ttfamily int tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::get\+Maximum\+Order (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum order of cache. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum order of cache. \begin{DoxyReturn}{Returns}
+Maximum order of cache. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_afd6196f601d58c3737abfe0d6166cc13}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_afd6196f601d58c3737abfe0d6166cc13}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!getReferenceRadiusRatioPowers@{getReferenceRadiusRatioPowers}}
+\index{getReferenceRadiusRatioPowers@{getReferenceRadiusRatioPowers}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{getReferenceRadiusRatioPowers()}{getReferenceRadiusRatioPowers()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::get\+Reference\+Radius\+Ratio\+Powers (\begin{DoxyParamCaption}\item[{const int}]{degree\+Plus\+One }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get an integer power of the distance divided by the reference radius. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get an integer power of the distance divided by the reference radius. 
+\begin{DoxyParams}{Parameters}
+{\em degree\+Plus\+One} & Power to which the ratio of distance and reference radius is to be computed (typically degree + 1). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Ratio of distance and reference radius to power of input argument. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_acbc9bd4ed0a69f57e0cb2eb75c908cd5}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_acbc9bd4ed0a69f57e0cb2eb75c908cd5}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!getSineOfMultipleLongitude@{getSineOfMultipleLongitude}}
+\index{getSineOfMultipleLongitude@{getSineOfMultipleLongitude}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{getSineOfMultipleLongitude()}{getSineOfMultipleLongitude()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::get\+Sine\+Of\+Multiple\+Longitude (\begin{DoxyParamCaption}\item[{const int}]{order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to retrieve the current sine of m times the longitude. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to retrieve the current sine of order times the longitude. 
+\begin{DoxyParams}{Parameters}
+{\em order} & Order as input to sine( order $\ast$ longitude ) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Sine( order $\ast$ longitude ) 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a7e962b37231d1f11ed3ce1a342aba1e8}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_a7e962b37231d1f11ed3ce1a342aba1e8}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!resetMaximumDegreeAndOrder@{resetMaximumDegreeAndOrder}}
+\index{resetMaximumDegreeAndOrder@{resetMaximumDegreeAndOrder}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{resetMaximumDegreeAndOrder()}{resetMaximumDegreeAndOrder()}}
+{\footnotesize\ttfamily void tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::reset\+Maximum\+Degree\+And\+Order (\begin{DoxyParamCaption}\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})}
+
+
+
+Update maximum degree and order of cache. 
+
+Update maximum degree and order of cache 
+\begin{DoxyParams}{Parameters}
+{\em maximum\+Degree} & Maximum degree to which to update cache \\
+\hline
+{\em maximum\+Order} & Maximum order to which to update cache \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_aaeb47f6f06a4c59c72fee1176041e863}\label{classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_aaeb47f6f06a4c59c72fee1176041e863}} 
+\index{tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}!update@{update}}
+\index{update@{update}!tudat::basic\_mathematics::SphericalHarmonicsCache@{tudat::basic\_mathematics::SphericalHarmonicsCache}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::basic\+\_\+mathematics\+::\+Spherical\+Harmonics\+Cache\+::update (\begin{DoxyParamCaption}\item[{const double}]{radius,  }\item[{const double}]{polynomial\+Parameter,  }\item[{const double}]{longitude,  }\item[{const double}]{reference\+Radius }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Update cached variables to current state. 
+
+Update cached variables to current state. 
+\begin{DoxyParams}{Parameters}
+{\em radius} & Distance from origin \\
+\hline
+{\em polynomial\+Parameter} & Input parameter to Legendre polynomials (sine of latitude) \\
+\hline
+{\em longitude} & Current latitude \\
+\hline
+{\em reference\+Radius} & Reference (typically equatorial) radius of gravity field. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/basic/spherical\+Harmonics.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/math/basic/spherical\+Harmonics.\+cpp\end{DoxyCompactItemize}

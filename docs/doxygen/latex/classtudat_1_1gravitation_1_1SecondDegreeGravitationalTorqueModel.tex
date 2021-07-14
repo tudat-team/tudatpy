@@ -1,0 +1,210 @@
+\hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel}{}\doxysection{tudat\+::gravitation\+::Second\+Degree\+Gravitational\+Torque\+Model Class Reference}
+\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel}\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+
+
+Class to compute the second degree gravitational torque.  
+
+
+
+
+{\ttfamily \#include $<$second\+Degree\+Gravitational\+Torque.\+h$>$}
+
+Inheritance diagram for tudat\+::gravitation\+::Second\+Degree\+Gravitational\+Torque\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_ac20dcae061f256a4aef33a96e2ed1bcc}{Second\+Degree\+Gravitational\+Torque\+Model}} (const std\+::function$<$ Eigen\+::\+Vector3d() $>$ position\+Of\+Body\+Subject\+To\+Torque\+Function, const std\+::function$<$ double() $>$ gravitational\+Parameter\+Of\+Attracting\+Body\+Function, const std\+::function$<$ Eigen\+::\+Matrix3d() $>$ inertia\+Tensor\+Of\+Rotating\+Body\+Function, const std\+::function$<$ Eigen\+::\+Vector3d() $>$ position\+Of\+Body\+Exerting\+Torque\+Function=\mbox{[}$\,$\mbox{]}()\{ return Eigen\+::\+Vector3d\+::\+Zero();\}, const std\+::function$<$ Eigen\+::\+Quaterniond() $>$ rotation\+To\+Body\+Fixed\+Frame\+Function=\mbox{[}$\,$\mbox{]}()\{ return Eigen\+::\+Quaterniond(Eigen\+::\+Matrix3d\+::\+Identity());\})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a87bf229a5e2964fd9a78adc27b9e9c7e}{get\+Torque}} ()
+\begin{DoxyCompactList}\small\item\em Get gravitational torque. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_acdc365f40f556e22e60c84d8ce5d94ea}{update\+Members}} (const double current\+Time)
+\begin{DoxyCompactList}\small\item\em Update member variables used by the gravitational torque model. \end{DoxyCompactList}\item 
+Eigen\+::\+Quaterniond \& \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a1578f4d299507654fd65d8987c28ddcf}{get\+Current\+Rotation\+To\+Body\+Fixed\+Frame}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve current rotation from inertial to body-\/fixed frame. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \& \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a7e775f3b179ceb2af3633c3d31a92d6a}{get\+Current\+Relative\+Position\+Of\+Body\+Subject\+To\+Torque}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve current position of body exerting torque, w.\+r.\+t. body undergoing torque in inertial frame. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \& \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a2417afc74d955c8e62cd7bbd220d5dde}{get\+Current\+Relative\+Body\+Fixed\+Position\+Of\+Body\+Subject\+To\+Torque}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve current position of body exerting torque, w.\+r.\+t. body undergoing torque in frame fixed to body. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix3d \& \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a787f11ef88b01f0e74534c5752f9e3c3}{get\+Current\+Inertia\+Tensor\+Of\+Rotating\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve current inertia tensor of the body that is subject to the torque, in the frame fixed to that body. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_aa48d44a55fbc7cf1a743befb59eeeaa8}{get\+Current\+Torque\+Magnitude\+Premultiplier}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve current torque pre-\/multipler. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a4ccb132e5b465f59ed22fe89deb6cccf}{get\+Current\+Gravitational\+Parameter\+Of\+Attracting\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve current gravitational parameter of the body that is exerting the torque,. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \& \mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a025b6c0e0293c6d9cbbfbaa1518be469}{get\+Current\+Inertia\+Tensor\+Times\+Relative\+Position\+Of\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve The current inertia tensor of the body undergoing the torque, premultiplied by state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the second degree gravitational torque. 
+
+Class to compute the second degree gravitational torque\+: the gravitational torque exerted by a point mass on a body with degree two gravity field (parameterized by inertia tensor). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_ac20dcae061f256a4aef33a96e2ed1bcc}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_ac20dcae061f256a4aef33a96e2ed1bcc}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!SecondDegreeGravitationalTorqueModel@{SecondDegreeGravitationalTorqueModel}}
+\index{SecondDegreeGravitationalTorqueModel@{SecondDegreeGravitationalTorqueModel}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{SecondDegreeGravitationalTorqueModel()}{SecondDegreeGravitationalTorqueModel()}}
+{\footnotesize\ttfamily tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::\+Second\+Degree\+Gravitational\+Torque\+Model (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Vector3d() $>$}]{position\+Of\+Body\+Subject\+To\+Torque\+Function,  }\item[{const std\+::function$<$ double() $>$}]{gravitational\+Parameter\+Of\+Attracting\+Body\+Function,  }\item[{const std\+::function$<$ Eigen\+::\+Matrix3d() $>$}]{inertia\+Tensor\+Of\+Rotating\+Body\+Function,  }\item[{const std\+::function$<$ Eigen\+::\+Vector3d() $>$}]{position\+Of\+Body\+Exerting\+Torque\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~Eigen\+:\+:Vector3d\+:\+:Zero(~);~\}},  }\item[{const std\+::function$<$ Eigen\+::\+Quaterniond() $>$}]{rotation\+To\+Body\+Fixed\+Frame\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~Eigen\+:\+:Quaterniond(~Eigen\+:\+:Matrix3d\+:\+:Identity(~)~);~\}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em position\+Of\+Body\+Subject\+To\+Torque\+Function} & Function returning the position of the body that is subject to the torque, in inertial frame. \\
+\hline
+{\em gravitational\+Parameter\+Of\+Attracting\+Body\+Function} & Function returning the gravitational parameter of the body that is exerting the torque. \\
+\hline
+{\em inertia\+Tensor\+Of\+Rotating\+Body\+Function} & Function returning the inertia tensor of the body that is subject to the torque, in the frame fixed to that body. \\
+\hline
+{\em position\+Of\+Body\+Exerting\+Torque\+Function} & Function returning the position of the body that is exerting to the torque, in inertial frame. \\
+\hline
+{\em rotation\+To\+Body\+Fixed\+Frame\+Function} & Function returning the rotation from inertial frame to frame fixed to body undergoing torque. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a4ccb132e5b465f59ed22fe89deb6cccf}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a4ccb132e5b465f59ed22fe89deb6cccf}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!getCurrentGravitationalParameterOfAttractingBody@{getCurrentGravitationalParameterOfAttractingBody}}
+\index{getCurrentGravitationalParameterOfAttractingBody@{getCurrentGravitationalParameterOfAttractingBody}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{getCurrentGravitationalParameterOfAttractingBody()}{getCurrentGravitationalParameterOfAttractingBody()}}
+{\footnotesize\ttfamily double tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::get\+Current\+Gravitational\+Parameter\+Of\+Attracting\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve current gravitational parameter of the body that is exerting the torque,. 
+
+Function to retrieve current gravitational parameter of the body that is exerting the torque, \begin{DoxyReturn}{Returns}
+Current gravitational parameter of the body that is exerting the torque, 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a787f11ef88b01f0e74534c5752f9e3c3}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a787f11ef88b01f0e74534c5752f9e3c3}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!getCurrentInertiaTensorOfRotatingBody@{getCurrentInertiaTensorOfRotatingBody}}
+\index{getCurrentInertiaTensorOfRotatingBody@{getCurrentInertiaTensorOfRotatingBody}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{getCurrentInertiaTensorOfRotatingBody()}{getCurrentInertiaTensorOfRotatingBody()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix3d\& tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::get\+Current\+Inertia\+Tensor\+Of\+Rotating\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve current inertia tensor of the body that is subject to the torque, in the frame fixed to that body. 
+
+Function to retrieve current inertia tensor of the body that is subject to the torque, in the frame fixed to that body \begin{DoxyReturn}{Returns}
+Current inertia tensor of the body that is subject to the torque, in the frame fixed to that body 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a025b6c0e0293c6d9cbbfbaa1518be469}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a025b6c0e0293c6d9cbbfbaa1518be469}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!getCurrentInertiaTensorTimesRelativePositionOfBody@{getCurrentInertiaTensorTimesRelativePositionOfBody}}
+\index{getCurrentInertiaTensorTimesRelativePositionOfBody@{getCurrentInertiaTensorTimesRelativePositionOfBody}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{getCurrentInertiaTensorTimesRelativePositionOfBody()}{getCurrentInertiaTensorTimesRelativePositionOfBody()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d\& tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::get\+Current\+Inertia\+Tensor\+Times\+Relative\+Position\+Of\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve The current inertia tensor of the body undergoing the torque, premultiplied by state. 
+
+Function to retrieve The current inertia tensor of the body undergoing the torque, multiplied by relative current\+Relative\+Body\+Fixed\+Position\+Of\+Body\+Subject\+To\+Torque\+\_\+ \begin{DoxyReturn}{Returns}
+The current inertia tensor of the body undergoing the torque, multiplied by relative current\+Relative\+Body\+Fixed\+Position\+Of\+Body\+Subject\+To\+Torque\+\_\+ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a2417afc74d955c8e62cd7bbd220d5dde}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a2417afc74d955c8e62cd7bbd220d5dde}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque@{getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque}}
+\index{getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque@{getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque()}{getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d\& tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::get\+Current\+Relative\+Body\+Fixed\+Position\+Of\+Body\+Subject\+To\+Torque (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve current position of body exerting torque, w.\+r.\+t. body undergoing torque in frame fixed to body. 
+
+Function to retrieve current position of body exerting torque, w.\+r.\+t. body undergoing torque in frame fixed to body undergoing torque, \begin{DoxyReturn}{Returns}
+Current position of body exerting torque, w.\+r.\+t. body undergoing torque in frame fixed to body undergoing torque, 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a7e775f3b179ceb2af3633c3d31a92d6a}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a7e775f3b179ceb2af3633c3d31a92d6a}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!getCurrentRelativePositionOfBodySubjectToTorque@{getCurrentRelativePositionOfBodySubjectToTorque}}
+\index{getCurrentRelativePositionOfBodySubjectToTorque@{getCurrentRelativePositionOfBodySubjectToTorque}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{getCurrentRelativePositionOfBodySubjectToTorque()}{getCurrentRelativePositionOfBodySubjectToTorque()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d\& tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::get\+Current\+Relative\+Position\+Of\+Body\+Subject\+To\+Torque (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve current position of body exerting torque, w.\+r.\+t. body undergoing torque in inertial frame. 
+
+Function to retrieve current position of body exerting torque, w.\+r.\+t. body undergoing torque in inertial frame \begin{DoxyReturn}{Returns}
+Current position of body exerting torque, w.\+r.\+t. body undergoing torque in inertial frame 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a1578f4d299507654fd65d8987c28ddcf}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a1578f4d299507654fd65d8987c28ddcf}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!getCurrentRotationToBodyFixedFrame@{getCurrentRotationToBodyFixedFrame}}
+\index{getCurrentRotationToBodyFixedFrame@{getCurrentRotationToBodyFixedFrame}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{getCurrentRotationToBodyFixedFrame()}{getCurrentRotationToBodyFixedFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Quaterniond\& tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::get\+Current\+Rotation\+To\+Body\+Fixed\+Frame (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve current rotation from inertial to body-\/fixed frame. 
+
+Function to retrieve current rotation from inertial to body-\/fixed frame \begin{DoxyReturn}{Returns}
+Current rotation from inertial to body-\/fixed frame 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_aa48d44a55fbc7cf1a743befb59eeeaa8}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_aa48d44a55fbc7cf1a743befb59eeeaa8}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!getCurrentTorqueMagnitudePremultiplier@{getCurrentTorqueMagnitudePremultiplier}}
+\index{getCurrentTorqueMagnitudePremultiplier@{getCurrentTorqueMagnitudePremultiplier}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{getCurrentTorqueMagnitudePremultiplier()}{getCurrentTorqueMagnitudePremultiplier()}}
+{\footnotesize\ttfamily double tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::get\+Current\+Torque\+Magnitude\+Premultiplier (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve current torque pre-\/multipler. 
+
+Function to retrieve current torque pre-\/multipler \begin{DoxyReturn}{Returns}
+Current torque pre-\/multipler 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a87bf229a5e2964fd9a78adc27b9e9c7e}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_a87bf229a5e2964fd9a78adc27b9e9c7e}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!getTorque@{getTorque}}
+\index{getTorque@{getTorque}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{getTorque()}{getTorque()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::get\+Torque (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get gravitational torque. 
+
+Returns the gravitational torque. All data required for the computation is taken from member variables, which are set to their latest values by the last call of the update\+Members function. \begin{DoxyReturn}{Returns}
+Gravitational torque. 
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_acdc365f40f556e22e60c84d8ce5d94ea}{update\+Members()}}. 
+\end{DoxySeeAlso}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1TorqueModel_a6d9549c6be6ff7955697d132a5439546}{tudat\+::basic\+\_\+astrodynamics\+::\+Torque\+Model}}.
+
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_acdc365f40f556e22e60c84d8ce5d94ea}\label{classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel_acdc365f40f556e22e60c84d8ce5d94ea}} 
+\index{tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::gravitation::SecondDegreeGravitationalTorqueModel@{tudat::gravitation::SecondDegreeGravitationalTorqueModel}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily void tudat\+::gravitation\+::\+Second\+Degree\+Gravitational\+Torque\+Model\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Update member variables used by the gravitational torque model. 
+
+Updates member variables used by the gravitational accfeleration model. Function pointers to retrieve the current values of quantities from which the torque is to be calculated are set by constructor. This function calls them to update the associated variables to their current state. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which torque model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1TorqueModel_a547de9f7c418d4721d3ae9e1b5acdcaa}{tudat\+::basic\+\_\+astrodynamics\+::\+Torque\+Model}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/gravitation/second\+Degree\+Gravitational\+Torque.\+h\end{DoxyCompactItemize}

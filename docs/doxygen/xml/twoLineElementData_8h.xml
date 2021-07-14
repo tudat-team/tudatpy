@@ -1,0 +1,250 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="twoLineElementData_8h" kind="file" language="C++">
+    <compoundname>twoLineElementData.h</compoundname>
+    <includes local="no">string</includes>
+    <includes local="no">vector</includes>
+    <includes local="no">memory</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes refid="basicTypedefs_8h" local="yes">tudat/basics/basicTypedefs.h</includes>
+    <includedby refid="twoLineElementsTextFileReader_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/twoLineElementsTextFileReader.h</includedby>
+    <includedby refid="io_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io.h</includedby>
+    <includedby refid="twoLineElementData_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/twoLineElementData.cpp</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="2">
+        <label>string</label>
+      </node>
+      <node id="3">
+        <label>vector</label>
+      </node>
+      <node id="6">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/twoLineElementData.h</label>
+        <link refid="twoLineElementData_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io.h</label>
+        <link refid="io_8h_source"/>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/twoLineElementsTextFileReader.h</label>
+        <link refid="twoLineElementsTextFileReader_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/twoLineElementData.h</label>
+        <link refid="twoLineElementData_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structtudat_1_1input__output_1_1TwoLineElementData" prot="public">tudat::input_output::TwoLineElementData</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1input__output">tudat::input_output</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>References</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Literature<sp/>research<sp/>including<sp/>information<sp/>on<sp/>TLE&apos;s:</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>J.<sp/>Leloux<sp/>(2010),<sp/>Filtering<sp/>Techniques<sp/>for<sp/>Orbital<sp/>Debris<sp/>Conjunction</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Analysis<sp/>-<sp/>applied<sp/>to<sp/>SSN<sp/>TLE<sp/>catalog<sp/>data<sp/>and</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>including<sp/>astro<sp/>and<sp/>collision<sp/>probability</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>theory.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Program<sp/>to<sp/>download<sp/>clean<sp/>TLE&apos;s:</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>http://celestrak.com/SpaceTrack/TLERetrieverHelp.asp.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>TLE<sp/>format<sp/>explanation:</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>http://www.space-track.org/tle_format.html</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>http://celestrak.com/columns/v04n03/</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>http://celestrak.com/NORAD/documentation/tle-fmt.asp.</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_TWO_LINE_ELEMENT_DATA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_TWO_LINE_ELEMENT_DATA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/basics/basicTypedefs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">input_output</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="structtudat_1_1input__output_1_1TwoLineElementData" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtudat_1_1input__output_1_1TwoLineElementData" kindref="compound">TwoLineElementData</ref></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a365b54d66d21fe6383ec3e840e8ad06e" kindref="member">TwoLineElementData</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="structtudat_1_1input__output_1_1TwoLineElementData_1acaacfe990d1e8cc5d6035c503354bae2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::string<sp/>&gt;<sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1acaacfe990d1e8cc5d6035c503354bae2" kindref="member">twoLineElementStrings</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Line<sp/>0<sp/>strings.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="structtudat_1_1input__output_1_1TwoLineElementData_1adaee5e323d5ad87b94539728ac234474" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::string<sp/>&gt;<sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1adaee5e323d5ad87b94539728ac234474" kindref="member">objectName</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a0ed990433cffffef476dbc74ef24dd86" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a0ed990433cffffef476dbc74ef24dd86" kindref="member">objectNameString</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Line<sp/>1<sp/>variables.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a2b126f26169e05bb86bf0cec79a47827" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a2b126f26169e05bb86bf0cec79a47827" kindref="member">lineNumberLine1</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="structtudat_1_1input__output_1_1TwoLineElementData_1ae4b58f77c8a356b14bee9e7a668f97ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1ae4b58f77c8a356b14bee9e7a668f97ca" kindref="member">objectIdentificationNumber</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a1109413866a443f71435c06e36f8f931" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a1109413866a443f71435c06e36f8f931" kindref="member">tleClassification</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="structtudat_1_1input__output_1_1TwoLineElementData_1aa2a801237c023f174ab3c54840242062" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1aa2a801237c023f174ab3c54840242062" kindref="member">launchYear</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="structtudat_1_1input__output_1_1TwoLineElementData_1af37129b7fb27032aca1b5fe5651cc3ae" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1af37129b7fb27032aca1b5fe5651cc3ae" kindref="member">fourDigitlaunchYear</ref>;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="structtudat_1_1input__output_1_1TwoLineElementData_1aaf4fc6cacdec819a406fdbe9397be0cc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1aaf4fc6cacdec819a406fdbe9397be0cc" kindref="member">launchNumber</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a8d660e8d0f2819cf40f75f76f3a7f41b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a8d660e8d0f2819cf40f75f76f3a7f41b" kindref="member">launchPart</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128" refid="structtudat_1_1input__output_1_1TwoLineElementData_1ad93bf696554007c87dda49ee3467c3ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1ad93bf696554007c87dda49ee3467c3ba" kindref="member">epochYear</ref>;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="structtudat_1_1input__output_1_1TwoLineElementData_1abfd98150e6d9217eec4cd23fcf99dc8a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1abfd98150e6d9217eec4cd23fcf99dc8a" kindref="member">fourDigitEpochYear</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="structtudat_1_1input__output_1_1TwoLineElementData_1ae089e51e2e62cc8c78e5a06ad028a4e2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1ae089e51e2e62cc8c78e5a06ad028a4e2" kindref="member">epochDay</ref>;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a398870b0d7ec141239036ff0bb433c8e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a398870b0d7ec141239036ff0bb433c8e" kindref="member">firstDerivativeOfMeanMotionDividedByTwo</ref>;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a6c76fd9af28e34b9664ecdb29aa1ac00" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a6c76fd9af28e34b9664ecdb29aa1ac00" kindref="member">coefficientOfSecondDerivativeOfMeanMotionDividedBySix</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a735f1c6509a3de0d78e86e199d27f31f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a735f1c6509a3de0d78e86e199d27f31f" kindref="member">exponentOfSecondDerivativeOfMeanMotionDividedBySix</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="structtudat_1_1input__output_1_1TwoLineElementData_1af56a5263166471fc6b0a49d3d1b55f76" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1af56a5263166471fc6b0a49d3d1b55f76" kindref="member">secondDerivativeOfMeanMotionDividedBySix</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a5044a9e34acd7fb159560c4d29b68b45" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a5044a9e34acd7fb159560c4d29b68b45" kindref="member">coefficientOfBStar</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181" refid="structtudat_1_1input__output_1_1TwoLineElementData_1ad20f6d64f169548a1d986947d33f49f4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1ad20f6d64f169548a1d986947d33f49f4" kindref="member">exponentOfBStar</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a32661a991535da8bc35b5156f068ab07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a32661a991535da8bc35b5156f068ab07" kindref="member">bStar</ref>;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193" refid="structtudat_1_1input__output_1_1TwoLineElementData_1afc8d0b260a138b058157dcf4056409eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1afc8d0b260a138b058157dcf4056409eb" kindref="member">orbitalModel</ref>;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a1adac809c7a8d18356259a39905f04fc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a1adac809c7a8d18356259a39905f04fc" kindref="member">tleNumber</ref>;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207" refid="structtudat_1_1input__output_1_1TwoLineElementData_1ae5ad3d8d8e5e589c1ccb317b40443f85" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1ae5ad3d8d8e5e589c1ccb317b40443f85" kindref="member">modulo10CheckSumLine1</ref>;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Line<sp/>2<sp/>variables.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a4b2bf73802411d362f0ccb5ed7fe31b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a4b2bf73802411d362f0ccb5ed7fe31b9" kindref="member">lineNumberLine2</ref>;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a6e47168e40eeb1ec03f2f659783ff0fa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a6e47168e40eeb1ec03f2f659783ff0fa" kindref="member">objectIdentificationNumberLine2</ref>;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a5bc3d2b995371b44505617256d43c5d9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector6d<sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a5bc3d2b995371b44505617256d43c5d9" kindref="member">TLEKeplerianElements</ref>;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238" refid="structtudat_1_1input__output_1_1TwoLineElementData_1abb5a27435eb2fcefd5fab5d3d0455a70" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1abb5a27435eb2fcefd5fab5d3d0455a70" kindref="member">meanAnomaly</ref>;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a15ed418187dcd128fc66c6dfd244a2df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a15ed418187dcd128fc66c6dfd244a2df" kindref="member">meanMotionInRevolutionsPerDay</ref>;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a9bba8e2d2e612bc069ed26f77740ea3e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a9bba8e2d2e612bc069ed26f77740ea3e" kindref="member">revolutionNumber</ref>;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a6c11f81942e88be63786236eb39805a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a6c11f81942e88be63786236eb39805a2" kindref="member">totalRevolutionNumber</ref>;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a77315b4c45af60560bf32c182189f297" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a77315b4c45af60560bf32c182189f297" kindref="member">modulo10CheckSumLine2</ref>;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a9e2c17476a8256d1298e994dd20a236f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a9e2c17476a8256d1298e994dd20a236f" kindref="member">perigee</ref>;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276" refid="structtudat_1_1input__output_1_1TwoLineElementData_1a9185be3843e087ee9aa9fe3af0fc6e1a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1a9185be3843e087ee9aa9fe3af0fc6e1a" kindref="member">apogee</ref>;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282" refid="structtudat_1_1input__output_1_1TwoLineElementData_1afbbc6c45454595ec579db0ea0b490206" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>unsigned<sp/>int<sp/>&gt;<sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1afbbc6c45454595ec579db0ea0b490206" kindref="member">lineNumbers</ref>;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/>std::ostream&amp;<sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData_1aeb83afdf533b531e40a939466975a61b" kindref="member">operator &lt;&lt; </ref>(<sp/>std::ostream&amp;<sp/>stream,</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtudat_1_1input__output_1_1TwoLineElementData" kindref="compound">TwoLineElementData</ref>&amp;<sp/>twoLineElementData<sp/>);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="298"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>TwoLineElementData<sp/>&gt;<sp/>TwoLineElementDataPointer;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>input_output</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_TWO_LINE_ELEMENT_DATA_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/twoLineElementData.h"/>
+  </compounddef>
+</doxygen>

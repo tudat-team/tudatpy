@@ -1,0 +1,339 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1CustomStateDerivative" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::CustomStateDerivative</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative" prot="public" virt="non-virtual">tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</basecompoundref>
+    <includes refid="customStateDerivative_8h" local="no">customStateDerivative.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1propagators_1_1CustomStateDerivative_1aeb6762568373f2ab6235d4c04e6881ff" prot="public" static="no">
+        <type>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::StateVectorType</definition>
+        <argsstring></argsstring>
+        <name>StateVectorType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="30" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1CustomStateDerivative_1a1133941b7ae65c85299864cf26a104ee" prot="private" static="no" mutable="no">
+        <type>std::function&lt; StateVectorType(const TimeType, const StateVectorType &amp;)&gt;</type>
+        <definition>std::function&lt; StateVectorType( const TimeType, const StateVectorType&amp; )&gt; tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::stateDerivativeModel_</definition>
+        <argsstring></argsstring>
+        <name>stateDerivativeModel_</name>
+        <briefdescription>
+<para>Function to compute the state derivative, as a function of current time and state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="109" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1CustomStateDerivative_1a359721a9c14141c7f5558926ad474f14" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::stateSize_</definition>
+        <argsstring></argsstring>
+        <name>stateSize_</name>
+        <briefdescription>
+<para>Size of the custom state that is propagated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="112" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1CustomStateDerivative_1a20a3fef1eb9434450f02ef1f14600a94" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::CustomStateDerivative</definition>
+        <argsstring>(const std::function&lt; StateVectorType(const TimeType, const StateVectorType &amp;)&gt; stateDerivativeModel, const int stateSize)</argsstring>
+        <name>CustomStateDerivative</name>
+        <param>
+          <type>const std::function&lt; StateVectorType(const TimeType, const StateVectorType &amp;)&gt;</type>
+          <declname>stateDerivativeModel</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>stateSize</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateDerivativeModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to compute the state derivative, as a function of current time and state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the custom state that is propagated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="38" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="38" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1CustomStateDerivative_1afdf99d87ec97710ebf94b58785c33378" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::calculateSystemStateDerivative</definition>
+        <argsstring>(const TimeType time, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;stateOfSystemToBeIntegrated, Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &gt; stateDerivative)</argsstring>
+        <name>calculateSystemStateDerivative</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>stateOfSystemToBeIntegrated</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &gt;</type>
+          <declname>stateDerivative</declname>
+        </param>
+        <briefdescription>
+<para>Calculates the custom state derivative. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the custom state derivative <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the state derivative is to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateOfSystemToBeIntegrated</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current custom states </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State derivative of custom states (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="51" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="51" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1CustomStateDerivative_1a7b2ebdcc6f42cfb1cbb46291d6e80ffe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::clearStateDerivativeModel</definition>
+        <argsstring>()</argsstring>
+        <name>clearStateDerivativeModel</name>
+        <reimplements refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a39840fb71c86fcc5e70804dd6aa7683b">clearStateDerivativeModel</reimplements>
+        <briefdescription>
+<para>Function included for consistency, not used in this derived class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="61" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="61" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1CustomStateDerivative_1ae23ee87ceb17b4d8e2ce8e14ac65028b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::updateStateDerivativeModel</definition>
+        <argsstring>(const TimeType currentTime)</argsstring>
+        <name>updateStateDerivativeModel</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Function included for consistency, not used in this derived class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="65" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="65" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1CustomStateDerivative_1a0ac8d9b628761a6077cf280d1dbe6b5e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::convertCurrentStateToGlobalRepresentation</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;internalSolution, const TimeType &amp;time, Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; currentLocalSolution)</argsstring>
+        <name>convertCurrentStateToGlobalRepresentation</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>internalSolution</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt;</type>
+          <declname>currentLocalSolution</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function included for compatibility purposes with base class, local and global representation is equal for custom model. Function returns (by reference) input internalSolution. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="70" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="70" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1CustomStateDerivative_1a6361733845c6c55305f326dbea40f5a1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>virtual Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::convertFromOutputSolution</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;outputSolution, const TimeType &amp;time)</argsstring>
+        <name>convertFromOutputSolution</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;</type>
+          <declname>outputSolution</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function included for compatibility purposes with base class, input and output representation is equal for custom model. Function returns input outputSolution. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="79" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="79" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1CustomStateDerivative_1a22dbfcc73c2922a4368b27841e0471de" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::convertToOutputSolution</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;internalSolution, const TimeType &amp;time, Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; currentLocalSolution)</argsstring>
+        <name>convertToOutputSolution</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;</type>
+          <declname>internalSolution</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt;</type>
+          <declname>currentLocalSolution</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function included for compatibility purposes with base class, input and output representation is equal for custom model. Function returns (by reference) input internalSolution. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="87" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="87" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1CustomStateDerivative_1a27d518eeac4fdf756514479b4d8a58cd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;::getConventionalStateSize</definition>
+        <argsstring>()</argsstring>
+        <name>getConventionalStateSize</name>
+        <reimplements refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1aa593f86baeb911ebaf24f849faad1867">getConventionalStateSize</reimplements>
+        <briefdescription>
+<para>Function to get the total size of the state of propagated masses. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the total size of the state of propagated masses. <simplesect kind="return"><para>Size of propagated custom state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="100" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="100" bodyend="103"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Model to compute the derivative of a custom state (i.e. a state for which the physical significance is not &apos;known&apos; to the rest of the code </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1CustomStateDerivative"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::propagators::CustomStateDerivative&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1CustomStateDerivative"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" line="26" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/customStateDerivative.h" bodystart="27" bodyend="113"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1afdf99d87ec97710ebf94b58785c33378" prot="public" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>calculateSystemStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ae3f4427ef5aee571271cbaa23bda3cb1" prot="public" virt="pure-virtual" ambiguityscope="SingleStateTypeDerivative&lt; double, double &gt;::"><scope>tudat::propagators::CustomStateDerivative</scope><name>calculateSystemStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1a7b2ebdcc6f42cfb1cbb46291d6e80ffe" prot="public" virt="virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>clearStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1a0ac8d9b628761a6077cf280d1dbe6b5e" prot="public" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>convertCurrentStateToGlobalRepresentation</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ac1f76ef281c53cccc0ea66a12973b916" prot="public" virt="pure-virtual" ambiguityscope="SingleStateTypeDerivative&lt; double, double &gt;::"><scope>tudat::propagators::CustomStateDerivative</scope><name>convertCurrentStateToGlobalRepresentation</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1a6361733845c6c55305f326dbea40f5a1" prot="public" virt="virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>convertFromOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ad12197357ad23bc815274f69c0c9a6c3" prot="public" virt="pure-virtual" ambiguityscope="SingleStateTypeDerivative&lt; double, double &gt;::"><scope>tudat::propagators::CustomStateDerivative</scope><name>convertFromOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1a22dbfcc73c2922a4368b27841e0471de" prot="public" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>convertToOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1aeab2b2a9eae937200a5def64dcf18960" prot="public" virt="pure-virtual" ambiguityscope="SingleStateTypeDerivative&lt; double, double &gt;::"><scope>tudat::propagators::CustomStateDerivative</scope><name>convertToOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1a20a3fef1eb9434450f02ef1f14600a94" prot="public" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>CustomStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1a27d518eeac4fdf756514479b4d8a58cd" prot="public" virt="virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>getConventionalStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a2dbb19e97c9fde342788832fece0a5ff" prot="public" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>getIntegratedStateType</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1af203ca28dbf9eeacb76aca2a5d4f384f" prot="public" virt="virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>getPropagatedStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a741436a816b5d018f80f061d15fdac74" prot="protected" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>integratedStateType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a8541ff94360e103cd1157899969c6bb3" prot="public" virt="virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>isStateToBePostProcessed</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a03145882db4c90a63a72d0c855b27f11" prot="public" virt="virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a90c770ae1cc36edb43d6363416f3461f" prot="public" virt="virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1acbb10b6a3ae3413f136520475f93ceab" prot="public" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>SingleStateTypeDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1a1133941b7ae65c85299864cf26a104ee" prot="private" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>stateDerivativeModel_</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1a359721a9c14141c7f5558926ad474f14" prot="private" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>stateSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1aeb6762568373f2ab6235d4c04e6881ff" prot="public" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>StateVectorType</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a28e844a8e7c5716d091c7504a5c98815" prot="protected" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>unprocessedState_</name></member>
+      <member refid="classtudat_1_1propagators_1_1CustomStateDerivative_1ae23ee87ceb17b4d8e2ce8e14ac65028b" prot="public" virt="non-virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>updateStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a9542fa3986fabe6129f0bf5b788daeba" prot="public" virt="pure-virtual" ambiguityscope="SingleStateTypeDerivative&lt; double, double &gt;::"><scope>tudat::propagators::CustomStateDerivative</scope><name>updateStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a08576def80c16bfe0169693d1abc0dfc" prot="public" virt="virtual"><scope>tudat::propagators::CustomStateDerivative</scope><name>~SingleStateTypeDerivative</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,195 @@
+\hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping}{}\doxysection{tudat\+::shape\+\_\+based\+\_\+methods\+::Spherical\+Shaping Class Reference}
+\label{classtudat_1_1shape__based__methods_1_1SphericalShaping}\index{tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}}
+Inheritance diagram for tudat\+::shape\+\_\+based\+\_\+methods\+::Spherical\+Shaping\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1shape__based__methods_1_1SphericalShaping}
+\end{center}
+\end{figure}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction}{Time\+Of\+Flight\+Function}}
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1Time}{Time}} of flight function for the root-\/finder. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7efc7bfc205ff65a245746dee33fb99a}{Spherical\+Shaping}} (const Eigen\+::\+Vector6d \&initial\+State, const Eigen\+::\+Vector6d \&final\+State, const double required\+Time\+Of\+Flight, const double central\+Body\+Gravitational\+Parameter, const int number\+Of\+Revolutions, const double initial\+Value\+Free\+Coefficient, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ root\+Finder\+Settings, const double lower\+Bound\+Free\+Coefficient=TUDAT\+\_\+\+NAN, const double upper\+Bound\+Free\+Coefficient=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Constructor for spherical shaping. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a9be7055ab01a97dffe91bf3be0d423c6}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a9be7055ab01a97dffe91bf3be0d423c6}} 
+\mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a9be7055ab01a97dffe91bf3be0d423c6}{$\sim$\+Spherical\+Shaping}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_ad474be488559b35cc8fa7739d12b771e}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_ad474be488559b35cc8fa7739d12b771e}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_ad474be488559b35cc8fa7739d12b771e}{convert\+Time\+To\+Independent\+Variable}} (const double time)
+\begin{DoxyCompactList}\small\item\em Convert time to independent variable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a455cba66a49ac3b3ee91d7286c88a01d}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a455cba66a49ac3b3ee91d7286c88a01d}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a455cba66a49ac3b3ee91d7286c88a01d}{convert\+Independent\+Variable\+To\+Time}} (const double independent\+Variable)
+\begin{DoxyCompactList}\small\item\em Convert independent variable to time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a144aeaf54cd77e56a44cc0fc3a46b267}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a144aeaf54cd77e56a44cc0fc3a46b267}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a144aeaf54cd77e56a44cc0fc3a46b267}{get\+Initial\+Value\+Inpendent\+Variable}} ()
+\begin{DoxyCompactList}\small\item\em Returns initial value of the independent variable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a2dee404fa688813ea702d5ffd25c56c1}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a2dee404fa688813ea702d5ffd25c56c1}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a2dee404fa688813ea702d5ffd25c56c1}{get\+Final\+Value\+Inpendent\+Variable}} ()
+\begin{DoxyCompactList}\small\item\em Returns final value of the independent variable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a935287e34f70acded66c2f9c89fdbdd7}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a935287e34f70acded66c2f9c89fdbdd7}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a935287e34f70acded66c2f9c89fdbdd7}{compute\+Time\+Of\+Flight}} ()
+\begin{DoxyCompactList}\small\item\em Compute time of flight. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a86ca424acb6f8669be46e5f2cd914a48}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a86ca424acb6f8669be46e5f2cd914a48}} 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a86ca424acb6f8669be46e5f2cd914a48}{compute\+Current\+State\+Vector}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute current cartesian state. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a1e20195a5ebf08c2c45fb11a2a8bbbcc}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a1e20195a5ebf08c2c45fb11a2a8bbbcc}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a1e20195a5ebf08c2c45fb11a2a8bbbcc}{compute\+Current\+Thrust\+Acceleration}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute current thrust acceleration in cartesian coordinates. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7c2a91937a06462a1700423ebc0087e4}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7c2a91937a06462a1700423ebc0087e4}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7c2a91937a06462a1700423ebc0087e4}{compute\+Current\+Thrust\+Acceleration}} (const double current\+Time, const double time\+Offset)
+\begin{DoxyCompactList}\small\item\em Compute current thrust vector. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab25564f467ff963e240bdd44fd8d870e}{compute\+DeltaV}} ()
+\begin{DoxyCompactList}\small\item\em Compute deltaV. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6b9031b168a1fcf78b3594959c9c8ac0}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6b9031b168a1fcf78b3594959c9c8ac0}} 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6b9031b168a1fcf78b3594959c9c8ac0}{compute\+Inverse\+Matrix\+Boundary\+Conditions}} ()
+\begin{DoxyCompactList}\small\item\em Compute the inverse of the boundary conditions matrix. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_aa8c950317c72bd5028a99a6c8c6b6055}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_aa8c950317c72bd5028a99a6c8c6b6055}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_aa8c950317c72bd5028a99a6c8c6b6055}{compute\+Initial\+Alpha\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Compute the initial value of the variable alpha, as defined in ... (ADD REFERENCE) to express the boundary conditions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a8466bfa92fae1a3f884935f8c2cb3913}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a8466bfa92fae1a3f884935f8c2cb3913}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a8466bfa92fae1a3f884935f8c2cb3913}{compute\+Final\+Alpha\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Compute the final value of the variable alpha, as defined in ... (ADD REFERENCE) to express the boundary conditions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6e2e096732bc43f3a7930466b1ce84e8}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6e2e096732bc43f3a7930466b1ce84e8}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6e2e096732bc43f3a7930466b1ce84e8}{compute\+Initial\+Value\+Boundaries\+Constant}} ()
+\begin{DoxyCompactList}\small\item\em Compute the initial value of the constant C, as defined in ... (ADD REFERENCE) to express the boundary conditions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab961d8afdf0359ea3fae2740bace0a55}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab961d8afdf0359ea3fae2740bace0a55}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab961d8afdf0359ea3fae2740bace0a55}{compute\+Final\+Value\+Boundaries\+Constant}} ()
+\begin{DoxyCompactList}\small\item\em Compute the final value of the constant C, as defined in ... (ADD REFERENCE) to express the boundary conditions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a2e467d0177136e89b579a75bd205edfe}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a2e467d0177136e89b579a75bd205edfe}} 
+void \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a2e467d0177136e89b579a75bd205edfe}{satisfy\+Boundary\+Conditions}} ()
+\begin{DoxyCompactList}\small\item\em Ensure that the boundary conditions are respected. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab6acd166251551f1fddd6992c84e0748}{iterate\+To\+Match\+Required\+Time\+Of\+Flight}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ root\+Finder\+Settings, const double lower\+Bound=TUDAT\+\_\+\+NAN, const double upper\+Bound=TUDAT\+\_\+\+NAN, const double initial\+Guess=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Iterate to match the required time of flight, by updating the value of the free coefficient. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_ac3a2f66ef5f6eee2205cf597c3dc1dff}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_ac3a2f66ef5f6eee2205cf597c3dc1dff}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_ac3a2f66ef5f6eee2205cf597c3dc1dff}{compute\+Scalar\+Function\+Time\+Equation}} (double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute derivative of the scalar function D in the time equation (ADD REFERENCE AND EQUATION NUMBER) w.\+r.\+t. azimuth angle. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_af4da062505cc0b110c61844a7309696e}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_af4da062505cc0b110c61844a7309696e}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_af4da062505cc0b110c61844a7309696e}{compute\+Derivative\+Scalar\+Function\+Time\+Equation}} (double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute second derivative of the scalar function D in the time equation (ADD REFERENCE AND EQUATION NUMBER) w.\+r.\+t. azimuth angle. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a236d5e01ecbf7f9703c01c02aed2a368}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a236d5e01ecbf7f9703c01c02aed2a368}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a236d5e01ecbf7f9703c01c02aed2a368}{get\+Normalized\+Required\+Time\+Of\+Flight}} ()
+\begin{DoxyCompactList}\small\item\em Return the required value for the time of flight (normalized w.\+r.\+t. julian year). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a4622ba1d90abcec2095878d10d14a0b5}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a4622ba1d90abcec2095878d10d14a0b5}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a4622ba1d90abcec2095878d10d14a0b5}{compute\+Normalized\+Time\+Of\+Flight}} ()
+\begin{DoxyCompactList}\small\item\em Compute normalized time of flight. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6736211aa635864b431353a66f2e32c0}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6736211aa635864b431353a66f2e32c0}} 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a6736211aa635864b431353a66f2e32c0}{compute\+Current\+Time\+From\+Azimuth\+Angle}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute current time from azimuth angle. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a78068307ec70b9cb45fe7ed58a4fcfa7}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a78068307ec70b9cb45fe7ed58a4fcfa7}} 
+void \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a78068307ec70b9cb45fe7ed58a4fcfa7}{reset\+Value\+Free\+Coefficient}} (const double free\+Coefficient)
+\begin{DoxyCompactList}\small\item\em Reset the value of the free coefficient, in order to match the required time of flight. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_aaaa82ad6e5e6fcd0730b3d9364ccf60b}{compute\+First\+Derivative\+Azimuth\+Angle\+Wrt\+Time}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute first derivative of the azimuth angle w.\+r.\+t. time. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a24789253ab14359d050f304c8e696e5d}{compute\+Second\+Derivative\+Azimuth\+Angle\+Wrt\+Time}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute second derivative of the azimuth angle w.\+r.\+t. time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_ad11142be69b6fa99ad848493c3629565}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_ad11142be69b6fa99ad848493c3629565}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_ad11142be69b6fa99ad848493c3629565}{compute\+Velocity\+Vector\+Parametrized\+By\+Azimuth\+Angle}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute current velocity in spherical coordinates parametrized by azimuth angle theta. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7edf6602344773117950fbd23212cb26}{compute\+State\+Vector\+In\+Spherical\+Coordinates}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute state vector in spherical coordinates. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_affb59a7a35802f8b5bc4c57c86e4683d}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_affb59a7a35802f8b5bc4c57c86e4683d}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_affb59a7a35802f8b5bc4c57c86e4683d}{compute\+Thrust\+Acceleration\+Vector\+Parametrized\+By\+Azimuth\+Angle}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute current acceleration in spherical coordinates parametrized by azimuth angle theta. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a4bd68144bdecc0ee0fd6053c8888de3c}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a4bd68144bdecc0ee0fd6053c8888de3c}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a4bd68144bdecc0ee0fd6053c8888de3c}{compute\+Thrust\+Acceleration\+Vector\+In\+Spherical\+Coordinates}} (const double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute thrust acceleration vector in spherical coordinates. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_a234b7fe2ecfaa1501e70c83f79ed5bfe}{compute\+Current\+Thrust\+Acceleration\+Magnitude}} (double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute magnitude thrust acceleration. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_aa6741a2efdfd1dfc94a879a406e99f15}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_aa6741a2efdfd1dfc94a879a406e99f15}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1SphericalShaping_aa6741a2efdfd1dfc94a879a406e99f15}{compute\+Current\+Thrust\+Acceleration\+Direction}} (double current\+Azimuth\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute direction thrust acceleration in cartesian coordinates. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7efc7bfc205ff65a245746dee33fb99a}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7efc7bfc205ff65a245746dee33fb99a}} 
+\index{tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}!SphericalShaping@{SphericalShaping}}
+\index{SphericalShaping@{SphericalShaping}!tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}}
+\doxysubsubsection{\texorpdfstring{SphericalShaping()}{SphericalShaping()}}
+{\footnotesize\ttfamily tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::\+Spherical\+Shaping (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector6d \&}]{initial\+State,  }\item[{const Eigen\+::\+Vector6d \&}]{final\+State,  }\item[{const double}]{required\+Time\+Of\+Flight,  }\item[{const double}]{central\+Body\+Gravitational\+Parameter,  }\item[{const int}]{number\+Of\+Revolutions,  }\item[{const double}]{initial\+Value\+Free\+Coefficient,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$}]{root\+Finder\+Settings,  }\item[{const double}]{lower\+Bound\+Free\+Coefficient = {\ttfamily TUDAT\+\_\+NAN},  }\item[{const double}]{upper\+Bound\+Free\+Coefficient = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})}
+
+
+
+Constructor for spherical shaping. 
+
+Constructur for spherical shaping. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a234b7fe2ecfaa1501e70c83f79ed5bfe}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a234b7fe2ecfaa1501e70c83f79ed5bfe}} 
+\index{tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}!computeCurrentThrustAccelerationMagnitude@{computeCurrentThrustAccelerationMagnitude}}
+\index{computeCurrentThrustAccelerationMagnitude@{computeCurrentThrustAccelerationMagnitude}!tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}}
+\doxysubsubsection{\texorpdfstring{computeCurrentThrustAccelerationMagnitude()}{computeCurrentThrustAccelerationMagnitude()}}
+{\footnotesize\ttfamily double tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::compute\+Current\+Thrust\+Acceleration\+Magnitude (\begin{DoxyParamCaption}\item[{double}]{current\+Azimuth\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Compute magnitude thrust acceleration. 
+
+Compute magnitude cartesian acceleration. \mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab25564f467ff963e240bdd44fd8d870e}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab25564f467ff963e240bdd44fd8d870e}} 
+\index{tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}!computeDeltaV@{computeDeltaV}}
+\index{computeDeltaV@{computeDeltaV}!tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}}
+\doxysubsubsection{\texorpdfstring{computeDeltaV()}{computeDeltaV()}}
+{\footnotesize\ttfamily double tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::compute\+DeltaV (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Compute deltaV. 
+
+Compute final deltaV. 
+
+Implements \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1LowThrustLeg_ab29ebb3b59f694f017f76bc79e05a310}{tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Low\+Thrust\+Leg}}.
+
+\mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_aaaa82ad6e5e6fcd0730b3d9364ccf60b}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_aaaa82ad6e5e6fcd0730b3d9364ccf60b}} 
+\index{tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}!computeFirstDerivativeAzimuthAngleWrtTime@{computeFirstDerivativeAzimuthAngleWrtTime}}
+\index{computeFirstDerivativeAzimuthAngleWrtTime@{computeFirstDerivativeAzimuthAngleWrtTime}!tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}}
+\doxysubsubsection{\texorpdfstring{computeFirstDerivativeAzimuthAngleWrtTime()}{computeFirstDerivativeAzimuthAngleWrtTime()}}
+{\footnotesize\ttfamily double tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::compute\+First\+Derivative\+Azimuth\+Angle\+Wrt\+Time (\begin{DoxyParamCaption}\item[{const double}]{current\+Azimuth\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Compute first derivative of the azimuth angle w.\+r.\+t. time. 
+
+Compute current derivative of the azimuth angle. \mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a24789253ab14359d050f304c8e696e5d}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a24789253ab14359d050f304c8e696e5d}} 
+\index{tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}!computeSecondDerivativeAzimuthAngleWrtTime@{computeSecondDerivativeAzimuthAngleWrtTime}}
+\index{computeSecondDerivativeAzimuthAngleWrtTime@{computeSecondDerivativeAzimuthAngleWrtTime}!tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}}
+\doxysubsubsection{\texorpdfstring{computeSecondDerivativeAzimuthAngleWrtTime()}{computeSecondDerivativeAzimuthAngleWrtTime()}}
+{\footnotesize\ttfamily double tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::compute\+Second\+Derivative\+Azimuth\+Angle\+Wrt\+Time (\begin{DoxyParamCaption}\item[{const double}]{current\+Azimuth\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Compute second derivative of the azimuth angle w.\+r.\+t. time. 
+
+Compute second derivative of the azimuth angle. \mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7edf6602344773117950fbd23212cb26}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_a7edf6602344773117950fbd23212cb26}} 
+\index{tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}!computeStateVectorInSphericalCoordinates@{computeStateVectorInSphericalCoordinates}}
+\index{computeStateVectorInSphericalCoordinates@{computeStateVectorInSphericalCoordinates}!tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}}
+\doxysubsubsection{\texorpdfstring{computeStateVectorInSphericalCoordinates()}{computeStateVectorInSphericalCoordinates()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::compute\+State\+Vector\+In\+Spherical\+Coordinates (\begin{DoxyParamCaption}\item[{const double}]{current\+Azimuth\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Compute state vector in spherical coordinates. 
+
+Compute current state vector in spherical coordinates. \mbox{\Hypertarget{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab6acd166251551f1fddd6992c84e0748}\label{classtudat_1_1shape__based__methods_1_1SphericalShaping_ab6acd166251551f1fddd6992c84e0748}} 
+\index{tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}!iterateToMatchRequiredTimeOfFlight@{iterateToMatchRequiredTimeOfFlight}}
+\index{iterateToMatchRequiredTimeOfFlight@{iterateToMatchRequiredTimeOfFlight}!tudat::shape\_based\_methods::SphericalShaping@{tudat::shape\_based\_methods::SphericalShaping}}
+\doxysubsubsection{\texorpdfstring{iterateToMatchRequiredTimeOfFlight()}{iterateToMatchRequiredTimeOfFlight()}}
+{\footnotesize\ttfamily void tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::iterate\+To\+Match\+Required\+Time\+Of\+Flight (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$}]{root\+Finder\+Settings,  }\item[{const double}]{lower\+Bound = {\ttfamily TUDAT\+\_\+NAN},  }\item[{const double}]{upper\+Bound = {\ttfamily TUDAT\+\_\+NAN},  }\item[{const double}]{initial\+Guess = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Iterate to match the required time of flight, by updating the value of the free coefficient. 
+
+Iterate to match the required time of flight. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/shape\+\_\+based/spherical\+Shaping.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/shape\+\_\+based/spherical\+Shaping.\+cpp\end{DoxyCompactItemize}

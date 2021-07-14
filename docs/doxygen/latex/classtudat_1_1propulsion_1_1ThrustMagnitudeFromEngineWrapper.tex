@@ -1,0 +1,142 @@
+\hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper}{}\doxysection{tudat\+::propulsion\+::Thrust\+Magnitude\+From\+Engine\+Wrapper Class Reference}
+\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper}\index{tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}}
+
+
+Class to compute the engine thrust and mass rate from Engine\+Model object(s).  
+
+
+
+
+{\ttfamily \#include $<$thrust\+Magnitude\+Wrapper.\+h$>$}
+
+Inheritance diagram for tudat\+::propulsion\+::Thrust\+Magnitude\+From\+Engine\+Wrapper\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_aa84600fa7d3d2a2d7f2611832464e746}{Thrust\+Magnitude\+From\+Engine\+Wrapper}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1system__models_1_1EngineModel}{system\+\_\+models\+::\+Engine\+Model}} $>$ engine\+Model)
+\begin{DoxyCompactList}\small\item\em Constructor for single engine used for thrust. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a6d829586f0cc43a20687e684574af0cd}{Thrust\+Magnitude\+From\+Engine\+Wrapper}} (const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1system__models_1_1EngineModel}{system\+\_\+models\+::\+Engine\+Model}} $>$ $>$ engine\+Models)
+\begin{DoxyCompactList}\small\item\em Constructor for multiple engines used for thrust. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_ad217c8d2a8cc9a231b0ecebea503539e}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_ad217c8d2a8cc9a231b0ecebea503539e}} 
+\mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_ad217c8d2a8cc9a231b0ecebea503539e}{$\sim$\+Thrust\+Magnitude\+From\+Engine\+Wrapper}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a54420ac820119f526d5f33d7d6380fb7}{update}} (const double time)
+\begin{DoxyCompactList}\small\item\em Function to update the thrust magnitude to the current time from the engine models. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_afc91cb58c14ddb83956db4c51f0ded54}{get\+Current\+Thrust\+Magnitude}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current thrust magnitude. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_aa79a92ce41bfd5aeacb59bcc675180a0}{get\+Current\+Mass\+Rate}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current mass rate. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a55de6ff6a534790deea362549427e63b}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a55de6ff6a534790deea362549427e63b}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1system__models_1_1EngineModel}{system\+\_\+models\+::\+Engine\+Model}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a55de6ff6a534790deea362549427e63b}{engine\+Models\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of engine models used to compute thrust/mass rate. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_adbe1d232b6363786f9cd1e785415ab6f}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_adbe1d232b6363786f9cd1e785415ab6f}} 
+double \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_adbe1d232b6363786f9cd1e785415ab6f}{current\+Thrust\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current thrust magnitude, as computed by last call to update member function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_ae5febedd296949c8ec57b69a4a911b75}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_ae5febedd296949c8ec57b69a4a911b75}} 
+double \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_ae5febedd296949c8ec57b69a4a911b75}{current\+Mass\+Rate\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current mass rate, as computed by last call to update member function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the engine thrust and mass rate from Engine\+Model object(s). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_aa84600fa7d3d2a2d7f2611832464e746}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_aa84600fa7d3d2a2d7f2611832464e746}} 
+\index{tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}!ThrustMagnitudeFromEngineWrapper@{ThrustMagnitudeFromEngineWrapper}}
+\index{ThrustMagnitudeFromEngineWrapper@{ThrustMagnitudeFromEngineWrapper}!tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}}
+\doxysubsubsection{\texorpdfstring{ThrustMagnitudeFromEngineWrapper()}{ThrustMagnitudeFromEngineWrapper()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::propulsion\+::\+Thrust\+Magnitude\+From\+Engine\+Wrapper\+::\+Thrust\+Magnitude\+From\+Engine\+Wrapper (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1system__models_1_1EngineModel}{system\+\_\+models\+::\+Engine\+Model}} $>$}]{engine\+Model }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor for single engine used for thrust. 
+
+Constructor for single engine used for thrust 
+\begin{DoxyParams}{Parameters}
+{\em engine\+Model} & Engine model used to compute thrust/mass rate. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a6d829586f0cc43a20687e684574af0cd}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a6d829586f0cc43a20687e684574af0cd}} 
+\index{tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}!ThrustMagnitudeFromEngineWrapper@{ThrustMagnitudeFromEngineWrapper}}
+\index{ThrustMagnitudeFromEngineWrapper@{ThrustMagnitudeFromEngineWrapper}!tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}}
+\doxysubsubsection{\texorpdfstring{ThrustMagnitudeFromEngineWrapper()}{ThrustMagnitudeFromEngineWrapper()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::propulsion\+::\+Thrust\+Magnitude\+From\+Engine\+Wrapper\+::\+Thrust\+Magnitude\+From\+Engine\+Wrapper (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1system__models_1_1EngineModel}{system\+\_\+models\+::\+Engine\+Model}} $>$ $>$}]{engine\+Models }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor for multiple engines used for thrust. 
+
+Constructor for multiple engines used for thrust 
+\begin{DoxyParams}{Parameters}
+{\em engine\+Models} & List of engine models used to compute thrust/mass rate. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_aa79a92ce41bfd5aeacb59bcc675180a0}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_aa79a92ce41bfd5aeacb59bcc675180a0}} 
+\index{tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}!getCurrentMassRate@{getCurrentMassRate}}
+\index{getCurrentMassRate@{getCurrentMassRate}!tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}}
+\doxysubsubsection{\texorpdfstring{getCurrentMassRate()}{getCurrentMassRate()}}
+{\footnotesize\ttfamily double tudat\+::propulsion\+::\+Thrust\+Magnitude\+From\+Engine\+Wrapper\+::get\+Current\+Mass\+Rate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the current mass rate. 
+
+Function to return the current mass rate, as computed by last call to update member function. \begin{DoxyReturn}{Returns}
+Current mass rate 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_abea551383a711c4fe3e04a77df3d3c0c}{tudat\+::propulsion\+::\+Thrust\+Magnitude\+Wrapper}}.
+
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_afc91cb58c14ddb83956db4c51f0ded54}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_afc91cb58c14ddb83956db4c51f0ded54}} 
+\index{tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}!getCurrentThrustMagnitude@{getCurrentThrustMagnitude}}
+\index{getCurrentThrustMagnitude@{getCurrentThrustMagnitude}!tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}}
+\doxysubsubsection{\texorpdfstring{getCurrentThrustMagnitude()}{getCurrentThrustMagnitude()}}
+{\footnotesize\ttfamily double tudat\+::propulsion\+::\+Thrust\+Magnitude\+From\+Engine\+Wrapper\+::get\+Current\+Thrust\+Magnitude (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the current thrust magnitude. 
+
+Function to return the current thrust magnitude, as computed by last call to update member function. \begin{DoxyReturn}{Returns}
+Current thrust magnitude 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_a303af8ecc94a8e0151a58711700dafe2}{tudat\+::propulsion\+::\+Thrust\+Magnitude\+Wrapper}}.
+
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a54420ac820119f526d5f33d7d6380fb7}\label{classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_a54420ac820119f526d5f33d7d6380fb7}} 
+\index{tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}!update@{update}}
+\index{update@{update}!tudat::propulsion::ThrustMagnitudeFromEngineWrapper@{tudat::propulsion::ThrustMagnitudeFromEngineWrapper}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::propulsion\+::\+Thrust\+Magnitude\+From\+Engine\+Wrapper\+::update (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to update the thrust magnitude to the current time from the engine models. 
+
+Function to update the thrust magnitude to the current time from the engine models 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} to which the model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_a6a515296199563f2fcece10923d6dcca}{tudat\+::propulsion\+::\+Thrust\+Magnitude\+Wrapper}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propulsion/thrust\+Magnitude\+Wrapper.\+h\end{DoxyCompactItemize}

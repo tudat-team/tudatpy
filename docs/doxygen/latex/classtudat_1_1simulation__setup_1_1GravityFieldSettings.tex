@@ -1,0 +1,77 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1GravityFieldSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Gravity\+Field\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1GravityFieldSettings}\index{tudat::simulation\_setup::GravityFieldSettings@{tudat::simulation\_setup::GravityFieldSettings}}
+
+
+Class for providing settings for gravity field model.  
+
+
+
+
+{\ttfamily \#include $<$create\+Gravity\+Field.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Gravity\+Field\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.962617cm]{classtudat_1_1simulation__setup_1_1GravityFieldSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a410bdae779dd436f713d4116b64a0601}{Gravity\+Field\+Settings}} (const Gravity\+Field\+Type gravity\+Field\+Type)
+\begin{DoxyCompactList}\small\item\em Constructor, sets type of gravity field model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a1c09b45caa37db3c2e17ebf1fac98d7c}\label{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a1c09b45caa37db3c2e17ebf1fac98d7c}} 
+virtual \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a1c09b45caa37db3c2e17ebf1fac98d7c}{$\sim$\+Gravity\+Field\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Gravity\+Field\+Type \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a186ea91c0ece0951f21ec4280f277f71}{get\+Gravity\+Field\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to return type of gravity field model that is to be created. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1GravityFieldSettings_ab9d4396fbf0b4c66710b78eb14928056}\label{classtudat_1_1simulation__setup_1_1GravityFieldSettings_ab9d4396fbf0b4c66710b78eb14928056}} 
+Gravity\+Field\+Type \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1GravityFieldSettings_ab9d4396fbf0b4c66710b78eb14928056}{gravity\+Field\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of gravity field model that is to be created. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for providing settings for gravity field model. 
+
+Class for providing settings for automatic gravity field model creation. This class is a functional (base) class for settings of gravity field models that require no information in addition to their type. Gravity field model classes defining requiring additional information must be created using an object derived from this class. @get\+\_\+docstring(Gravity\+Field\+Settings.\+\_\+\+\_\+docstring\+\_\+\+\_\+) 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a410bdae779dd436f713d4116b64a0601}\label{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a410bdae779dd436f713d4116b64a0601}} 
+\index{tudat::simulation\_setup::GravityFieldSettings@{tudat::simulation\_setup::GravityFieldSettings}!GravityFieldSettings@{GravityFieldSettings}}
+\index{GravityFieldSettings@{GravityFieldSettings}!tudat::simulation\_setup::GravityFieldSettings@{tudat::simulation\_setup::GravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{GravityFieldSettings()}{GravityFieldSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Gravity\+Field\+Settings\+::\+Gravity\+Field\+Settings (\begin{DoxyParamCaption}\item[{const Gravity\+Field\+Type}]{gravity\+Field\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets type of gravity field model. 
+
+Constructor, sets type of gravity field model. Settings for gravity field models requiring additional information should be defined in a derived class. 
+\begin{DoxyParams}{Parameters}
+{\em gravity\+Field\+Type} & Type of gravity field model that is to be created. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a186ea91c0ece0951f21ec4280f277f71}\label{classtudat_1_1simulation__setup_1_1GravityFieldSettings_a186ea91c0ece0951f21ec4280f277f71}} 
+\index{tudat::simulation\_setup::GravityFieldSettings@{tudat::simulation\_setup::GravityFieldSettings}!getGravityFieldType@{getGravityFieldType}}
+\index{getGravityFieldType@{getGravityFieldType}!tudat::simulation\_setup::GravityFieldSettings@{tudat::simulation\_setup::GravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{getGravityFieldType()}{getGravityFieldType()}}
+{\footnotesize\ttfamily Gravity\+Field\+Type tudat\+::simulation\+\_\+setup\+::\+Gravity\+Field\+Settings\+::get\+Gravity\+Field\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return type of gravity field model that is to be created. 
+
+Function to return type of gravity field model that is to be created. \begin{DoxyReturn}{Returns}
+Type of gravity field model that is to be created. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Gravity\+Field.\+h\end{DoxyCompactItemize}

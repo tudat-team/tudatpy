@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping" kind="class" language="C++" prot="public">
+    <compoundname>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</compoundname>
+    <basecompoundref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::BaseFunctionSphericalShaping</basecompoundref>
+    <includes refid="baseFunctionsSphericalShaping_8h" local="no">baseFunctionsSphericalShaping.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1ad4c4c123118011c5f795771b28f9d663" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::PowerSineFunctionSphericalShaping::PowerSineFunctionSphericalShaping</definition>
+        <argsstring>()</argsstring>
+        <name>PowerSineFunctionSphericalShaping</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="335" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="335" bodyend="335"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1a4559eae58ccfa0cc15aeb9349f2b742a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::PowerSineFunctionSphericalShaping::~PowerSineFunctionSphericalShaping</definition>
+        <argsstring>()</argsstring>
+        <name>~PowerSineFunctionSphericalShaping</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="341" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="341" bodyend="341"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1ae192210686a8699eeefab26ee89a581e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::PowerSineFunctionSphericalShaping::evaluateFunction</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateFunction</name>
+        <reimplements refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a214b0edb07e72673f6b22304a3b4d905">evaluateFunction</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="344" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="344" bodyend="347"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1a95c5c8ce16af4f76182fc8b2b35928c2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::PowerSineFunctionSphericalShaping::evaluateFirstDerivative</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateFirstDerivative</name>
+        <reimplements refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a6524e62b3d8923dce5063afc228e8d87">evaluateFirstDerivative</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="349" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="349" bodyend="351"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1afa2e4404255819d375a5df447a0c3157" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::PowerSineFunctionSphericalShaping::evaluateSecondDerivative</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateSecondDerivative</name>
+        <reimplements refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a0e07597536a67f47a532af9f792efb20">evaluateSecondDerivative</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="353" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="353" bodyend="356"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1a63069803ac487bd8a37939468fabb9fe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::PowerSineFunctionSphericalShaping::evaluateThirdDerivative</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateThirdDerivative</name>
+        <reimplements refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1af607695872f002eed93d5e9da9de53dd">evaluateThirdDerivative</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="358" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="358" bodyend="361"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Power times sine function. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionSphericalShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionSphericalShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="328" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="329" bodyend="367"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a1c05b2f6d566cd4614f4202945db7d69" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</scope><name>BaseFunctionSphericalShaping</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1a95c5c8ce16af4f76182fc8b2b35928c2" prot="public" virt="virtual"><scope>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</scope><name>evaluateFirstDerivative</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1ae192210686a8699eeefab26ee89a581e" prot="public" virt="virtual"><scope>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</scope><name>evaluateFunction</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1afa2e4404255819d375a5df447a0c3157" prot="public" virt="virtual"><scope>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</scope><name>evaluateSecondDerivative</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1a63069803ac487bd8a37939468fabb9fe" prot="public" virt="virtual"><scope>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</scope><name>evaluateThirdDerivative</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1ad4c4c123118011c5f795771b28f9d663" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</scope><name>PowerSineFunctionSphericalShaping</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a786ddbebc0ba7ee61f74667aa96a8609" prot="public" virt="virtual"><scope>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</scope><name>~BaseFunctionSphericalShaping</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping_1a4559eae58ccfa0cc15aeb9349f2b742a" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::PowerSineFunctionSphericalShaping</scope><name>~PowerSineFunctionSphericalShaping</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

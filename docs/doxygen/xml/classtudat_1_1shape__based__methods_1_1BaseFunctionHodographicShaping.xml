@@ -1,0 +1,259 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::shape_based_methods::BaseFunctionHodographicShaping</compoundname>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ConstantFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1CosineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::CosineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ExponentialCosineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ExponentialCosineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ExponentialFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ExponentialSineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ExponentialSineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1PowerCosineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::PowerCosineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::PowerFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::PowerSineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialCosineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ScaledExponentialCosineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ScaledExponentialFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialSineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ScaledExponentialSineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ScaledPowerCosineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ScaledPowerCosineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ScaledPowerFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ScaledPowerFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1ScaledPowerSineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::ScaledPowerSineFunctionHodographicShaping</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1shape__based__methods_1_1SineFunctionHodographicShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::SineFunctionHodographicShaping</derivedcompoundref>
+    <includes refid="baseFunctionsHodographicShaping_8h" local="no">baseFunctionsHodographicShaping.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a366742b9240b493db70b65d010cc9695" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::BaseFunctionHodographicShaping::BaseFunctionHodographicShaping</definition>
+        <argsstring>()</argsstring>
+        <name>BaseFunctionHodographicShaping</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="51" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a801cb0d42de566c060afb536c644fdf9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::shape_based_methods::BaseFunctionHodographicShaping::~BaseFunctionHodographicShaping</definition>
+        <argsstring>()</argsstring>
+        <name>~BaseFunctionHodographicShaping</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="57" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a9368a6a352d55e880e2882bcfd66cd87" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::shape_based_methods::BaseFunctionHodographicShaping::evaluateFunction</definition>
+        <argsstring>(const double independentVariable)=0</argsstring>
+        <name>evaluateFunction</name>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionHodographicShaping_1a01da4dfd1fbbe7f8482fd5fce4f9f2ec">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1SineFunctionHodographicShaping_1af907091f7b2c8f99cb92a9fee0e80b1a">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1CosineFunctionHodographicShaping_1ab964c29487a774ee381f0ead49143bf7">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShaping_1a718c4a9789955a099ca30903dcb98c2f">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialFunctionHodographicShaping_1adfe01a30ca20eca6de864184ea92844b">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialSineFunctionHodographicShaping_1aaaa02bffe34b7e31749a56312e431fe4">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialSineFunctionHodographicShaping_1a4101427c6eb27a67781a08fec534763e">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialCosineFunctionHodographicShaping_1a9e153ffcb5316d4f38de9567f19e1f73">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialCosineFunctionHodographicShaping_1a69e1dba26156a7cf0f8a086a7f1cd96e">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShaping_1aea44d562b0065faf6bb1b6d88dc1e434">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerFunctionHodographicShaping_1a082158481f88797f8c0251587302038e">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionHodographicShaping_1a043d2d0b0ad28ad463b060727513749b">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerSineFunctionHodographicShaping_1a7fbc54fad98f84d4212a02d400380043">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerCosineFunctionHodographicShaping_1aaea6adc09a02a90f4055631fe097f2d9">evaluateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerCosineFunctionHodographicShaping_1aad2368b8b2498ead0924a666c3028250">evaluateFunction</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="59" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a4f83bd6c3b1d2af45cf62e0404536b86" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::shape_based_methods::BaseFunctionHodographicShaping::evaluateDerivative</definition>
+        <argsstring>(const double independentVariable)=0</argsstring>
+        <name>evaluateDerivative</name>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionHodographicShaping_1a6634b07092c48d8a6d7f71edbc316c07">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1SineFunctionHodographicShaping_1aca9de43a50f023acae141612970e9e67">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1CosineFunctionHodographicShaping_1a8d2556e85172f34e2b7215172c4bff3d">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShaping_1ae09d4c940c1e8062a65afa32cdf5703e">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialFunctionHodographicShaping_1ac6180520457deb2cabf5e71da9c1644e">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialSineFunctionHodographicShaping_1a2dbf995325c77bd45ce7c9b8012c0978">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialSineFunctionHodographicShaping_1ac3e3a5156d4e95d29c7f7a208ba8b595">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialCosineFunctionHodographicShaping_1adc9cac7b08e92200f862c43a6d7c1d68">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialCosineFunctionHodographicShaping_1a7eb6a0e382928d71f6f5384adbc403ef">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShaping_1a247c9af9855c06d94e2a8603433cce2f">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerFunctionHodographicShaping_1a8d11501177ebf867c62de03941e20911">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionHodographicShaping_1a17bcd135be1ce0690543dec551409e8b">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerSineFunctionHodographicShaping_1acdb603d9d11e5f3cc9a66d9d5eaf6766">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerCosineFunctionHodographicShaping_1abedad0842875c47ec9071a8a79dd1257">evaluateDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerCosineFunctionHodographicShaping_1a9a1f71dcc54cb77019fd410c476b59ff">evaluateDerivative</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="61" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a6b9a47b04d355bd374f21e612058c795" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::shape_based_methods::BaseFunctionHodographicShaping::evaluateIntegral</definition>
+        <argsstring>(const double independentVariable)=0</argsstring>
+        <name>evaluateIntegral</name>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionHodographicShaping_1a405409fd4619b1b3338cfd2c8e20a06e">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1SineFunctionHodographicShaping_1ad9cb5a2d1931ac4777f04d1abcbd6b48">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1CosineFunctionHodographicShaping_1aad90cfc17dc8027526aed8ea1bea2e74">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShaping_1aa4fe573c6e9641c874493ea5806829e9">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialFunctionHodographicShaping_1afd7d236a8bb6fdf089967b34515e85f8">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialSineFunctionHodographicShaping_1afce02d7132efc695a421eaa457de5659">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialSineFunctionHodographicShaping_1ac7baf2b02f62f8c277e9fa4ef4c47280">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ExponentialCosineFunctionHodographicShaping_1aff5cd90357ad2bb1f3d99c0be7023a30">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialCosineFunctionHodographicShaping_1a640ecb981dfe6018ba3578867ee9b6fd">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShaping_1a15399dbcdecc4933d59c9b61592837a4">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerFunctionHodographicShaping_1a3265b60b88675b8ac7fe77fcbf56f279">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionHodographicShaping_1adf6a77f095259140cd66c01abf03acba">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerSineFunctionHodographicShaping_1ab84ab23e13c15be6f75f0eb649905911">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1PowerCosineFunctionHodographicShaping_1adea380fb6dcccbb45efd127c49a94f88">evaluateIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1shape__based__methods_1_1ScaledPowerCosineFunctionHodographicShaping_1abaeecd747d25530edb5ec911b0c2b6f2">evaluateIntegral</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="63" column="20"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for shaping functions to be used in the hodographic shaping method. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>tudat::shape_based_methods::ExponentialCosineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ExponentialCosineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>tudat::shape_based_methods::ScaledPowerFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ScaledPowerFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat::shape_based_methods::ScaledExponentialCosineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialCosineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>tudat::shape_based_methods::SineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1SineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::shape_based_methods::ConstantFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat::shape_based_methods::PowerFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat::shape_based_methods::ExponentialSineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ExponentialSineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>tudat::shape_based_methods::ScaledExponentialFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>tudat::shape_based_methods::ScaledPowerCosineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ScaledPowerCosineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::shape_based_methods::CosineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1CosineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat::shape_based_methods::ScaledExponentialSineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialSineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::BaseFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping"/>
+      </node>
+      <node id="9">
+        <label>tudat::shape_based_methods::PowerSineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat::shape_based_methods::PowerCosineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1PowerCosineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>tudat::shape_based_methods::ScaledPowerSineFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ScaledPowerSineFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::shape_based_methods::ExponentialFunctionHodographicShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShaping"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="43" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="44" bodyend="69"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a366742b9240b493db70b65d010cc9695" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::BaseFunctionHodographicShaping</scope><name>BaseFunctionHodographicShaping</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a4f83bd6c3b1d2af45cf62e0404536b86" prot="public" virt="pure-virtual"><scope>tudat::shape_based_methods::BaseFunctionHodographicShaping</scope><name>evaluateDerivative</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a9368a6a352d55e880e2882bcfd66cd87" prot="public" virt="pure-virtual"><scope>tudat::shape_based_methods::BaseFunctionHodographicShaping</scope><name>evaluateFunction</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a6b9a47b04d355bd374f21e612058c795" prot="public" virt="pure-virtual"><scope>tudat::shape_based_methods::BaseFunctionHodographicShaping</scope><name>evaluateIntegral</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping_1a801cb0d42de566c060afb536c644fdf9" prot="public" virt="virtual"><scope>tudat::shape_based_methods::BaseFunctionHodographicShaping</scope><name>~BaseFunctionHodographicShaping</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

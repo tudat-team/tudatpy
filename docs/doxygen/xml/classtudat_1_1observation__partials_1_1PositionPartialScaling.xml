@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1PositionPartialScaling" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::observation_partials::PositionPartialScaling</compoundname>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1AngularPositionScaling" prot="public" virt="non-virtual">tudat::observation_partials::AngularPositionScaling</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1NWayRangeScaling" prot="public" virt="non-virtual">tudat::observation_partials::NWayRangeScaling</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling" prot="public" virt="non-virtual">tudat::observation_partials::OneWayDopplerProperTimeComponentScaling</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling" prot="public" virt="non-virtual">tudat::observation_partials::OneWayDopplerScaling</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1OneWayRangeRateScaling" prot="public" virt="non-virtual">tudat::observation_partials::OneWayRangeRateScaling</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1OneWayRangeScaling" prot="public" virt="non-virtual">tudat::observation_partials::OneWayRangeScaling</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1PositionObservationScaling" prot="public" virt="non-virtual">tudat::observation_partials::PositionObservationScaling</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1TwoWayDopplerScaling" prot="public" virt="non-virtual">tudat::observation_partials::TwoWayDopplerScaling</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1VelocityObservationScaling" prot="public" virt="non-virtual">tudat::observation_partials::VelocityObservationScaling</derivedcompoundref>
+    <includes refid="observationPartial_8h" local="no">observationPartial.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a434c37b9140a2f1c0c916ab1eb332564" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::observation_partials::PositionPartialScaling::~PositionPartialScaling</definition>
+        <argsstring>()</argsstring>
+        <name>~PositionPartialScaling</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="47" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a7bf12506127c4527eacae23c6a9cf469" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::observation_partials::PositionPartialScaling::update</definition>
+        <argsstring>(const std::vector&lt; Eigen::Vector6d &gt; &amp;linkEndStates, const std::vector&lt; double &gt; &amp;times, const observation_models::LinkEndType fixedLinkEnd, const Eigen::VectorXd currentObservation)=0</argsstring>
+        <name>update</name>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1AngularPositionScaling_1ac62b64a319dcbbc3f61752dad343b775">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1OneWayRangeRateScaling_1a4cc6c37a9be7228f32d3294060c1cc6c">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1NWayRangeScaling_1a9c70d01e0348fd9809ea32b0a78208bb">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_1a7e6136a4f6630f93be0362656ab17041">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1PositionObservationScaling_1af962c2216ee7b90f683097082b08e246">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1VelocityObservationScaling_1acbf73e557e5abfc55f83718ab4a016cb">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1TwoWayDopplerScaling_1a906053c720d7bad94b4ec79f342a7ce7">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a82f4cb66608317633db61e6751812b63">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1OneWayRangeScaling_1a35f8d0a80ab2b4445630848cc3aa6bb8">update</reimplementedby>
+        <param>
+          <type>const std::vector&lt; Eigen::Vector6d &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>times</declname>
+        </param>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>fixedLinkEnd</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>currentObservation</declname>
+        </param>
+        <briefdescription>
+<para>Update the scaling object to the current times and states (pure virtual). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update the scaling object to the current times and states (pure virtual). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>times</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fixedLinkEnd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which observation time is defined, i.e. link end for which associated time is kept constant when computing observable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of observation for which partial scaling is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="58" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for scaling position partials to observable partials. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for scaling position partials to observable partials. For observables computed from the three-dimensional positions of reference points, the partial derivatives are computed from the partials of these positions. Each observation model requires a specific derived class of <ref refid="classtudat_1_1observation__partials_1_1PositionPartialScaling" kindref="compound">PositionPartialScaling</ref>, that computes how position partials are converted to (&apos;scaled to&apos;) observable partials </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="7">
+        <label>tudat::observation_partials::OneWayRangeRateScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1OneWayRangeRateScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>tudat::observation_partials::PositionObservationScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionObservationScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat::observation_partials::OneWayRangeScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1OneWayRangeScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::observation_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat::observation_partials::OneWayDopplerScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::PositionPartialScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionPartialScaling"/>
+      </node>
+      <node id="2">
+        <label>tudat::observation_partials::AngularPositionScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1AngularPositionScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::observation_partials::OneWayDopplerProperTimeComponentScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat::observation_partials::TwoWayDopplerScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1TwoWayDopplerScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>tudat::observation_partials::VelocityObservationScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1VelocityObservationScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::observation_partials::NWayRangeScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1NWayRangeScaling"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="42" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" bodystart="43" bodyend="62"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a7bf12506127c4527eacae23c6a9cf469" prot="public" virt="pure-virtual"><scope>tudat::observation_partials::PositionPartialScaling</scope><name>update</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a434c37b9140a2f1c0c916ab1eb332564" prot="public" virt="virtual"><scope>tudat::observation_partials::PositionPartialScaling</scope><name>~PositionPartialScaling</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

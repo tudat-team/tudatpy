@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_65b440661807198d816e7ab3391472d9" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/propagation_setup</compoundname>
+    <innerfile refid="createAccelerationModels_8cpp">createAccelerationModels.cpp</innerfile>
+    <innerfile refid="createEnvironmentUpdater_8cpp">createEnvironmentUpdater.cpp</innerfile>
+    <innerfile refid="createMassRateModels_8cpp">createMassRateModels.cpp</innerfile>
+    <innerfile refid="createStateDerivativeModel_8cpp">createStateDerivativeModel.cpp</innerfile>
+    <innerfile refid="createThrustModelGuidance_8cpp">createThrustModelGuidance.cpp</innerfile>
+    <innerfile refid="createTorqueModel_8cpp">createTorqueModel.cpp</innerfile>
+    <innerfile refid="dynamicsSimulator_8cpp">dynamicsSimulator.cpp</innerfile>
+    <innerfile refid="environmentUpdater_8cpp">environmentUpdater.cpp</innerfile>
+    <innerfile refid="propagationCR3BPFullProblem_8cpp">propagationCR3BPFullProblem.cpp</innerfile>
+    <innerfile refid="propagationLambertTargeterFullProblem_8cpp">propagationLambertTargeterFullProblem.cpp</innerfile>
+    <innerfile refid="propagationLowThrustProblem_8cpp">propagationLowThrustProblem.cpp</innerfile>
+    <innerfile refid="propagationOutput_8cpp">propagationOutput.cpp</innerfile>
+    <innerfile refid="propagationOutputSettings_8cpp">propagationOutputSettings.cpp</innerfile>
+    <innerfile refid="propagationPatchedConicFullProblem_8cpp">propagationPatchedConicFullProblem.cpp</innerfile>
+    <innerfile refid="propagationSettings_8cpp">propagationSettings.cpp</innerfile>
+    <innerfile refid="propagationTermination_8cpp">propagationTermination.cpp</innerfile>
+    <innerfile refid="setNumericallyIntegratedStates_8cpp">setNumericallyIntegratedStates.cpp</innerfile>
+    <innerfile refid="thrustSettings_8cpp">thrustSettings.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/propagation_setup/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_5b0a50e0ef733a952a1b78051eaeefa4" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation</compoundname>
+    <innerfile refid="acceleration_8h">acceleration.h</innerfile>
+    <innerfile refid="export_8h">export.h</innerfile>
+    <innerfile refid="interface_2json_2propagation_2massRateModel_8h">massRateModel.h</innerfile>
+    <innerfile refid="propagator_8h">propagator.h</innerfile>
+    <innerfile refid="referenceFrames_8h">referenceFrames.h</innerfile>
+    <innerfile refid="state_8h">state.h</innerfile>
+    <innerfile refid="termination_8h">termination.h</innerfile>
+    <innerfile refid="thrust_8h">thrust.h</innerfile>
+    <innerfile refid="torque_8h">torque.h</innerfile>
+    <innerfile refid="variable_8h">variable.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/"/>
+  </compounddef>
+</doxygen>

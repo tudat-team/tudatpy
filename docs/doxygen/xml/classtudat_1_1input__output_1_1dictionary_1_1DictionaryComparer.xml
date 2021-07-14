@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer" kind="class" language="C++" prot="public">
+    <compoundname>tudat::input_output::dictionary::DictionaryComparer</compoundname>
+    <includes refid="dictionaryComparer_8h" local="no">dictionaryComparer.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a7bdf27be42ccf4ab8a38ee53cfa413b7" prot="private" static="no" mutable="no">
+        <type>const input_output::dictionary::DictionaryEntryPointer</type>
+        <definition>const input_output::dictionary::DictionaryEntryPointer tudat::input_output::dictionary::DictionaryComparer::dictionaryEntry</definition>
+        <argsstring></argsstring>
+        <name>dictionaryEntry</name>
+        <briefdescription>
+<para>Dictionary entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Shared-pointer to a dictionary entry. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="135" column="60" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a826e9f02363706995ae89189657d5133" prot="private" static="no" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::input_output::dictionary::DictionaryComparer::parameterName</definition>
+        <argsstring></argsstring>
+        <name>parameterName</name>
+        <briefdescription>
+<para>Parameter name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>String name of parameter. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="141" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a8cb0e747f8ff243620d3d0f6b7a25971" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::dictionary::DictionaryComparer::DictionaryComparer</definition>
+        <argsstring>()</argsstring>
+        <name>DictionaryComparer</name>
+        <briefdescription>
+<para>Zombie constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor that initializes all members with zombie state. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="47" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="47" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a85948b9c9ac0a9393c587e097560ba29" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::dictionary::DictionaryComparer::DictionaryComparer</definition>
+        <argsstring>(const input_output::dictionary::DictionaryEntryPointer aDictionaryEntry)</argsstring>
+        <name>DictionaryComparer</name>
+        <param>
+          <type>const input_output::dictionary::DictionaryEntryPointer</type>
+          <declname>aDictionaryEntry</declname>
+        </param>
+        <briefdescription>
+<para>Constructor taking dictionary entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor that takes a dictionary entry as input and initializes the member dictionary entry. The parameterName member is initialized with zombie state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aDictionaryEntry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shared-pointer to a dictionary entry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="structtudat_1_1input__output_1_1dictionary_1_1DictionaryEntry" kindref="compound">DictionaryEntry</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="59" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="59" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1ae9ba9b6d73c7e035a625e325d23bfe95" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::dictionary::DictionaryComparer::DictionaryComparer</definition>
+        <argsstring>(const std::string &amp;aParameterName)</argsstring>
+        <name>DictionaryComparer</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>aParameterName</declname>
+        </param>
+        <briefdescription>
+<para>Constructor taking parameter name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor that takes a parameter name as input and initializes the member parameter name. The dictionary entry is initialized with zombie state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aParameterName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter-name. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="70" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="70" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1ad809ed34a7aa765c8732c7e60c7c5409" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::input_output::dictionary::DictionaryComparer::operator()</definition>
+        <argsstring>(DictionaryEntryPointer firstDictionaryEntry, DictionaryEntryPointer secondDictionaryEntry) const</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>DictionaryEntryPointer</type>
+          <declname>firstDictionaryEntry</declname>
+        </param>
+        <param>
+          <type>DictionaryEntryPointer</type>
+          <declname>secondDictionaryEntry</declname>
+        </param>
+        <briefdescription>
+<para>Overload ()-operator to compare dictionary entries. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads the ()-operator to compare dictionary entries. This allows for a sorted STL container of dictionary entries to be created (e.g., set). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>firstDictionaryEntry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shared-pointer to a dictionary entry. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondDictionaryEntry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shared-pointer to a dictionary entry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if parameter name of first dictionary entry should be sorted before parameter name of second dictionary entry. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="84" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="84" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1afe071ad9d7c35910a8e28925995b5f7b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::input_output::dictionary::DictionaryComparer::operator()</definition>
+        <argsstring>(const std::string &amp;synonym) const</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>synonym</declname>
+        </param>
+        <briefdescription>
+<para>Overload ()-operator to compare synonym with parameter name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads the ()-operator to compare a given synonym with the set parameter name. The check is not case-sensitive. This allows for a list of synonyms to be checked against a specific parameter name, set through the constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>synonym</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Synonym to check. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if synonym matches parameter name (not case-sensitive). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="98" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="98" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1ae33ec3aa1a981f423cfd5a133359538b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::input_output::dictionary::DictionaryComparer::operator()</definition>
+        <argsstring>(DictionaryEntryPointer dictionaryEntry) const</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>DictionaryEntryPointer</type>
+          <declname>dictionaryEntry</declname>
+        </param>
+        <briefdescription>
+<para>Overload ()-operator to compare dictionary entry with parameter name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads the ()-operator to compare a given dictionary entry with the set parameter name. The check is case-sensitive. This allows for a set of dictionary entries to be compared against a specific parameter name, set through the constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dictionaryEntry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dictionary entry to check. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if dictionary entry matches parameter name (case-sensitive). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="111" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="111" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a19f8212792262a02f90ef8736c6e9f42" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::input_output::dictionary::DictionaryComparer::operator()</definition>
+        <argsstring>(const input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr &amp;dataLine) const</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr &amp;</type>
+          <declname>dataLine</declname>
+        </param>
+        <briefdescription>
+<para>Overload ()-operator to compare data line with dictionary entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads the ()-operator to compare a given data line with the set dictionary entry. The check ensures that the paremter name and all synonyms are checked. The isCaseSensitive flag in the dictionary entry is used to ensure that the comparisons are either case-sensitive or not, as specified. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data line from input stream. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if parameter name in data line matches dictionary entry. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="125" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/dictionaryComparer.cpp" bodystart="22" bodyend="43"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Dictionary comparer functor. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This is a functor that implements a number of overloads of the ()-operator to perform various comparison operations, used in conjunction with the dictionary-based input system implemented in Tudat. <simplesect kind="see"><para><ref refid="structtudat_1_1input__output_1_1dictionary_1_1DictionaryEntry" kindref="compound">DictionaryEntry</ref>. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="40" bodyend="142"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a8cb0e747f8ff243620d3d0f6b7a25971" prot="public" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>DictionaryComparer</name></member>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a85948b9c9ac0a9393c587e097560ba29" prot="public" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>DictionaryComparer</name></member>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1ae9ba9b6d73c7e035a625e325d23bfe95" prot="public" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>DictionaryComparer</name></member>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a7bdf27be42ccf4ab8a38ee53cfa413b7" prot="private" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>dictionaryEntry</name></member>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1ad809ed34a7aa765c8732c7e60c7c5409" prot="public" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1afe071ad9d7c35910a8e28925995b5f7b" prot="public" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1ae33ec3aa1a981f423cfd5a133359538b" prot="public" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a19f8212792262a02f90ef8736c6e9f42" prot="public" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer_1a826e9f02363706995ae89189657d5133" prot="private" virt="non-virtual"><scope>tudat::input_output::dictionary::DictionaryComparer</scope><name>parameterName</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

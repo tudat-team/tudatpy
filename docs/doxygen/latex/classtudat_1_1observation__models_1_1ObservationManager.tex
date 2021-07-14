@@ -1,0 +1,282 @@
+\hypertarget{classtudat_1_1observation__models_1_1ObservationManager}{}\doxysection{tudat\+::observation\+\_\+models\+::Observation\+Manager$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1observation__models_1_1ObservationManager}\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+
+
+Class to manage simulation of observables and associated partials for a single type of observable.  
+
+
+
+
+{\ttfamily \#include $<$observation\+Manager.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+models\+::Observation\+Manager$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.824104cm]{classtudat_1_1observation__models_1_1ObservationManager}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_ad1e0676ed8a704889bbf5dfb8052f11a}\label{classtudat_1_1observation__models_1_1ObservationManager_ad1e0676ed8a704889bbf5dfb8052f11a}} 
+typedef Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_ad1e0676ed8a704889bbf5dfb8052f11a}{State\+Type}}
+\begin{DoxyCompactList}\small\item\em Typedef for translational state type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_afeb31ef889840e25ceadb1366ba3bd51}{Observation\+Manager}} (const Observable\+Type observable\+Type, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulator}{Observation\+Simulator}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$ $>$ \&observation\+Simulator, const std\+::map$<$ Link\+Ends, std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ $>$ observation\+Partials, const std\+::map$<$ Link\+Ends, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling}{observation\+\_\+partials\+::\+Position\+Partial\+Scaling}} $>$ $>$ observation\+Partial\+Scalers, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface}{propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} $>$ state\+Transition\+Matrix\+Interface)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_a6974c164e120dc09476313e2554c54a5}\label{classtudat_1_1observation__models_1_1ObservationManager_a6974c164e120dc09476313e2554c54a5}} 
+virtual \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_a6974c164e120dc09476313e2554c54a5}{$\sim$\+Observation\+Manager}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_a62673045997f56b93b8e1aaea1312674}{get\+Observation\+Size}} (const Link\+Ends \&link\+Ends)
+\begin{DoxyCompactList}\small\item\em Function to return the size of the observable for a given set of link ends. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationModel}{Observation\+Model}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_a2b19f5f882d5e0b80ec39d54fe1fd379}{get\+Observation\+Model}} (const Link\+Ends link\+Ends)
+\begin{DoxyCompactList}\small\item\em Function to return the observation model for a given set of link ends. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_aff25f988695c1bde5502262924dd4b43}{get\+Observation\+Simulator}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the object used to simulate noise-\/free observations. \end{DoxyCompactList}\item 
+std\+::pair$<$ Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$, Eigen\+::\+Matrix\+Xd $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_a679003aa70d8aa777463610e54a88979}{compute\+Observations\+With\+Partials}} (const std\+::vector$<$ Time\+Type $>$ \&times, const Link\+Ends link\+Ends, const Link\+End\+Type link\+End\+Associated\+With\+Time)
+\begin{DoxyCompactList}\small\item\em Function to simulate observations between specified link ends and associated partials at set of observation times. \end{DoxyCompactList}\item 
+std\+::map$<$ Link\+Ends, std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_a8995d40ffd4c5628e9e74c63a8e82f8d}{get\+Observation\+Partials}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the full list of observation partial objects. \end{DoxyCompactList}\item 
+std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_a3dea96472bad3aca95d846753083c175}{get\+Observation\+Partials}} (const Link\+Ends \&link\+Ends)
+\begin{DoxyCompactList}\small\item\em Function to return the observation partial objects for a single set of link ends. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_abeba54b9b1c57b095d38a70779c46da1}{update\+Partials}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const Link\+Ends \&link\+Ends, const Link\+End\+Type link\+End\+Associated\+With\+Time, const Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Observation\+Size, 1 $>$ current\+Observation)
+\begin{DoxyCompactList}\small\item\em Function to perform updates of dependent variables used by (subset of) observation partials. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, Observation\+Size, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_a6d6aeb6a2c7382c83a98c36a0512a58b}{determine\+Observation\+Partial\+Matrix}} (const int observation\+Size, const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const Link\+Ends \&link\+Ends, const Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Observation\+Size, 1 $>$ current\+Observation, const Link\+End\+Type link\+End\+Associated\+With\+Time)
+\begin{DoxyCompactList}\small\item\em Function to calculate range partials at given states between link ends and reception and transmission time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_a30411086ac6b5491dad53c46ebe47ade}\label{classtudat_1_1observation__models_1_1ObservationManager_a30411086ac6b5491dad53c46ebe47ade}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulator}{Observation\+Simulator}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_a30411086ac6b5491dad53c46ebe47ade}{observation\+Simulator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Object used to simulate ideal observations of the observable\+Type. \end{DoxyCompactList}\item 
+std\+::map$<$ Link\+Ends, std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_ac3b385f5e1ab8e1604593e0bf6b06d98}{observation\+Partials\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of observation partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_ab6ed8a1c26e3965277ba021948443fe4}\label{classtudat_1_1observation__models_1_1ObservationManager_ab6ed8a1c26e3965277ba021948443fe4}} 
+std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_ab6ed8a1c26e3965277ba021948443fe4}{current\+Link\+End\+Partials}}
+\begin{DoxyCompactList}\small\item\em Pre-\/declared map used in computation of partials. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$int Observation\+Size, typename Observation\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::observation\+\_\+models\+::\+Observation\+Manager$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$}
+
+Class to manage simulation of observables and associated partials for a single type of observable. 
+
+This class manages the simulation of observables and their partials, which are used during estimation. Separate observation models of a single kind (i.\+e. between different link ends) are all handled by a single object of this type. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_afeb31ef889840e25ceadb1366ba3bd51}\label{classtudat_1_1observation__models_1_1ObservationManager_afeb31ef889840e25ceadb1366ba3bd51}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!ObservationManager@{ObservationManager}}
+\index{ObservationManager@{ObservationManager}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{ObservationManager()}{ObservationManager()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{Observation\+Manager}} (\begin{DoxyParamCaption}\item[{const Observable\+Type}]{observable\+Type,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulator}{Observation\+Simulator}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$ $>$ \&}]{observation\+Simulator,  }\item[{const std\+::map$<$ Link\+Ends, std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ $>$}]{observation\+Partials,  }\item[{const std\+::map$<$ Link\+Ends, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling}{observation\+\_\+partials\+::\+Position\+Partial\+Scaling}} $>$ $>$}]{observation\+Partial\+Scalers,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface}{propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} $>$}]{state\+Transition\+Matrix\+Interface }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em observable\+Type} & Type of observable for which the instance of this class will compute observations/observation partials \\
+\hline
+{\em observation\+Simulator} & Object used to simulate ideal observations of the observable\+Type \\
+\hline
+{\em observation\+Partials} & List of objects that compute the partial derivatives of the observations w.\+r.\+t. the estimated parameters. Each partial (i.\+e. w.\+r.\+t. each parameter) has its own associated Observation\+Partial object. The Link\+Ends key denotes the specific geomtry of the observable, while the pair$<$ int, int $>$ key denotes the start index and size, respectively, of the current parameter partial in the estimated parameter vector. \\
+\hline
+{\em observation\+Partial\+Scalers} & Map of objects (one per set of link ends) used to compute the scaling of position partials that are used to compute the observation partials in the derived class \\
+\hline
+{\em state\+Transition\+Matrix\+Interface} & Object used to compute the state transition/sensitivity matrix at a given time \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_a679003aa70d8aa777463610e54a88979}\label{classtudat_1_1observation__models_1_1ObservationManager_a679003aa70d8aa777463610e54a88979}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!computeObservationsWithPartials@{computeObservationsWithPartials}}
+\index{computeObservationsWithPartials@{computeObservationsWithPartials}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{computeObservationsWithPartials()}{computeObservationsWithPartials()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::pair$<$ Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$, Eigen\+::\+Matrix\+Xd $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::compute\+Observations\+With\+Partials (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Time\+Type $>$ \&}]{times,  }\item[{const Link\+Ends}]{link\+Ends,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to simulate observations between specified link ends and associated partials at set of observation times. 
+
+Function to simulate observations between specified link ends and associated partials at set of observation times, used the sensitivity and state transition matrix interpolators set in the base class. 
+\begin{DoxyParams}{Parameters}
+{\em times} & Vector of times at which observations are performed \\
+\hline
+{\em link\+Ends} & Set of stations, S/C etc. in link, with specifiers of type of link end. \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Link end at which input times are valid, i.\+e. link end for which associated time is kept constant (to input value) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pair of observable values and partial matrix 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_a6d6aeb6a2c7382c83a98c36a0512a58b}\label{classtudat_1_1observation__models_1_1ObservationManager_a6d6aeb6a2c7382c83a98c36a0512a58b}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!determineObservationPartialMatrix@{determineObservationPartialMatrix}}
+\index{determineObservationPartialMatrix@{determineObservationPartialMatrix}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{determineObservationPartialMatrix()}{determineObservationPartialMatrix()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ double, Observation\+Size, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::determine\+Observation\+Partial\+Matrix (\begin{DoxyParamCaption}\item[{const int}]{observation\+Size,  }\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const Link\+Ends \&}]{link\+Ends,  }\item[{const Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Observation\+Size, 1 $>$}]{current\+Observation,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Function to calculate range partials at given states between link ends and reception and transmission time. 
+
+Function to calculate range partials at given states of link ends and reception and transmission times. 
+\begin{DoxyParams}{Parameters}
+{\em observation\+Size} & Size of single observation \\
+\hline
+{\em states} & States of link ends, order determined by \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_abeba54b9b1c57b095d38a70779c46da1}{update\+Partials( )}} and calculate\+Partial( ) functions expected inputs. \\
+\hline
+{\em times} & Times at link ends (reception, transmission, reflection, etc. ), order determined by \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager_abeba54b9b1c57b095d38a70779c46da1}{update\+Partials( )}} and calculate\+Partial( ) functions expected inputs. \\
+\hline
+{\em link\+Ends} & Set of stations, S/C etc. in link, with specifiers of type of link end. \\
+\hline
+{\em current\+Observation} & Value of observation for which partials are to be computed \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Reference link end for observations \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Matrix of partial derivative of observation w.\+r.\+t. parameter vector. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_a2b19f5f882d5e0b80ec39d54fe1fd379}\label{classtudat_1_1observation__models_1_1ObservationManager_a2b19f5f882d5e0b80ec39d54fe1fd379}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!getObservationModel@{getObservationModel}}
+\index{getObservationModel@{getObservationModel}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getObservationModel()}{getObservationModel()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationModel}{Observation\+Model}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Observation\+Model (\begin{DoxyParamCaption}\item[{const Link\+Ends}]{link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the observation model for a given set of link ends. 
+
+Function to return the observation model for a given set of link ends 
+\begin{DoxyParams}{Parameters}
+{\em link\+Ends} & Link ends for which observation model is to be returned \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Observation model 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_a8995d40ffd4c5628e9e74c63a8e82f8d}\label{classtudat_1_1observation__models_1_1ObservationManager_a8995d40ffd4c5628e9e74c63a8e82f8d}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!getObservationPartials@{getObservationPartials}}
+\index{getObservationPartials@{getObservationPartials}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getObservationPartials()}{getObservationPartials()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ Link\+Ends, std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Observation\+Partials (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the full list of observation partial objects. 
+
+Function to return the full list of observation partial objects \begin{DoxyReturn}{Returns}
+Full list of observation partial objects 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_a3dea96472bad3aca95d846753083c175}\label{classtudat_1_1observation__models_1_1ObservationManager_a3dea96472bad3aca95d846753083c175}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!getObservationPartials@{getObservationPartials}}
+\index{getObservationPartials@{getObservationPartials}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getObservationPartials()}{getObservationPartials()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Observation\+Partials (\begin{DoxyParamCaption}\item[{const Link\+Ends \&}]{link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the observation partial objects for a single set of link ends. 
+
+Function to return the observation partial objects for a single set of link ends \begin{DoxyReturn}{Returns}
+Observation partial objects for a single set of link ends 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_aff25f988695c1bde5502262924dd4b43}\label{classtudat_1_1observation__models_1_1ObservationManager_aff25f988695c1bde5502262924dd4b43}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!getObservationSimulator@{getObservationSimulator}}
+\index{getObservationSimulator@{getObservationSimulator}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getObservationSimulator()}{getObservationSimulator()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Observation\+Simulator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the object used to simulate noise-\/free observations. 
+
+Function to return the object used to simulate noise-\/free observations \begin{DoxyReturn}{Returns}
+Object used to simulate ideal observations 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManagerBase_a2d0fec0b81ab45da9f8d770feaa0d413}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager\+Base$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_a62673045997f56b93b8e1aaea1312674}\label{classtudat_1_1observation__models_1_1ObservationManager_a62673045997f56b93b8e1aaea1312674}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!getObservationSize@{getObservationSize}}
+\index{getObservationSize@{getObservationSize}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getObservationSize()}{getObservationSize()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+int \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Observation\+Size (\begin{DoxyParamCaption}\item[{const Link\+Ends \&}]{link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the size of the observable for a given set of link ends. 
+
+Function to return the size of the observable for a given set of link ends 
+\begin{DoxyParams}{Parameters}
+{\em link\+Ends} & Link ends for which observable size is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Size of observable 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManagerBase_aa9ef955226031cc3552eeb97eafff169}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager\+Base$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_abeba54b9b1c57b095d38a70779c46da1}\label{classtudat_1_1observation__models_1_1ObservationManager_abeba54b9b1c57b095d38a70779c46da1}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!updatePartials@{updatePartials}}
+\index{updatePartials@{updatePartials}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{updatePartials()}{updatePartials()}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::update\+Partials (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const Link\+Ends \&}]{link\+Ends,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time,  }\item[{const Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Observation\+Size, 1 $>$}]{current\+Observation }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function to perform updates of dependent variables used by (subset of) observation partials. 
+
+Function to perform updates of dependent variables used by (subset of) observation partials, in order to decrease redundant computations (i.\+e. scaling of position partials for range partials). is kept constant (to input value) 
+\begin{DoxyParams}{Parameters}
+{\em states} & List of times at each link end during observation \\
+\hline
+{\em times} & List of states at each link end during observation \\
+\hline
+{\em link\+Ends} & Set of stations, S/C etc. in link, with specifiers of type of link end. \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Link end at which given time is valid, i.\+e. link end for which associated time \\
+\hline
+{\em current\+Observation} & Value of observation for which partial scaling is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationManager_ac3b385f5e1ab8e1604593e0bf6b06d98}\label{classtudat_1_1observation__models_1_1ObservationManager_ac3b385f5e1ab8e1604593e0bf6b06d98}} 
+\index{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}!observationPartials\_@{observationPartials\_}}
+\index{observationPartials\_@{observationPartials\_}!tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationManager$<$ ObservationSize, ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{observationPartials\_}{observationPartials\_}}
+{\footnotesize\ttfamily template$<$int Observation\+Size, typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ Link\+Ends, std\+::map$<$ std\+::pair$<$ int, int $>$, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{observation\+\_\+partials\+::\+Observation\+Partial}}$<$ Observation\+Size $>$ $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationManager}{tudat\+::observation\+\_\+models\+::\+Observation\+Manager}}$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$\+::observation\+Partials\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Map of observation partials. 
+
+List of objects that compute the partial derivatives of the observations w.\+r.\+t. the estimated parameters. Each partial (i.\+e. w.\+r.\+t. each parameter) has its own associated Observation\+Partial object. The Link\+Ends key denotes the specific geomtry of the observable, while the pair$<$ int, int $>$ key denotes the start index and size, respectively, of the current parameter partial in the estimated parameter vector. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/observation\+\_\+models/observation\+Manager.\+h\end{DoxyCompactItemize}

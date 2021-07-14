@@ -1,0 +1,107 @@
+\hypertarget{classtudat_1_1propagators_1_1PropagationTerminationDetails}{}\doxysection{tudat\+::propagators\+::Propagation\+Termination\+Details Class Reference}
+\label{classtudat_1_1propagators_1_1PropagationTerminationDetails}\index{tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}}
+
+
+Class for storing details on the propagation termination.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Termination.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Propagation\+Termination\+Details\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1PropagationTerminationDetails}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails_a47927de010a18b3b632fb6db90f1efe5}{Propagation\+Termination\+Details}} (const Propagation\+Termination\+Reason propagation\+Termination\+Reason, const bool termination\+On\+Exact\+Condition=-\/1)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationDetails_a0f2eed4e5197a60cd8d6ad3bf0f7c2e0}\label{classtudat_1_1propagators_1_1PropagationTerminationDetails_a0f2eed4e5197a60cd8d6ad3bf0f7c2e0}} 
+virtual \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails_a0f2eed4e5197a60cd8d6ad3bf0f7c2e0}{$\sim$\+Propagation\+Termination\+Details}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Propagation\+Termination\+Reason \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails_a37a193e85c45b62afea680fcfb0361d7}{get\+Propagation\+Termination\+Reason}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve reason for termination. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails_a6c54a1bb1e7af412b1b03516f1ddffb4}{get\+Termination\+On\+Exact\+Condition}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve boolean to denote whether exact termination conditions are used. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationDetails_aa5c1a82ec15f9d5d5f53be975f3ccce0}\label{classtudat_1_1propagators_1_1PropagationTerminationDetails_aa5c1a82ec15f9d5d5f53be975f3ccce0}} 
+Propagation\+Termination\+Reason \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails_aa5c1a82ec15f9d5d5f53be975f3ccce0}{propagation\+Termination\+Reason\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Reason for termination. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails_a81baaf86e71af2086033ca94bda50240}{termination\+On\+Exact\+Condition\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean to denote whether exact termination conditions are used. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for storing details on the propagation termination. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationDetails_a47927de010a18b3b632fb6db90f1efe5}\label{classtudat_1_1propagators_1_1PropagationTerminationDetails_a47927de010a18b3b632fb6db90f1efe5}} 
+\index{tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}!PropagationTerminationDetails@{PropagationTerminationDetails}}
+\index{PropagationTerminationDetails@{PropagationTerminationDetails}!tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}}
+\doxysubsubsection{\texorpdfstring{PropagationTerminationDetails()}{PropagationTerminationDetails()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Propagation\+Termination\+Details\+::\+Propagation\+Termination\+Details (\begin{DoxyParamCaption}\item[{const Propagation\+Termination\+Reason}]{propagation\+Termination\+Reason,  }\item[{const bool}]{termination\+On\+Exact\+Condition = {\ttfamily -\/1} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em propagation\+Termination\+Reason} & Reason for termination \\
+\hline
+{\em termination\+On\+Exact\+Condition} & True if exact termination condition is used, false if not, -\/1 if neither is relevant \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationDetails_a37a193e85c45b62afea680fcfb0361d7}\label{classtudat_1_1propagators_1_1PropagationTerminationDetails_a37a193e85c45b62afea680fcfb0361d7}} 
+\index{tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}!getPropagationTerminationReason@{getPropagationTerminationReason}}
+\index{getPropagationTerminationReason@{getPropagationTerminationReason}!tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}}
+\doxysubsubsection{\texorpdfstring{getPropagationTerminationReason()}{getPropagationTerminationReason()}}
+{\footnotesize\ttfamily Propagation\+Termination\+Reason tudat\+::propagators\+::\+Propagation\+Termination\+Details\+::get\+Propagation\+Termination\+Reason (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve reason for termination. 
+
+Function to retrieve reason for termination \begin{DoxyReturn}{Returns}
+Reason for termination 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationDetails_a6c54a1bb1e7af412b1b03516f1ddffb4}\label{classtudat_1_1propagators_1_1PropagationTerminationDetails_a6c54a1bb1e7af412b1b03516f1ddffb4}} 
+\index{tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}!getTerminationOnExactCondition@{getTerminationOnExactCondition}}
+\index{getTerminationOnExactCondition@{getTerminationOnExactCondition}!tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}}
+\doxysubsubsection{\texorpdfstring{getTerminationOnExactCondition()}{getTerminationOnExactCondition()}}
+{\footnotesize\ttfamily bool tudat\+::propagators\+::\+Propagation\+Termination\+Details\+::get\+Termination\+On\+Exact\+Condition (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve boolean to denote whether exact termination conditions are used. 
+
+Function to retrieve boolean to denote whether exact termination conditions are used. \begin{DoxyReturn}{Returns}
+Boolean to denote whether exact termination conditions are used. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationDetails_a81baaf86e71af2086033ca94bda50240}\label{classtudat_1_1propagators_1_1PropagationTerminationDetails_a81baaf86e71af2086033ca94bda50240}} 
+\index{tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}!terminationOnExactCondition\_@{terminationOnExactCondition\_}}
+\index{terminationOnExactCondition\_@{terminationOnExactCondition\_}!tudat::propagators::PropagationTerminationDetails@{tudat::propagators::PropagationTerminationDetails}}
+\doxysubsubsection{\texorpdfstring{terminationOnExactCondition\_}{terminationOnExactCondition\_}}
+{\footnotesize\ttfamily bool tudat\+::propagators\+::\+Propagation\+Termination\+Details\+::termination\+On\+Exact\+Condition\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Boolean to denote whether exact termination conditions are used. 
+
+Boolean to denote whether exact termination conditions are used. True if exact termination condition is used, false if not, -\/1 if neither is relevant. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Termination.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,78 @@
+\hypertarget{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel}{}\doxysection{tudat\+::basic\+\_\+astrodynamics\+::Custom\+Mass\+Rate\+Model Class Reference}
+\label{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel}\index{tudat::basic\_astrodynamics::CustomMassRateModel@{tudat::basic\_astrodynamics::CustomMassRateModel}}
+
+
+Derived class for determining the rate of change of a body\textquotesingle{}s mass, user-\/defined by a function pointer.  
+
+
+
+
+{\ttfamily \#include $<$mass\+Rate\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::basic\+\_\+astrodynamics\+::Custom\+Mass\+Rate\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_ad733dcd46f7b9b261f181e4e03b6ba9a}{Custom\+Mass\+Rate\+Model}} (const std\+::function$<$ double(const double) $>$ mass\+Rate\+Function)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_a9d1cccf92a73639b48121643cd84596e}\label{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_a9d1cccf92a73639b48121643cd84596e}} 
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_a9d1cccf92a73639b48121643cd84596e}{$\sim$\+Custom\+Mass\+Rate\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_a60655ab7f951063ed436fcbd6b6073ee}{update\+Members}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Update member variables used by the mass rate model and compute the mass rate. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Derived class for determining the rate of change of a body\textquotesingle{}s mass, user-\/defined by a function pointer. 
+
+Derived class for determining the rate of change of a body\textquotesingle{}s mass, user-\/defined by a function pointer. This class can be used for any kind of mass rate model for which the user can define the dependency as a function of time. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_ad733dcd46f7b9b261f181e4e03b6ba9a}\label{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_ad733dcd46f7b9b261f181e4e03b6ba9a}} 
+\index{tudat::basic\_astrodynamics::CustomMassRateModel@{tudat::basic\_astrodynamics::CustomMassRateModel}!CustomMassRateModel@{CustomMassRateModel}}
+\index{CustomMassRateModel@{CustomMassRateModel}!tudat::basic\_astrodynamics::CustomMassRateModel@{tudat::basic\_astrodynamics::CustomMassRateModel}}
+\doxysubsubsection{\texorpdfstring{CustomMassRateModel()}{CustomMassRateModel()}}
+{\footnotesize\ttfamily tudat\+::basic\+\_\+astrodynamics\+::\+Custom\+Mass\+Rate\+Model\+::\+Custom\+Mass\+Rate\+Model (\begin{DoxyParamCaption}\item[{const std\+::function$<$ double(const double) $>$}]{mass\+Rate\+Function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em mass\+Rate\+Function} & Function returning mass rate as a function of time. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_a60655ab7f951063ed436fcbd6b6073ee}\label{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_a60655ab7f951063ed436fcbd6b6073ee}} 
+\index{tudat::basic\_astrodynamics::CustomMassRateModel@{tudat::basic\_astrodynamics::CustomMassRateModel}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::basic\_astrodynamics::CustomMassRateModel@{tudat::basic\_astrodynamics::CustomMassRateModel}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily void tudat\+::basic\+\_\+astrodynamics\+::\+Custom\+Mass\+Rate\+Model\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Update member variables used by the mass rate model and compute the mass rate. 
+
+Update member variables used by the mass rate model and compute the mass rate 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which acceleration model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a73c723ea252c57f3ac3109bb4c1bed42}{tudat\+::basic\+\_\+astrodynamics\+::\+Mass\+Rate\+Model}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/basic\+\_\+astro/mass\+Rate\+Model.\+h\end{DoxyCompactItemize}

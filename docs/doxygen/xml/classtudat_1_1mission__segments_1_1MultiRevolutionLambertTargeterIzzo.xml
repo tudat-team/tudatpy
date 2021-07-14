@@ -1,0 +1,457 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo" kind="class" language="C++" prot="public">
+    <compoundname>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</compoundname>
+    <basecompoundref refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo" prot="public" virt="non-virtual">tudat::mission_segments::ZeroRevolutionLambertTargeterIzzo</basecompoundref>
+    <includes refid="multiRevolutionLambertTargeterIzzo_8h" local="no">multiRevolutionLambertTargeterIzzo.h</includes>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a13989fb53b66d6f5ddc3eb3283a9dd0d" prot="public" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::NO_MAXIMUM_REVOLUTIONS</definition>
+        <argsstring></argsstring>
+        <name>NO_MAXIMUM_REVOLUTIONS</name>
+        <initializer>= -1</initializer>
+        <briefdescription>
+<para>Flag indicating that the maximum number of revolutions has not yet been calculated! </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When maximumNumberOfRevolutions is this amount of revolutions, it has not yet been initialized. Initialization is done automatically for the user. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="112" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1abc7999d932142238f64050ec3c2d4d85" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::numberOfRevolutions</definition>
+        <argsstring></argsstring>
+        <name>numberOfRevolutions</name>
+        <briefdescription>
+<para>Number of revolutions in problem. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of full revolutions needed in the solution to the problem specified.</para>
+<para>NB: the following parameters can be readjusted by the appropriate public function and therefore not declared const. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="176" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a6da335c19c0dfd2a914ec4c08e76a01f" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::isRightBranch</definition>
+        <argsstring></argsstring>
+        <name>isRightBranch</name>
+        <briefdescription>
+<para>Left/right branch flag. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean indicator for left or right branch solution, corresponding to a low or high energy transfer of the multiple solutions. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="183" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a39d81688a72b0ff52cb5e938ea5af1c4" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::maximumNumberOfRevolutions</definition>
+        <argsstring></argsstring>
+        <name>maximumNumberOfRevolutions</name>
+        <briefdescription>
+<para>Maximum number of revolutions possible in problem. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of full revolutions possible as a solution in the problem specified.</para>
+<para>NB: The following parameter is calculated on construction of the object and therefore not declared const. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="192" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" bodystart="192" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1afe0dfe9e561220642db5a438b8518a47" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>EIGEN_MAKE_ALIGNED_OPERATOR_NEW</type>
+        <definition>EIGEN_MAKE_ALIGNED_OPERATOR_NEW tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::MultiRevolutionLambertTargeterIzzo</definition>
+        <argsstring>(const Eigen::Vector3d &amp;aCartesianPositionAtDeparture, const Eigen::Vector3d &amp;aCartesianPositionAtArrival, const double aTimeOfFlight, const double aGravitationalParameter, const int aNumberOfRevolutions=0, const bool aIsRightBranch=false, const bool aIsRetrograde=false, const double aConvergenceTolerance=1e-9, const int aMaximumNumberOfIterations=50)</argsstring>
+        <name>MultiRevolutionLambertTargeterIzzo</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>aCartesianPositionAtDeparture</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>aCartesianPositionAtArrival</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aTimeOfFlight</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>aNumberOfRevolutions</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>aIsRightBranch</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>aIsRetrograde</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aConvergenceTolerance</declname>
+          <defval>1e-9</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>aMaximumNumberOfIterations</declname>
+          <defval>50</defval>
+        </param>
+        <briefdescription>
+<para>Multiple revolution Lambert problem constructor for problem definition. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructs a lambert problem with all relevant parameters for a multiple revolution problem (i.e. allowing multiple full revolutions in the solution). Constructor does not compute a solution in order to save on computations; solving is done on first member function call by user. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aCartesianPositionAtDeparture</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The initial position in xyz-coordinates. [m] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aCartesianPositionAtArrival</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The final position in xyz-coordinates. [m] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aTimeOfFlight</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The time-of-flight between the two positions. [s] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The gravitational parameter of the central body for the computed solution orbit. [m^3/s^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aNumberOfRevolutions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The required number of revolutions in the problem solution (default 0). [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aIsRightBranch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A boolean flag to indicate whether the right or left branch (corresponding to a low or high energy transfer arc) should be used in the solution (default false). [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aIsRetrograde</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A boolean flag to indicate retrograde motion with (default false). [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aConvergenceTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The required tolerance for the root solving procedure. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aMaximumNumberOfIterations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The required number of iterations the root solving procedure is allowed to go through (default 50). [-] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="83" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" bodystart="83" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a043cf2017321acf61c66d0e1b3854cd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::computeForRevolutionsAndBranch</definition>
+        <argsstring>(const int aNumberOfRevolutions, const bool aIsRightBranch)</argsstring>
+        <name>computeForRevolutionsAndBranch</name>
+        <param>
+          <type>const int</type>
+          <declname>aNumberOfRevolutions</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>aIsRightBranch</declname>
+        </param>
+        <briefdescription>
+<para>Compute solution for N revolutions and branch. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Using the constants from the problem specified in the constructor, this calculates an alternative solution specified by the number of revolutions and branch selected. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aNumberOfRevolutions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of revolutions for the alternative solution. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aIsRightBranch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A boolean flag to indicate retrograde motion. [-] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="121" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/multiRevolutionLambertTargeterIzzo.cpp" bodystart="33" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a631d7f7fafb29a70736339d8880b9573" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::getMaximumNumberOfRevolutions</definition>
+        <argsstring>()</argsstring>
+        <name>getMaximumNumberOfRevolutions</name>
+        <briefdescription>
+<para>Get maximum number of revolutions calculated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the maximum number of revolutions possible in a solution to the problem specified. <simplesect kind="return"><para>maximumNumberOfRevolutions Maximum number of revolutions possible for the problem. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="129" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/multiRevolutionLambertTargeterIzzo.cpp" bodystart="48" bodyend="57"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a85a8176d44d76522c7294003d6c438f0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions</definition>
+        <argsstring>()</argsstring>
+        <name>sanityCheckNumberOfRevolutions</name>
+        <briefdescription>
+<para>Sanity check number of revolutions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes (if not done before) the maximum number of revolutions possible and checks whether the number of revolutions specified is within this solution space. This only yields a proper outcome after dimensions have been transformed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="139" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/multiRevolutionLambertTargeterIzzo.cpp" bodystart="60" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a12b1d8e5895d3e73bd6c8b9a462c90ae" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::execute</definition>
+        <argsstring>()</argsstring>
+        <name>execute</name>
+        <reimplements refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a1cb96dd1627e781c996d38b9303a57df">execute</reimplements>
+        <briefdescription>
+<para>Execute the solving procedure (for multiple revolutions). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Execute solving procedure (for multiple revolutions).</para>
+<para>Executes the de-dimensionalization of the input parameter, solves the root for the time of flight equation, and subsequently reconstructs the inertial velocities to obtain a solution to the Lambert problem specified by the constructor of the class. If the number of revolutions specified is zero, it automatically calls to the base class function to calculate for zero revolutions. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="149" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/multiRevolutionLambertTargeterIzzo.cpp" bodystart="122" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a757b698ee15bb15678118698cf178a0e" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight</definition>
+        <argsstring>(const double xParameter)</argsstring>
+        <name>computeTimeOfFlight</name>
+        <reimplements refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a580304bcf54f4024c3ccf191ca5d2633">computeTimeOfFlight</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>xParameter</declname>
+        </param>
+        <briefdescription>
+<para>Compute time-of-flight using Lagrange&apos;s equation (for multiple revolutions). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the time-of-flight according to Lagrange&apos;s equation as a function of the x-parameter as used by Battin, using the class&apos;s sub results, including multiple revolutions. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>x parameter in Izzo&apos;s algorithm. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>timeOfFlight Computed time-of-flight. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="158" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/multiRevolutionLambertTargeterIzzo.cpp" bodystart="152" bodyend="222"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a4dd9cff148719f99c31ace8234cef3dd" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::MultiRevolutionLambertTargeterIzzo::computeRootTimeOfFlight</definition>
+        <argsstring>()</argsstring>
+        <name>computeRootTimeOfFlight</name>
+        <reimplements refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a98925d977adff13d26b20caf4a1faa49">computeRootTimeOfFlight</reimplements>
+        <briefdescription>
+<para>Solve the time of flight equation for x (for multiple revolutions). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Initializes and finds the root of the equation <formula id="80">$ 0 = t_f - F( x ) $</formula>, where <formula id="81">$ F( x ) $</formula> is a function to compute the time-of-flight as a function of <formula id="82">$ x $</formula>, for a multiple revolution solution. <simplesect kind="return"><para>xParameter Computed x parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="167" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/multiRevolutionLambertTargeterIzzo.cpp" bodystart="225" bodyend="285"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Izzo Lambert targeting algorithm class (multiple revolution). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Solves the multi revolution (input parameter) Lambert problem using Izzo&apos;s algorithms, i.e., the two point boundary value problem of what kind of unperturbed Keplerian orbit connects two positions in a certain time of flight.</para>
+<para>This class uses lazy evaluation, solving the algorithm is postponed until the function call relying on the computations.</para>
+<para>The algorithm used is the same algorithms as the zero revolution base class (Izzo&apos;s method): only the computation of the time of flight (based on Battin&apos;s x-variable) now includes the number of revolutions. The branch is required for specifying the neighborhood of the two roots of the problem. Furthermore, the non-dimensionalized parameters are stored internally and reused for new calculations of new solutions for the same object.</para>
+<para><parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::runtime_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>For negative time of flight and gravitational parameter values. Also, the number of revolutions is checked for feasibility: no negative values are allowed and is checked against an automatic computation of the maximum number of revolutions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structtudat_1_1basic__mathematics_1_1ConvergenceException" kindref="compound">basic_mathematics::ConvergenceException</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>When the internal rootfinding algorithm fails to converge within a reasonable amount of iterations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</label>
+        <link refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::mission_segments::LambertTargeter</label>
+        <link refid="classtudat_1_1mission__segments_1_1LambertTargeter"/>
+      </node>
+      <node id="2">
+        <label>tudat::mission_segments::ZeroRevolutionLambertTargeterIzzo</label>
+        <link refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</label>
+        <link refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::mission_segments::LambertTargeter</label>
+        <link refid="classtudat_1_1mission__segments_1_1LambertTargeter"/>
+      </node>
+      <node id="2">
+        <label>tudat::mission_segments::ZeroRevolutionLambertTargeterIzzo</label>
+        <link refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" line="55" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h" bodystart="56" bodyend="195"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab710c1fabfd56361c457449c99efd5fa" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>cartesianPositionAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a67d3a9e1b514c0ca2dad3f235c46941b" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>cartesianPositionAtDeparture</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a7260e16ff3a70f4971945d66ef08e682" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>cartesianVelocityAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a461475bd753a2ba590f1a403a8695794" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>cartesianVelocityAtDeparture</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a043cf2017321acf61c66d0e1b3854cd2" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>computeForRevolutionsAndBranch</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a4dd9cff148719f99c31ace8234cef3dd" prot="protected" virt="virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>computeRootTimeOfFlight</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a757b698ee15bb15678118698cf178a0e" prot="protected" virt="virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>computeTimeOfFlight</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a198b12eafe08a9a66900ee81fc215d20" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>computeVelocities</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a9fb8bc5f5b04c493d0b29f5ad4bd3565" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>convergenceTolerance</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a12b1d8e5895d3e73bd6c8b9a462c90ae" prot="protected" virt="virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>execute</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a9f04eb41af7d6ab2c3ae2597b65155fd" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getInertialVelocityAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1aaa55de14f573813df2ca90540ef51148" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getInertialVelocityAtDeparture</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ae3a2c762748e3e4ed914b9b248003bf6" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getInertialVelocityVectors</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a631d7f7fafb29a70736339d8880b9573" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getMaximumNumberOfRevolutions</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1aee339aa28f3f7d0f9bc0c02e8155c9ec" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getRadialVelocityAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1aa4e2a96db3a43d9c7557c9246aeaadfb" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getRadialVelocityAtDeparture</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a1979b80bd49c1656d738378f31195700" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getSemiMajorAxis</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1ab22c41bde66c025f1f5a3c7fbab46354" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getTransverseVelocityAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a1e2096c63935fbaf3496aebebb742419" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>getTransverseVelocityAtDeparture</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab22c920bfc0f13cdfee122fa2bb93ea2" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>gravitationalParameter</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a8049243b12a78c7308869558583d6558" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>isLongway</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a1dd22e2d2ed5159ad02566429544946d" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>isRetrograde</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a6da335c19c0dfd2a914ec4c08e76a01f" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>isRightBranch</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1ab173c76a2cc122df13c2a43201508211" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>lambdaParameter</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a332842cdf2c2302ed2ade4c50b170ad9" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>LambertTargeter</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1afbdf81b1a06e92fe4fe0198dd3ca6877" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>maximumNumberOfIterations</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a39d81688a72b0ff52cb5e938ea5af1c4" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>maximumNumberOfRevolutions</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1afe0dfe9e561220642db5a438b8518a47" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>MultiRevolutionLambertTargeterIzzo</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a13989fb53b66d6f5ddc3eb3283a9dd0d" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>NO_MAXIMUM_REVOLUTIONS</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a7f243a99425c70154c051269459046c9" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>normalizedChord</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1addb8147855117bb086dd07f28b766f93" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>normalizedMinimumEnergySemiMajorAxis</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a4133b5fc450c7c15ca666d0983fa923d" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>normalizedRadiusAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a5cde7bf679ff8e2099c5350dbbb103aa" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>normalizedSemiPerimeter</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1ab55d302f257841e2f4caf7e52f8955c4" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>normalizedTimeOfFlight</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1abc7999d932142238f64050ec3c2d4d85" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>numberOfRevolutions</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a896eb162d193d0112ee40bd367b47d09" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>sanityCheckGravitationalParameter</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a85a8176d44d76522c7294003d6c438f0" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>sanityCheckNumberOfRevolutions</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a16e6bfdeadb36d16cf55f08b5ed25727" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>sanityCheckTimeOfFlight</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1aa9dd030ab3e408d72f44c4f9ea2fe03a" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>solved</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a74f0ac221b22693ba7fe0b7398007e9b" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>timeOfFlight</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1ad122718ab907efaf27eb18f4f15baabc" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>transferAngle</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a0b9fc55e3bf9ddb1ffbc51c7202f1cda" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>transformDimensions</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a0151916d269a7449fbabe7693707cb70" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>transformed</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a80c3e081aeae5eea4d18bf4ef4164f2d" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>velocityNormalizingValue</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1adc2e6f6b30f240915bb319903f68a587" prot="public" virt="non-virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>ZeroRevolutionLambertTargeterIzzo</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab70e44ba68bb104a0d86e293e00b0ea2" prot="public" virt="virtual"><scope>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</scope><name>~LambertTargeter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

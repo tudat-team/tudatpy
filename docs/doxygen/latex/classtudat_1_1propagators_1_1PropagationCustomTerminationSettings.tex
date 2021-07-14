@@ -1,0 +1,59 @@
+\hypertarget{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings}{}\doxysection{tudat\+::propagators\+::Propagation\+Custom\+Termination\+Settings Class Reference}
+\label{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings}\index{tudat::propagators::PropagationCustomTerminationSettings@{tudat::propagators::PropagationCustomTerminationSettings}}
+
+
+Class for propagation stopping conditions settings\+: stopping the propagation based on custom requirements.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Termination\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Propagation\+Custom\+Termination\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a502edf155261fedc377fdc97a581136d}{Propagation\+Custom\+Termination\+Settings}} (const std\+::function$<$ bool(const double) $>$ \&check\+Stop\+Condition)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a42344787f98bbbf06a20bd6ac0ee7131}\label{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a42344787f98bbbf06a20bd6ac0ee7131}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a42344787f98bbbf06a20bd6ac0ee7131}{$\sim$\+Propagation\+Custom\+Termination\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a61f243a3fca420996b1a1a6ccf5eac20}\label{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a61f243a3fca420996b1a1a6ccf5eac20}} 
+std\+::function$<$ bool(const double) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a61f243a3fca420996b1a1a6ccf5eac20}{check\+Stop\+Condition\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Custom temination function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for propagation stopping conditions settings\+: stopping the propagation based on custom requirements. 
+
+Class for propagation stopping conditions settings\+: stopping the propagation after a fixed amount of time. Note that the propagator will finish a given time step, slightly surpassing the defined final time. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a502edf155261fedc377fdc97a581136d}\label{classtudat_1_1propagators_1_1PropagationCustomTerminationSettings_a502edf155261fedc377fdc97a581136d}} 
+\index{tudat::propagators::PropagationCustomTerminationSettings@{tudat::propagators::PropagationCustomTerminationSettings}!PropagationCustomTerminationSettings@{PropagationCustomTerminationSettings}}
+\index{PropagationCustomTerminationSettings@{PropagationCustomTerminationSettings}!tudat::propagators::PropagationCustomTerminationSettings@{tudat::propagators::PropagationCustomTerminationSettings}}
+\doxysubsubsection{\texorpdfstring{PropagationCustomTerminationSettings()}{PropagationCustomTerminationSettings()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Propagation\+Custom\+Termination\+Settings\+::\+Propagation\+Custom\+Termination\+Settings (\begin{DoxyParamCaption}\item[{const std\+::function$<$ bool(const double) $>$ \&}]{check\+Stop\+Condition }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em check\+Stop\+Condition} & Function that takes the current time as input and outputs whether the propagation should be stopped. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Termination\+Settings.\+h\end{DoxyCompactItemize}

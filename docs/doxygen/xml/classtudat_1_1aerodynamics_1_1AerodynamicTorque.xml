@@ -1,0 +1,401 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1AerodynamicTorque" kind="class" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::AerodynamicTorque</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::TorqueModel</basecompoundref>
+    <includes refid="aerodynamicTorque_8h" local="no">aerodynamicTorque.h</includes>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1af5e3d64ee14f10b34bc815b4af469261" prot="private" static="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>typedef std::function&lt; double ( ) &gt; tudat::aerodynamics::AerodynamicTorque::DoubleReturningFunction</definition>
+        <argsstring></argsstring>
+        <name>DoubleReturningFunction</name>
+        <briefdescription>
+<para>Typedef for double-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="87" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a41d1ae25d53fa46f5ecca92549d3bcda" prot="private" static="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>typedef std::function&lt; Eigen::Vector3d( ) &gt; tudat::aerodynamics::AerodynamicTorque::CoefficientReturningFunction</definition>
+        <argsstring></argsstring>
+        <name>CoefficientReturningFunction</name>
+        <briefdescription>
+<para>Typedef for coefficient-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="90" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a518c859f5acabafc3434a5df183a5b46" prot="private" static="no" mutable="no">
+        <type>const CoefficientReturningFunction</type>
+        <definition>const CoefficientReturningFunction tudat::aerodynamics::AerodynamicTorque::coefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>coefficientFunction_</name>
+        <briefdescription>
+<para>Function to retrieve the current aerodynamic moment coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="164" column="40" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a4d98c0714aa264bd060632a032c88a91" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::aerodynamics::AerodynamicTorque::densityFunction_</definition>
+        <argsstring></argsstring>
+        <name>densityFunction_</name>
+        <briefdescription>
+<para>Function to retrieve the current density. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="167" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="167" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1acd82932c30f8cc60907ad38a581d63f2" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::aerodynamics::AerodynamicTorque::airSpeedFunction_</definition>
+        <argsstring></argsstring>
+        <name>airSpeedFunction_</name>
+        <briefdescription>
+<para>Function to retrieve the current airspeed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="170" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a8a03834ea6ba937bc8ee8bb209896845" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::aerodynamics::AerodynamicTorque::referenceAreaFunction_</definition>
+        <argsstring></argsstring>
+        <name>referenceAreaFunction_</name>
+        <briefdescription>
+<para>Function to retrieve the current reference area. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="173" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1af156baa14fab12c187f2c508e7c7cf75" prot="private" static="no" mutable="no">
+        <type>const CoefficientReturningFunction</type>
+        <definition>const CoefficientReturningFunction tudat::aerodynamics::AerodynamicTorque::referenceLengthsFunction_</definition>
+        <argsstring></argsstring>
+        <name>referenceLengthsFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="175" column="40" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a52612702195fd763bb970d2420210a79" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::AerodynamicTorque::currentMomentCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>currentMomentCoefficients_</name>
+        <briefdescription>
+<para>Current aerodynamic moment coefficients, as set by updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="178" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a147d6651c373a074523381dd211f3f74" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::AerodynamicTorque::currentReferenceLengths_</definition>
+        <argsstring></argsstring>
+        <name>currentReferenceLengths_</name>
+        <briefdescription>
+<para>Current aerodynamic reference lengths, as set by updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="181" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a267f51b44f141be64560f8a1630906aa" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::AerodynamicTorque::currentTorque_</definition>
+        <argsstring></argsstring>
+        <name>currentTorque_</name>
+        <briefdescription>
+<para>Current aerodynamic torque, as set by updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="184" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a56ca582c65e32ac090e6c76aeae1db55" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicTorque::currentDensity_</definition>
+        <argsstring></argsstring>
+        <name>currentDensity_</name>
+        <briefdescription>
+<para>Current density, as set by updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="187" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="187" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a26fbd85f7d2502473b296ae0581defe4" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicTorque::currentAirspeed_</definition>
+        <argsstring></argsstring>
+        <name>currentAirspeed_</name>
+        <briefdescription>
+<para>Current airspeed, as set by updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="190" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a36f5abf205fe12c5f362d0b20ca74624" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicTorque::currentReferenceArea_</definition>
+        <argsstring></argsstring>
+        <name>currentReferenceArea_</name>
+        <briefdescription>
+<para>Current reference area, as set by updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="193" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1aea5cb2f3b853ad633643afb9ce305f70" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicTorque::coefficientMultiplier_</definition>
+        <argsstring></argsstring>
+        <name>coefficientMultiplier_</name>
+        <briefdescription>
+<para>Multiplier to reverse direction of coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="196" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a974e9939264fe6069d86379a760a2b44" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::AerodynamicTorque::AerodynamicTorque</definition>
+        <argsstring>(const CoefficientReturningFunction coefficientFunction, const DoubleReturningFunction densityFunction, const DoubleReturningFunction airSpeedFunction, const DoubleReturningFunction referenceAreaFunction, const CoefficientReturningFunction referenceLengthsFunction, const bool areCoefficientsInNegativeDirection=true)</argsstring>
+        <name>AerodynamicTorque</name>
+        <param>
+          <type>const CoefficientReturningFunction</type>
+          <declname>coefficientFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>densityFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>airSpeedFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>referenceAreaFunction</declname>
+        </param>
+        <param>
+          <type>const CoefficientReturningFunction</type>
+          <declname>referenceLengthsFunction</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areCoefficientsInNegativeDirection</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Acceleration torque constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Acceleration torque constructor, taking function pointers for all member variables. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coefficientFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function which retrieves current values of aerodynamic moment coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>densityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function which retrieves current value of the density. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>airSpeedFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function which retrieves current value of the airspeed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceAreaFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function which retrieves current value of the aerodynamic coefficient reference area. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceLengthsFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function which retrieves current values of the aerodynamic coefficient reference lengths. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areCoefficientsInNegativeDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean that determines whether to invert direction of aerodynamic coefficients. This is typically done for lift, drag and side force coefficients that point in negative direction in the local frame (default true). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="107" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="107" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a651bab3beb67874d430eec3b8ec36f45" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::AerodynamicTorque::getTorque</definition>
+        <argsstring>()</argsstring>
+        <name>getTorque</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a6d9549c6be6ff7955697d132a5439546">getTorque</reimplements>
+        <briefdescription>
+<para>Get aerodynamic torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the aerodynamic torque. All data required for the computation is taken from member variables, which are set to their latest values by the last call of the updateMembers function. The returned torque is in the same reference frame as the aerodynamic coefficients, with the coefficients assumed to be in positive direction in the frame. <simplesect kind="return"><para>Aerodynamic torque. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a696dc6ac58fd9a7b9db3195ef65f8bd7" kindref="member">updateMembers()</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="132" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="132" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a696dc6ac58fd9a7b9db3195ef65f8bd7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AerodynamicTorque::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a547de9f7c418d4721d3ae9e1b5acdcaa">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the aerodynamic torque model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates member variables used by the aerodynamic accfeleration model. Function pointers to retrieve the current values of quantities from which the torque is to be calculated are set by constructor. This function calls them to update the associated variables to their current state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which torque model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="145" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="145" bodyend="159"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for calculation of aerodynamic torques. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::aerodynamics::AerodynamicTorque</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::TorqueModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::aerodynamics::AerodynamicTorque</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::TorqueModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" line="82" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicTorque.h" bodystart="83" bodyend="198"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a974e9939264fe6069d86379a760a2b44" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>AerodynamicTorque</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1acd82932c30f8cc60907ad38a581d63f2" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>airSpeedFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a518c859f5acabafc3434a5df183a5b46" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>coefficientFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1aea5cb2f3b853ad633643afb9ce305f70" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>coefficientMultiplier_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a41d1ae25d53fa46f5ecca92549d3bcda" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>CoefficientReturningFunction</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a26fbd85f7d2502473b296ae0581defe4" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>currentAirspeed_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a56ca582c65e32ac090e6c76aeae1db55" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>currentDensity_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a52612702195fd763bb970d2420210a79" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>currentMomentCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a36f5abf205fe12c5f362d0b20ca74624" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>currentReferenceArea_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a147d6651c373a074523381dd211f3f74" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>currentReferenceLengths_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1ae5996724f9801a58349d9777e5db984a" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a267f51b44f141be64560f8a1630906aa" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>currentTorque_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a4d98c0714aa264bd060632a032c88a91" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>densityFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1af5e3d64ee14f10b34bc815b4af469261" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>DoubleReturningFunction</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a651bab3beb67874d430eec3b8ec36f45" prot="public" virt="virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>getTorque</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a8a03834ea6ba937bc8ee8bb209896845" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>referenceAreaFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1af156baa14fab12c187f2c508e7c7cf75" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>referenceLengthsFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a31f2d71f9cdde05f7effd84270a65205" prot="public" virt="virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1ac75b7b95a3207a0152259e068d8e2aef" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>TorqueModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicTorque_1a696dc6ac58fd9a7b9db3195ef65f8bd7" prot="public" virt="virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a54fb41daa5a0cbab301e8d6e4b69c26f" prot="public" virt="virtual"><scope>tudat::aerodynamics::AerodynamicTorque</scope><name>~TorqueModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

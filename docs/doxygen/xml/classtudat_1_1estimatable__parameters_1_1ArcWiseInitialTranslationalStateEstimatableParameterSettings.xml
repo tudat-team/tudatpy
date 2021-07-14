@@ -1,0 +1,423 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameterSettings</basecompoundref>
+    <includes refid="estimatableParameterSettings_8h" local="no">estimatableParameterSettings.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename InitialStateParameterType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a1747611c7c1fdfa4984e5c8e6ce25e53" prot="public" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt; tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::initialStateValue_</definition>
+        <argsstring></argsstring>
+        <name>initialStateValue_</name>
+        <briefdescription>
+<para>Current value of initial arc states (concatenated in same order as arcs) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="382" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="382" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1abad52068215bc556a7c0e2e4d093d6fd" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::arcStartTimes_</definition>
+        <argsstring></argsstring>
+        <name>arcStartTimes_</name>
+        <briefdescription>
+<para>Start times for separate arcs. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="385" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="385" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a48e7731f34d7ca635a57eb5606537ee6" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::centralBodies_</definition>
+        <argsstring></argsstring>
+        <name>centralBodies_</name>
+        <briefdescription>
+<para>List of bodies (arc-wise) w.r.t. which the initial state is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="388" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="388" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1afe8decb94efa9ef085de8fb5614d80e0" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::frameOrientation_</definition>
+        <argsstring></argsstring>
+        <name>frameOrientation_</name>
+        <briefdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="391" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="391" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1aa5efd029a09481fb5b5e7f6ad65696c1" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::isStateSet_</definition>
+        <argsstring></argsstring>
+        <name>isStateSet_</name>
+        <briefdescription>
+<para>Boolean to denote whether initial states are set, or if they need to be computed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="394" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="394" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a917edf3b229cba2efd800b2f76c6a761" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::ArcWiseInitialTranslationalStateEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt; initialStateValue, const std::vector&lt; double &gt; &amp;arcStartTimes, const std::string &amp;centralBody=&quot;SSB&quot;, const std::string &amp;frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>ArcWiseInitialTranslationalStateEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt;</type>
+          <declname>initialStateValue</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBody</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, sets initial value of translational state and a single central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets initial value of translational state and a single central body <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialStateValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current value of initial arc states (concatenated in same order as arcs) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start times for separate arcs </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body w.r.t. which the initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="307" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="307" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a02d16700cf2d80b14e1b78e398a91a72" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::ArcWiseInitialTranslationalStateEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt; initialStateValue, const std::vector&lt; double &gt; &amp;arcStartTimes, const std::vector&lt; std::string &gt; centralBodies, const std::string &amp;frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>ArcWiseInitialTranslationalStateEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt;</type>
+          <declname>initialStateValue</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>centralBodies</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, sets initial value of translational state and an arc-wise variable central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets initial value of translational state and an arc-wise variable central body <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialStateValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current value of initial arc states (concatenated in same order as arcs) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start times for separate arcs </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of central bodies (per arc) w.r.t. which the initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="331" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="331" bodyend="338"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a6d891821d4e667dce31db6322da213a9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::ArcWiseInitialTranslationalStateEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const std::vector&lt; double &gt; &amp;arcStartTimes, const std::string &amp;centralBody=&quot;SSB&quot;, const std::string &amp;frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>ArcWiseInitialTranslationalStateEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBody</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, without initial value of translational state, for a single central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, without initial value of translational state. Current initial state is retrieved from environment (ephemeris objects) during creation of parameter object. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start times for separate arcs </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body w.r.t. which the initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="349" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="349" bodyend="361"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a4e510d7fc51f728bab063f39b670c2ac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::ArcWiseInitialTranslationalStateEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const std::vector&lt; double &gt; &amp;arcStartTimes, const std::vector&lt; std::string &gt; centralBodies, const std::string &amp;frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>ArcWiseInitialTranslationalStateEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>centralBodies</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, without initial value of translational state, for an arc-wise variable central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, without initial value of translational state, for an arc-wise variable central body. Current initial state is retrieved from environment (ephemeris objects) during creation of parameter object. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start times for separate arcs </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of central bodies (per arc) w.r.t. which the initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="373" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="373" bodyend="379"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for estimating an arcwise initial translational state. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>frameOrientation_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="293" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="294" bodyend="396"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1abad52068215bc556a7c0e2e4d093d6fd" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>arcStartTimes_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a917edf3b229cba2efd800b2f76c6a761" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>ArcWiseInitialTranslationalStateEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a02d16700cf2d80b14e1b78e398a91a72" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>ArcWiseInitialTranslationalStateEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a6d891821d4e667dce31db6322da213a9" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>ArcWiseInitialTranslationalStateEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a4e510d7fc51f728bab063f39b670c2ac" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>ArcWiseInitialTranslationalStateEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a48e7731f34d7ca635a57eb5606537ee6" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>centralBodies_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a9daf25d39f47b7253d0705460760c79c" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>EstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1afe8decb94efa9ef085de8fb5614d80e0" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>frameOrientation_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1a1747611c7c1fdfa4984e5c8e6ce25e53" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>initialStateValue_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings_1aa5efd029a09481fb5b5e7f6ad65696c1" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>isStateSet_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a5879aeacc6f924dd33459251044bdc6e" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>parameterType_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a337ccc9c7a09be382677b818d3042082" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings</scope><name>~EstimatableParameterSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

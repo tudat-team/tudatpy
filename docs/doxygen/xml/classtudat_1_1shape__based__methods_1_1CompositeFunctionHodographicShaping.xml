@@ -1,0 +1,258 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping" kind="class" language="C++" prot="public">
+    <compoundname>tudat::shape_based_methods::CompositeFunctionHodographicShaping</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1aff2e9a0de9a8ab5c321b17b884e3d580" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; &gt; tudat::shape_based_methods::CompositeFunctionHodographicShaping::compositeFunctionComponents_</definition>
+        <argsstring></argsstring>
+        <name>compositeFunctionComponents_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="87" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a63e7d94bc8163a4f22bbe413d9880b0e" prot="private" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::shape_based_methods::CompositeFunctionHodographicShaping::compositeFunctionCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>compositeFunctionCoefficients_</name>
+        <briefdescription>
+<para>Vector of coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>VectorXd containing coefficients corresponding to components of the composite function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="93" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1aa18ec276bdcc91eeca000c00f28d9d28" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::CompositeFunctionHodographicShaping::CompositeFunctionHodographicShaping</definition>
+        <argsstring>(const std::vector&lt; std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; &gt; &amp;compositeFunctionComponents, const Eigen::VectorXd &amp;compositeFunctionCoefficients)</argsstring>
+        <name>CompositeFunctionHodographicShaping</name>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>compositeFunctionComponents</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>compositeFunctionCoefficients</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="30" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" bodystart="30" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1aeb7b0141b3e080077c7aad4834894da9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::CompositeFunctionHodographicShaping::~CompositeFunctionHodographicShaping</definition>
+        <argsstring>()</argsstring>
+        <name>~CompositeFunctionHodographicShaping</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="41" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" bodystart="41" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a5994521c8448822b019877917612c588" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::shape_based_methods::CompositeFunctionHodographicShaping::getCompositeFunctionCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getCompositeFunctionCoefficients</name>
+        <briefdescription>
+<para>Return coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns coefficients of composite function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="47" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" bodystart="47" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a5bf9213614d1f0d3e13f9072b617af59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::shape_based_methods::CompositeFunctionHodographicShaping::resetCompositeFunctionCoefficients</definition>
+        <argsstring>(const Eigen::VectorXd &amp;compositeFunctionCoefficients)</argsstring>
+        <name>resetCompositeFunctionCoefficients</name>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>compositeFunctionCoefficients</declname>
+        </param>
+        <briefdescription>
+<para>Reset coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets the coefficients of the composite function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="56" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.cpp" bodystart="23" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a39f60de65be69943e63ca96843355a15" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::shape_based_methods::CompositeFunctionHodographicShaping::getNumberOfCompositeFunctionComponents</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfCompositeFunctionComponents</name>
+        <briefdescription>
+<para>Returns number of composite function components. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns number of composite function components. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="62" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" bodystart="62" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1aa7133c3623b28cb21d3126e60b60e512" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::CompositeFunctionHodographicShaping::evaluateCompositeFunctionCurrentTime</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateCompositeFunctionCurrentTime</name>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="67" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.cpp" bodystart="40" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1ae68358a418c2190531f5d2320b4a1977" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::CompositeFunctionHodographicShaping::evaluateCompositeFunctionDerivativeCurrentTime</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateCompositeFunctionDerivativeCurrentTime</name>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="69" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.cpp" bodystart="51" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1ab5c02f35a164d1b7253bca38759d9052" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::CompositeFunctionHodographicShaping::evaluateCompositeFunctionIntegralCurrentTime</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateCompositeFunctionIntegralCurrentTime</name>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="71" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.cpp" bodystart="62" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1abc64e4cb57d60951a4f325dd0cfebf2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::CompositeFunctionHodographicShaping::getComponentFunctionCurrentValue</definition>
+        <argsstring>(const int componentIndex, const double currentTime)</argsstring>
+        <name>getComponentFunctionCurrentValue</name>
+        <param>
+          <type>const int</type>
+          <declname>componentIndex</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="73" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.cpp" bodystart="80" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1addbc2b1c9d0145616eee1d9e75dbcd08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::CompositeFunctionHodographicShaping::getComponentFunctionDerivativeCurrentTime</definition>
+        <argsstring>(const int componentIndex, const double currentTime)</argsstring>
+        <name>getComponentFunctionDerivativeCurrentTime</name>
+        <param>
+          <type>const int</type>
+          <declname>componentIndex</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="76" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.cpp" bodystart="73" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a7dab0bd671e2e1a8e5db6c6a0c12f3aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::CompositeFunctionHodographicShaping::getComponentFunctionIntegralCurrentTime</definition>
+        <argsstring>(const int componentIndex, const double currentTime)</argsstring>
+        <name>getComponentFunctionIntegralCurrentTime</name>
+        <param>
+          <type>const int</type>
+          <declname>componentIndex</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="79" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.cpp" bodystart="87" bodyend="91"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" line="25" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h" bodystart="26" bodyend="95"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a63e7d94bc8163a4f22bbe413d9880b0e" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>compositeFunctionCoefficients_</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1aff2e9a0de9a8ab5c321b17b884e3d580" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>compositeFunctionComponents_</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1aa18ec276bdcc91eeca000c00f28d9d28" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>CompositeFunctionHodographicShaping</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1aa7133c3623b28cb21d3126e60b60e512" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>evaluateCompositeFunctionCurrentTime</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1ae68358a418c2190531f5d2320b4a1977" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>evaluateCompositeFunctionDerivativeCurrentTime</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1ab5c02f35a164d1b7253bca38759d9052" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>evaluateCompositeFunctionIntegralCurrentTime</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1abc64e4cb57d60951a4f325dd0cfebf2d" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>getComponentFunctionCurrentValue</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1addbc2b1c9d0145616eee1d9e75dbcd08" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>getComponentFunctionDerivativeCurrentTime</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a7dab0bd671e2e1a8e5db6c6a0c12f3aa" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>getComponentFunctionIntegralCurrentTime</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a5994521c8448822b019877917612c588" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>getCompositeFunctionCoefficients</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a39f60de65be69943e63ca96843355a15" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>getNumberOfCompositeFunctionComponents</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1a5bf9213614d1f0d3e13f9072b617af59" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>resetCompositeFunctionCoefficients</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping_1aeb7b0141b3e080077c7aad4834894da9" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::CompositeFunctionHodographicShaping</scope><name>~CompositeFunctionHodographicShaping</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

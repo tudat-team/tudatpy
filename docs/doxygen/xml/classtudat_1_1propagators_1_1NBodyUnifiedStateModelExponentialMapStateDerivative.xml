@@ -1,0 +1,468 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1NBodyStateDerivative" prot="public" virt="non-virtual">tudat::propagators::NBodyStateDerivative&lt; double, double &gt;</basecompoundref>
+    <includes refid="nBodyUnifiedStateModelExponentialMapStateDerivative_8h" local="no">nBodyUnifiedStateModelExponentialMapStateDerivative.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1ab5c4c504edaf47266c9fc042817a551e" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; double() &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; double( ) &gt; &gt; tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::centralBodyGravitationalParameters_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameters_</name>
+        <briefdescription>
+<para>Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="286" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="286" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1ab445c726b0938d0daa26a726575d7067" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" kindref="compound">basic_astrodynamics::AccelerationModel</ref>&lt; Eigen::Vector3d &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt; &gt; &gt; tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::centralAccelerations_</definition>
+        <argsstring></argsstring>
+        <name>centralAccelerations_</name>
+        <briefdescription>
+<para>Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="290" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="290" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a7c29e05cf9671e76fa6977c8b3e37ae2" prot="private" static="no" mutable="no">
+        <type>basic_astrodynamics::AccelerationMap</type>
+        <definition>basic_astrodynamics::AccelerationMap tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::originalAccelerationModelsPerBody_</definition>
+        <argsstring></argsstring>
+        <name>originalAccelerationModelsPerBody_</name>
+        <briefdescription>
+<para>List of acceleration models, including the central body accelerations that are removed in this propagation scheme. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="293" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="293" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a7e7cd695392f10597af688d2dca3c573" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::currentCartesianLocalSolution_</definition>
+        <argsstring></argsstring>
+        <name>currentCartesianLocalSolution_</name>
+        <briefdescription>
+<para>Current full Cartesian state of the propagated bodies, w.r.t. the central bodies. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current full Cartesian state of the propagated bodies, w.r.t. the central bodies. These variables are set when calling the convertToOutputSolution function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="300" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="300" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a84a9f69e370d1c36e4346d3a72eaafaf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::NBodyUnifiedStateModelExponentialMapStateDerivative</definition>
+        <argsstring>(const basic_astrodynamics::AccelerationMap &amp;accelerationModelsPerBody, const std::shared_ptr&lt; CentralBodyData&lt; StateScalarType, TimeType &gt; &gt; centralBodyData, const std::vector&lt; std::string &gt; &amp;bodiesToIntegrate)</argsstring>
+        <name>NBodyUnifiedStateModelExponentialMapStateDerivative</name>
+        <param>
+          <type>const basic_astrodynamics::AccelerationMap &amp;</type>
+          <declname>accelerationModelsPerBody</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1CentralBodyData" kindref="compound">CentralBodyData</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+          <declname>centralBodyData</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToIntegrate</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>accelerationModelsPerBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A map containing the list of accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object responsible for providing the current integration origins from the global origins. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToIntegrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of names of bodies that are to be integrated numerically. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="109" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="109" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a562f5c4a61a471b626cb3de7edca097e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::~NBodyUnifiedStateModelExponentialMapStateDerivative</definition>
+        <argsstring>()</argsstring>
+        <name>~NBodyUnifiedStateModelExponentialMapStateDerivative</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="127" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="127" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a4a67bbf429ce57d6966cf57290809902" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::calculateSystemStateDerivative</definition>
+        <argsstring>(const TimeType time, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;stateOfSystemToBeIntegrated, Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &gt; stateDerivative)</argsstring>
+        <name>calculateSystemStateDerivative</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>stateOfSystemToBeIntegrated</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &gt;</type>
+          <declname>stateDerivative</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the state derivative of the translational motion of the system, using the equations of motion for the unified state model with exponential map (USMEM).</para>
+<para>Calculates the state derivative of the translational motion of the system, using the equations of motion for the unified state model with exponential map (USMEM). The input is the current state in USMEM elememts. The state derivate of this set is computed. To do so the accelerations are internally transformed into the RSW frame, using the current Cartesian state as set by the last call to the convertToOutputSolution function <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> (TDB seconds since J2000) at which the system is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateOfSystemToBeIntegrated</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of 7 * bodiesToBeIntegratedNumerically_.size( ), containing USMEM elements of the bodies being integrated. The order of the values is defined by the order of bodies in bodiesToBeIntegratedNumerically_ </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current derivative of the USMEM elements of the system of bodies integrated numerically (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="143" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="143" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a8d787c675edbbe49ea458c66947a2597" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::convertFromOutputSolution</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;cartesianSolution, const TimeType &amp;time)</argsstring>
+        <name>convertFromOutputSolution</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;</type>
+          <declname>cartesianSolution</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert the state in the conventional form to the USMEM elements form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert the state in the conventional form to the propagator-specific form. For the USMEM propagator, this transforms the Cartesian state w.r.t. the central body (conventional form) to the USMEM elements <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State in &apos;conventional form&apos; </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time at which the state is valid, used to computed Kepler orbits </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State (outputSolution), converted to the USMEM elements </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="175" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="175" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1ab9f210f00ec93c1673ab36cda2a7473e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::convertToOutputSolution</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;internalSolution, const TimeType &amp;time, Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; currentCartesianLocalSolution)</argsstring>
+        <name>convertToOutputSolution</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;</type>
+          <declname>internalSolution</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt;</type>
+          <declname>currentCartesianLocalSolution</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert the USMEM states of the bodies to the conventional form. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert the USMEM elements state to the conventional form. For the USMEM propagator, this transforms USMEM elements w.r.t. the central bodies to the Cartesian states w.r.t. these same central bodies: In contrast to the convertCurrentStateToGlobalRepresentation function, this function does not provide the state in the inertial frame, but instead provides it in the frame in which it is propagated. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>internalSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State in USMEM elemements (i.e. form that is used in numerical integration) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time at which the state is valid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentCartesianLocalSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State (internalSolution, which is USMEM-formulation), converted to the &apos;conventional form&apos; (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="205" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="205" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a7f2f5a4211a40dd5dc9c40b54d7aa7c0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>basic_astrodynamics::AccelerationMap</type>
+        <definition>basic_astrodynamics::AccelerationMap tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::getFullAccelerationsMap</definition>
+        <argsstring>()</argsstring>
+        <name>getFullAccelerationsMap</name>
+        <reimplements refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1ace7b03eeaa9a2571af87d578d3b747c7">getFullAccelerationsMap</reimplements>
+        <briefdescription>
+<para>Function to get the acceleration models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the acceleration models, including the central body accelerations that are removed for the propagation scheme <simplesect kind="return"><para>List of acceleration models, including the central body accelerations that are removed in this propagation scheme. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="226" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="226" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a262eb6f793d39f05a9b9b7d62a64dbc3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::getPropagatedStateSize</definition>
+        <argsstring>()</argsstring>
+        <name>getPropagatedStateSize</name>
+        <reimplements refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1af203ca28dbf9eeacb76aca2a5d4f384f">getPropagatedStateSize</reimplements>
+        <briefdescription>
+<para>Function to return the size of the state handled by the object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the size of the state handled by the object. <simplesect kind="return"><para>Size of the state under consideration (7 times the number if integrated bodies). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="236" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="236" bodyend="239"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a10a1aa5334ab361c8fc101e9528d0008" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::postProcessState</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; unprocessedState)</argsstring>
+        <name>postProcessState</name>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt;</type>
+          <declname>unprocessedState</declname>
+        </param>
+        <briefdescription>
+<para>Function to process the state during propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to process the state during propagation. For exponential map (EM), this function converts to/from shadow exponential map (SEM), in case the rotation angle is larger than PI. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>unprocessedState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State computed after propagation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Processed state (returned by reference). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="248" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="248" bodyend="271"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a1dbb3443fd7e77a787140fa296fe986a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>bool tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;::isStateToBePostProcessed</definition>
+        <argsstring>()</argsstring>
+        <name>isStateToBePostProcessed</name>
+        <reimplements refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a8541ff94360e103cd1157899969c6bb3">isStateToBePostProcessed</reimplements>
+        <briefdescription>
+<para>Function to return whether the state needs to be post-processed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return whether the state needs to be post-processed. For (shadow) exponential map this is true. <simplesect kind="return"><para>Boolean confirming that the state needs to be post-processed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="278" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="278" bodyend="281"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for computing the state derivative of translational motion of N bodies, using a Gauss method with unified state model with exponential map (USMEM).</para>
+<para>Class for computing the state derivative of translational motion of N bodies, using a Gauss method with unified state model with exponential map (USMEM). In this method, the derivative of the USMEM elements are computed from the total Cartesian accelerations, with the USMEM elements of the bodies the states being numerically propagated. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative"/>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::NBodyStateDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1NBodyStateDerivative"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative"/>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::NBodyStateDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1NBodyStateDerivative"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" line="90" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h" bodystart="91" bodyend="302"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a3bf393ea506289558ca62ac0ba2b6fd2" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>accelerationModelList_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1aa9ae6d8dfda131ffca5b23c1564342af" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>accelerationModelsPerBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a87be0b1f42e3315d24947a9434c84db7" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>bodiesToBeIntegratedNumerically_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a04d54fb3449d2859a301feb7efc8aa8f" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>bodyOrder_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a4a67bbf429ce57d6966cf57290809902" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>calculateSystemStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ae3f4427ef5aee571271cbaa23bda3cb1" prot="public" virt="pure-virtual" ambiguityscope="NBodyStateDerivative&lt; double, double &gt;::"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>calculateSystemStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1ab445c726b0938d0daa26a726575d7067" prot="private" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>centralAccelerations_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a15e48d54c9b438f14176be7f3bde5d4c" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>centralBodyData_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1ab5c4c504edaf47266c9fc042817a551e" prot="private" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>centralBodyGravitationalParameters_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a300ed482766d9b3174f9b8c0f5f05093" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>centralBodyStatesWrtGlobalOrigin_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1aa1485260a3a591741454070ce4b89fb2" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>clearDerivedTranslationalStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a1a4df6d3bc026a5d7d780f812fc10ba3" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>clearStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a24ded178bab0fdf4155b5c2fea461e9a" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>clearTranslationalStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a17b2f9c92c77ced3cfa2b563878c84eb" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>convertCurrentStateToGlobalRepresentation</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a8d787c675edbbe49ea458c66947a2597" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>convertFromOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ad12197357ad23bc815274f69c0c9a6c3" prot="public" virt="pure-virtual" ambiguityscope="NBodyStateDerivative&lt; double, double &gt;::"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>convertFromOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1ab9f210f00ec93c1673ab36cda2a7473e" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>convertToOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1aeab2b2a9eae937200a5def64dcf18960" prot="public" virt="pure-virtual" ambiguityscope="NBodyStateDerivative&lt; double, double &gt;::"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>convertToOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a107c7354c39b9793ddee9eb6b363a4da" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>createAccelerationModelList</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a7e7cd695392f10597af688d2dca3c573" prot="private" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>currentCartesianLocalSolution_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a3c8a3939cf0e2a6b2ea1c23e44196ac7" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getAccelerationsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a6371faac2a8c345ff0b585708e5df1f8" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getBodiesToBeIntegratedNumerically</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a15dc1d66a3f98bbc141837c7af7a8036" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getCentralBodyData</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a164f88f2c4be12c243fb99a035213a66" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getConventionalStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a7f2f5a4211a40dd5dc9c40b54d7aa7c0" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getFullAccelerationsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a2dbb19e97c9fde342788832fece0a5ff" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getIntegratedStateType</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a262eb6f793d39f05a9b9b7d62a64dbc3" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getPropagatedStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a2f6fa526b5bfa1e80a7c4a80fa36ea91" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getTotalAccelerationForBody</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a30ba3219d9c3d11106854bbc44893421" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>getTranslationalPropagatorType</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1abfc18254cb8d42534c8b882ed7651319" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>innerAccelerationIterator</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a741436a816b5d018f80f061d15fdac74" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>integratedStateType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a1dbb3443fd7e77a787140fa296fe986a" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>isStateToBePostProcessed</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a644208a4db876c3567c8ee9b009b098c" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>NBodyStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a84a9f69e370d1c36e4346d3a72eaafaf" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>NBodyUnifiedStateModelExponentialMapStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a7c29e05cf9671e76fa6977c8b3e37ae2" prot="private" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>originalAccelerationModelsPerBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1ab653453a93ffff1189e3c595c0aac304" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>outerAccelerationIterator</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a10a1aa5334ab361c8fc101e9528d0008" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a03145882db4c90a63a72d0c855b27f11" prot="public" virt="virtual" ambiguityscope="NBodyStateDerivative&lt; double, double &gt;::"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a90c770ae1cc36edb43d6363416f3461f" prot="public" virt="virtual" ambiguityscope="NBodyStateDerivative&lt; double, double &gt;::"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a0b30df07d47b0cf367fe633fd15c5736" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>propagatorType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1acbb10b6a3ae3413f136520475f93ceab" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>SingleStateTypeDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1ad2b77f7a84f48a43d62ee2fe18ce8f27" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>sumStateDerivativeContributions</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a730fbb1106524ba0955957679d597c7a" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>sumStateDerivativeContributions</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a28e844a8e7c5716d091c7504a5c98815" prot="protected" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>unprocessedState_</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a1db2b5b538eeb857e040a8744d886e61" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>updateStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyStateDerivative_1a350b843b4f15844b59b0187e00022313" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>~NBodyStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1NBodyUnifiedStateModelExponentialMapStateDerivative_1a562f5c4a61a471b626cb3de7edca097e" prot="public" virt="non-virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>~NBodyUnifiedStateModelExponentialMapStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a08576def80c16bfe0169693d1abc0dfc" prot="public" virt="virtual"><scope>tudat::propagators::NBodyUnifiedStateModelExponentialMapStateDerivative</scope><name>~SingleStateTypeDerivative</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

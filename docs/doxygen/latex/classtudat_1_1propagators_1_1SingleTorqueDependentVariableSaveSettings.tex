@@ -1,0 +1,62 @@
+\hypertarget{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings}{}\doxysection{tudat\+::propagators\+::Single\+Torque\+Dependent\+Variable\+Save\+Settings Class Reference}
+\label{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings}\index{tudat::propagators::SingleTorqueDependentVariableSaveSettings@{tudat::propagators::SingleTorqueDependentVariableSaveSettings}}
+
+
+Class to define settings for saving a single torque (norm or vector) during propagation.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Output\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Single\+Torque\+Dependent\+Variable\+Save\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings_a251a2cf363f9184d914b8785454d74f1}{Single\+Torque\+Dependent\+Variable\+Save\+Settings}} (const basic\+\_\+astrodynamics\+::\+Available\+Torque torque\+Model\+Type, const std\+::string \&body\+Undergoing\+Torque, const std\+::string \&body\+Exerting\+Torque, const bool use\+Norm=0, const int component\+Index=-\/1)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings_a095ec64405b09ec5e10bac2df013ceb5}\label{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings_a095ec64405b09ec5e10bac2df013ceb5}} 
+basic\+\_\+astrodynamics\+::\+Available\+Torque \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings_a095ec64405b09ec5e10bac2df013ceb5}{torque\+Model\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to define settings for saving a single torque (norm or vector) during propagation. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings_a251a2cf363f9184d914b8785454d74f1}\label{classtudat_1_1propagators_1_1SingleTorqueDependentVariableSaveSettings_a251a2cf363f9184d914b8785454d74f1}} 
+\index{tudat::propagators::SingleTorqueDependentVariableSaveSettings@{tudat::propagators::SingleTorqueDependentVariableSaveSettings}!SingleTorqueDependentVariableSaveSettings@{SingleTorqueDependentVariableSaveSettings}}
+\index{SingleTorqueDependentVariableSaveSettings@{SingleTorqueDependentVariableSaveSettings}!tudat::propagators::SingleTorqueDependentVariableSaveSettings@{tudat::propagators::SingleTorqueDependentVariableSaveSettings}}
+\doxysubsubsection{\texorpdfstring{SingleTorqueDependentVariableSaveSettings()}{SingleTorqueDependentVariableSaveSettings()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Single\+Torque\+Dependent\+Variable\+Save\+Settings\+::\+Single\+Torque\+Dependent\+Variable\+Save\+Settings (\begin{DoxyParamCaption}\item[{const basic\+\_\+astrodynamics\+::\+Available\+Torque}]{torque\+Model\+Type,  }\item[{const std\+::string \&}]{body\+Undergoing\+Torque,  }\item[{const std\+::string \&}]{body\+Exerting\+Torque,  }\item[{const bool}]{use\+Norm = {\ttfamily 0},  }\item[{const int}]{component\+Index = {\ttfamily -\/1} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em torque\+Model\+Type} & Type of torque that is to be saved. \\
+\hline
+{\em body\+Undergoing\+Torque} & Name of body undergoing the torque. \\
+\hline
+{\em body\+Exerting\+Torque} & Name of body exerting the torque. \\
+\hline
+{\em use\+Norm} & Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque. \\
+\hline
+{\em component\+Index} & Index of the component to be saved. Only applicable to vectorial dependent variables. By default -\/1, i.\+e. all the components are saved. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Output\+Settings.\+h\end{DoxyCompactItemize}

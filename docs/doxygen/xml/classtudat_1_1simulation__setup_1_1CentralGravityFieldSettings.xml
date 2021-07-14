@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::CentralGravityFieldSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings" prot="public" virt="non-virtual">tudat::simulation_setup::GravityFieldSettings</basecompoundref>
+    <includes refid="createGravityField_8h" local="no">createGravityField.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1abc72189472f408765a6473cfe789cb77" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::CentralGravityFieldSettings::gravitationalParameter_</definition>
+        <argsstring></argsstring>
+        <name>gravitationalParameter_</name>
+        <briefdescription>
+<para>Gravitational parameter for gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="111" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1a5a73181da4f204e4b4e61cb842fc85c9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::CentralGravityFieldSettings::CentralGravityFieldSettings</definition>
+        <argsstring>(double gravitationalParameter)</argsstring>
+        <name>CentralGravityFieldSettings</name>
+        <param>
+          <type>double</type>
+          <declname>gravitationalParameter</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of gravity field. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="94" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="94" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1aa0917fc0611662a6eebe4b8fbd1e3376" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::simulation_setup::CentralGravityFieldSettings::~CentralGravityFieldSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~CentralGravityFieldSettings</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="97" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="97" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1afdcfa7ae589e429969062d0bca465ff5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::CentralGravityFieldSettings::getGravitationalParameter</definition>
+        <argsstring>()</argsstring>
+        <name>getGravitationalParameter</name>
+        <briefdescription>
+<para>Function to return gravitational parameter for gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return gravitational parameter for gravity field. <simplesect kind="return"><para>Gravitational parameter for gravity field. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="104" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="104" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1abcacc894a8bd0f6029acb35c442e2db2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::CentralGravityFieldSettings::resetGravitationalParameter</definition>
+        <argsstring>(const double gravitationalParameter)</argsstring>
+        <name>resetGravitationalParameter</name>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameter</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="106" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="106" bodyend="106"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Derived class of <ref refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings" kindref="compound">GravityFieldSettings</ref> defining settings of point mass gravity field. @get_docstring(CentralGravityFieldSettings.__docstring__) </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::GravityFieldSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::CentralGravityFieldSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::GravityFieldSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::CentralGravityFieldSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="85" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="86" bodyend="112"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1a5a73181da4f204e4b4e61cb842fc85c9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>CentralGravityFieldSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1afdcfa7ae589e429969062d0bca465ff5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>getGravitationalParameter</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a186ea91c0ece0951f21ec4280f277f71" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>getGravityFieldType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1abc72189472f408765a6473cfe789cb77" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>gravitationalParameter_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a410bdae779dd436f713d4116b64a0601" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>GravityFieldSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1ab9d4396fbf0b4c66710b78eb14928056" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>gravityFieldType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1abcacc894a8bd0f6029acb35c442e2db2" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>resetGravitationalParameter</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings_1aa0917fc0611662a6eebe4b8fbd1e3376" prot="public" virt="virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>~CentralGravityFieldSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a1c09b45caa37db3c2e17ebf1fac98d7c" prot="public" virt="virtual"><scope>tudat::simulation_setup::CentralGravityFieldSettings</scope><name>~GravityFieldSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

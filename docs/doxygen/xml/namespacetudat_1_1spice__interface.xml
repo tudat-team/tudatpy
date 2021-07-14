@@ -1,0 +1,490 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1spice__interface" kind="namespace" language="C++">
+    <compoundname>tudat::spice_interface</compoundname>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="spiceInterface_8h_1a1fec50d8aa608a9fb41d6b7f2a73b4d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::convertJulianDateToEphemerisTime</definition>
+        <argsstring>(const double julianDate)</argsstring>
+        <name>convertJulianDateToEphemerisTime</name>
+        <param>
+          <type>const double</type>
+          <declname>julianDate</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(convert_julian_date_to_ephemeris_time) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert a Julian date to ephemeris time (equivalent to TDB in Spice). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="22" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="22" bodyend="24" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="48" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a413c510d2788e3bcfac3eb8057dc33b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::convertEphemerisTimeToJulianDate</definition>
+        <argsstring>(const double ephemerisTime)</argsstring>
+        <name>convertEphemerisTimeToJulianDate</name>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(convert_ephemeris_time_to_julian_date) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert ephemeris time (equivalent to TDB) to a Julian date. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="27" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="27" bodyend="29" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="51" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1aaf9b3342a125dd76a1c0d9d8daa84a53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::convertDateStringToEphemerisTime</definition>
+        <argsstring>(const std::string &amp;dateString)</argsstring>
+        <name>convertDateStringToEphemerisTime</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>dateString</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(convert_date_string_to_ephemeris_time) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts a date string to ephemeris time. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="32" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="32" bodyend="36" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="54" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a9d249e8543c11b4518fc1683cd390b7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Vector6d tudat::spice_interface::getBodyCartesianStateAtEpoch</definition>
+        <argsstring>(const std::string &amp;targetBodyName, const std::string &amp;observerBodyName, const std::string &amp;referenceFrameName, const std::string &amp;aberrationCorrections, const double ephemerisTime)</argsstring>
+        <name>getBodyCartesianStateAtEpoch</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>targetBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>observerBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceFrameName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>aberrationCorrections</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(get_body_cartesian_state_at_epoch) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get Cartesian state of a body, as observed from another body. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="39" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="39" bodyend="62" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="57" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a54e2e5a0086f7fd408ca231afda11220" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::spice_interface::getBodyCartesianPositionAtEpoch</definition>
+        <argsstring>(const std::string &amp;targetBodyName, const std::string &amp;observerBodyName, const std::string &amp;referenceFrameName, const std::string &amp;aberrationCorrections, const double ephemerisTime)</argsstring>
+        <name>getBodyCartesianPositionAtEpoch</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>targetBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>observerBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceFrameName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>aberrationCorrections</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(get_body_cartesian_position_at_epoch) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get Cartesian position of a body, as observed from another body. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="65" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="65" bodyend="88" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="63" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a2f09c2b86a5f8890ffc6b3406618520d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Vector6d tudat::spice_interface::getCartesianStateFromTleAtEpoch</definition>
+        <argsstring>(double epoch, std::shared_ptr&lt; ephemerides::Tle &gt; tle)</argsstring>
+        <name>getCartesianStateFromTleAtEpoch</name>
+        <param>
+          <type>double</type>
+          <declname>epoch</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Tle" kindref="compound">ephemerides::Tle</ref> &gt;</type>
+          <declname>tle</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(get_cartesian_state_from_tle_at_epoch) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get Cartesian state of a satellite from its two-line element set at a specified epoch. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="91" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="91" bodyend="122" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="70" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a05f9090cdc6ef98d9249eb27071a62ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::spice_interface::computeRotationQuaternionBetweenFrames</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>computeRotationQuaternionBetweenFrames</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(compute_rotation_quaternion_between_frames) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute quaternion of rotation between two frames. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="125" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="125" bodyend="144" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="73" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a2729d12c31ec3959ab035590a80cceda" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::spice_interface::computeRotationMatrixBetweenFrames</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>computeRotationMatrixBetweenFrames</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="146" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="146" bodyend="152" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="77" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a5843c52bdb63b97a12ace57156960837" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::spice_interface::computeRotationMatrixDerivativeBetweenFrames</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>computeRotationMatrixDerivativeBetweenFrames</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(compute_rotation_matrix_derivative_between_frames) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes time derivative of rotation matrix between two frames. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="155" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="155" bodyend="172" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="82" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a80033dc6bbe5dba746f364a7e844601f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>getAngularVelocityVectorOfFrameInOriginalFrame</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(get_angular_velocity_vector_of_frame_in_original_frame) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the angular velocity of one frame w.r.t. to another frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="175" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="175" bodyend="190" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="87" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1af009ba64eb0f959ace29268ba4645bee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::Quaterniond, Eigen::Matrix3d &gt;</type>
+        <definition>std::pair&lt; Eigen::Quaterniond, Eigen::Matrix3d &gt; tudat::spice_interface::computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="192" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="192" bodyend="208" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="91" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a3de7177393e34c821917f79cc3aca6cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::spice_interface::getBodyProperties</definition>
+        <argsstring>(const std::string &amp;body, const std::string &amp;property, const int maximumNumberOfValues=1)</argsstring>
+        <name>getBodyProperties</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>body</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>property</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumNumberOfValues</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+<para>@get_docstring(get_body_properties) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get property of a body from Spice. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="211" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="211" bodyend="228" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="95" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1ab3f655e8cb62c477dde5b70b7963e64b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::getBodyGravitationalParameter</definition>
+        <argsstring>(const std::string &amp;body)</argsstring>
+        <name>getBodyGravitationalParameter</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>body</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(get_body_gravitational_parameter) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get gravitational parameter of a body. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="231" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="231" bodyend="244" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="100" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a144484c91f45304e3413dbae56ea8596" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::getAverageRadius</definition>
+        <argsstring>(const std::string &amp;body)</argsstring>
+        <name>getAverageRadius</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>body</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(get_average_radius) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="247" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="247" bodyend="259" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="103" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1ac3af303da7cad97ea4dfa459ecdb4f0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::spice_interface::convertBodyNameToNaifId</definition>
+        <argsstring>(const std::string &amp;bodyName)</argsstring>
+        <name>convertBodyNameToNaifId</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(convert_body_name_to_naif_id) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert a body name to its NAIF identification number. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="262" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="262" bodyend="270" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="106" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a850395d96d1e08b7a648ff679192de08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::spice_interface::checkBodyPropertyInKernelPool</definition>
+        <argsstring>(const std::string &amp;bodyName, const std::string &amp;bodyProperty)</argsstring>
+        <name>checkBodyPropertyInKernelPool</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyProperty</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(check_body_property_in_kernel_pool) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Check if a certain property of a body is in the kernel pool. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="273" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="273" bodyend="280" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="109" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a193ab04580ac05118453d53d81a2589d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::spice_interface::loadSpiceKernelInTudat</definition>
+        <argsstring>(const std::string &amp;fileName)</argsstring>
+        <name>loadSpiceKernelInTudat</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>@get_docstring(load_kernel) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Load a Spice kernel. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="283" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="283" bodyend="285" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="112" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a6ff10381f3e477b54eff970fb8cb338e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::spice_interface::getTotalCountOfKernelsLoaded</definition>
+        <argsstring>()</argsstring>
+        <name>getTotalCountOfKernelsLoaded</name>
+        <briefdescription>
+<para>@get_docstring(get_total_count_of_kernels_loaded) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the amount of loaded Spice kernels. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="288" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="288" bodyend="292" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="115" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a1b085b42088f1bcd650f2dbbb6ff2cb1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::spice_interface::clearSpiceKernels</definition>
+        <argsstring>()</argsstring>
+        <name>clearSpiceKernels</name>
+        <briefdescription>
+<para>@get_docstring(clear_kernels) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Clear all Spice kernels. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="295" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="295" bodyend="295" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="118" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1adefa151660d7531adb9bdf13da9355c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::spice_interface::getStandardSpiceKernels</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; alternativeEphemerisKernels=std::vector&lt; std::string &gt;())</argsstring>
+        <name>getStandardSpiceKernels</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>alternativeEphemerisKernels</declname>
+          <defval>std::vector&lt; std::string &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>@get_docstring(get_standard_kernels) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get all standard Spice kernels used in tudat. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="298" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="298" bodyend="314" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="121" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="spiceInterface_8h_1a110087e737e854674f983f1a92524232" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::spice_interface::loadStandardSpiceKernels</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; alternativeEphemerisKernels=std::vector&lt; std::string &gt;())</argsstring>
+        <name>loadStandardSpiceKernels</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>alternativeEphemerisKernels</declname>
+          <defval>std::vector&lt; std::string &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>@get_docstring(load_standard_kernels) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" line="316" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceInterface.cpp" bodystart="316" bodyend="330" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" declline="125" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/spice/spiceInterface.h" line="45" column="1"/>
+  </compounddef>
+</doxygen>

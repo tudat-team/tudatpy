@@ -1,0 +1,246 @@
+\hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment}{}\doxysection{tudat\+::geometric\+\_\+shapes\+::Sphere\+Segment Class Reference}
+\label{classtudat_1_1geometric__shapes_1_1SphereSegment}\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+
+
+Sphere segment class.  
+
+
+
+
+{\ttfamily \#include $<$sphere\+Segment.\+h$>$}
+
+Inheritance diagram for tudat\+::geometric\+\_\+shapes\+::Sphere\+Segment\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1geometric__shapes_1_1SphereSegment}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_a2f89ff03c7ebba10220d16476afc2f62}{Sphere\+Segment}} (const double radius, const double minimum\+Azimuth\+Angle=0.\+0, const double maximum\+Azimuth\+Angle=2.\+0 $\ast$mathematical\+\_\+constants\+::\+PI, const double minimum\+Zenith\+Angle=0.\+0, const double maximum\+Zenith\+Angle=mathematical\+\_\+constants\+::\+PI)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_aa422df17ac81a397705cff25fbe7c636}{get\+Surface\+Point}} (const double azimuth\+Angle, const double zenith\+Angle)
+\begin{DoxyCompactList}\small\item\em Get surface point on sphere segment. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_a3f5a5556ca7fb2ab256fda395d2d12a7}{get\+Surface\+Derivative}} (const double azimuth\+Angle, const double zenith\+Angle, const int power\+Of\+Zenith\+Angle\+Derivative, const int power\+Of\+Azimuth\+Angle\+Derivative)
+\begin{DoxyCompactList}\small\item\em Get surface derivative on sphere segment. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_a926f414faa86172162ff21ea2ff69bd5}{get\+Parameter}} (const int index)
+\begin{DoxyCompactList}\small\item\em Get parameter of sphere segment. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_a622ea20a8f2cf810f9af8000ea8be669}{get\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Get radius. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_aec76a90c3eca3ce066aa75a24923d55c}{get\+Maximum\+Azimuth\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get maximum value of azimuth angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_a1b6e236b804c39e1270778c849f6800b}{get\+Minimum\+Azimuth\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get minimum value of azimuth angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_a0d0fbf7a541b21467118b2fa4946a0c8}{get\+Maximum\+Zenith\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get maximum value of zenith angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_a4de01c2d6a53908f337ef2641d712ce4}{get\+Minimum\+Zenith\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get minimum value of the zenith angle. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment_a959b3ec6633731b8397f43be206b20f1}{operator$<$$<$}} (std\+::ostream \&stream, \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment}{Sphere\+Segment}} \&sphere\+Segment)
+\begin{DoxyCompactList}\small\item\em Overload ostream to print class information. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Sphere segment class. 
+
+Class that defines the sphere ( segment ) shape. Parametrization is based on spherical coordinates, with azimuth and zenith angles as 1st and 2nd variables (see basic\+\_\+mathematics\+::convert\+Spherical\+To\+Cartesian). In addition to the minimum and maximum of these two variables, the sphere radius is required for defining the sphere. Note that by using the scaling\+Matrix\+\_\+ member variable, this class can also represent ellipsoids. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_a2f89ff03c7ebba10220d16476afc2f62}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_a2f89ff03c7ebba10220d16476afc2f62}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!SphereSegment@{SphereSegment}}
+\index{SphereSegment@{SphereSegment}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{SphereSegment()}{SphereSegment()}}
+{\footnotesize\ttfamily tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::\+Sphere\+Segment (\begin{DoxyParamCaption}\item[{const double}]{radius,  }\item[{const double}]{minimum\+Azimuth\+Angle = {\ttfamily 0.0},  }\item[{const double}]{maximum\+Azimuth\+Angle = {\ttfamily 2.0~$\ast$~mathematical\+\_\+constants\+:\+:PI},  }\item[{const double}]{minimum\+Zenith\+Angle = {\ttfamily 0.0},  }\item[{const double}]{maximum\+Zenith\+Angle = {\ttfamily mathematical\+\_\+constants\+:\+:PI} }\end{DoxyParamCaption})}
+
+
+
+Default constructor. 
+
+Default constructor. Default angle values are set to a full sphere. 
+\begin{DoxyParams}{Parameters}
+{\em radius} & Radius of sphere. \\
+\hline
+{\em minimum\+Azimuth\+Angle} & Minimum of azimuth angle. \\
+\hline
+{\em maximum\+Azimuth\+Angle} & Maximum of azimuth angle. \\
+\hline
+{\em minimum\+Zenith\+Angle} & Minimum of zenith angle. \\
+\hline
+{\em maximum\+Zenith\+Angle} & Maximum of zenith angle. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_aec76a90c3eca3ce066aa75a24923d55c}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_aec76a90c3eca3ce066aa75a24923d55c}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!getMaximumAzimuthAngle@{getMaximumAzimuthAngle}}
+\index{getMaximumAzimuthAngle@{getMaximumAzimuthAngle}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{getMaximumAzimuthAngle()}{getMaximumAzimuthAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::get\+Maximum\+Azimuth\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get maximum value of azimuth angle. 
+
+Returns the maximum values of the azimuth angle. \begin{DoxyReturn}{Returns}
+Maximum value of azimuth angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_a0d0fbf7a541b21467118b2fa4946a0c8}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_a0d0fbf7a541b21467118b2fa4946a0c8}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!getMaximumZenithAngle@{getMaximumZenithAngle}}
+\index{getMaximumZenithAngle@{getMaximumZenithAngle}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{getMaximumZenithAngle()}{getMaximumZenithAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::get\+Maximum\+Zenith\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get maximum value of zenith angle. 
+
+Returns the maximum value of the zenith angle. \begin{DoxyReturn}{Returns}
+Maximum value of zenith angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_a1b6e236b804c39e1270778c849f6800b}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_a1b6e236b804c39e1270778c849f6800b}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!getMinimumAzimuthAngle@{getMinimumAzimuthAngle}}
+\index{getMinimumAzimuthAngle@{getMinimumAzimuthAngle}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{getMinimumAzimuthAngle()}{getMinimumAzimuthAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::get\+Minimum\+Azimuth\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get minimum value of azimuth angle. 
+
+Returns the minimum value of the azimuth angle. \begin{DoxyReturn}{Returns}
+Minimum value of azimuth angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_a4de01c2d6a53908f337ef2641d712ce4}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_a4de01c2d6a53908f337ef2641d712ce4}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!getMinimumZenithAngle@{getMinimumZenithAngle}}
+\index{getMinimumZenithAngle@{getMinimumZenithAngle}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{getMinimumZenithAngle()}{getMinimumZenithAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::get\+Minimum\+Zenith\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get minimum value of the zenith angle. 
+
+Returns the minimum value of the zenith. \begin{DoxyReturn}{Returns}
+Minimum value of zenith angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_a926f414faa86172162ff21ea2ff69bd5}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_a926f414faa86172162ff21ea2ff69bd5}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!getParameter@{getParameter}}
+\index{getParameter@{getParameter}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{getParameter()}{getParameter()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::get\+Parameter (\begin{DoxyParamCaption}\item[{const int}]{index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get parameter of sphere segment. 
+
+Returns a parameter of the sphere segment. Function uses parameter\+\_\+ member variable to prevent multiple declarations. 
+\begin{DoxyParams}{Parameters}
+{\em index} & Index of parameter to return ( index = 0\+: returns radius ). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Selected parameter. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_a17437a185d1bc67dd7dc3cdfb43d92a6}{tudat\+::geometric\+\_\+shapes\+::\+Single\+Surface\+Geometry}}.
+
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_a622ea20a8f2cf810f9af8000ea8be669}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_a622ea20a8f2cf810f9af8000ea8be669}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!getRadius@{getRadius}}
+\index{getRadius@{getRadius}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{getRadius()}{getRadius()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::get\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get radius. 
+
+Returns the radius of the sphere segment. \begin{DoxyReturn}{Returns}
+Radius of the sphere segment. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_a3f5a5556ca7fb2ab256fda395d2d12a7}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_a3f5a5556ca7fb2ab256fda395d2d12a7}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!getSurfaceDerivative@{getSurfaceDerivative}}
+\index{getSurfaceDerivative@{getSurfaceDerivative}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{getSurfaceDerivative()}{getSurfaceDerivative()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::get\+Surface\+Derivative (\begin{DoxyParamCaption}\item[{const double}]{azimuth\+Angle,  }\item[{const double}]{zenith\+Angle,  }\item[{const int}]{power\+Of\+Zenith\+Angle\+Derivative,  }\item[{const int}]{power\+Of\+Azimuth\+Angle\+Derivative }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get surface derivative on sphere segment. 
+
+Retrieves the derivatives of the surface point with respect to the two independent variables. For power\+Of\+Zenith\+Derivative = 1 and power\+Of\+Azimuth\+Derivative = 2 the function returns\+: \[ \frac{ d^{ 3 } ( x, y, z ) } { du * dv^{ 2 } } \] ( with u and v the zenith and azimuth angles ). 
+\begin{DoxyParams}{Parameters}
+{\em azimuth\+Angle} & Azimuth angle. \\
+\hline
+{\em zenith\+Angle} & Zenith angle. \\
+\hline
+{\em power\+Of\+Zenith\+Angle\+Derivative} & Power of derivative with respect to azimuth angle. \\
+\hline
+{\em power\+Of\+Azimuth\+Angle\+Derivative} & Power of derivative with respect to zenith angle. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Surface derivative on sphere. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_ad5d412eff63b46b71cc774d222131795}{tudat\+::geometric\+\_\+shapes\+::\+Single\+Surface\+Geometry}}.
+
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_aa422df17ac81a397705cff25fbe7c636}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_aa422df17ac81a397705cff25fbe7c636}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!getSurfacePoint@{getSurfacePoint}}
+\index{getSurfacePoint@{getSurfacePoint}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{getSurfacePoint()}{getSurfacePoint()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::geometric\+\_\+shapes\+::\+Sphere\+Segment\+::get\+Surface\+Point (\begin{DoxyParamCaption}\item[{const double}]{azimuth\+Angle,  }\item[{const double}]{zenith\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get surface point on sphere segment. 
+
+Retrieves a surface point on the sphere, by performing the mapping of independent variables to cartesian coordinates for the sphere segment by spherical coordinate transformation. Function uses cartesian\+Position\+Vector\+\_\+ member variable. Values of this vector set previous to function call are irrelevant. 
+\begin{DoxyParams}{Parameters}
+{\em azimuth\+Angle} & Azimuth angle. \\
+\hline
+{\em zenith\+Angle} & Zenith angle. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Surface point on sphere. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_aec5c9957aa261662b34ddb0acf5eac40}{tudat\+::geometric\+\_\+shapes\+::\+Single\+Surface\+Geometry}}.
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1SphereSegment_a959b3ec6633731b8397f43be206b20f1}\label{classtudat_1_1geometric__shapes_1_1SphereSegment_a959b3ec6633731b8397f43be206b20f1}} 
+\index{tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!tudat::geometric\_shapes::SphereSegment@{tudat::geometric\_shapes::SphereSegment}}
+\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{stream,  }\item[{\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment}{Sphere\+Segment}} \&}]{sphere\+Segment }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Overload ostream to print class information. 
+
+Overloads ostream to print class information, prints the class type, the ranges for the azimuth and zenith angles and the radius. 
+\begin{DoxyParams}{Parameters}
+{\em stream} & Stream object. \\
+\hline
+{\em sphere\+Segment} & Sphere segment. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Stream object. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/geometric/sphere\+Segment.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/math/geometric/sphere\+Segment.\+cpp\end{DoxyCompactItemize}

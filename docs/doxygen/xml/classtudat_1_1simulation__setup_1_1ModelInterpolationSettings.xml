@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ModelInterpolationSettings</compoundname>
+    <includes refid="createGravityFieldVariations_8h" local="no">createGravityFieldVariations.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1adb94c7e6948c28dec79f46a7f34bd88b" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; tudat::simulation_setup::ModelInterpolationSettings::interpolatorSettings_</definition>
+        <argsstring></argsstring>
+        <name>interpolatorSettings_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" line="56" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1a4edb62b7b43adb976b774d5208f66ca2" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::ModelInterpolationSettings::initialTime_</definition>
+        <argsstring></argsstring>
+        <name>initialTime_</name>
+        <briefdescription>
+<para>Start time for interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" line="59" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1a27100f33bf4e12b01eca3e554c044d9b" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::ModelInterpolationSettings::finalTime_</definition>
+        <argsstring></argsstring>
+        <name>finalTime_</name>
+        <briefdescription>
+<para>End time for interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" line="62" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1a3148abe038357537862c1be22f9ef440" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::ModelInterpolationSettings::timeStep_</definition>
+        <argsstring></argsstring>
+        <name>timeStep_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> step with which to evaluate model, and provide input to interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" line="65" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1a1eee0d8611228a4e59295bdd809da1e3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ModelInterpolationSettings::ModelInterpolationSettings</definition>
+        <argsstring>(const double initialTime=0.0, const double finalTime=0.0, const double timeStep=0.0, const std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; interpolatorSettings=std::make_shared&lt; interpolators::LagrangeInterpolatorSettings &gt;(6))</argsstring>
+        <name>ModelInterpolationSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>initialTime</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>finalTime</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeStep</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+          <declname>interpolatorSettings</declname>
+          <defval>std::make_shared&lt; <ref refid="classtudat_1_1interpolators_1_1LagrangeInterpolatorSettings" kindref="compound">interpolators::LagrangeInterpolatorSettings</ref> &gt;(6)</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start time for interpolator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>finalTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End time for interpolator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> step with which to evaluate model, and provide input to interpolator </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interpolatorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings to use to crate the interpolator (i.e. type and any required associated information). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" line="47" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" bodystart="47" bodyend="54"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Object to define settings to be used for interpolating time-variations computed by an environment model.</para>
+<para>Object to define settings to be used for interpolating time-variations computed by an environment model. For instance, gravity field variations may be computed a priori (in certain cases) and interpolated during propagation, which can significantly reduce the computation time.class <ref refid="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings" kindref="compound">ModelInterpolationSettings</ref> </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" line="35" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityFieldVariations.h" bodystart="36" bodyend="66"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1a27100f33bf4e12b01eca3e554c044d9b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ModelInterpolationSettings</scope><name>finalTime_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1a4edb62b7b43adb976b774d5208f66ca2" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ModelInterpolationSettings</scope><name>initialTime_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1adb94c7e6948c28dec79f46a7f34bd88b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ModelInterpolationSettings</scope><name>interpolatorSettings_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1a1eee0d8611228a4e59295bdd809da1e3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ModelInterpolationSettings</scope><name>ModelInterpolationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ModelInterpolationSettings_1a3148abe038357537862c1be22f9ef440" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ModelInterpolationSettings</scope><name>timeStep_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

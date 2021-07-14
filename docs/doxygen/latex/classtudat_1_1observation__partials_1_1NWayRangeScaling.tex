@@ -1,0 +1,103 @@
+\hypertarget{classtudat_1_1observation__partials_1_1NWayRangeScaling}{}\doxysection{tudat\+::observation\+\_\+partials\+::NWay\+Range\+Scaling Class Reference}
+\label{classtudat_1_1observation__partials_1_1NWayRangeScaling}\index{tudat::observation\_partials::NWayRangeScaling@{tudat::observation\_partials::NWayRangeScaling}}
+
+
+Derived class for scaling three-\/dimensional position partial to n-\/way range observable partial.  
+
+
+
+
+{\ttfamily \#include $<$n\+Way\+Range\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::NWay\+Range\+Scaling\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1NWayRangeScaling}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1NWayRangeScaling_aaa9ee2c66ac5f4b98b1a77e38498daf2}{NWay\+Range\+Scaling}} (const std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling}{One\+Way\+Range\+Scaling}} $>$ $>$ \&constituent\+Range\+Scalings, const int number\+Of\+Link\+Ends)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1observation__partials_1_1NWayRangeScaling_a9c70d01e0348fd9809ea32b0a78208bb}{update}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&link\+End\+States, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type fixed\+Link\+End, const Eigen\+::\+Vector\+Xd current\+Observation)
+\begin{DoxyCompactList}\small\item\em Update the scaling object to the current times and states. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1observation__partials_1_1NWayRangeScaling_a471508e0d6843971894321b1e98ac860}{get\+Projected\+Relative\+Velocity\+Ratio}} (const int link\+Index)
+\begin{DoxyCompactList}\small\item\em Function to get value by which to scale a constituent one-\/way ranges partial for it to be put into n-\/way range partial. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Derived class for scaling three-\/dimensional position partial to n-\/way range observable partial. 
+
+Derived class for scaling three-\/dimensional position partial to n-\/way range observable partial. Implementation is taken from Moyer(2000) for constituent one-\/way ranges, whicha re scaled (at O(v/c)) to n-\/way range implementation 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1NWayRangeScaling_aaa9ee2c66ac5f4b98b1a77e38498daf2}\label{classtudat_1_1observation__partials_1_1NWayRangeScaling_aaa9ee2c66ac5f4b98b1a77e38498daf2}} 
+\index{tudat::observation\_partials::NWayRangeScaling@{tudat::observation\_partials::NWayRangeScaling}!NWayRangeScaling@{NWayRangeScaling}}
+\index{NWayRangeScaling@{NWayRangeScaling}!tudat::observation\_partials::NWayRangeScaling@{tudat::observation\_partials::NWayRangeScaling}}
+\doxysubsubsection{\texorpdfstring{NWayRangeScaling()}{NWayRangeScaling()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+NWay\+Range\+Scaling\+::\+NWay\+Range\+Scaling (\begin{DoxyParamCaption}\item[{const std\+::map$<$ int, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling}{One\+Way\+Range\+Scaling}} $>$ $>$ \&}]{constituent\+Range\+Scalings,  }\item[{const int}]{number\+Of\+Link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em constituent\+Range\+Scalings} & Map of consitutent one-\/way range scaling objects, with link end index as map key \\
+\hline
+{\em number\+Of\+Link\+Ends} & Number of link ends in observable \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1NWayRangeScaling_a471508e0d6843971894321b1e98ac860}\label{classtudat_1_1observation__partials_1_1NWayRangeScaling_a471508e0d6843971894321b1e98ac860}} 
+\index{tudat::observation\_partials::NWayRangeScaling@{tudat::observation\_partials::NWayRangeScaling}!getProjectedRelativeVelocityRatio@{getProjectedRelativeVelocityRatio}}
+\index{getProjectedRelativeVelocityRatio@{getProjectedRelativeVelocityRatio}!tudat::observation\_partials::NWayRangeScaling@{tudat::observation\_partials::NWayRangeScaling}}
+\doxysubsubsection{\texorpdfstring{getProjectedRelativeVelocityRatio()}{getProjectedRelativeVelocityRatio()}}
+{\footnotesize\ttfamily double tudat\+::observation\+\_\+partials\+::\+NWay\+Range\+Scaling\+::get\+Projected\+Relative\+Velocity\+Ratio (\begin{DoxyParamCaption}\item[{const int}]{link\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get value by which to scale a constituent one-\/way ranges partial for it to be put into n-\/way range partial. 
+
+Function to get value by which to scale a constituent one-\/way ranges partial for it to be put into n-\/way range partial, for a single constituent one-\/way range (as compiuuted by last call to update function). 
+\begin{DoxyParams}{Parameters}
+{\em link\+Index} & Index of link for which scaling is to be returned. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value by which to scale a constituent one-\/way ranges partial for it to be put into n-\/way range partial. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1NWayRangeScaling_a9c70d01e0348fd9809ea32b0a78208bb}\label{classtudat_1_1observation__partials_1_1NWayRangeScaling_a9c70d01e0348fd9809ea32b0a78208bb}} 
+\index{tudat::observation\_partials::NWayRangeScaling@{tudat::observation\_partials::NWayRangeScaling}!update@{update}}
+\index{update@{update}!tudat::observation\_partials::NWayRangeScaling@{tudat::observation\_partials::NWayRangeScaling}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::observation\+\_\+partials\+::\+NWay\+Range\+Scaling\+::update (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{link\+End\+States,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{fixed\+Link\+End,  }\item[{const Eigen\+::\+Vector\+Xd}]{current\+Observation }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Update the scaling object to the current times and states. 
+
+Update the scaling object to the current times and states 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+States} & List of states at each link end during observation Index of vector maps to link end for a given Obsevable\+Type through get\+Link\+End\+Index function. \\
+\hline
+{\em times} & List of times at each link end during observation. \\
+\hline
+{\em fixed\+Link\+End} & Link end at which observation time is defined, i.\+e. link end for which associated time is kept constant when computing observable. \\
+\hline
+{\em current\+Observation} & Value of observation for which partial scaling is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling_a7bf12506127c4527eacae23c6a9cf469}{tudat\+::observation\+\_\+partials\+::\+Position\+Partial\+Scaling}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/n\+Way\+Range\+Partial.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/observation\+\_\+partials/n\+Way\+Range\+Partial.\+cpp\end{DoxyCompactItemize}

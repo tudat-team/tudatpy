@@ -1,0 +1,385 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespaceEigen" kind="namespace" language="C++">
+    <compoundname>Eigen</compoundname>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="basicTypedefs_8h_1ad35a408812d3dccd3ac7a60ae53cbe75" prot="public" static="no">
+        <type>Eigen::Matrix&lt; double, 1, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; double, 1, 1 &gt; Eigen::Vector1d</definition>
+        <argsstring></argsstring>
+        <name>Vector1d</name>
+        <briefdescription>
+<para>Typedef for Vector1d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="21" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a3aacc5288521077a01c2ea5b8e320f60" prot="public" static="no">
+        <type>Eigen::Matrix&lt; double, 5, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; double, 5, 1 &gt; Eigen::Vector5d</definition>
+        <argsstring></argsstring>
+        <name>Vector5d</name>
+        <briefdescription>
+<para>Typedef for Vector5d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="24" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1af069642a777c10d1f201a2a215c31216" prot="public" static="no">
+        <type>Eigen::Matrix&lt; int, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; int, 6, 1 &gt; Eigen::Vector6i</definition>
+        <argsstring></argsstring>
+        <name>Vector6i</name>
+        <briefdescription>
+<para>Typedef for Vector6i. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="27" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1aa497bd493871c53bd35926bd3f4bc3a5" prot="public" static="no">
+        <type>Eigen::Matrix&lt; float, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; float, 6, 1 &gt; Eigen::Vector6f</definition>
+        <argsstring></argsstring>
+        <name>Vector6f</name>
+        <briefdescription>
+<para>Typedef for Vector6f. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="30" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a03c917374d8dcb5bb158f2380f92847a" prot="public" static="no">
+        <type>Eigen::Matrix&lt; double, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; double, 6, 1 &gt; Eigen::Vector6d</definition>
+        <argsstring></argsstring>
+        <name>Vector6d</name>
+        <briefdescription>
+<para>Typedef for Vector6d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="33" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a13f08536053cc4e8b7caefbd4a6ce78e" prot="public" static="no">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; long double, 6, 1 &gt; Eigen::Vector6ld</definition>
+        <argsstring></argsstring>
+        <name>Vector6ld</name>
+        <briefdescription>
+<para>Typedef for Vector6ld. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="36" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a3606dbe56ece574908fced577caf8458" prot="public" static="no">
+        <type>Eigen::Matrix&lt; double, 7, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; double, 7, 1 &gt; Eigen::Vector7d</definition>
+        <argsstring></argsstring>
+        <name>Vector7d</name>
+        <briefdescription>
+<para>Typedef for Vector7d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="39" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a490964425f2a719e2be2b2c213393915" prot="public" static="no">
+        <type>Eigen::Matrix&lt; long double, 7, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; long double, 7, 1 &gt; Eigen::Vector7ld</definition>
+        <argsstring></argsstring>
+        <name>Vector7ld</name>
+        <briefdescription>
+<para>Typedef for Vector7ld. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="42" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a227e6544d04e70cd5643b2ac56387462" prot="public" static="no">
+        <type>Eigen::Matrix&lt; int, 6, 6 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; int, 6, 6 &gt; Eigen::Matrix6i</definition>
+        <argsstring></argsstring>
+        <name>Matrix6i</name>
+        <briefdescription>
+<para>Typedef for Matrix6i. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="45" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1aee6d92f74242d76e3be6fb52cdc95725" prot="public" static="no">
+        <type>Eigen::Matrix&lt; float, 6, 6 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; float, 6, 6 &gt; Eigen::Matrix6f</definition>
+        <argsstring></argsstring>
+        <name>Matrix6f</name>
+        <briefdescription>
+<para>Typedef for Matrix6f. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="48" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a13f5157b2d40ae847b8c902328fd3de2" prot="public" static="no">
+        <type>Eigen::Matrix&lt; double, 6, 6 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; double, 6, 6 &gt; Eigen::Matrix6d</definition>
+        <argsstring></argsstring>
+        <name>Matrix6d</name>
+        <briefdescription>
+<para>Typedef for Matrix6d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="52" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a5b568a165e18079bec791b1d167a7c00" prot="public" static="no">
+        <type>Eigen::Matrix&lt; double, 7, 7 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; double, 7, 7 &gt; Eigen::Matrix7d</definition>
+        <argsstring></argsstring>
+        <name>Matrix7d</name>
+        <briefdescription>
+<para>Typedef for Matrix7d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="55" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a5e9fe07ead802a60180212e2ddfafe1e" prot="public" static="no">
+        <type>Eigen::Matrix&lt; int, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; int, Eigen::Dynamic, Eigen::Dynamic &gt; Eigen::MatrixXi</definition>
+        <argsstring></argsstring>
+        <name>MatrixXi</name>
+        <briefdescription>
+<para>Typedef for MatrixXi. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="58" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a7ddd14a27cfb05a90550dae6ab5a831e" prot="public" static="no">
+        <type>Eigen::Matrix&lt; long, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; long, Eigen::Dynamic, Eigen::Dynamic &gt; Eigen::MatrixXl</definition>
+        <argsstring></argsstring>
+        <name>MatrixXl</name>
+        <briefdescription>
+<para>Typedef for MatrixXl. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="61" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1ab9016ff57d13eb95c6bbdc93e62340ef" prot="public" static="no">
+        <type>Eigen::Matrix&lt; long long, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; long long, Eigen::Dynamic, Eigen::Dynamic &gt; Eigen::MatrixXll</definition>
+        <argsstring></argsstring>
+        <name>MatrixXll</name>
+        <briefdescription>
+<para>Typedef for MatrixXll. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="64" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1ae3b76185aca98772eeb7faf4db2e92cf" prot="public" static="no">
+        <type>Eigen::Matrix&lt; float, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; float, Eigen::Dynamic, Eigen::Dynamic &gt; Eigen::MatrixXf</definition>
+        <argsstring></argsstring>
+        <name>MatrixXf</name>
+        <briefdescription>
+<para>Typedef for MatrixXf. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="67" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1a53f694eba8d4eb48c2ecad5ddcd0b8aa" prot="public" static="no">
+        <type>Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt; Eigen::MatrixXld</definition>
+        <argsstring></argsstring>
+        <name>MatrixXld</name>
+        <briefdescription>
+<para>Typedef for MatrixXld. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="70" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicTypedefs_8h_1ab05bb242860ee1d8500e61d108a670fe" prot="public" static="no">
+        <type>Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt; Eigen::VectorXld</definition>
+        <argsstring></argsstring>
+        <name>VectorXld</name>
+        <briefdescription>
+<para>Typedef for VectorXld. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="73" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="valueConversions_8h_1aeadb6f7fce142ddb886ac048c5b51926" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+          </param>
+          <param>
+            <type>int</type>
+            <declname>rows</declname>
+            <defname>rows</defname>
+          </param>
+          <param>
+            <type>int</type>
+            <declname>cols</declname>
+            <defname>cols</defname>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Eigen::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const Matrix&lt; ScalarType, rows, cols &gt; &amp;matrix)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const Matrix&lt; ScalarType, rows, cols &gt; &amp;</type>
+          <declname>matrix</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>json</computeroutput> object from an <computeroutput>Eigen::Matrix</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="184" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="184" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1ae72705ff1167a198d790ac275f03d825" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+          </param>
+          <param>
+            <type>int</type>
+            <declname>rows</declname>
+            <defname>rows</defname>
+          </param>
+          <param>
+            <type>int</type>
+            <declname>cols</declname>
+            <defname>cols</defname>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void Eigen::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, Matrix&lt; ScalarType, rows, cols &gt; &amp;matrix)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>Matrix&lt; ScalarType, rows, cols &gt; &amp;</type>
+          <declname>matrix</declname>
+        </param>
+        <briefdescription>
+<para>Create <computeroutput>Eigen::Matrix</computeroutput> from a <computeroutput>json</computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="199" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="199" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1a11fd2b8cd9c4da91784293737186543e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Eigen::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const Quaterniond &amp;quaternion)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const Quaterniond &amp;</type>
+          <declname>quaternion</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>json</computeroutput> object from an <computeroutput>Eigen::Quaternion</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="291" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="291" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1ac972899d1fac48916e08ac834acde2db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Eigen::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, Quaterniond &amp;quaternion)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>Quaterniond &amp;</type>
+          <declname>quaternion</declname>
+        </param>
+        <briefdescription>
+<para>Create <computeroutput>Eigen::Quaternion</computeroutput> from a <computeroutput>json</computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="298" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="298" bodyend="315"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/basicTypedefs.h" line="17" column="1"/>
+  </compounddef>
+</doxygen>

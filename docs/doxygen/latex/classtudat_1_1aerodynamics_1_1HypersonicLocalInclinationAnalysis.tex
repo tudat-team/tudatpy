@@ -1,0 +1,222 @@
+\hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis}{}\doxysection{tudat\+::aerodynamics\+::Hypersonic\+Local\+Inclination\+Analysis Class Reference}
+\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis}\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+
+
+Class for inviscid hypersonic aerodynamic analysis using local inclination methods.  
+
+
+
+
+{\ttfamily \#include $<$hypersonic\+Local\+Inclination\+Analysis.\+h$>$}
+
+Inheritance diagram for tudat\+::aerodynamics\+::Hypersonic\+Local\+Inclination\+Analysis\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a36a22df8e7e04bf42bdd8650dfacb6ec}{Hypersonic\+Local\+Inclination\+Analysis}} (const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&data\+Points\+Of\+Independent\+Variables, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1SurfaceGeometry}{Surface\+Geometry}} $>$ input\+Vehicle\+Surface, const std\+::vector$<$ int $>$ \&number\+Of\+Lines, const std\+::vector$<$ int $>$ \&number\+Of\+Points, const std\+::vector$<$ bool $>$ \&invert\+Orders, const std\+::vector$<$ std\+::vector$<$ int $>$ $>$ \&selected\+Methods, const double reference\+Area, const double reference\+Length, const Eigen\+::\+Vector3d \&moment\+Reference\+Point, const bool save\+Pressure\+Coefficients=false)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ab2103af7d1c4307ba63c355890161b39}{$\sim$\+Hypersonic\+Local\+Inclination\+Analysis}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_afa3ab626ce49d0ac1311d68a13f55693}{get\+Aerodynamic\+Coefficients\+Data\+Point}} (const boost\+::array$<$ int, 3 $>$ independent\+Variables)
+\begin{DoxyCompactList}\small\item\em Get aerodynamic coefficients. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_afd7c40ebd7440f831f83ee2784408fad}{determine\+Inclinations}} (const double angle\+Of\+Attack, const double angle\+Of\+Sideslip)
+\begin{DoxyCompactList}\small\item\em Determine inclination angles of panels on a given part. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ad3d035250b5e0a374da6a46b79ef229b}{get\+Number\+Of\+Vehicle\+Parts}} () const
+\begin{DoxyCompactList}\small\item\em Get the number of vehicle parts. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1LawgsPartGeometry}{geometric\+\_\+shapes\+::\+Lawgs\+Part\+Geometry}} $>$ \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ae74e0a1ceb5ed4c35f8c71d0a20a1b6b}{get\+Vehicle\+Part}} (const int vehicle\+Index) const
+\begin{DoxyCompactList}\small\item\em Get a vehicle part. \end{DoxyCompactList}\item 
+std\+::vector$<$ boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, 2 $>$ $>$ \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a505521e3681e0522034d2a90ced09bf5}{get\+Mesh\+Points}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve a list of mesh panel centroids for the full vehicle geometry. \end{DoxyCompactList}\item 
+std\+::vector$<$ boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, 2 $>$ $>$ \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a00e3195954d90e99169d67074a9466eb}{get\+Panel\+Surface\+Normals}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve a list of mesh panel surface normals for the full vehicle geometry. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_af6b838f9e52e49eac05febbb6f1f8dfa}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_af6b838f9e52e49eac05febbb6f1f8dfa}} 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ {\bfseries get\+Pressure\+Coefficient\+List} (const boost\+::array$<$ int, 3 $>$ independent\+Variables)
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a087c421e8b4964b89a921caf810e6bfa}{operator$<$$<$}} (std\+::ostream \&stream, \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis}{Hypersonic\+Local\+Inclination\+Analysis}} \&hypersonic\+Local\+Inclination\+Analysis)
+\begin{DoxyCompactList}\small\item\em Overload ostream to print class information. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for inviscid hypersonic aerodynamic analysis using local inclination methods. 
+
+Class for inviscid hypersonic aerodynamic analysis using local inclination methods. These methods assume that the local pressure on the vehicle is only dependent on the local inclination angle w.\+r.\+t. the freestream flow and freestream conditions, such as Mach number and ratio of specific heats. All aerodynamic coefficients can be calculated using the generate\+Coefficients function, or on an as needed basis by using the get\+Aerodynamic\+Coefficients\+Data\+Point function. Note that during the panel inclination determination process, a geometry with outward surface-\/normals is assumed. The resulting coefficients are expressed in the same reference frame as that of the input geometry. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a36a22df8e7e04bf42bdd8650dfacb6ec}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a36a22df8e7e04bf42bdd8650dfacb6ec}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!HypersonicLocalInclinationAnalysis@{HypersonicLocalInclinationAnalysis}}
+\index{HypersonicLocalInclinationAnalysis@{HypersonicLocalInclinationAnalysis}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{HypersonicLocalInclinationAnalysis()}{HypersonicLocalInclinationAnalysis()}}
+{\footnotesize\ttfamily tudat\+::aerodynamics\+::\+Hypersonic\+Local\+Inclination\+Analysis\+::\+Hypersonic\+Local\+Inclination\+Analysis (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&}]{data\+Points\+Of\+Independent\+Variables,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1SurfaceGeometry}{Surface\+Geometry}} $>$}]{input\+Vehicle\+Surface,  }\item[{const std\+::vector$<$ int $>$ \&}]{number\+Of\+Lines,  }\item[{const std\+::vector$<$ int $>$ \&}]{number\+Of\+Points,  }\item[{const std\+::vector$<$ bool $>$ \&}]{invert\+Orders,  }\item[{const std\+::vector$<$ std\+::vector$<$ int $>$ $>$ \&}]{selected\+Methods,  }\item[{const double}]{reference\+Area,  }\item[{const double}]{reference\+Length,  }\item[{const Eigen\+::\+Vector3d \&}]{moment\+Reference\+Point,  }\item[{const bool}]{save\+Pressure\+Coefficients = {\ttfamily false} }\end{DoxyParamCaption})}
+
+
+
+Default constructor. 
+
+Default constructor of class, specified vehicle geometry, discretization properties, independent variable ranges, reference values and local inclination methods that are to be used 
+\begin{DoxyParams}{Parameters}
+{\em data\+Points\+Of\+Independent\+Variables} & Vector of vector, with each subvector containing the data points of each of the independent variables for the coefficient generation. The physical meaning of each of the three independent variables is\+: 0 = mach numner, 1 = angle of attack, 2 = angle of sideslip. Each of the subvectors must be sorted in ascending order. \\
+\hline
+{\em input\+Vehicle\+Surface} & Vehicle surface geometry for which the coefficients are to be determined. \\
+\hline
+{\em number\+Of\+Lines} & Number of discretization points in the first independent surface variable of each of the subparts of input\+Vehicle\+Surface. \\
+\hline
+{\em number\+Of\+Points} & Number of discretization points in the second independent surface variable of each of the subparts of input\+Vehicle\+Surface. \\
+\hline
+{\em invert\+Orders} & Booleans to denote whether the surface normals of the panels of each discretized input\+Vehicle\+Surface subpart are to be inverted (i.\+e. inward-\/facing-\/$>$outward facing or vice versa) \\
+\hline
+{\em selected\+Methods} & Array of selected local inclination methods, the first index represents compression/expansion, the second index denotes the vehicle part index. The value for each separate method can be found in the update\+Compression\+Pressures and update\+Expansion\+Pressures functions, respectively. \\
+\hline
+{\em reference\+Area} & Reference area used to non-\/dimensionalize aerodynamic forces and moments. \\
+\hline
+{\em reference\+Length} & Reference length used to non-\/dimensionalize aerodynamic moments. \\
+\hline
+{\em moment\+Reference\+Point} & Reference point wrt which aerodynamic moments are calculated. \\
+\hline
+{\em save\+Pressure\+Coefficients} & Boolean denoting whether to save the pressure coefficients that are computed to files \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ab2103af7d1c4307ba63c355890161b39}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ab2103af7d1c4307ba63c355890161b39}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!````~HypersonicLocalInclinationAnalysis@{$\sim$HypersonicLocalInclinationAnalysis}}
+\index{````~HypersonicLocalInclinationAnalysis@{$\sim$HypersonicLocalInclinationAnalysis}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{$\sim$HypersonicLocalInclinationAnalysis()}{~HypersonicLocalInclinationAnalysis()}}
+{\footnotesize\ttfamily tudat\+::aerodynamics\+::\+Hypersonic\+Local\+Inclination\+Analysis\+::$\sim$\+Hypersonic\+Local\+Inclination\+Analysis (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default destructor. 
+
+Default destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_afd7c40ebd7440f831f83ee2784408fad}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_afd7c40ebd7440f831f83ee2784408fad}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!determineInclinations@{determineInclinations}}
+\index{determineInclinations@{determineInclinations}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{determineInclinations()}{determineInclinations()}}
+{\footnotesize\ttfamily void tudat\+::aerodynamics\+::\+Hypersonic\+Local\+Inclination\+Analysis\+::determine\+Inclinations (\begin{DoxyParamCaption}\item[{const double}]{angle\+Of\+Attack,  }\item[{const double}]{angle\+Of\+Sideslip }\end{DoxyParamCaption})}
+
+
+
+Determine inclination angles of panels on a given part. 
+
+Determines the inclination angle of panels on a single part.
+
+Determines panel inclinations for all panels on all parts for given attitude. Outward pointing surface-\/normals are assumed! 
+\begin{DoxyParams}{Parameters}
+{\em angle\+Of\+Attack} & Angle of attack at which to determine inclination angles. \\
+\hline
+{\em angle\+Of\+Sideslip} & Angle of sideslip at which to determine inclination angles. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_afa3ab626ce49d0ac1311d68a13f55693}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_afa3ab626ce49d0ac1311d68a13f55693}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!getAerodynamicCoefficientsDataPoint@{getAerodynamicCoefficientsDataPoint}}
+\index{getAerodynamicCoefficientsDataPoint@{getAerodynamicCoefficientsDataPoint}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{getAerodynamicCoefficientsDataPoint()}{getAerodynamicCoefficientsDataPoint()}}
+{\footnotesize\ttfamily Vector6d tudat\+::aerodynamics\+::\+Hypersonic\+Local\+Inclination\+Analysis\+::get\+Aerodynamic\+Coefficients\+Data\+Point (\begin{DoxyParamCaption}\item[{const boost\+::array$<$ int, 3 $>$}]{independent\+Variables }\end{DoxyParamCaption})}
+
+
+
+Get aerodynamic coefficients. 
+
+Returns aerodynamic coefficients. The physical meaning of each of the three independent variables is\+: 0 = mach number, 1 = angle of attack, 2 = angle of sideslip. 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variables} & Array of values of independent variable indices in data\+Points\+Of\+Independent\+Variables\+\_\+. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector of coefficients at specified independent variable indices. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a505521e3681e0522034d2a90ced09bf5}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a505521e3681e0522034d2a90ced09bf5}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!getMeshPoints@{getMeshPoints}}
+\index{getMeshPoints@{getMeshPoints}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{getMeshPoints()}{getMeshPoints()}}
+{\footnotesize\ttfamily std\+::vector$<$ boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, 2 $>$ $>$ tudat\+::aerodynamics\+::\+Hypersonic\+Local\+Inclination\+Analysis\+::get\+Mesh\+Points (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a list of mesh panel centroids for the full vehicle geometry. 
+
+Function to retrieve a list of mesh panel centroids for the full vehicle geometry \begin{DoxyReturn}{Returns}
+List of mesh panel centroids for the full vehicle geometry 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ad3d035250b5e0a374da6a46b79ef229b}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ad3d035250b5e0a374da6a46b79ef229b}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!getNumberOfVehicleParts@{getNumberOfVehicleParts}}
+\index{getNumberOfVehicleParts@{getNumberOfVehicleParts}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{getNumberOfVehicleParts()}{getNumberOfVehicleParts()}}
+{\footnotesize\ttfamily int tudat\+::aerodynamics\+::\+Hypersonic\+Local\+Inclination\+Analysis\+::get\+Number\+Of\+Vehicle\+Parts (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the number of vehicle parts. 
+
+Returns the number of vehicle parts. \begin{DoxyReturn}{Returns}
+The number of vehicle parts. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a00e3195954d90e99169d67074a9466eb}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a00e3195954d90e99169d67074a9466eb}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!getPanelSurfaceNormals@{getPanelSurfaceNormals}}
+\index{getPanelSurfaceNormals@{getPanelSurfaceNormals}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{getPanelSurfaceNormals()}{getPanelSurfaceNormals()}}
+{\footnotesize\ttfamily std\+::vector$<$ boost\+::multi\+\_\+array$<$ Eigen\+::\+Vector3d, 2 $>$ $>$ tudat\+::aerodynamics\+::\+Hypersonic\+Local\+Inclination\+Analysis\+::get\+Panel\+Surface\+Normals (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a list of mesh panel surface normals for the full vehicle geometry. 
+
+Function to retrieve a list of mesh panel surface normals for the full vehicle geometry \begin{DoxyReturn}{Returns}
+List of mesh panel surface normals for the full vehicle geometry 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ae74e0a1ceb5ed4c35f8c71d0a20a1b6b}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_ae74e0a1ceb5ed4c35f8c71d0a20a1b6b}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!getVehiclePart@{getVehiclePart}}
+\index{getVehiclePart@{getVehiclePart}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{getVehiclePart()}{getVehiclePart()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1LawgsPartGeometry}{geometric\+\_\+shapes\+::\+Lawgs\+Part\+Geometry}} $>$ tudat\+::aerodynamics\+::\+Hypersonic\+Local\+Inclination\+Analysis\+::get\+Vehicle\+Part (\begin{DoxyParamCaption}\item[{const int}]{vehicle\+Index }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get a vehicle part. 
+
+Returns a vehicle part. 
+\begin{DoxyParams}{Parameters}
+{\em vehicle\+Index} & Index in vehicle\+Parts\+\_\+ to be retrieved. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Requested vehicle part. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a087c421e8b4964b89a921caf810e6bfa}\label{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_a087c421e8b4964b89a921caf810e6bfa}} 
+\index{tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!tudat::aerodynamics::HypersonicLocalInclinationAnalysis@{tudat::aerodynamics::HypersonicLocalInclinationAnalysis}}
+\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{stream,  }\item[{\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis}{Hypersonic\+Local\+Inclination\+Analysis}} \&}]{hypersonic\+Local\+Inclination\+Analysis }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Overload ostream to print class information. 
+
+Overloads ostream to print class information, prints the number of lawgs geometry parts and names. 
+\begin{DoxyParams}{Parameters}
+{\em stream} & Stream object. \\
+\hline
+{\em hypersonic\+Local\+Inclination\+Analysis} & Hypersonic local inclination analysis. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Stream object. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/aerodynamics/hypersonic\+Local\+Inclination\+Analysis.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/aerodynamics/hypersonic\+Local\+Inclination\+Analysis.\+cpp\end{DoxyCompactItemize}

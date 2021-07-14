@@ -1,0 +1,66 @@
+\hypertarget{classtudat_1_1interpolators_1_1HermiteDataSettings}{}\doxysection{tudat\+::interpolators\+::Hermite\+Data\+Settings$<$ Independent\+Type, Dependent\+Type $>$ Class Template Reference}
+\label{classtudat_1_1interpolators_1_1HermiteDataSettings}\index{tudat::interpolators::HermiteDataSettings$<$ IndependentType, DependentType $>$@{tudat::interpolators::HermiteDataSettings$<$ IndependentType, DependentType $>$}}
+
+
+Class defening the settings to be used to create a map of data (used for interpolation).  
+
+
+
+
+{\ttfamily \#include $<$create\+Interpolator.\+h$>$}
+
+Inheritance diagram for tudat\+::interpolators\+::Hermite\+Data\+Settings$<$ Independent\+Type, Dependent\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1interpolators_1_1HermiteDataSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1HermiteDataSettings_ac88f1895a1d615f402b052fa49ff5bf6}{Hermite\+Data\+Settings}} (const std\+::map$<$ Independent\+Type, Dependent\+Type $>$ \&data\+To\+Interpolate, const std\+::vector$<$ Dependent\+Type $>$ \&first\+Derivative\+Of\+Dependent\+Variables)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1HermiteDataSettings_af00fe15c92ae6d22a98862a22fe0d665}\label{classtudat_1_1interpolators_1_1HermiteDataSettings_af00fe15c92ae6d22a98862a22fe0d665}} 
+virtual \mbox{\hyperlink{classtudat_1_1interpolators_1_1HermiteDataSettings_af00fe15c92ae6d22a98862a22fe0d665}{$\sim$\+Hermite\+Data\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1HermiteDataSettings_ac4fc96679f1ad7cdddaf18eaf1718f09}\label{classtudat_1_1interpolators_1_1HermiteDataSettings_ac4fc96679f1ad7cdddaf18eaf1718f09}} 
+std\+::vector$<$ Dependent\+Type $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1HermiteDataSettings_ac4fc96679f1ad7cdddaf18eaf1718f09}{first\+Derivative\+Of\+Dependent\+Variables\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector containing the first derivatives of the depedent variables. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Type, typename Dependent\+Type$>$\newline
+class tudat\+::interpolators\+::\+Hermite\+Data\+Settings$<$ Independent\+Type, Dependent\+Type $>$}
+
+Class defening the settings to be used to create a map of data (used for interpolation). 
+
+Constructor. The data map will be created directly, in addition to the first derivatives. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1HermiteDataSettings_ac88f1895a1d615f402b052fa49ff5bf6}\label{classtudat_1_1interpolators_1_1HermiteDataSettings_ac88f1895a1d615f402b052fa49ff5bf6}} 
+\index{tudat::interpolators::HermiteDataSettings$<$ IndependentType, DependentType $>$@{tudat::interpolators::HermiteDataSettings$<$ IndependentType, DependentType $>$}!HermiteDataSettings@{HermiteDataSettings}}
+\index{HermiteDataSettings@{HermiteDataSettings}!tudat::interpolators::HermiteDataSettings$<$ IndependentType, DependentType $>$@{tudat::interpolators::HermiteDataSettings$<$ IndependentType, DependentType $>$}}
+\doxysubsubsection{\texorpdfstring{HermiteDataSettings()}{HermiteDataSettings()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Type , typename Dependent\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1HermiteDataSettings}{tudat\+::interpolators\+::\+Hermite\+Data\+Settings}}$<$ Independent\+Type, Dependent\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1interpolators_1_1HermiteDataSettings}{Hermite\+Data\+Settings}} (\begin{DoxyParamCaption}\item[{const std\+::map$<$ Independent\+Type, Dependent\+Type $>$ \&}]{data\+To\+Interpolate,  }\item[{const std\+::vector$<$ Dependent\+Type $>$ \&}]{first\+Derivative\+Of\+Dependent\+Variables }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em data\+To\+Interpolate} & The data map containing values for the independent and dependent variables. \\
+\hline
+{\em first\+Derivative\+Of\+Dependent\+Variables} & Vector containing the first derivatives of the depedent variables. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/interpolators/create\+Interpolator.\+h\end{DoxyCompactItemize}

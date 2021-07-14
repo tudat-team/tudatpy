@@ -1,0 +1,119 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Parameterized\+Thrust\+Magnitude\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings}\index{tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings@{tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings}}
+
+
+Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables.  
+
+
+
+
+{\ttfamily \#include $<$thrust\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Parameterized\+Thrust\+Magnitude\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a03e8ef40948584354866214a4794b5a9}{Parameterized\+Thrust\+Magnitude\+Settings}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{interpolators\+::\+Interpolator}}$<$ double, double $>$ $>$ thrust\+Magnitude\+Interpolator, const std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$ thrust\+Independent\+Variables, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{interpolators\+::\+Interpolator}}$<$ double, double $>$ $>$ specific\+Impulse\+Interpolator, const std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$ specific\+Impulse\+Dependent\+Variables, const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ thrust\+Guidance\+Input\+Variables=std\+::vector$<$ std\+::function$<$ double() $>$ $>$(), const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ specific\+Impulse\+Guidance\+Input\+Variables=std\+::vector$<$ std\+::function$<$ double() $>$ $>$(), const std\+::function$<$ void(const double) $>$ input\+Update\+Function=std\+::function$<$ void(const double) $>$(), const Eigen\+::\+Vector3d body\+Fixed\+Thrust\+Direction=Eigen\+::\+Vector3d\+::\+UnitX())
+\begin{DoxyCompactList}\small\item\em Constructor for parameterized thrust and specific impulse. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_abd6ffb4a55ada9a361d7b6547c171ec3}{Parameterized\+Thrust\+Magnitude\+Settings}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{interpolators\+::\+Interpolator}}$<$ double, double $>$ $>$ thrust\+Magnitude\+Interpolator, const std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$ thrust\+Independent\+Variables, const double constant\+Specific\+Impulse, const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ thrust\+Guidance\+Input\+Variables=std\+::vector$<$ std\+::function$<$ double() $>$ $>$(), const std\+::function$<$ void(const double) $>$ input\+Update\+Function=std\+::function$<$ void(const double) $>$(), const Eigen\+::\+Vector3d body\+Fixed\+Thrust\+Direction=Eigen\+::\+Vector3d\+::\+UnitX())
+\begin{DoxyCompactList}\small\item\em Constructor for parameterized thrust and constant specific impulse. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a62d2d9a7e2b0877408c3e31c1643728a}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a62d2d9a7e2b0877408c3e31c1643728a}} 
+std\+::function$<$ double(const std\+::vector$<$ double $>$ \&) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a62d2d9a7e2b0877408c3e31c1643728a}{thrust\+Magnitude\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function returning the thrust as a function of the independent variables. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_af32ba42d08fe1b42d696ab8346d46a7d}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_af32ba42d08fe1b42d696ab8346d46a7d}} 
+std\+::function$<$ double(const std\+::vector$<$ double $>$ \&) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_af32ba42d08fe1b42d696ab8346d46a7d}{specific\+Impulse\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function returning the specific impulse as a function of the independent variables. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a655329f1f6c1b2b3bab0ffe38e71608f}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a655329f1f6c1b2b3bab0ffe38e71608f}} 
+std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a655329f1f6c1b2b3bab0ffe38e71608f}{thrust\+Independent\+Variables\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of identifiers for the physical meaning of each of the entries of the input to thrust\+Magnitude\+Function\+\_\+. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a441cde95f875aee0ace63be55d6d4d86}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a441cde95f875aee0ace63be55d6d4d86}} 
+std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a441cde95f875aee0ace63be55d6d4d86}{specific\+Impulse\+Dependent\+Variables\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of identifiers for the physical meaning of each of the entries of the input to specific\+Impulse\+Dependent\+Variables\+\_\+. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a99758c09055536c9bdc96544ddf1986f}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a99758c09055536c9bdc96544ddf1986f}} 
+std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a99758c09055536c9bdc96544ddf1986f}{thrust\+Guidance\+Input\+Variables\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of functions returning user-\/defined guidance input variables for the thrust. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_ada2f91476c7c179b0fc0f01be9b93487}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_ada2f91476c7c179b0fc0f01be9b93487}} 
+std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_ada2f91476c7c179b0fc0f01be9b93487}{specific\+Impulse\+Guidance\+Input\+Variables\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of functions returning user-\/defined guidance input variables for the specific impulse. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a5e6af1cc459c94e8b8d31be21ab9b551}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a5e6af1cc459c94e8b8d31be21ab9b551}} 
+std\+::function$<$ void(const double) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a5e6af1cc459c94e8b8d31be21ab9b551}{input\+Update\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function that is called to update the user-\/defined guidance to the current time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a88c783a473370e5f5f12f34a0f4fe9ad}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a88c783a473370e5f5f12f34a0f4fe9ad}} 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a88c783a473370e5f5f12f34a0f4fe9ad}{body\+Fixed\+Thrust\+Direction\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Direction of the thrust vector in the body-\/fixed frame. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables. 
+
+Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables. The physical meaning of the variables must be defined here, selecting from the options in the Thrust\+Independent\+Variables enum, and they are automatically retrieved from the relevant environment models during the propagation. Note that any number of user-\/specific functions may be included, as a guidance\+\_\+input\+\_\+dependent\+\_\+thrust type or throttle\+\_\+dependent\+\_\+thrust. In the case of the throttle\+\_\+dependent\+\_\+thrust, the thrust\+Magnitude\+Interpolator input variable is assumed to define the maximum possible thrust, which is then multiplied by the function defining the throttle\+\_\+dependent\+\_\+thrust. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a03e8ef40948584354866214a4794b5a9}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_a03e8ef40948584354866214a4794b5a9}} 
+\index{tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings@{tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings}!ParameterizedThrustMagnitudeSettings@{ParameterizedThrustMagnitudeSettings}}
+\index{ParameterizedThrustMagnitudeSettings@{ParameterizedThrustMagnitudeSettings}!tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings@{tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings}}
+\doxysubsubsection{\texorpdfstring{ParameterizedThrustMagnitudeSettings()}{ParameterizedThrustMagnitudeSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Parameterized\+Thrust\+Magnitude\+Settings\+::\+Parameterized\+Thrust\+Magnitude\+Settings (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{interpolators\+::\+Interpolator}}$<$ double, double $>$ $>$}]{thrust\+Magnitude\+Interpolator,  }\item[{const std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$}]{thrust\+Independent\+Variables,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{interpolators\+::\+Interpolator}}$<$ double, double $>$ $>$}]{specific\+Impulse\+Interpolator,  }\item[{const std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$}]{specific\+Impulse\+Dependent\+Variables,  }\item[{const std\+::vector$<$ std\+::function$<$ double() $>$ $>$}]{thrust\+Guidance\+Input\+Variables = {\ttfamily std\+:\+:vector$<$~std\+:\+:function$<$~double(~)~$>$~$>$(~)},  }\item[{const std\+::vector$<$ std\+::function$<$ double() $>$ $>$}]{specific\+Impulse\+Guidance\+Input\+Variables = {\ttfamily std\+:\+:vector$<$~std\+:\+:function$<$~double(~)~$>$~$>$(~)},  }\item[{const std\+::function$<$ void(const double) $>$}]{input\+Update\+Function = {\ttfamily std\+:\+:function$<$~void(~const~double)~$>$(~)},  }\item[{const Eigen\+::\+Vector3d}]{body\+Fixed\+Thrust\+Direction = {\ttfamily Eigen\+:\+:Vector3d\+:\+:UnitX(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor for parameterized thrust and specific impulse. 
+
+Constructor, defines the interpolators for thrust and specific impulse, as well as the physical meaning of each of the independent variables. 
+\begin{DoxyParams}{Parameters}
+{\em thrust\+Magnitude\+Interpolator} & Interpolator returning the current thrust (or maximum thrust if thrust\+Independent\+Variables contains an throttle\+\_\+dependent\+\_\+thrust entry) as a function of the independent variables. \\
+\hline
+{\em thrust\+Independent\+Variables} & List of identifiers for the physical meaning of each of the entries of the input to the \textquotesingle{}interpolate\textquotesingle{} function of thrust\+Magnitude\+Interpolator. \\
+\hline
+{\em specific\+Impulse\+Interpolator} & Interpolator returning the current specific impulse as a function of the independent variables. \\
+\hline
+{\em specific\+Impulse\+Dependent\+Variables} & List of identifiers for the physical meaning of each of the entries of the input to the \textquotesingle{}interpolate\textquotesingle{} function of specific\+Impulse\+Interpolator. \\
+\hline
+{\em thrust\+Guidance\+Input\+Variables} & List of functions returning user-\/defined guidance input variables for the thrust (default none). The order of the functions in this vector is passed to the thrust\+Magnitude\+Interpolator in the order of the throttle\+\_\+dependent\+\_\+thrust and guidance\+\_\+input\+\_\+dependent\+\_\+thrust in the thrust\+Independent\+Variables vector \\
+\hline
+{\em specific\+Impulse\+Guidance\+Input\+Variables} & List of functions returning user-\/defined guidance input variables for the specific impulse (default none). The order of the functions in this vector is passed to the specific\+Impulse\+Interpolator in the order of the and guidance\+\_\+input\+\_\+dependent\+\_\+thrust in the thrust\+Independent\+Variables vector \\
+\hline
+{\em input\+Update\+Function} & Function that is called to update the user-\/defined guidance to the current time (empty by default). \\
+\hline
+{\em body\+Fixed\+Thrust\+Direction} & Direction of the thrust vector in the body-\/fixed frame (default in x-\/direction; to vehicle front). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_abd6ffb4a55ada9a361d7b6547c171ec3}\label{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings_abd6ffb4a55ada9a361d7b6547c171ec3}} 
+\index{tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings@{tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings}!ParameterizedThrustMagnitudeSettings@{ParameterizedThrustMagnitudeSettings}}
+\index{ParameterizedThrustMagnitudeSettings@{ParameterizedThrustMagnitudeSettings}!tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings@{tudat::simulation\_setup::ParameterizedThrustMagnitudeSettings}}
+\doxysubsubsection{\texorpdfstring{ParameterizedThrustMagnitudeSettings()}{ParameterizedThrustMagnitudeSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Parameterized\+Thrust\+Magnitude\+Settings\+::\+Parameterized\+Thrust\+Magnitude\+Settings (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{interpolators\+::\+Interpolator}}$<$ double, double $>$ $>$}]{thrust\+Magnitude\+Interpolator,  }\item[{const std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$}]{thrust\+Independent\+Variables,  }\item[{const double}]{constant\+Specific\+Impulse,  }\item[{const std\+::vector$<$ std\+::function$<$ double() $>$ $>$}]{thrust\+Guidance\+Input\+Variables = {\ttfamily std\+:\+:vector$<$~std\+:\+:function$<$~double(~)~$>$~$>$(~)},  }\item[{const std\+::function$<$ void(const double) $>$}]{input\+Update\+Function = {\ttfamily std\+:\+:function$<$~void(~const~double)~$>$(~)},  }\item[{const Eigen\+::\+Vector3d}]{body\+Fixed\+Thrust\+Direction = {\ttfamily Eigen\+:\+:Vector3d\+:\+:UnitX(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor for parameterized thrust and constant specific impulse. 
+
+Constructor, defines a constant thrust and an interpolator for thrust, as well as the physical meaning of each of the independent variables. 
+\begin{DoxyParams}{Parameters}
+{\em thrust\+Magnitude\+Interpolator} & Interpolator returning the current thrust (or maximum thrust if thrust\+Independent\+Variables contains an throttle\+\_\+dependent\+\_\+thrust entry) as a function of the independent variables. \\
+\hline
+{\em thrust\+Independent\+Variables} & List of identifiers for the physical meaning of each of the entries of the input to the \textquotesingle{}interpolate\textquotesingle{} function of thrust\+Magnitude\+Interpolator. \\
+\hline
+{\em constant\+Specific\+Impulse} & Constant specific impulse \\
+\hline
+{\em thrust\+Guidance\+Input\+Variables} & List of functions returning user-\/defined guidance input variables for the thrust (default none). The order of the functions in this vector is passed to the thrust\+Magnitude\+Interpolator in the order of the throttle\+\_\+dependent\+\_\+thrust and guidance\+\_\+input\+\_\+dependent\+\_\+thrust in the thrust\+Independent\+Variables vector \\
+\hline
+{\em input\+Update\+Function} & Function that is called to update the user-\/defined guidance to the current time (empty by default). \\
+\hline
+{\em body\+Fixed\+Thrust\+Direction} & Direction of the thrust vector in the body-\/fixed frame (default in x-\/direction; to vehicle front). \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/thrust\+Settings.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/simulation/propagation\+\_\+setup/thrust\+Settings.\+cpp\end{DoxyCompactItemize}

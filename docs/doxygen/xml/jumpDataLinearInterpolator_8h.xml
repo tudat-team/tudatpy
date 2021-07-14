@@ -1,0 +1,356 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="jumpDataLinearInterpolator_8h" kind="file" language="C++">
+    <compoundname>jumpDataLinearInterpolator.h</compoundname>
+    <includes local="no">map</includes>
+    <includes local="no">vector</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes refid="lookupScheme_8h" local="yes">tudat/math/interpolators/lookupScheme.h</includes>
+    <includes refid="oneDimensionalInterpolator_8h" local="yes">tudat/math/interpolators/oneDimensionalInterpolator.h</includes>
+    <includes refid="nearestNeighbourSearch_8h" local="yes">tudat/math/basic/nearestNeighbourSearch.h</includes>
+    <includedby refid="interpolators_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators.h</includedby>
+    <includedby refid="terrestrialTimeScaleConverter_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp</includedby>
+    <incdepgraph>
+      <node id="9">
+        <label>tudat/math/interpolators/oneDimensionalInterpolator.h</label>
+        <link refid="oneDimensionalInterpolator_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>limits</label>
+      </node>
+      <node id="11">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/jumpDataLinearInterpolator.h</label>
+        <link refid="jumpDataLinearInterpolator_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>cmath</label>
+      </node>
+      <node id="8">
+        <label>stdexcept</label>
+      </node>
+      <node id="4">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="2">
+        <label>map</label>
+      </node>
+      <node id="16">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="19">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat/math/basic/nearestNeighbourSearch.h</label>
+        <link refid="nearestNeighbourSearch_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>vector</label>
+      </node>
+      <node id="13">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>iostream</label>
+      </node>
+      <node id="22">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>type_traits</label>
+      </node>
+      <node id="23">
+        <label>complex</label>
+      </node>
+      <node id="15">
+        <label>algorithm</label>
+      </node>
+      <node id="6">
+        <label>memory</label>
+      </node>
+      <node id="5">
+        <label>tudat/math/interpolators/lookupScheme.h</label>
+        <link refid="lookupScheme_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/jumpDataLinearInterpolator.h</label>
+        <link refid="jumpDataLinearInterpolator_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators.h</label>
+        <link refid="interpolators_8h_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator" prot="public">tudat::interpolators::JumpDataLinearInterpolator</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1interpolators">tudat::interpolators</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>References</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Press<sp/>W.H.,<sp/>et<sp/>al.<sp/>Numerical<sp/>Recipes<sp/>in<sp/>C++:<sp/>The<sp/>Art<sp/>of</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Scientific<sp/>Computing.<sp/>Cambridge<sp/>University<sp/>Press,<sp/>February<sp/>2002.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Spiegel,<sp/>M.R.,<sp/>Stephens,<sp/>L.J.<sp/>statistics,<sp/>Fourth<sp/>Edition,<sp/>Schaum&apos;s</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Outlines,<sp/>McGraw-Hill,<sp/>2008.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_JUMPLINEARINTERPOLATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_JUMPLINEARINTERPOLATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;map&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/interpolators/lookupScheme.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/interpolators/oneDimensionalInterpolator.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/basic/nearestNeighbourSearch.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">interpolators</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>IndependentVariableType,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>DependentVariableType<sp/>&gt;</highlight></codeline>
+<codeline lineno="48" refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator" kindref="compound">JumpDataLinearInterpolator</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">OneDimensionalInterpolator</ref>&lt;<sp/>IndependentVariableType,<sp/>DependentVariableType<sp/>&gt;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::dependentValues_</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::independentValues_</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::lookUpScheme_</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1interpolators_1_1Interpolator" kindref="compound">Interpolator&lt; IndependentVariableType, DependentVariableType &gt;::interpolate</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1af061ce6dac16328da237a8fe71124a39" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1af061ce6dac16328da237a8fe71124a39" kindref="member">JumpDataLinearInterpolator</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>IndependentVariableType,<sp/>DependentVariableType<sp/>&gt;&amp;<sp/>dataMap,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>DependentVariableType<sp/>maximumAllowableVariation,</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>DependentVariableType<sp/>jumpSize,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref><sp/>selectedLookupScheme<sp/>=<sp/>huntingAlgorithm,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref><sp/>boundaryHandling<sp/>=<sp/>extrapolate_at_boundary,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>DependentVariableType&amp;<sp/>defaultExtrapolationValue<sp/>=<sp/>IdentityElement::getAdditionIdentity&lt;<sp/>DependentVariableType<sp/>&gt;(<sp/>)<sp/>):</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">OneDimensionalInterpolator</ref>&lt;<sp/>IndependentVariableType,<sp/>DependentVariableType<sp/>&gt;(<sp/>boundaryHandling,</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultExtrapolationValue<sp/>)</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>maximumAllowableVariation_<sp/>=<sp/>maximumAllowableVariation;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>jumpSize_<sp/>=<sp/>jumpSize;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Resize<sp/>data<sp/>vectors<sp/>of<sp/>independent/dependent<sp/>values.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref>.resize(<sp/>dataMap.size(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>.resize(<sp/>dataMap.size(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Fill<sp/>data<sp/>vectors<sp/>with<sp/>data<sp/>from<sp/>map.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>counter<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>IndependentVariableType,<sp/>DependentVariableType<sp/>&gt;::const_iterator<sp/>mapIterator<sp/>=<sp/>dataMap.begin(<sp/>);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mapIterator<sp/>!=<sp/>dataMap.end(<sp/>);<sp/>mapIterator++<sp/>)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref>[<sp/>counter<sp/>]<sp/>=<sp/>mapIterator-&gt;first;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>counter<sp/>]<sp/>=<sp/>mapIterator-&gt;second;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>counter++;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Create<sp/>lookup<sp/>scheme<sp/>from<sp/>independent<sp/>variable<sp/>data<sp/>points.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>this-&gt;<ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1abc218f1803c7f54fad3e0e71d625c764" kindref="member">makeLookupScheme</ref>(<sp/>selectedLookupScheme<sp/>);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1a61fa1960f32ed56ec62587c2deeb82d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1a61fa1960f32ed56ec62587c2deeb82d7" kindref="member">JumpDataLinearInterpolator</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>IndependentVariableType<sp/>&gt;<sp/>independentValues,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>DependentVariableType<sp/>&gt;<sp/>dependentValues,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>DependentVariableType<sp/>maximumAllowableVariation,</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>DependentVariableType<sp/>jumpSize,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref><sp/>selectedLookupScheme<sp/>=<sp/>huntingAlgorithm,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref><sp/>boundaryHandling<sp/>=<sp/>extrapolate_at_boundary,</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>DependentVariableType&amp;<sp/>defaultExtrapolationValue<sp/>=<sp/>IdentityElement::getAdditionIdentity&lt;<sp/>DependentVariableType<sp/>&gt;(<sp/>)<sp/>):</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">OneDimensionalInterpolator</ref>&lt;<sp/>IndependentVariableType,<sp/>DependentVariableType<sp/>&gt;(<sp/>boundaryHandling,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultExtrapolationValue<sp/>)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>maximumAllowableVariation_<sp/>=<sp/>maximumAllowableVariation;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>jumpSize_<sp/>=<sp/>jumpSize;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>data<sp/>vectors.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref><sp/>=<sp/>independentValues;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>=<sp/>dependentValues;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Create<sp/>lookup<sp/>scheme<sp/>from<sp/>independent<sp/>variable<sp/>values</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>this-&gt;<ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1abc218f1803c7f54fad3e0e71d625c764" kindref="member">makeLookupScheme</ref>(<sp/>selectedLookupScheme<sp/>);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145" refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1ac443d0bc15ab71b402eaafc7d7532495" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1ac443d0bc15ab71b402eaafc7d7532495" kindref="member">~JumpDataLinearInterpolator</ref>(<sp/>)<sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1a87cb2aad07cd8cf61643f4fc070fa793" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>DependentVariableType<sp/><ref refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1a87cb2aad07cd8cf61643f4fc070fa793" kindref="member">interpolate</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>IndependentVariableType<sp/>independentVariableValue<sp/>)</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>whether<sp/>boundary<sp/>handling<sp/>needs<sp/>to<sp/>be<sp/>applied,<sp/>if<sp/>independent<sp/>variable<sp/>is<sp/>beyond<sp/>its<sp/>defined<sp/>range.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DependentVariableType<sp/>interpolatedValue;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>useValue<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>this-&gt;<ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae6db7b6475e9c91eeaa00a0d3e546977" kindref="member">checkBoundaryCase</ref>(<sp/>interpolatedValue,<sp/>useValue,<sp/>independentVariableValue<sp/>);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>useValue<sp/>)</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>interpolatedValue;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Lookup<sp/>nearest<sp/>lower<sp/>index.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>newNearestLowerIndex<sp/>=<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1f1471fffc3f6f0b33f8ca44108e9dec" kindref="member">lookUpScheme_</ref>-&gt;findNearestLowerNeighbour(<sp/>independentVariableValue<sp/>);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>if<sp/>jump<sp/>occurs</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>std::abs(<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>+<sp/>1<sp/>]<sp/>)<sp/>&gt;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>maximumAllowableVariation_<sp/>)</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>jumpSign<sp/>=<sp/>(<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>+<sp/>1<sp/>]<sp/>)<sp/>/</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::abs(<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>+<sp/>1<sp/>]<sp/>);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>interpolatedValue<sp/>=<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>+</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/>independentVariableValue<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>)<sp/>/</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref>[<sp/>newNearestLowerIndex<sp/>+<sp/>1<sp/>]<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>)<sp/>*</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>+<sp/>1<sp/>]<sp/>+<sp/>jumpSign<sp/>*<sp/>jumpSize_<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>interpolatedValue<sp/>=<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>+</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/>independentVariableValue<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>)<sp/>/</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref>[<sp/>newNearestLowerIndex<sp/>+<sp/>1<sp/>]<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" kindref="member">independentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>)<sp/>*</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>+<sp/>1<sp/>]<sp/>-<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" kindref="member">dependentValues_</ref>[<sp/>newNearestLowerIndex<sp/>]<sp/>);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>interpolatedValue;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>DependentVariableType<sp/>maximumAllowableVariation_;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>DependentVariableType<sp/>jumpSize_;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>Namespace<sp/>interpolators.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>Namespace<sp/>tudat.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_JUMPLINEARINTERPOLATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/jumpDataLinearInterpolator.h"/>
+  </compounddef>
+</doxygen>

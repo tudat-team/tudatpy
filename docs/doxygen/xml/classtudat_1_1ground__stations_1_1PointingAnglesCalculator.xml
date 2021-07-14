@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1ground__stations_1_1PointingAnglesCalculator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::ground_stations::PointingAnglesCalculator</compoundname>
+    <includes refid="pointingAnglesCalculator_8h" local="no">pointingAnglesCalculator.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a68dd9903c925b6bf81692861f775c27e" prot="private" static="no" mutable="no">
+        <type>const std::function&lt; Eigen::Quaterniond(const double) &gt;</type>
+        <definition>const std::function&lt; Eigen::Quaterniond( const double ) &gt; tudat::ground_stations::PointingAnglesCalculator::rotationFromInertialToBodyFixedFrame_</definition>
+        <argsstring></argsstring>
+        <name>rotationFromInertialToBodyFixedFrame_</name>
+        <briefdescription>
+<para>Function returning the rotation from the inertial to the body-fixed frame at a specified time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" line="97" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a3c9e8488d1907a5956911235c867f051" prot="private" static="no" mutable="no">
+        <type>const std::function&lt; Eigen::Quaterniond(const double) &gt;</type>
+        <definition>const std::function&lt; Eigen::Quaterniond( const double ) &gt; tudat::ground_stations::PointingAnglesCalculator::rotationFromBodyFixedToTopoCentricFrame_</definition>
+        <argsstring></argsstring>
+        <name>rotationFromBodyFixedToTopoCentricFrame_</name>
+        <briefdescription>
+<para>Function returning the rotation from the body-fixed to the topocentric frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function returning the rotation from the body-fixed to the topocentric frame at a specified time (note that this rotation is typically time-independent). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" line="104" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1ae3a5192bf75ebc817eeb22878570dca9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ground_stations::PointingAnglesCalculator::PointingAnglesCalculator</definition>
+        <argsstring>(const std::function&lt; Eigen::Quaterniond(const double) &gt; rotationFromInertialToBodyFixedFrame, const std::function&lt; Eigen::Quaterniond(const double) &gt; rotationFromBodyFixedToTopoCentricFrame)</argsstring>
+        <name>PointingAnglesCalculator</name>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond(const double) &gt;</type>
+          <declname>rotationFromInertialToBodyFixedFrame</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond(const double) &gt;</type>
+          <declname>rotationFromBodyFixedToTopoCentricFrame</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, takes functions defininf the sub-rotations from inertial to topocentric frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, takes functions defininf the sub-rotations from inertial to topocentric frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationFromInertialToBodyFixedFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the rotation from the inertial to the body-fixed frame at a specified time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationFromBodyFixedToTopoCentricFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the rotation from the body-fixed to the topocentric frame at a specified time (note that this rotation is typically time-independent). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" line="48" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" bodystart="48" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a6cc23b1b4fa0328c9154bb2f82a5e4a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ground_stations::PointingAnglesCalculator::calculateElevationAngle</definition>
+        <argsstring>(const Eigen::Vector3d inertialVectorAwayFromStation, const double time)</argsstring>
+        <name>calculateElevationAngle</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>inertialVectorAwayFromStation</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the elevation angle from body-fixed point to given point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the elevation angle from body-fixed reference point (typically ground station) to given point. The elevation angle is calculatwed w.r.t. the shape of the body on which the reference point is located. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inertialVectorAwayFromStation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector from reference point to target point (i.e. to which elevation angle is to be calculated), expressed in inertial frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which elevation angle is to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Elevation angle from reference point to input point (inertialVectorAwayFromStation) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" line="63" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/pointingAnglesCalculator.cpp" bodystart="21" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a749d22adbf3b0e2a0e18cacc5245c608" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ground_stations::PointingAnglesCalculator::calculationAzimuthAngle</definition>
+        <argsstring>(const Eigen::Vector3d inertialVectorAwayFromStation, const double time)</argsstring>
+        <name>calculationAzimuthAngle</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>inertialVectorAwayFromStation</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the azimuth angle from body-fixed point to given point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the azimuth angle from body-fixed reference point (typically ground station) to given point. The azimuth angle is calculatwed w.r.t. the shape of the body on which the reference point is located. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inertialVectorAwayFromStation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector from reference point to target point (i.e. to which azimuth angle is to be calculated), expressed in inertial frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which azimuth angle is to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Azimuth angle from reference point to input point (inertialVectorAwayFromStation) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" line="74" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/pointingAnglesCalculator.cpp" bodystart="35" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1aeba2a5d0a09aa83414fa1bfada718cb6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; double, double &gt;</type>
+        <definition>std::pair&lt; double, double &gt; tudat::ground_stations::PointingAnglesCalculator::calculatePointingAngles</definition>
+        <argsstring>(const Eigen::Vector3d inertialVectorAwayFromStation, const double time)</argsstring>
+        <name>calculatePointingAngles</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>inertialVectorAwayFromStation</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the elevation and azimuth angles from body-fixed point to given point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the azimuth and elevationangle from body-fixed reference point to given point. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inertialVectorAwayFromStation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector from reference point to target point expressed in inertial frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which angles are to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Elevation and azimuth angle (in that order) from reference point to input point (inertialVectorAwayFromStation) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" line="83" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/pointingAnglesCalculator.cpp" bodystart="47" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a10279bd94777728e628442c1b9190cc9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::ground_stations::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame</definition>
+        <argsstring>(const Eigen::Vector3d &amp;inertialVector, const double time)</argsstring>
+        <name>convertVectorFromInertialToTopocentricFrame</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>inertialVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert vector in inertial frame to topocentric frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert vector in inertial frame to topocentric frame, with unit vectors in ENU (Earth-North-Up) order. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inertialVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector in inertial frame that is to be transformed to topocentric frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which rotation is to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector expressed in topocentric frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" line="92" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ground_stations/pointingAnglesCalculator.cpp" bodystart="66" bodyend="71"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to calculate the pointing angles (azimuth elevation) from a topocentric frame. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to calculate the pointing (i.e. viewing) angles (azimuth elevation) from a topocentric frame. The rotations between an inertial and body-fixed and body-fixed and tropocentric are provided to the constructor. &lt;ember functions can be used to calculate the pointing angles from the ground station to a vector in an inertial frame and a time. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" line="36" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations/pointingAnglesCalculator.h" bodystart="37" bodyend="105"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a6cc23b1b4fa0328c9154bb2f82a5e4a7" prot="public" virt="non-virtual"><scope>tudat::ground_stations::PointingAnglesCalculator</scope><name>calculateElevationAngle</name></member>
+      <member refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1aeba2a5d0a09aa83414fa1bfada718cb6" prot="public" virt="non-virtual"><scope>tudat::ground_stations::PointingAnglesCalculator</scope><name>calculatePointingAngles</name></member>
+      <member refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a749d22adbf3b0e2a0e18cacc5245c608" prot="public" virt="non-virtual"><scope>tudat::ground_stations::PointingAnglesCalculator</scope><name>calculationAzimuthAngle</name></member>
+      <member refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a10279bd94777728e628442c1b9190cc9" prot="public" virt="non-virtual"><scope>tudat::ground_stations::PointingAnglesCalculator</scope><name>convertVectorFromInertialToTopocentricFrame</name></member>
+      <member refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1ae3a5192bf75ebc817eeb22878570dca9" prot="public" virt="non-virtual"><scope>tudat::ground_stations::PointingAnglesCalculator</scope><name>PointingAnglesCalculator</name></member>
+      <member refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a3c9e8488d1907a5956911235c867f051" prot="private" virt="non-virtual"><scope>tudat::ground_stations::PointingAnglesCalculator</scope><name>rotationFromBodyFixedToTopoCentricFrame_</name></member>
+      <member refid="classtudat_1_1ground__stations_1_1PointingAnglesCalculator_1a68dd9903c925b6bf81692861f775c27e" prot="private" virt="non-virtual"><scope>tudat::ground_stations::PointingAnglesCalculator</scope><name>rotationFromInertialToBodyFixedFrame_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

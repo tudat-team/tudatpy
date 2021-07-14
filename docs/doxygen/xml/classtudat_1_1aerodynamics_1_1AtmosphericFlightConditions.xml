@@ -1,0 +1,801 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions" kind="class" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::AtmosphericFlightConditions</compoundname>
+    <basecompoundref refid="classtudat_1_1aerodynamics_1_1FlightConditions" prot="public" virt="non-virtual">tudat::aerodynamics::FlightConditions</basecompoundref>
+    <includes refid="flightConditions_8h" local="no">flightConditions.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a9ac7286832ff1a2dca3e628edb822d0b" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AtmosphereModel" kindref="compound">aerodynamics::AtmosphereModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; aerodynamics::AtmosphereModel &gt; tudat::aerodynamics::AtmosphericFlightConditions::atmosphereModel_</definition>
+        <argsstring></argsstring>
+        <name>atmosphereModel_</name>
+        <briefdescription>
+<para>Atmosphere model of atmosphere through which vehicle is flying. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="624" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="624" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a138463e51e9a4a1a06475a042637ad30" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">AerodynamicCoefficientInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AerodynamicCoefficientInterface &gt; tudat::aerodynamics::AtmosphericFlightConditions::aerodynamicCoefficientInterface_</definition>
+        <argsstring></argsstring>
+        <name>aerodynamicCoefficientInterface_</name>
+        <briefdescription>
+<para>Object from which the aerodynamic coefficients are obtained. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="627" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="627" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a64c5b5b7b88d0d3870ddcf9f5e4c584b" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const std::string &amp;) &gt;</type>
+        <definition>std::function&lt; double( const std::string&amp; ) &gt; tudat::aerodynamics::AtmosphericFlightConditions::controlSurfaceDeflectionFunction_</definition>
+        <argsstring></argsstring>
+        <name>controlSurfaceDeflectionFunction_</name>
+        <briefdescription>
+<para>Function returning control surface deflection, with input the control surface identifier. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="630" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="630" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a741c830f2b498e6a68d4ab8bfd2595b4" prot="private" static="no" mutable="no">
+        <type>std::map&lt; AerodynamicCoefficientsIndependentVariables, std::function&lt; double() &gt; &gt;</type>
+        <definition>std::map&lt; AerodynamicCoefficientsIndependentVariables, std::function&lt; double( ) &gt; &gt; tudat::aerodynamics::AtmosphericFlightConditions::customCoefficientDependencies_</definition>
+        <argsstring></argsstring>
+        <name>customCoefficientDependencies_</name>
+        <briefdescription>
+<para>List of custom functions for aerodynamic coefficient dependencies. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="634" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="634" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a27f836fa6c6d4e00b2ab19e996c97827" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::aerodynamics::AtmosphericFlightConditions::updateLatitudeAndLongitudeForAtmosphere_</definition>
+        <argsstring></argsstring>
+        <name>updateLatitudeAndLongitudeForAtmosphere_</name>
+        <briefdescription>
+<para>Boolean setting whether latitude and longitude are to be updated by <ref refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a67283bc0963f74b7e84e279b7a4f9b4d" kindref="member">updateConditions()</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="637" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="637" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a5d37a9489d00b689585e45cbca6403bd" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::aerodynamics::AtmosphericFlightConditions::aerodynamicCoefficientIndependentVariables_</definition>
+        <argsstring></argsstring>
+        <name>aerodynamicCoefficientIndependentVariables_</name>
+        <briefdescription>
+<para>Current list of independent variables of the aerodynamic coefficient interface. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="641" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="641" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6727e124d410ed84777ebc12aca6ba1f" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, std::vector&lt; double &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::vector&lt; double &gt; &gt; tudat::aerodynamics::AtmosphericFlightConditions::controlSurfaceAerodynamicCoefficientIndependentVariables_</definition>
+        <argsstring></argsstring>
+        <name>controlSurfaceAerodynamicCoefficientIndependentVariables_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>List of independent variables of the control surface aerodynamic coefficient interface, with map key control surface identifiers. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="645" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="645" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aa8eae5aa3bb61bf3a1f4a91e7c5ed88f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::AtmosphericFlightConditions::AtmosphericFlightConditions</definition>
+        <argsstring>(const std::shared_ptr&lt; aerodynamics::AtmosphereModel &gt; atmosphereModel, const std::shared_ptr&lt; basic_astrodynamics::BodyShapeModel &gt; shapeModel, const std::shared_ptr&lt; AerodynamicCoefficientInterface &gt; aerodynamicCoefficientInterface, const std::shared_ptr&lt; reference_frames::AerodynamicAngleCalculator &gt; aerodynamicAngleCalculator=std::shared_ptr&lt; reference_frames::AerodynamicAngleCalculator &gt;(), const std::function&lt; double(const std::string &amp;)&gt; controlSurfaceDeflectionFunction=std::function&lt; double(const std::string &amp;)&gt;())</argsstring>
+        <name>AtmosphericFlightConditions</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AtmosphereModel" kindref="compound">aerodynamics::AtmosphereModel</ref> &gt;</type>
+          <declname>atmosphereModel</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel" kindref="compound">basic_astrodynamics::BodyShapeModel</ref> &gt;</type>
+          <declname>shapeModel</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">AerodynamicCoefficientInterface</ref> &gt;</type>
+          <declname>aerodynamicCoefficientInterface</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1AerodynamicAngleCalculator" kindref="compound">reference_frames::AerodynamicAngleCalculator</ref> &gt;</type>
+          <declname>aerodynamicAngleCalculator</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1AerodynamicAngleCalculator" kindref="compound">reference_frames::AerodynamicAngleCalculator</ref> &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const std::string &amp;)&gt;</type>
+          <declname>controlSurfaceDeflectionFunction</declname>
+          <defval>std::function&lt; double(const std::string &amp;)&gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, sets objects and functions from which relevant environment and state variables are retrieved. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets objects and functions from which relevant environment and state variables are retrieved. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>atmosphereModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Atmosphere model of atmosphere through which vehicle is flying </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>shapeModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Model describing the shape of the body w.r.t. which the flight is taking place. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aerodynamicCoefficientInterface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Class from which the aerodynamic (force and moment) coefficients are retrieved </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aerodynamicAngleCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object from which the aerodynamic/trajectory angles of the vehicle are calculated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>controlSurfaceDeflectionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning control surface deflection, with input the control surface identifier. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="286" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/flightConditions.cpp" bodystart="70" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a67283bc0963f74b7e84e279b7a4f9b4d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::updateConditions</definition>
+        <argsstring>(const double currentTime)</argsstring>
+        <name>updateConditions</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aadc4e2d6d38dc4b57f944c73b18060c7">updateConditions</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to update all flight conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update all flight conditions (altitude, density, force coefficients) to current state of vehicle and central body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which conditions are to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="303" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/flightConditions.cpp" bodystart="121" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae6ba948782e267fcd7984b363d5923f0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getCurrentDensity</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentDensity</name>
+        <briefdescription>
+<para>Function to retrieve (and compute if necessary) the current freestream density. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve (and compute if necessary) the current freestream density <simplesect kind="return"><para>Current freestream density </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="310" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="310" bodyend="317"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae5f659f6c05f72c6e271b8146392e28c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getCurrentFreestreamTemperature</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentFreestreamTemperature</name>
+        <briefdescription>
+<para>Function to retrieve (and compute if necessary) the current freestream temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve (and compute if necessary) the current freestream temperature <simplesect kind="return"><para>Current freestream temperature </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="324" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="324" bodyend="331"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a8a78cfab8d68f42a0f1f61f8ce383c3c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getCurrentDynamicPressure</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentDynamicPressure</name>
+        <briefdescription>
+<para>Function to retrieve (and compute if necessary) the current freestream dynamic pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve (and compute if necessary) the current freestream dynamic pressure <simplesect kind="return"><para>Current freestream dynamic pressure </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="338" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="338" bodyend="345"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6d2e974477f5c83abe4ca6b79865a5d5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getCurrentAerodynamicHeatRate</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentAerodynamicHeatRate</name>
+        <briefdescription>
+<para>Function to retrieve (and compute if necessary) the current aerodynamic heat rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve (and compute if necessary) the current aerodynamic heat rate <simplesect kind="return"><para>Current aerodynamic heat rate </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="352" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="352" bodyend="359"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a9817a8f731adafef75410eeeec43bfe0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getCurrentPressure</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentPressure</name>
+        <briefdescription>
+<para>Function to retrieve (and compute if necessary) the current freestream pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve (and compute if necessary) the current freestream pressure <simplesect kind="return"><para>Current freestream dynamic pressure </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="366" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="366" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a94ad66e44aa0318ca8c0cb781842a3dc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getCurrentAirspeed</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentAirspeed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve (and compute if necessary) the current airspeed <simplesect kind="return"><para>Current airspeed </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="379" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="379" bodyend="386"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c7526fcbf68413c6ca60214fd5f8a62" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getCurrentSpeedOfSound</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentSpeedOfSound</name>
+        <briefdescription>
+<para>Function to retrieve (and compute if necessary) the current speed of sound. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve (and compute if necessary) the current speed of sound <simplesect kind="return"><para>Current speed of sound </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="393" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="393" bodyend="400"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a54034ad6e87dcc5239262526b4c1f343" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getCurrentMachNumber</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentMachNumber</name>
+        <briefdescription>
+<para>Function to retrieve (and compute if necessary) the current Mach number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve (and compute if necessary) the current Mach number <simplesect kind="return"><para>Current Mach number </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="407" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="407" bodyend="414"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a7ea15328010f6a339d7113a826dc35a3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AtmosphereModel" kindref="compound">aerodynamics::AtmosphereModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; aerodynamics::AtmosphereModel &gt; tudat::aerodynamics::AtmosphericFlightConditions::getAtmosphereModel</definition>
+        <argsstring>() const</argsstring>
+        <name>getAtmosphereModel</name>
+        <briefdescription>
+<para>Function to return atmosphere model object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return atmosphere model object <simplesect kind="return"><para>Atmosphere model object </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="421" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="421" bodyend="424"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a0f31dc9dfc8dbb96c65302e3aa7829fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::setAerodynamicCoefficientsIndependentVariableFunction</definition>
+        <argsstring>(const AerodynamicCoefficientsIndependentVariables independentVariable, const std::function&lt; double() &gt; coefficientDependency)</argsstring>
+        <name>setAerodynamicCoefficientsIndependentVariableFunction</name>
+        <param>
+          <type>const AerodynamicCoefficientsIndependentVariables</type>
+          <declname>independentVariable</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>coefficientDependency</declname>
+        </param>
+        <briefdescription>
+<para>Function to set custom dependency of aerodynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set custom dependency of aerodynamic coefficients. If needed, the AerodynamicCoefficientsIndependentVariables enum may be expanded to include e.g. control surface deflections, the values of which will then be retrieved from the function set here <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of independent variable </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coefficientDependency</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current value of the independent variable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="434" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/flightConditions.cpp" bodystart="99" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c3fdf6fb1273cc2ccd31a9626ce488a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::AtmosphericFlightConditions::getCurrentAirspeedBasedVelocity</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentAirspeedBasedVelocity</name>
+        <briefdescription>
+<para>Function to return current central body-fixed velocity of vehicle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return central body-fixed velocity of vehicle. <simplesect kind="return"><para>Current central body-fixed velocity of vehicle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="443" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="443" bodyend="446"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a060150fde7aba5655ec061287b1cdb2a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">AerodynamicCoefficientInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AerodynamicCoefficientInterface &gt; tudat::aerodynamics::AtmosphericFlightConditions::getAerodynamicCoefficientInterface</definition>
+        <argsstring>()</argsstring>
+        <name>getAerodynamicCoefficientInterface</name>
+        <briefdescription>
+<para>Function to return object from which the aerodynamic coefficients are obtained. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return object from which the aerodynamic coefficients are obtained. <simplesect kind="return"><para>Object from which the aerodynamic coefficients are obtained. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="453" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="453" bodyend="456"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6f75b45f23194cf71040bf22750c218e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::aerodynamics::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables</definition>
+        <argsstring>()</argsstring>
+        <name>getAerodynamicCoefficientIndependentVariables</name>
+        <briefdescription>
+<para>Function to return list of independent variables of the aerodynamic coefficient interface. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return list of independent variables of the aerodynamic coefficient interface <simplesect kind="return"><para>List of independent variables of the aerodynamic coefficient interface </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="463" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="463" bodyend="472"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a2d1d09f0afd1ab1d31880f532d94e9df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; std::string, std::vector&lt; double &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::vector&lt; double &gt; &gt; tudat::aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables</definition>
+        <argsstring>()</argsstring>
+        <name>getControlSurfaceAerodynamicCoefficientIndependentVariables</name>
+        <briefdescription>
+<para>Function to return list of independent variables of the control surface aerodynamic coefficient interface. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return list of independent variables of the control surface aerodynamic coefficient interface <simplesect kind="return"><para>List of independent variables of the control surface aerodynamic coefficient interface, with map key the control surface identifiers. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="480" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="480" bodyend="489"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a742c4fbd647f1538094bb38c7fb15a4f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::resetCurrentTime</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>resetCurrentTime</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1FlightConditions_1ae2739f6b39850dbfa65a3438adc714e7">resetCurrentTime</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function to reset the current time of the flight conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the current time of the flight conditions. This function is typically sused to set the current time to NaN, indicating the need to recompute all quantities for the next time computation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="497" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="497" bodyend="507"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a0c97562e77074f411dbf534996f7bd70" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable</definition>
+        <argsstring>(const AerodynamicCoefficientsIndependentVariables independentVariableType, const std::string &amp;secondaryIdentifier=&quot;&quot;)</argsstring>
+        <name>getAerodynamicCoefficientIndependentVariable</name>
+        <param>
+          <type>const AerodynamicCoefficientsIndependentVariables</type>
+          <declname>independentVariableType</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>secondaryIdentifier</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier for type of independent variable </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondaryIdentifier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String used as secondary identifier of independent variable (e.g. control surface name). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current value of requested independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="518" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/flightConditions.cpp" bodystart="153" bodyend="213"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4bf179f5f2b2d6b648e41d54fc1141e8" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::updateAtmosphereInput</definition>
+        <argsstring>()</argsstring>
+        <name>updateAtmosphereInput</name>
+        <briefdescription>
+<para>Function to update input to atmosphere model (altitude, as well as latitude and longitude if needed). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="523" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="523" bodyend="543"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aa9b86ed48d2ee1c823805b674ab1a129" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::computeDensity</definition>
+        <argsstring>()</argsstring>
+        <name>computeDensity</name>
+        <briefdescription>
+<para>Function to compute and set the current freestream density. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="546" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="546" bodyend="554"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a85e25d2a8786744c3c449a64a8fb21d9" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::computeTemperature</definition>
+        <argsstring>()</argsstring>
+        <name>computeTemperature</name>
+        <briefdescription>
+<para>Function to compute and set the current freestream temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="557" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="557" bodyend="565"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aadc860e334bc935458dfd7fb592bbe90" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::computeFreestreamPressure</definition>
+        <argsstring>()</argsstring>
+        <name>computeFreestreamPressure</name>
+        <briefdescription>
+<para>Function to compute and set the current freestream pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="568" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="568" bodyend="576"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4f17bb905c088ac33f1ce51e1a15337d" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::computeSpeedOfSound</definition>
+        <argsstring>()</argsstring>
+        <name>computeSpeedOfSound</name>
+        <briefdescription>
+<para>Function to compute and set the current speed of sound. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="580" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="580" bodyend="588"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a1202c69acca1715e2571c6cc293d7efb" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::computeAirspeed</definition>
+        <argsstring>()</argsstring>
+        <name>computeAirspeed</name>
+        <briefdescription>
+<para>Function to compute and set the current airspeed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="591" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="591" bodyend="594"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aceae9f9f7e9cea6d71ca35912b710177" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::computeDynamicPressure</definition>
+        <argsstring>()</argsstring>
+        <name>computeDynamicPressure</name>
+        <briefdescription>
+<para>Function to compute and set the current freestream dynamic pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="597" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="597" bodyend="602"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c85c5e537a0fb6fd6bc9584f6ce1b17" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::computeAerodynamicHeatRate</definition>
+        <argsstring>()</argsstring>
+        <name>computeAerodynamicHeatRate</name>
+        <briefdescription>
+<para>Function to compute and set the current aerodynamic heat rate. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="605" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="605" bodyend="610"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a0848f5b912837427de55568027b43159" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::computeMachNumber</definition>
+        <argsstring>()</argsstring>
+        <name>computeMachNumber</name>
+        <briefdescription>
+<para>Function to compute and set the current Mach number. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="613" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="613" bodyend="617"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a99d14736bfaa45fd3b31dd3e389a5802" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AtmosphericFlightConditions::updateAerodynamicCoefficientInput</definition>
+        <argsstring>()</argsstring>
+        <name>updateAerodynamicCoefficientInput</name>
+        <briefdescription>
+<para>Function to update the independent variables of the aerodynamic coefficient interface. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="620" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/flightConditions.cpp" bodystart="216" bodyend="239"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for calculating aerodynamic flight characteristics of a vehicle during numerical integration.</para>
+<para>Class for calculating aerodynamic flight characteristics of a vehicle during numerical integration. Class is used to ensure that dependent variables such as density, altitude, etc. are only calculated once during each numerical integration step. The get functions of this class are linked to the various models in the code that subsequently require these values. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::aerodynamics::AtmosphericFlightConditions</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::FlightConditions</label>
+        <link refid="classtudat_1_1aerodynamics_1_1FlightConditions"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::aerodynamics::AtmosphericFlightConditions</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::FlightConditions</label>
+        <link refid="classtudat_1_1aerodynamics_1_1FlightConditions"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>centralBody_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" line="268" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/flightConditions.h" bodystart="269" bodyend="646"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130a089ea09951513e48edb026e162731f33" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>aerodynamic_heat_rate</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a910b6c09a0ffc101362ba23c88d5d808" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>aerodynamicAngleCalculator_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a5d37a9489d00b689585e45cbca6403bd" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>aerodynamicCoefficientIndependentVariables_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a138463e51e9a4a1a06475a042637ad30" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>aerodynamicCoefficientInterface_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130ab25ce8d5dd5f6c7c54debfdcb53ff9ab" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>airspeed_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130ae6f6e3948b64819dedfa8eb6f68a9ae9" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>altitude_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a9ac7286832ff1a2dca3e628edb822d0b" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>atmosphereModel_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aa8eae5aa3bb61bf3a1f4a91e7c5ed88f" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>AtmosphericFlightConditions</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1af9c922fffee4ed037dfc465eaaecde06" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>bodyCenteredPseudoBodyFixedStateFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a8c058ab5c613d4c92e9af6c65e4fb54a" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>centralBody_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c85c5e537a0fb6fd6bc9584f6ce1b17" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeAerodynamicHeatRate</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a1202c69acca1715e2571c6cc293d7efb" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeAirspeed</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a8b3125276b2cad52f6dc1a3637cdde77" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeAltitude</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aa9b86ed48d2ee1c823805b674ab1a129" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeDensity</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aceae9f9f7e9cea6d71ca35912b710177" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeDynamicPressure</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1aadc860e334bc935458dfd7fb592bbe90" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeFreestreamPressure</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a7be91e9c1ad0b6902d75e10e7ba4bb6a" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeGeodeticLatitude</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c97faccccf8986d91746864bfa0e35" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeLatitudeAndLongitude</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a0848f5b912837427de55568027b43159" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeMachNumber</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4f17bb905c088ac33f1ce51e1a15337d" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeSpeedOfSound</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a85e25d2a8786744c3c449a64a8fb21d9" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>computeTemperature</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6727e124d410ed84777ebc12aca6ba1f" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>controlSurfaceAerodynamicCoefficientIndependentVariables_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a64c5b5b7b88d0d3870ddcf9f5e4c584b" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>controlSurfaceDeflectionFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a3b48382d6fd7670bd43332bc8d73ff8a" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>currentBodyCenteredAirspeedBasedBodyFixedState_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa878d4e2bf79ab5ba234f1abd30ce910" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>currentBodyCenteredState_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a049061c0d8b49702133caf2c3d76ad4f" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a741c830f2b498e6a68d4ab8bfd2595b4" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>customCoefficientDependencies_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130ad8ea8a9f82df49c1d04ef8ffca4ccf85" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>density_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130a50f1ced1bbc6a6838418537643318cf6" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>dynamic_pressure_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a06392e6969cecb9820d576692ec63cbc" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>FlightConditions</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>FlightConditionVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130a1996d3831c443c2a0a405a85b2946446" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>geodetic_latitude_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aad0f7372159d4b8304de543158322e0f" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>geodeticLatitudeFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1aa7c498316cfdd113f7f6064a6434e20e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getAerodynamicAngleCalculator</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a0c97562e77074f411dbf534996f7bd70" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getAerodynamicCoefficientIndependentVariable</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6f75b45f23194cf71040bf22750c218e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getAerodynamicCoefficientIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a060150fde7aba5655ec061287b1cdb2a" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getAerodynamicCoefficientInterface</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a7ea15328010f6a339d7113a826dc35a3" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getAtmosphereModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a2d1d09f0afd1ab1d31880f532d94e9df" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getControlSurfaceAerodynamicCoefficientIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a6d2e974477f5c83abe4ca6b79865a5d5" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentAerodynamicHeatRate</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a94ad66e44aa0318ca8c0cb781842a3dc" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentAirspeed</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c3fdf6fb1273cc2ccd31a9626ce488a" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentAirspeedBasedVelocity</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9be363eadc6441e9f83ede3110f7399e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentAltitude</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a52bb2cc9d5748b7f1c0f96ad9d2de54e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentBodyCenteredBodyFixedState</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae6ba948782e267fcd7984b363d5923f0" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentDensity</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a8a78cfab8d68f42a0f1f61f8ce383c3c" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentDynamicPressure</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1ae5f659f6c05f72c6e271b8146392e28c" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentFreestreamTemperature</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a61e90cedd2518bf5dc83498a46743a0a" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentGeodeticLatitude</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a53d791899c971ee86afa6f43edaa9751" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentLongitude</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a54034ad6e87dcc5239262526b4c1f343" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentMachNumber</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a9817a8f731adafef75410eeeec43bfe0" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentPressure</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4c7526fcbf68413c6ca60214fd5f8a62" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentSpeedOfSound</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a0be39dd2b49d03fe576e73c3faa28ee8" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>getCurrentTime</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a30e6565083db5d2d8a3d8e7fd093ab97" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>isLatitudeAndLongitudeSet_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130ae56f2a24fe44107d98bc39f20fd49f51" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>latitude_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130ac3ab146399da86e365d4d6a994fca7a2" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>longitude_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130a4f2e59162de6dabd5eb5aa559dc6eb01" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>mach_number_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130a118f5eb40a09895f14be4cbd37c32279" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>pressure_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a742c4fbd647f1538094bb38c7fb15a4f" prot="public" virt="virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>resetCurrentTime</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a2fb9c9c9dc9c3d129daf08a9b3e64abc" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>scalarFlightConditions_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1af6eea8c3d4bdc2d27d9856fcb1ee2637" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>setAerodynamicAngleCalculator</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a0f31dc9dfc8dbb96c65302e3aa7829fa" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>setAerodynamicCoefficientsIndependentVariableFunction</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a232b24777af3e2add15d4a2d2cf80cd0" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>shapeModel_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130a65d226bd63728c8cb610d8b2e14cf5ee" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>speed_of_sound_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a9594c37581f821424bcc5cbe07570130a1048fa8646ef4d0f5dcefa08ca67ca05" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>temperature_flight_condition</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a99d14736bfaa45fd3b31dd3e389a5802" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>updateAerodynamicCoefficientInput</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a4bf179f5f2b2d6b648e41d54fc1141e8" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>updateAtmosphereInput</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a67283bc0963f74b7e84e279b7a4f9b4d" prot="public" virt="virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>updateConditions</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphericFlightConditions_1a27f836fa6c6d4e00b2ab19e996c97827" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>updateLatitudeAndLongitudeForAtmosphere_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1FlightConditions_1a050b14f7b5f87dbd89a36223e0cf21ce" prot="public" virt="virtual"><scope>tudat::aerodynamics::AtmosphericFlightConditions</scope><name>~FlightConditions</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

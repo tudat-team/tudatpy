@@ -1,0 +1,285 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::filters::UnscentedKalmanFilterSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1filters_1_1FilterSettings" prot="public" virt="non-virtual">tudat::filters::FilterSettings&lt; double, double &gt;</basecompoundref>
+    <includes refid="createFilter_8h" local="no">createFilter.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename DependentVariableType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a00ccffef8b70478512ce10ba5d77af63" prot="public" static="no">
+        <type><ref refid="classtudat_1_1filters_1_1FilterSettings" kindref="compound">FilterSettings</ref>&lt; IndependentVariableType, DependentVariableType &gt;::<ref refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a00ccffef8b70478512ce10ba5d77af63" kindref="member">DependentVector</ref></type>
+        <definition>typedef FilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::DependentVector tudat::filters::UnscentedKalmanFilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::DependentVector</definition>
+        <argsstring></argsstring>
+        <name>DependentVector</name>
+        <briefdescription>
+<para>Inherit typedefs from base class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="189" column="55" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1aa3a2065b15cb4d84fd3eae30095a1c43" prot="public" static="no">
+        <type><ref refid="classtudat_1_1filters_1_1FilterSettings" kindref="compound">FilterSettings</ref>&lt; IndependentVariableType, DependentVariableType &gt;::DependentMatrix</type>
+        <definition>typedef FilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::DependentMatrix tudat::filters::UnscentedKalmanFilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::DependentMatrix</definition>
+        <argsstring></argsstring>
+        <name>DependentMatrix</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="190" column="55" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1aae7a9129278f9c9d000d6fea5514b56e" prot="public" static="no">
+        <type><ref refid="classtudat_1_1filters_1_1FilterSettings" kindref="compound">FilterSettings</ref>&lt; IndependentVariableType, DependentVariableType &gt;::<ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref></type>
+        <definition>typedef FilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::IntegratorSettings tudat::filters::UnscentedKalmanFilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::IntegratorSettings</definition>
+        <argsstring></argsstring>
+        <name>IntegratorSettings</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="191" column="58" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a1bbce53b7256c4c2cca2645eefd8f18c" prot="public" static="no" mutable="no">
+        <type>const ConstantParameterReferences</type>
+        <definition>const ConstantParameterReferences tudat::filters::UnscentedKalmanFilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::constantValueReference_</definition>
+        <argsstring></argsstring>
+        <name>constantValueReference_</name>
+        <briefdescription>
+<para>Enumeration denoting the reference to use for the alpha and kappa paramters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="230" column="39" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a3216f0e44a80b2c92a16b64efd63421b" prot="public" static="no" mutable="no">
+        <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt;</type>
+        <definition>const std::pair&lt; DependentVariableType, DependentVariableType &gt; tudat::filters::UnscentedKalmanFilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::customConstantParameters_</definition>
+        <argsstring></argsstring>
+        <name>customConstantParameters_</name>
+        <briefdescription>
+<para>Custom value of the alpha and kappa paramters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="233" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a8f0e43aa010115aaef0c3af54ad933f5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::filters::UnscentedKalmanFilterSettings&lt; IndependentVariableType, DependentVariableType &gt;::UnscentedKalmanFilterSettings</definition>
+        <argsstring>(const DependentMatrix &amp;systemUncertainty, const DependentMatrix &amp;measurementUncertainty, const IndependentVariableType filteringStepSize, const IndependentVariableType initialTime, const DependentVector &amp;initialStateVector, const DependentMatrix &amp;initialCovarianceMatrix, const std::shared_ptr&lt; IntegratorSettings &gt; integratorSettings=nullptr, const ConstantParameterReferences constantValueReference=reference_Wan_and_Van_der_Merwe, const std::pair&lt; DependentVariableType, DependentVariableType &gt; customConstantParameters=std::make_pair(static_cast&lt; DependentVariableType &gt;(TUDAT_NAN), static_cast&lt; DependentVariableType &gt;(TUDAT_NAN)))</argsstring>
+        <name>UnscentedKalmanFilterSettings</name>
+        <param>
+          <type>const DependentMatrix &amp;</type>
+          <declname>systemUncertainty</declname>
+        </param>
+        <param>
+          <type>const DependentMatrix &amp;</type>
+          <declname>measurementUncertainty</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>filteringStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a00ccffef8b70478512ce10ba5d77af63" kindref="member">DependentVector</ref> &amp;</type>
+          <declname>initialStateVector</declname>
+        </param>
+        <param>
+          <type>const DependentMatrix &amp;</type>
+          <declname>initialCovarianceMatrix</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref> &gt;</type>
+          <declname>integratorSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>const ConstantParameterReferences</type>
+          <declname>constantValueReference</declname>
+          <defval>reference_Wan_and_Van_der_Merwe</defval>
+        </param>
+        <param>
+          <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt;</type>
+          <declname>customConstantParameters</declname>
+          <defval>std::make_pair(static_cast&lt; DependentVariableType &gt;(TUDAT_NAN), static_cast&lt; DependentVariableType &gt;(TUDAT_NAN))</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. This constructor takes the system and measurement functions as models for the simulation. These functions can be a function of time and state vector. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>systemUncertainty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix defining the uncertainty in modeling of the system. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>measurementUncertainty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix defining the uncertainty in modeling of the measurements. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>filteringStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scalar representing the value of the constant filtering time step. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scalar representing the value of the initial time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialStateVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector representing the initial (estimated) state of the system. It is used as first a-priori estimate of the state vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialCovarianceMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix representing the initial (estimated) covariance of the system. It is used as first a-priori estimate of the covariance matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to integration settings defining the integrator to be used to propagate the state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>constantValueReference</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference to be used for the values of the <formula id="158">$ \alpha $</formula> and <formula id="159">$ \kappa $</formula> parameters. This variable has to be part of the ConstantParameterReferences enumeration (custom parameters are supported). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>customConstantParameters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of the constant parameters <formula id="158">$ \alpha $</formula> and <formula id="159">$ \kappa $</formula>, in case the custom_parameters enumeration is used in the previous field. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="211" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="211" bodyend="227"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Unscented Kalman filter settings. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Unscented Kalman filter settings. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of independent variable. Default is double. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>DependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of dependent variable. Default is double. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::filters::FilterSettings&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1filters_1_1FilterSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::filters::UnscentedKalmanFilterSettings&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::filters::FilterSettings&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1filters_1_1FilterSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::filters::UnscentedKalmanFilterSettings&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="184" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="185" bodyend="235"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a1bbce53b7256c4c2cca2645eefd8f18c" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>constantValueReference_</name></member>
+      <member refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a3216f0e44a80b2c92a16b64efd63421b" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>customConstantParameters_</name></member>
+      <member refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1aa3a2065b15cb4d84fd3eae30095a1c43" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>DependentMatrix</name></member>
+      <member refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a00ccffef8b70478512ce10ba5d77af63" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>DependentVector</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1a8ad3912ff3f95c88075639902ed1dd90" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>filteringStepSize_</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1a8724b519104d4706a7f8ba19f0c6f38d" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>filteringTechnique_</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1acb3999836c0fd42aa668310e1fc51d29" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>FilterSettings</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1a7965cb999a345a7967dc97e8f521e798" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>initialCovarianceEstimate_</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1ac593c8070887c98a9666380de5aea012" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>initialStateEstimate_</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1a50baae4a064cc6881122365c5c5a4fa4" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>initialTime_</name></member>
+      <member refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1aae7a9129278f9c9d000d6fea5514b56e" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>IntegratorSettings</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1a7ed91fe1737e60a72db5c9c61c79f4f6" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>integratorSettings_</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1a65dcaa5b719cfc19c0321891f463caa2" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>measurementUncertainty_</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1a9edcded418f7058e6da4e95a2efca480" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>systemUncertainty_</name></member>
+      <member refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings_1a8f0e43aa010115aaef0c3af54ad933f5" prot="public" virt="non-virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>UnscentedKalmanFilterSettings</name></member>
+      <member refid="classtudat_1_1filters_1_1FilterSettings_1a37b570891bbf60114072158bf9f41da0" prot="public" virt="virtual"><scope>tudat::filters::UnscentedKalmanFilterSettings</scope><name>~FilterSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

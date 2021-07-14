@@ -1,0 +1,95 @@
+\hypertarget{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState}{}\doxysection{tudat\+::observation\+\_\+partials\+::Euler\+Angle\+Obervation\+Partial\+Wrt\+Current\+Rotational\+State Class Reference}
+\label{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState}\index{tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState@{tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState}}
+
+
+Class to compute the partial derivatives of a 3-\/1-\/3 Euler angle observable.  
+
+
+
+
+{\ttfamily \#include $<$euler\+Angle\+Observable\+Partials.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Euler\+Angle\+Obervation\+Partial\+Wrt\+Current\+Rotational\+State\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_ae4d9718de624bdd9a3e7c901100939c1}\label{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_ae4d9718de624bdd9a3e7c901100939c1}} 
+typedef std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_ae4d9718de624bdd9a3e7c901100939c1}{Euler\+Angle\+Observation\+Partial\+Return\+Type}}
+\begin{DoxyCompactList}\small\item\em Local typedef for return type (list of partial matrices and associated evaluation times). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_a2c6c97cfb4aafd406381cf973cb0e001}{Euler\+Angle\+Obervation\+Partial\+Wrt\+Current\+Rotational\+State}} (const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier parameter\+Identifier)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aa20cb7ff188e27cf230afcce411f0201}\label{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aa20cb7ff188e27cf230afcce411f0201}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aa20cb7ff188e27cf230afcce411f0201}{$\sim$\+Euler\+Angle\+Obervation\+Partial\+Wrt\+Current\+Rotational\+State}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_ae4d9718de624bdd9a3e7c901100939c1}{Euler\+Angle\+Observation\+Partial\+Return\+Type}} \mbox{\hyperlink{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aaffe55192aaef5c13af4431183bf9ff6}{calculate\+Partial}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Of\+Fixed\+Time, const Eigen\+::\+Vector3d \&current\+Observation=Eigen\+::\+Vector3d\+::\+Constant(TUDAT\+\_\+\+NAN))
+\begin{DoxyCompactList}\small\item\em Function to calculate the observation partial(s) at required time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_a05b30135b6f7bef8ab7e0f9556f03398}\label{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_a05b30135b6f7bef8ab7e0f9556f03398}} 
+Eigen\+::\+Matrix$<$ double, 3, 7 $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_a05b30135b6f7bef8ab7e0f9556f03398}{current\+Partial\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Partial derivative, as computed by last call to calculate\+Partial function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aa28ef2e603f16e62e6c8128645a44424}\label{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aa28ef2e603f16e62e6c8128645a44424}} 
+double \mbox{\hyperlink{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aa28ef2e603f16e62e6c8128645a44424}{current\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Pre-\/declared time variable to be used in calculate\+Partial function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the partial derivatives of a 3-\/1-\/3 Euler angle observable. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_a2c6c97cfb4aafd406381cf973cb0e001}\label{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_a2c6c97cfb4aafd406381cf973cb0e001}} 
+\index{tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState@{tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState}!EulerAngleObervationPartialWrtCurrentRotationalState@{EulerAngleObervationPartialWrtCurrentRotationalState}}
+\index{EulerAngleObervationPartialWrtCurrentRotationalState@{EulerAngleObervationPartialWrtCurrentRotationalState}!tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState@{tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState}}
+\doxysubsubsection{\texorpdfstring{EulerAngleObervationPartialWrtCurrentRotationalState()}{EulerAngleObervationPartialWrtCurrentRotationalState()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+Euler\+Angle\+Obervation\+Partial\+Wrt\+Current\+Rotational\+State\+::\+Euler\+Angle\+Obervation\+Partial\+Wrt\+Current\+Rotational\+State (\begin{DoxyParamCaption}\item[{const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier}]{parameter\+Identifier }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Identifier} & Id of parameter for which instance of class computes partial derivatives. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aaffe55192aaef5c13af4431183bf9ff6}\label{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_aaffe55192aaef5c13af4431183bf9ff6}} 
+\index{tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState@{tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState}!calculatePartial@{calculatePartial}}
+\index{calculatePartial@{calculatePartial}!tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState@{tudat::observation\_partials::EulerAngleObervationPartialWrtCurrentRotationalState}}
+\doxysubsubsection{\texorpdfstring{calculatePartial()}{calculatePartial()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1observation__partials_1_1EulerAngleObervationPartialWrtCurrentRotationalState_ae4d9718de624bdd9a3e7c901100939c1}{Euler\+Angle\+Observation\+Partial\+Return\+Type}} tudat\+::observation\+\_\+partials\+::\+Euler\+Angle\+Obervation\+Partial\+Wrt\+Current\+Rotational\+State\+::calculate\+Partial (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Of\+Fixed\+Time,  }\item[{const Eigen\+::\+Vector3d \&}]{current\+Observation = {\ttfamily Eigen\+:\+:Vector3d\+:\+:Constant(~TUDAT\+\_\+NAN~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to calculate the observation partial(s) at required time. 
+
+Function to calculate the observation partial(s) at required time. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is typically obtained from evaluation of observation model. 
+\begin{DoxyParams}{Parameters}
+{\em states} & Link end state. (Not used; vector contains NaN entry) \\
+\hline
+{\em times} & Link end time (size 1 std\+::vector). \\
+\hline
+{\em link\+End\+Of\+Fixed\+Time} & Link end that is kept fixed when computing the observable. \\
+\hline
+{\em current\+Observation} & Value of the observation for which the partial is to be computed (default NaN for compatibility purposes) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of pairs containing partial values and associated times. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/euler\+Angle\+Observable\+Partials.\+h\end{DoxyCompactItemize}

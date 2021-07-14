@@ -1,0 +1,433 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1orbit__determination" kind="namespace" language="C++">
+    <compoundname>tudat::orbit_determination</compoundname>
+    <innerclass refid="classtudat_1_1orbit__determination_1_1TidalLoveNumberPartialInterface" prot="public">tudat::orbit_determination::TidalLoveNumberPartialInterface</innerclass>
+    <innerclass refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" prot="public">tudat::orbit_determination::StateDerivativePartial</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="stateDerivativePartial_8h_1a24ea177128f53c50cbca629e7cc72df7" prot="public" static="no">
+        <type>std::vector&lt; std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">orbit_determination::StateDerivativePartial</ref> &gt; &gt; &gt;</type>
+        <definition>typedef std::vector&lt; std::vector&lt; std::shared_ptr&lt; orbit_determination::StateDerivativePartial &gt; &gt; &gt; tudat::orbit_determination::StateDerivativePartialsMap</definition>
+        <argsstring></argsstring>
+        <name>StateDerivativePartialsMap</name>
+        <briefdescription>
+<para>Typedef for double vector of <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref> objects. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef for double vector of <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref> objects. First (outer) vector is typically the bodies undergoing &apos;acceleration (and being estimated), the second (inner) vector is the list of partials being exerted on a single body. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="533" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="533" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="tidalLoveNumberPartialInterface_8h_1ac8ad3d8c1ffe897a43f112cca7f66933" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::getMaximumUsedDegreeAndOrder</definition>
+        <argsstring>(const int maximumDegree, const int maximumOrder, const int evaluationDegree, int &amp;maximumUsedDegree, int &amp;maximumUsedOrder)</argsstring>
+        <name>getMaximumUsedDegreeAndOrder</name>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>evaluationDegree</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>maximumUsedDegree</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>maximumUsedOrder</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.cpp" line="23" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.cpp" bodystart="23" bodyend="44" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h" declline="28" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="stateDerivativePartial_8h_1a9a4929bc6ae3b3345603ef6a3fab3365" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::evaluateNegativeParameterPartialFunction</definition>
+        <argsstring>(const std::function&lt; void(Eigen::MatrixXd &amp;) &gt; parameterPartialFunction, Eigen::MatrixXd &amp;partial)</argsstring>
+        <name>evaluateNegativeParameterPartialFunction</name>
+        <param>
+          <type>const std::function&lt; void(Eigen::MatrixXd &amp;) &gt;</type>
+          <declname>parameterPartialFunction</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>partial</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate the negative value of a parameter partial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate the negative value of a parameter partial. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterPartialFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to compute the regular paramater partial (by reference). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Negative value of partial computed by parameterPartialFunction (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" line="20" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" bodystart="20" bodyend="26" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" declline="541" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="stateDerivativePartial_8h_1a1b2c9203f867d2160dfc9117c8b86e1e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::evaluateSubtractedParameterPartialFunction</definition>
+        <argsstring>(const std::function&lt; void(Eigen::MatrixXd &amp;) &gt; firstParameterPartialFunction, const std::function&lt; void(Eigen::MatrixXd &amp;) &gt; parameterPartialFunctionToSubtract, Eigen::MatrixXd &amp;partial)</argsstring>
+        <name>evaluateSubtractedParameterPartialFunction</name>
+        <param>
+          <type>const std::function&lt; void(Eigen::MatrixXd &amp;) &gt;</type>
+          <declname>firstParameterPartialFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; void(Eigen::MatrixXd &amp;) &gt;</type>
+          <declname>parameterPartialFunctionToSubtract</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>partial</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate the subtraction of two parameter partials. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate the subtraction of two parameter partials. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>firstParameterPartialFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to compute the first paramater partial (by reference), from which the value computed by parameterPartialFunctionToSubtract is subtracted. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterPartialFunctionToSubtract</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to compute the paramater partial (by reference) that is to be subtracted. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of partial returned by parameterPartialFunctionToSubtract, subtracted from value returned by firstParameterPartialFunction (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" line="29" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" bodystart="29" bodyend="40" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" declline="555" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="stateDerivativePartial_8h_1aed4e93799acd76a2a3798175c2f91b46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::evaluateAddedParameterPartialFunction</definition>
+        <argsstring>(const std::function&lt; void(Eigen::MatrixXd &amp;) &gt; firstParameterPartialFunction, const std::function&lt; void(Eigen::MatrixXd &amp;) &gt; parameterPartialFunctionToAdd, Eigen::MatrixXd &amp;partial)</argsstring>
+        <name>evaluateAddedParameterPartialFunction</name>
+        <param>
+          <type>const std::function&lt; void(Eigen::MatrixXd &amp;) &gt;</type>
+          <declname>firstParameterPartialFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; void(Eigen::MatrixXd &amp;) &gt;</type>
+          <declname>parameterPartialFunctionToAdd</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>partial</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate the addition of two parameter partials. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate the addition of two parameter partials. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>firstParameterPartialFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to compute the first paramater partial (by reference) that is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterPartialFunctionToAdd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to compute the second paramater partial (by reference) that is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of partial returned by firstParameterPartialFunction, added to value returned by parameterPartialFunctionToAdd (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" line="43" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" bodystart="43" bodyend="54" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" declline="570" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="stateDerivativePartial_8h_1a94ef19c01dc97029c67101a6c02cc54a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt;</type>
+        <definition>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt; tudat::orbit_determination::createMergedParameterPartialFunction</definition>
+        <argsstring>(const std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt; &amp;partialFunctionOfAccelerationToAdd, const std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt; &amp;partialFunctionOfAccelerationToSubtract)</argsstring>
+        <name>createMergedParameterPartialFunction</name>
+        <param>
+          <type>const std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt; &amp;</type>
+          <declname>partialFunctionOfAccelerationToAdd</declname>
+        </param>
+        <param>
+          <type>const std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt; &amp;</type>
+          <declname>partialFunctionOfAccelerationToSubtract</declname>
+        </param>
+        <briefdescription>
+<para>Create a parameter partial function obtained from the subtraction of two such function results. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a parameter partial function, as returned by the <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" kindref="member">StateDerivativePartial::getParameterPartialFunction</ref> function The partial created here is obtained from the subtraction of two such function results. The two input variables may be both empty, both define a function, or only one of them may define a function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialFunctionOfAccelerationToAdd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function and associated parameter size (first and second of pair) that are to be added to the total partial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialFunctionOfAccelerationToSubtract</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function and associated parameter size (first and second of pair) that are to be subtracted from the total partial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Function and parameter size obtained from &apos;subtracting&apos; partialFunctionOfAccelerationToSubtract from partialFunctionOfAccelerationToAdd </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" line="57" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" bodystart="57" bodyend="94" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" declline="587" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="stateDerivativePartial_8h_1a7b38413c7830845c5fd28f693b1121bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::function&lt; void(Eigen::MatrixXd &amp;) &gt;</type>
+        <definition>std::function&lt; void(Eigen::MatrixXd &amp;) &gt; tudat::orbit_determination::getCombinedCurrentDoubleParameterFunction</definition>
+        <argsstring>(const std::shared_ptr&lt; StateDerivativePartial &gt; firstPartial, const std::shared_ptr&lt; StateDerivativePartial &gt; secondPartial, const std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt; parameterObject, const int firstPartialSize, const int secondPartialSize, const bool subtractPartials=0)</argsstring>
+        <name>getCombinedCurrentDoubleParameterFunction</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref> &gt;</type>
+          <declname>firstPartial</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref> &gt;</type>
+          <declname>secondPartial</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;</type>
+          <declname>parameterObject</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>firstPartialSize</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>secondPartialSize</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>subtractPartials</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial w.r.t. a double parameter from 2 state derivative partial models.</para>
+<para>Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial w.r.t. a double parameter from 2 state derivative partial models. Note that this function creates a merged function from two getCurrentDoubleParameterPartial functions of the two input partial objects. The automatic computation when updating the partial (done by call to setParameterPartialUpdateFunction) is not handled by this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>firstPartial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First object for computing partial derivatives. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondPartial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second object for computing partial derivatives. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterObject</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which a partial is to be taken. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>firstPartialSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of partial from firstPartial object (only 0 and 1 are valid). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondPartialSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of partial from secondPartial object (only 0 and 1 are valid). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subtractPartials</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the second parameter is to be subtracted or added to the total partial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Function computing and returning (by reference) the combined partial according to the required settings.</para>
+</simplesect>
+Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial w.r.t. a double parameter from 2 state derivative partial models. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" line="98" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" bodystart="98" bodyend="157" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" declline="609" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="stateDerivativePartial_8h_1a4d30e817a78820b2aba7f8dbe199bbee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::function&lt; void(Eigen::MatrixXd &amp;) &gt;</type>
+        <definition>std::function&lt; void(Eigen::MatrixXd &amp;) &gt; tudat::orbit_determination::getCombinedCurrentVectorParameterFunction</definition>
+        <argsstring>(const std::shared_ptr&lt; StateDerivativePartial &gt; firstPartial, const std::shared_ptr&lt; StateDerivativePartial &gt; secondPartial, const std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt; parameterObject, const int firstPartialSize, const int secondPartialSize, const bool subtractPartials=0)</argsstring>
+        <name>getCombinedCurrentVectorParameterFunction</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref> &gt;</type>
+          <declname>firstPartial</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref> &gt;</type>
+          <declname>secondPartial</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;</type>
+          <declname>parameterObject</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>firstPartialSize</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>secondPartialSize</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>subtractPartials</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial w.r.t. a vector parameter from 2 state derivative partial models.</para>
+<para>Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial w.r.t. a vector parameter from 2 state derivative partial models. Note that this function creates a merged function from two getCurrentVectorParameterPartial functions of the two input partial objects. The automatic computation when updating the partial (done by call to setParameterPartialUpdateFunction) is not handled by this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>firstPartial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First object for computing partial derivatives. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondPartial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second object for computing partial derivatives. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterObject</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which a partial is to be taken. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>firstPartialSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of partial from firstPartial object </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondPartialSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of partial from secondPartial object </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subtractPartials</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the second parameter is to be subtracted or added to the total partial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Function computing and returning (by reference) the combined partial according to the required settings.</para>
+</simplesect>
+Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial w.r.t. a vector parameter from 2 state derivative partial models. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" line="161" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp" bodystart="161" bodyend="221" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" declline="633" declcolumn="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h" line="25" column="1"/>
+  </compounddef>
+</doxygen>

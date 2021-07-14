@@ -1,0 +1,336 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::numerical_integrators::AdamsBashforthMoultonSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" prot="public" virt="non-virtual">tudat::numerical_integrators::IntegratorSettings&lt; double &gt;</basecompoundref>
+    <includes refid="createNumericalIntegrator_8h" local="no">createNumericalIntegrator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1ae9ff059f3571478119d0af6e14d0c160" prot="public" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::minimumStepSize_</definition>
+        <argsstring></argsstring>
+        <name>minimumStepSize_</name>
+        <briefdescription>
+<para>Minimum step size for integration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="534" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="534" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a8e4b075524d2243deb83e75ca9ab4836" prot="public" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::maximumStepSize_</definition>
+        <argsstring></argsstring>
+        <name>maximumStepSize_</name>
+        <briefdescription>
+<para>Maximum step size for integration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="537" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="537" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a1af2c567713d74042b81644a8702a82a" prot="public" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::relativeErrorTolerance_</definition>
+        <argsstring></argsstring>
+        <name>relativeErrorTolerance_</name>
+        <briefdescription>
+<para>Relative error tolerance for step size control. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="540" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="540" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a3a277b60c753f204cd104effbd75bf88" prot="public" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::absoluteErrorTolerance_</definition>
+        <argsstring></argsstring>
+        <name>absoluteErrorTolerance_</name>
+        <briefdescription>
+<para>Absolute error tolerance for step size control. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="543" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="543" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a1ecdd7f57c9c8aac62fed46b01379d07" prot="public" static="no" mutable="no">
+        <type>const int</type>
+        <definition>const int tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::minimumOrder_</definition>
+        <argsstring></argsstring>
+        <name>minimumOrder_</name>
+        <briefdescription>
+<para>Minimum order of integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="546" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="546" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a6da71c3dab75f5942e227b311112db11" prot="public" static="no" mutable="no">
+        <type>const int</type>
+        <definition>const int tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::maximumOrder_</definition>
+        <argsstring></argsstring>
+        <name>maximumOrder_</name>
+        <briefdescription>
+<para>Maximum order of integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="549" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="549" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a2fec6d41b6108cbfb3f7ebb68121028b" prot="public" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::bandwidth_</definition>
+        <argsstring></argsstring>
+        <name>bandwidth_</name>
+        <briefdescription>
+<para>Safety factor for step size control. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="552" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="552" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a1e6caee304a4c99d880245f0b56a1c72" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::AdamsBashforthMoultonSettings</definition>
+        <argsstring>(const IndependentVariableType initialTime, const IndependentVariableType initialTimeStep, const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize, const IndependentVariableType relativeErrorTolerance=1.0E-12, const IndependentVariableType absoluteErrorTolerance=1.0E-12, const int minimumOrder=6, const int maximumOrder=11, const int saveFrequency=1, const bool assessTerminationOnMinorSteps=false, const IndependentVariableType bandwidth=200.)</argsstring>
+        <name>AdamsBashforthMoultonSettings</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTimeStep</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>relativeErrorTolerance</declname>
+          <defval>1.0E-12</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>absoluteErrorTolerance</declname>
+          <defval>1.0E-12</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>minimumOrder</declname>
+          <defval>6</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+          <defval>11</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>saveFrequency</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>assessTerminationOnMinorSteps</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>bandwidth</declname>
+          <defval>200.</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for variable step RK integrator settings. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start time (independent variable) of numerical integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialTimeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial time (independent variable) step used in numerical integration. Adapted during integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum step size for integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Relative error tolerance for step size control. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Absolute error tolerance for step size control. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum order of integrator (default 6). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order of integrator (default 11). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>saveFrequency</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frequency at which to save the numerical integrated states (in units of i.e. per n integration time steps, with n = saveFrequency). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>assessTerminationOnMinorSteps</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (<computeroutput>true</computeroutput>) or only at the end of each integration step (<computeroutput>false</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bandwidth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum error factor for doubling the stepsize (default: 200). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="504" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="504" bodyend="522"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1ab1dd6e10185e6815398d5cc3879bae19" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;::~AdamsBashforthMoultonSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~AdamsBashforthMoultonSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Destructor </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="528" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="528" bodyend="528"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings of variable step ABAM numerical integrator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to define settings of variable step ABAM numerical integrator, for instance for use in numerical integration of equations of motion/ variational equations. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::numerical_integrators::IntegratorSettings&lt; double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::numerical_integrators::AdamsBashforthMoultonSettings&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::numerical_integrators::IntegratorSettings&lt; double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="481" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="482" bodyend="554"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a3a277b60c753f204cd104effbd75bf88" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>absoluteErrorTolerance_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a1e6caee304a4c99d880245f0b56a1c72" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>AdamsBashforthMoultonSettings</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a15434b0bf8ae748ac016cde45024de45" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>assessTerminationOnMinorSteps_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a2fec6d41b6108cbfb3f7ebb68121028b" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>bandwidth_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a91fdd1ba023ca139b32fccfb56ed5020" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>initialTime_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a4d536f81d1f800b88fddd1cb8625eee4" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>initialTimeStep_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a0d398ec8098603f3592b360e1a375a9f" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>IntegratorSettings</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a989616d69ae39a93624a306ebcd147a5" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>integratorType_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a6da71c3dab75f5942e227b311112db11" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>maximumOrder_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a8e4b075524d2243deb83e75ca9ab4836" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>maximumStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a1ecdd7f57c9c8aac62fed46b01379d07" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>minimumOrder_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1ae9ff059f3571478119d0af6e14d0c160" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>minimumStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1a1af2c567713d74042b81644a8702a82a" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>relativeErrorTolerance_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1afb64bd194631ff1253c568335655467f" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>saveFrequency_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings_1ab1dd6e10185e6815398d5cc3879bae19" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>~AdamsBashforthMoultonSettings</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a9f34eae5969213b2a1f29548573687cf" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonSettings</scope><name>~IntegratorSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

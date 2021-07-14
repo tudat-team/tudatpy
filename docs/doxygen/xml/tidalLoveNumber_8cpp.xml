@@ -1,0 +1,710 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="tidalLoveNumber_8cpp" kind="file" language="C++">
+    <compoundname>tidalLoveNumber.cpp</compoundname>
+    <includes refid="tidalLoveNumber_8h" local="yes">tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h</includes>
+    <incdepgraph>
+      <node id="38">
+        <label>tudat/math/interpolators/oneDimensionalInterpolator.h</label>
+        <link refid="oneDimensionalInterpolator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>boost/algorithm/string.hpp</label>
+      </node>
+      <node id="63">
+        <label>tudat/io/streamFilters.h</label>
+        <link refid="streamFilters_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>tudat/math/interpolators/piecewiseConstantInterpolator.h</label>
+        <link refid="piecewiseConstantInterpolator_8h_source"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>functional</label>
+      </node>
+      <node id="9">
+        <label>boost/shared_ptr.hpp</label>
+      </node>
+      <node id="28">
+        <label>limits</label>
+      </node>
+      <node id="36">
+        <label>tudat/math/interpolators/linearInterpolator.h</label>
+        <link refid="linearInterpolator_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/astro/propagators/singleStateTypeDerivative.h</label>
+        <link refid="singleStateTypeDerivative_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>boost/iostreams/device/back_inserter.hpp</label>
+      </node>
+      <node id="39">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="60">
+        <label>boost/iostreams/copy.hpp</label>
+      </node>
+      <node id="34">
+        <label>tudat/astro/gravitation/gravityFieldVariations.h</label>
+        <link refid="gravityFieldVariations_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="46">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>tudat/math/interpolators/multiDimensionalInterpolator.h</label>
+        <link refid="multiDimensionalInterpolator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>cmath</label>
+      </node>
+      <node id="42">
+        <label>stdexcept</label>
+      </node>
+      <node id="13">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.cpp</label>
+        <link refid="tidalLoveNumber_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>string</label>
+      </node>
+      <node id="7">
+        <label>map</label>
+      </node>
+      <node id="57">
+        <label>boost/algorithm/string/trim.hpp</label>
+      </node>
+      <node id="66">
+        <label>boost/iostreams/stream_buffer.hpp</label>
+      </node>
+      <node id="58">
+        <label>boost/algorithm/string/trim_all.hpp</label>
+      </node>
+      <node id="2">
+        <label>tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h</label>
+        <link refid="tidalLoveNumber_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>fstream</label>
+      </node>
+      <node id="31">
+        <label>boost/circular_buffer.hpp</label>
+      </node>
+      <node id="17">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>tudat/math/interpolators/hermiteCubicSplineInterpolator.h</label>
+        <link refid="hermiteCubicSplineInterpolator_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>tudat/math/interpolators/multiLinearInterpolator.h</label>
+        <link refid="multiLinearInterpolator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="59">
+        <label>boost/iostreams/device/file.hpp</label>
+      </node>
+      <node id="44">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>tudat/math/interpolators/createInterpolator.h</label>
+        <link refid="createInterpolator_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>boost/unordered_map.hpp</label>
+      </node>
+      <node id="41">
+        <label>tudat/math/basic/nearestNeighbourSearch.h</label>
+        <link refid="nearestNeighbourSearch_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>vector</label>
+      </node>
+      <node id="64">
+        <label>boost/iostreams/filter/line.hpp</label>
+      </node>
+      <node id="3">
+        <label>tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h</label>
+        <link refid="estimatableParameter_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h</label>
+        <link refid="basicSolidBodyTideGravityFieldVariations_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="29">
+        <label>tudat/math/basic/legendrePolynomials.h</label>
+        <link refid="legendrePolynomials_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>sstream</label>
+      </node>
+      <node id="14">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>boost/enable_shared_from_this.hpp</label>
+      </node>
+      <node id="25">
+        <label>tudat/math/basic/coordinateConversions.h</label>
+        <link refid="coordinateConversions_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>iostream</label>
+      </node>
+      <node id="27">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>cstddef</label>
+      </node>
+      <node id="53">
+        <label>tudat/io/mapTextFileReader.h</label>
+        <link refid="mapTextFileReader_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="67">
+        <label>boost/regex.hpp</label>
+      </node>
+      <node id="37">
+        <label>boost/array.hpp</label>
+      </node>
+      <node id="62">
+        <label>tudat/io/matrixTextFileReader.h</label>
+        <link refid="matrixTextFileReader_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>tudat/math/interpolators/cubicSplineInterpolator.h</label>
+        <link refid="cubicSplineInterpolator_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>type_traits</label>
+      </node>
+      <node id="8">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="22">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="61">
+        <label>boost/iostreams/filtering_stream.hpp</label>
+      </node>
+      <node id="24">
+        <label>complex</label>
+      </node>
+      <node id="16">
+        <label>algorithm</label>
+      </node>
+      <node id="49">
+        <label>tudat/math/interpolators/lagrangeInterpolator.h</label>
+        <link refid="lagrangeInterpolator_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>memory</label>
+      </node>
+      <node id="40">
+        <label>tudat/math/interpolators/lookupScheme.h</label>
+        <link refid="lookupScheme_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1estimatable__parameters">tudat::estimatable_parameters</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">estimatable_parameters</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal">Eigen::VectorXd<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1a2e8a0ea3fb367c4d2c8811fbf9527a32" kindref="member">FullDegreeTidalLoveNumber::getParameterValue</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>complex<sp/>Love<sp/>numbers<sp/>at<sp/>required<sp/>degree</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/>fullLoveNumbers<sp/>=<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a453189c04edbcd857fdcfedbe17a294c" kindref="member">gravityFieldVariationModel_</ref>-&gt;getLoveNumbersOfDegree(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>mean<sp/>value<sp/>across<sp/>orders</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>meanLoveNumber<sp/>=<sp/>Eigen::VectorXd::Zero(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a2954107f9c7c8a70c99d13b04d5d0a9c" kindref="member">parameterSize_</ref><sp/>);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;=<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref>;<sp/>i<sp/>++<sp/>)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>meanLoveNumber[<sp/>0<sp/>]<sp/>+=<sp/>fullLoveNumbers[<sp/>i<sp/>].real(<sp/>);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1adbc27edb25308e42626cc9fd28337385" kindref="member">useComplexComponents_</ref><sp/>)</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>meanLoveNumber[<sp/>1<sp/>]<sp/>+=<sp/>fullLoveNumbers[<sp/>i<sp/>].imag(<sp/>);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Return<sp/>mean<sp/>Love<sp/>number<sp/>across<sp/>orders</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>meanLoveNumber<sp/>=<sp/>meanLoveNumber<sp/>/<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>+<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>meanLoveNumber;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1afbc1e32c0ba9c2a096ed5e4d599484cf" kindref="member">FullDegreeTidalLoveNumber::setParameterValue</ref>(<sp/>Eigen::VectorXd<sp/>parameterValue<sp/>)</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>complex<sp/>Love<sp/>numbers<sp/>at<sp/>required<sp/>degree</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/>fullLoveNumbers;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>fullLoveNumbers.resize(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>+<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>complex<sp/>value<sp/>of<sp/>Love<sp/>numbers</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>complexPart<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1adbc27edb25308e42626cc9fd28337385" kindref="member">useComplexComponents_</ref><sp/>)</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>complexPart<sp/>=<sp/>parameterValue[<sp/>1<sp/>];</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/>currentLoveNumbers<sp/>=<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a453189c04edbcd857fdcfedbe17a294c" kindref="member">gravityFieldVariationModel_</ref>-&gt;getLoveNumbersOfDegree(</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>meanComplexNumber<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;=<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref>;<sp/>i<sp/>++<sp/>)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>meanComplexNumber<sp/>+=<sp/>currentLoveNumbers[<sp/>i<sp/>].imag(<sp/>);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>meanComplexNumber<sp/>/=<sp/>(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>+<sp/>1.0<sp/>);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>complexPart<sp/>=<sp/>meanComplexNumber;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Modify<sp/>required<sp/>values<sp/>of<sp/>Love<sp/>numbers</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>complexLoveNumber<sp/>=<sp/>std::complex&lt;<sp/>double<sp/>&gt;(<sp/>parameterValue[<sp/>0<sp/>],<sp/>complexPart<sp/>);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;=<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref>;<sp/>i<sp/>++<sp/>)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fullLoveNumbers[<sp/>i<sp/>]<sp/>=<sp/>complexLoveNumber;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Reset<sp/>Love<sp/>numbers</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a453189c04edbcd857fdcfedbe17a294c" kindref="member">gravityFieldVariationModel_</ref>-&gt;resetLoveNumbersOfDegree(<sp/>fullLoveNumbers,<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">Eigen::VectorXd<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_1a9bb507095f70908d1991a9073384f932" kindref="member">SingleDegreeVariableTidalLoveNumber::getParameterValue</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>complex<sp/>Love<sp/>numbers<sp/>at<sp/>required<sp/>degree</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/>loveNumbers<sp/>=<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a453189c04edbcd857fdcfedbe17a294c" kindref="member">gravityFieldVariationModel_</ref>-&gt;getLoveNumbersOfDegree(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>required<sp/>values</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>loveNumberVector<sp/>=<sp/>Eigen::VectorXd::Zero(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a2954107f9c7c8a70c99d13b04d5d0a9c" kindref="member">parameterSize_</ref><sp/>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" kindref="member">orders_</ref>.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1adbc27edb25308e42626cc9fd28337385" kindref="member">useComplexComponents_</ref><sp/>)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>loveNumberVector[<sp/>2<sp/>*<sp/>i<sp/>]<sp/>=<sp/>loveNumbers[<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" kindref="member">orders_</ref>[<sp/>i<sp/>]<sp/>].real(<sp/>);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>loveNumberVector[<sp/>2<sp/>*<sp/>i<sp/>+<sp/>1<sp/>]<sp/>=<sp/>loveNumbers[<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" kindref="member">orders_</ref>[<sp/>i<sp/>]<sp/>].imag(<sp/>);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>loveNumberVector[<sp/>i<sp/>]<sp/>=<sp/>loveNumbers[<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" kindref="member">orders_</ref>[<sp/>i<sp/>]<sp/>].real(<sp/>);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>loveNumberVector;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_1a85b751090ced3f376ec5692c2513b8d8" kindref="member">SingleDegreeVariableTidalLoveNumber::setParameterValue</ref>(<sp/>Eigen::VectorXd<sp/>parameterValue<sp/>)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>current<sp/>complex<sp/>Love<sp/>numbers<sp/>at<sp/>required<sp/>degree</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/>fullLoveNumbers<sp/>=</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a453189c04edbcd857fdcfedbe17a294c" kindref="member">gravityFieldVariationModel_</ref>-&gt;getLoveNumbersOfDegree(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Modify<sp/>required<sp/>values</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" kindref="member">orders_</ref>.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1adbc27edb25308e42626cc9fd28337385" kindref="member">useComplexComponents_</ref><sp/>)</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fullLoveNumbers[<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" kindref="member">orders_</ref>[<sp/>i<sp/>]<sp/>]<sp/>=<sp/>std::complex&lt;<sp/>double<sp/>&gt;(<sp/>parameterValue[<sp/>2<sp/>*<sp/>i<sp/>],<sp/>parameterValue[<sp/>2<sp/>*<sp/>i<sp/>+<sp/>1<sp/>]<sp/>);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fullLoveNumbers[<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" kindref="member">orders_</ref>[<sp/>i<sp/>]<sp/>]<sp/>=<sp/>std::complex&lt;<sp/>double<sp/>&gt;(</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parameterValue[<sp/>i<sp/>],<sp/>fullLoveNumbers[<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" kindref="member">orders_</ref>[<sp/>i<sp/>]<sp/>].imag(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Reset<sp/>values</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a453189c04edbcd857fdcfedbe17a294c" kindref="member">gravityFieldVariationModel_</ref>-&gt;resetLoveNumbersOfDegree(<sp/>fullLoveNumbers,<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" kindref="member">degree_</ref><sp/>);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.cpp"/>
+  </compounddef>
+</doxygen>

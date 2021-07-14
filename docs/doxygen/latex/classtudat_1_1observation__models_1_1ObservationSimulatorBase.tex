@@ -1,0 +1,221 @@
+\hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{}\doxysection{tudat\+::observation\+\_\+models\+::Observation\+Simulator\+Base$<$ Observation\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase}\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+
+
+Virtual base class for the observation simulator class.  
+
+
+
+
+{\ttfamily \#include $<$observation\+Simulator.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ac079d2d1cd42b07e74aacf62533f6f28}{Observation\+Simulator\+Base}} (const Observable\+Type observable\+Type)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ad52f049877949ec8ca9e4e7e69479e75}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ad52f049877949ec8ca9e4e7e69479e75}} 
+virtual \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ad52f049877949ec8ca9e4e7e69479e75}{$\sim$\+Observation\+Simulator\+Base}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Observable\+Type \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_aa95ee5346ad56a1fff76520142086c46}{get\+Observable\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the type of observable for which this object computes observations. \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_aad7bd1073d02404c117d984ce39409ac}{get\+Observation\+Size}} (const Link\+Ends \&link\+Ends)=0
+\begin{DoxyCompactList}\small\item\em Function to get the observation model for a given set of link ends. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a35e5fd2214d342991819fe4fbd659642}{simulate\+Observation}} (const Time\+Type observation\+Time, const Link\+Ends link\+Ends, const Link\+End\+Type link\+End\+Associated\+With\+Time, std\+::vector$<$ double $>$ \&link\+End\+Times, std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&link\+End\+States)=0
+\begin{DoxyCompactList}\small\item\em Function (pure virtual) to simulate a single observation between specified link ends. \end{DoxyCompactList}\item 
+virtual std\+::pair$<$ Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$, std\+::vector$<$ Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_afe9a274000df6656ecd291b077b4a8c8}{simulate\+Observations}} (const std\+::vector$<$ Time\+Type $>$ \&observation\+Times, const Link\+Ends link\+Ends, const Link\+End\+Type link\+End\+Associated\+With\+Time, const bool check\+Times=true)=0
+\begin{DoxyCompactList}\small\item\em Function (pure virtual) to simulate observations between specified link ends. \end{DoxyCompactList}\item 
+virtual std\+::pair$<$ Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$, std\+::pair$<$ std\+::vector$<$ Time\+Type $>$, Link\+End\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ae670794e383f799abd99ebb382c22159}{simulate\+Observations\+With\+Link\+End\+Id}} (const std\+::vector$<$ Time\+Type $>$ \&observation\+Times, const Link\+Ends link\+Ends, const Link\+End\+Type link\+End\+Associated\+With\+Time, const bool check\+Times=true)=0
+\begin{DoxyCompactList}\small\item\em Function (pure virtual) to simulate observations between specified link ends. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a9d47cab41af990d667b833397d199315}{set\+Viability\+Calculators}} (const std\+::map$<$ Link\+Ends, std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationViabilityCalculator}{Observation\+Viability\+Calculator}} $>$ $>$ $>$ \&viability\+Calculators)
+\begin{DoxyCompactList}\small\item\em Function to set observation viability calculators. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationViabilityCalculator}{Observation\+Viability\+Calculator}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a95ecdc26cceb6fdcecb80847104aaad2}{get\+Link\+Viability\+Calculators}} (const Link\+Ends \&link\+Ends)
+\begin{DoxyCompactList}\small\item\em Function to retrieve observation viability calculators for a single set of link ends. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ae1c7c12fc87026c0c8328ed04f10c798}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ae1c7c12fc87026c0c8328ed04f10c798}} 
+Observable\+Type \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ae1c7c12fc87026c0c8328ed04f10c798}{observable\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of observable for which this object computes observations. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a825c8988f2d89ea34420a3fd6d5b6f0b}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a825c8988f2d89ea34420a3fd6d5b6f0b}} 
+std\+::map$<$ Link\+Ends, std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationViabilityCalculator}{Observation\+Viability\+Calculator}} $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a825c8988f2d89ea34420a3fd6d5b6f0b}{viability\+Calculators\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of observation viability calculators, sorted by Link\+Ends. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Observation\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base$<$ Observation\+Scalar\+Type, Time\+Type $>$}
+
+Virtual base class for the observation simulator class. 
+
+Virtual base class for the observation simulator class, which is used to compute observable values of a single type of observable This base class is used for practical purposes, as the derived class has a template argument for the observable size, precluding the possibility of making a list of objects for all observation simulators (e.\+g. one for each observable type) 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ac079d2d1cd42b07e74aacf62533f6f28}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ac079d2d1cd42b07e74aacf62533f6f28}} 
+\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}!ObservationSimulatorBase@{ObservationSimulatorBase}}
+\index{ObservationSimulatorBase@{ObservationSimulatorBase}!tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{ObservationSimulatorBase()}{ObservationSimulatorBase()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{Observation\+Simulator\+Base}} (\begin{DoxyParamCaption}\item[{const Observable\+Type}]{observable\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em observable\+Type} & Type of observable for which this object computes observations. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a95ecdc26cceb6fdcecb80847104aaad2}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a95ecdc26cceb6fdcecb80847104aaad2}} 
+\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}!getLinkViabilityCalculators@{getLinkViabilityCalculators}}
+\index{getLinkViabilityCalculators@{getLinkViabilityCalculators}!tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getLinkViabilityCalculators()}{getLinkViabilityCalculators()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationViabilityCalculator}{Observation\+Viability\+Calculator}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Link\+Viability\+Calculators (\begin{DoxyParamCaption}\item[{const Link\+Ends \&}]{link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve observation viability calculators for a single set of link ends. 
+
+Function to retrieve observation viability calculators for a single set of link ends 
+\begin{DoxyParams}{Parameters}
+{\em link\+Ends} & Link ends for which observation viability calculators are to be retrieved \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Observation viability calculators for requestred single set of link ends (empty vector if no calculators for requested link ends are given in this object) 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_aa95ee5346ad56a1fff76520142086c46}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_aa95ee5346ad56a1fff76520142086c46}} 
+\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}!getObservableType@{getObservableType}}
+\index{getObservableType@{getObservableType}!tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getObservableType()}{getObservableType()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Observable\+Type \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Observable\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the type of observable for which this object computes observations. 
+
+Function to get the type of observable for which this object computes observations \begin{DoxyReturn}{Returns}
+Type of observable for which this object computes observations 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_aad7bd1073d02404c117d984ce39409ac}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_aad7bd1073d02404c117d984ce39409ac}} 
+\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}!getObservationSize@{getObservationSize}}
+\index{getObservationSize@{getObservationSize}!tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getObservationSize()}{getObservationSize()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual int \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Observation\+Size (\begin{DoxyParamCaption}\item[{const Link\+Ends \&}]{link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function to get the observation model for a given set of link ends. 
+
+Function to get the observation model for a given set of link ends \begin{DoxyReturn}{Returns}
+Observation model for a given set of link ends 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulator_a38e047f6a4bc54be0252296d169cf151}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator$<$ Observation\+Size, Observation\+Scalar\+Type, Time\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a9d47cab41af990d667b833397d199315}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a9d47cab41af990d667b833397d199315}} 
+\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}!setViabilityCalculators@{setViabilityCalculators}}
+\index{setViabilityCalculators@{setViabilityCalculators}!tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{setViabilityCalculators()}{setViabilityCalculators()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::set\+Viability\+Calculators (\begin{DoxyParamCaption}\item[{const std\+::map$<$ Link\+Ends, std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationViabilityCalculator}{Observation\+Viability\+Calculator}} $>$ $>$ $>$ \&}]{viability\+Calculators }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to set observation viability calculators. 
+
+Function to set observation viability calculators, a different list must be provided for each set of link ends. 
+\begin{DoxyParams}{Parameters}
+{\em viability\+Calculators} & List of observation viability calculators, sorted by Link\+Ends. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a35e5fd2214d342991819fe4fbd659642}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_a35e5fd2214d342991819fe4fbd659642}} 
+\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}!simulateObservation@{simulateObservation}}
+\index{simulateObservation@{simulateObservation}!tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{simulateObservation()}{simulateObservation()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::simulate\+Observation (\begin{DoxyParamCaption}\item[{const Time\+Type}]{observation\+Time,  }\item[{const Link\+Ends}]{link\+Ends,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time,  }\item[{std\+::vector$<$ double $>$ \&}]{link\+End\+Times,  }\item[{std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&}]{link\+End\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function (pure virtual) to simulate a single observation between specified link ends. 
+
+Function (pure virtual) to simulate a single observation between specified link ends. Function is provided to have an interface to simulate a single observation from an \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationModel}{Observation\+Model}} object (in \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulator}{Observation\+Simulator}} derived class) without the need for a Observation\+Size template argument. 
+\begin{DoxyParams}{Parameters}
+{\em observation\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which observable is to be evaluated. \\
+\hline
+{\em link\+Ends} & Set of stations, S/C etc. in link, with specifiers of type of link end. \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Link end at which given time is valid, i.\+e. link end for which associated time is kept constant (to input value) \\
+\hline
+{\em link\+End\+Times} & List of times at each link end during observation. \\
+\hline
+{\em link\+End\+States} & List of states at each link end during observation. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Simulated observation at requested time and link ends. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_afe9a274000df6656ecd291b077b4a8c8}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_afe9a274000df6656ecd291b077b4a8c8}} 
+\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}!simulateObservations@{simulateObservations}}
+\index{simulateObservations@{simulateObservations}!tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{simulateObservations()}{simulateObservations()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual std\+::pair$<$ Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$, std\+::vector$<$ Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::simulate\+Observations (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Time\+Type $>$ \&}]{observation\+Times,  }\item[{const Link\+Ends}]{link\+Ends,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time,  }\item[{const bool}]{check\+Times = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function (pure virtual) to simulate observations between specified link ends. 
+
+Function (pure virtual) to simulate observations between specified link ends. Users can specify whether to check for availability of link at given reception time. 
+\begin{DoxyParams}{Parameters}
+{\em observation\+Times} & Vector of times at which observations taked place (i.\+e. reception time) \\
+\hline
+{\em link\+Ends} & Set of stations, S/C etc. in link, with specifiers of type of link end. \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Reference link end for observable \\
+\hline
+{\em check\+Times} & Boolean denoting whether the observation times are to be checked for viability \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Observations at given times (concatenated in an Eigen vector), with associated times 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ae670794e383f799abd99ebb382c22159}\label{classtudat_1_1observation__models_1_1ObservationSimulatorBase_ae670794e383f799abd99ebb382c22159}} 
+\index{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}!simulateObservationsWithLinkEndId@{simulateObservationsWithLinkEndId}}
+\index{simulateObservationsWithLinkEndId@{simulateObservationsWithLinkEndId}!tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::ObservationSimulatorBase$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{simulateObservationsWithLinkEndId()}{simulateObservationsWithLinkEndId()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual std\+::pair$<$ Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$, std\+::pair$<$ std\+::vector$<$ Time\+Type $>$, Link\+End\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSimulatorBase}{tudat\+::observation\+\_\+models\+::\+Observation\+Simulator\+Base}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::simulate\+Observations\+With\+Link\+End\+Id (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Time\+Type $>$ \&}]{observation\+Times,  }\item[{const Link\+Ends}]{link\+Ends,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time,  }\item[{const bool}]{check\+Times = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function (pure virtual) to simulate observations between specified link ends. 
+
+Function (pure virtual) to simulate observations between specified link ends. Users can specify whether to check for availability of link at given reception time. 
+\begin{DoxyParams}{Parameters}
+{\em observation\+Times} & Vector of times at which observations taked place (i.\+e. reception time) \\
+\hline
+{\em link\+Ends} & Set of stations, S/C etc. in link, with specifiers of type of link end. \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Reference link end for observable \\
+\hline
+{\em check\+Times} & Boolean denoting whether the observation times are to be checked for viability \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Observations at given times (concatenated in an Eigen vector), with associated times and reference link end. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/observation\+\_\+models/observation\+Simulator.\+h\end{DoxyCompactItemize}

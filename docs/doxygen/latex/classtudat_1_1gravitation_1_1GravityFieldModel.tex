@@ -1,0 +1,164 @@
+\hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel}{}\doxysection{tudat\+::gravitation\+::Gravity\+Field\+Model Class Reference}
+\label{classtudat_1_1gravitation_1_1GravityFieldModel}\index{tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}}
+
+
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel}{Gravity\+Field\+Model}} class.  
+
+
+
+
+{\ttfamily \#include $<$gravity\+Field\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::gravitation\+::Gravity\+Field\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1gravitation_1_1GravityFieldModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel_aa38dbeeea6453a0fe5b12755644ae4a9}{Gravity\+Field\+Model}} (const double gravitational\+Parameter, const std\+::function$<$ void() $>$ update\+Inertia\+Tensor=std\+::function$<$ void() $>$())
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel_ac07d5622f8ab741498c4f09891539378}{$\sim$\+Gravity\+Field\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel_abfd190adae679f7de648c44196415315}{reset\+Gravitational\+Parameter}} (const double gravitational\+Parameter)
+\begin{DoxyCompactList}\small\item\em Set the gravitational parameter. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel_a3bc2da209f97a04d2a79dd6e029e02d5}{get\+Gravitational\+Parameter}} ()
+\begin{DoxyCompactList}\small\item\em Get the gravitational parameter. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel_aec4e7e39757b3751afe4e3cd28a0b98b}{get\+Gravitational\+Potential}} (const Eigen\+::\+Vector3d \&body\+Fixed\+Position)
+\begin{DoxyCompactList}\small\item\em Get the gravitational potential at given body-\/fixed position. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel_a9b33395ebfd2a6bb1ee69c92a5b44b6b}{get\+Gradient\+Of\+Potential}} (const Eigen\+::\+Vector3d \&body\+Fixed\+Position)
+\begin{DoxyCompactList}\small\item\em Get the gradient of the potential. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+double \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel_a09f7494a3ec50394da0bfd859473d546}{gravitational\+Parameter\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Gravitational parameter. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel_ac7ce28f91a1f515acb40e3ff638f6e8a}\label{classtudat_1_1gravitation_1_1GravityFieldModel_ac7ce28f91a1f515acb40e3ff638f6e8a}} 
+std\+::function$<$ void() $>$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel_ac7ce28f91a1f515acb40e3ff638f6e8a}{update\+Inertia\+Tensor\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function that is to be called to update the inertia tensor (typicaly in Body class) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel}{Gravity\+Field\+Model}} class. 
+
+Gravity field model class included in Tudat. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel_aa38dbeeea6453a0fe5b12755644ae4a9}\label{classtudat_1_1gravitation_1_1GravityFieldModel_aa38dbeeea6453a0fe5b12755644ae4a9}} 
+\index{tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}!GravityFieldModel@{GravityFieldModel}}
+\index{GravityFieldModel@{GravityFieldModel}!tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}}
+\doxysubsubsection{\texorpdfstring{GravityFieldModel()}{GravityFieldModel()}}
+{\footnotesize\ttfamily tudat\+::gravitation\+::\+Gravity\+Field\+Model\+::\+Gravity\+Field\+Model (\begin{DoxyParamCaption}\item[{const double}]{gravitational\+Parameter,  }\item[{const std\+::function$<$ void() $>$}]{update\+Inertia\+Tensor = {\ttfamily std\+:\+:function$<$~void(~)~$>$~(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor. 
+\begin{DoxyParams}{Parameters}
+{\em gravitational\+Parameter} & Gravitational parameter associated with gravity field \\
+\hline
+{\em update\+Inertia\+Tensor} & Function that is to be called to update the inertia tensor (typicaly in Body class; default none) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel_ac07d5622f8ab741498c4f09891539378}\label{classtudat_1_1gravitation_1_1GravityFieldModel_ac07d5622f8ab741498c4f09891539378}} 
+\index{tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}!````~GravityFieldModel@{$\sim$GravityFieldModel}}
+\index{````~GravityFieldModel@{$\sim$GravityFieldModel}!tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}}
+\doxysubsubsection{\texorpdfstring{$\sim$GravityFieldModel()}{~GravityFieldModel()}}
+{\footnotesize\ttfamily virtual tudat\+::gravitation\+::\+Gravity\+Field\+Model\+::$\sim$\+Gravity\+Field\+Model (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Default destructor. 
+
+Default destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel_a9b33395ebfd2a6bb1ee69c92a5b44b6b}\label{classtudat_1_1gravitation_1_1GravityFieldModel_a9b33395ebfd2a6bb1ee69c92a5b44b6b}} 
+\index{tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}!getGradientOfPotential@{getGradientOfPotential}}
+\index{getGradientOfPotential@{getGradientOfPotential}!tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}}
+\doxysubsubsection{\texorpdfstring{getGradientOfPotential()}{getGradientOfPotential()}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Vector3d tudat\+::gravitation\+::\+Gravity\+Field\+Model\+::get\+Gradient\+Of\+Potential (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{body\+Fixed\+Position }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get the gradient of the potential. 
+
+Returns the gradient of the potential for the gravity field selected. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Fixed\+Position} & Position at which gradient of potential is to be determined. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Gradient of potential. 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_a7e24f9dd380f6d26572f263f79809bdd}{tudat\+::gravitation\+::\+Spherical\+Harmonics\+Gravity\+Field}}.
+
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel_a3bc2da209f97a04d2a79dd6e029e02d5}\label{classtudat_1_1gravitation_1_1GravityFieldModel_a3bc2da209f97a04d2a79dd6e029e02d5}} 
+\index{tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}!getGravitationalParameter@{getGravitationalParameter}}
+\index{getGravitationalParameter@{getGravitationalParameter}!tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}}
+\doxysubsubsection{\texorpdfstring{getGravitationalParameter()}{getGravitationalParameter()}}
+{\footnotesize\ttfamily double tudat\+::gravitation\+::\+Gravity\+Field\+Model\+::get\+Gravitational\+Parameter (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the gravitational parameter. 
+
+Return the gravitational parameter in meter$^\wedge$3 per second$^\wedge$2. \begin{DoxyReturn}{Returns}
+Gravitational parameter. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel_aec4e7e39757b3751afe4e3cd28a0b98b}\label{classtudat_1_1gravitation_1_1GravityFieldModel_aec4e7e39757b3751afe4e3cd28a0b98b}} 
+\index{tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}!getGravitationalPotential@{getGravitationalPotential}}
+\index{getGravitationalPotential@{getGravitationalPotential}!tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}}
+\doxysubsubsection{\texorpdfstring{getGravitationalPotential()}{getGravitationalPotential()}}
+{\footnotesize\ttfamily double tudat\+::gravitation\+::\+Gravity\+Field\+Model\+::get\+Gravitational\+Potential (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{body\+Fixed\+Position }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the gravitational potential at given body-\/fixed position. 
+
+Return the gravitational potential at given body-\/fixed position. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Fixed\+Position} & Position at which the gravitational potential is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Gravitational potential. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel_abfd190adae679f7de648c44196415315}\label{classtudat_1_1gravitation_1_1GravityFieldModel_abfd190adae679f7de648c44196415315}} 
+\index{tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}!resetGravitationalParameter@{resetGravitationalParameter}}
+\index{resetGravitationalParameter@{resetGravitationalParameter}!tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}}
+\doxysubsubsection{\texorpdfstring{resetGravitationalParameter()}{resetGravitationalParameter()}}
+{\footnotesize\ttfamily void tudat\+::gravitation\+::\+Gravity\+Field\+Model\+::reset\+Gravitational\+Parameter (\begin{DoxyParamCaption}\item[{const double}]{gravitational\+Parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set the gravitational parameter. 
+
+Define the gravitational parameter in meter$^\wedge$3 per second$^\wedge$2. 
+\begin{DoxyParams}{Parameters}
+{\em gravitational\+Parameter} & New gravitational parameter associated with gravity field. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1GravityFieldModel_a09f7494a3ec50394da0bfd859473d546}\label{classtudat_1_1gravitation_1_1GravityFieldModel_a09f7494a3ec50394da0bfd859473d546}} 
+\index{tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}!gravitationalParameter\_@{gravitationalParameter\_}}
+\index{gravitationalParameter\_@{gravitationalParameter\_}!tudat::gravitation::GravityFieldModel@{tudat::gravitation::GravityFieldModel}}
+\doxysubsubsection{\texorpdfstring{gravitationalParameter\_}{gravitationalParameter\_}}
+{\footnotesize\ttfamily double tudat\+::gravitation\+::\+Gravity\+Field\+Model\+::gravitational\+Parameter\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Gravitational parameter. 
+
+The gravitational parameter in meter$^\wedge$3 per second$^\wedge$2. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/gravitation/gravity\+Field\+Model.\+h\end{DoxyCompactItemize}

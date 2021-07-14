@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_8430efeed15be8b4b3131820cf644f7a" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders</compoundname>
+    <innerfile refid="bisection_8h">bisection.h</innerfile>
+    <innerfile refid="createRootFinder_8h">createRootFinder.h</innerfile>
+    <innerfile refid="halleyRootFinder_8h">halleyRootFinder.h</innerfile>
+    <innerfile refid="newtonRaphson_8h">newtonRaphson.h</innerfile>
+    <innerfile refid="rootFinder_8h">rootFinder.h</innerfile>
+    <innerfile refid="secantRootFinder_8h">secantRootFinder.h</innerfile>
+    <innerfile refid="terminationConditions_8h">terminationConditions.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/"/>
+  </compounddef>
+</doxygen>

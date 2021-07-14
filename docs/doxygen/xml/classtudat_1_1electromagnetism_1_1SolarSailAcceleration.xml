@@ -1,0 +1,1207 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration" kind="class" language="C++" prot="public">
+    <compoundname>tudat::electromagnetism::SolarSailAcceleration</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::AccelerationModel&lt; &gt;</basecompoundref>
+    <includes refid="solarSailAcceleration_8h" local="no">solarSailAcceleration.h</includes>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a99e44b0d741851fadd6181ced08dbd31" prot="private" static="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>typedef std::function&lt; double( ) &gt; tudat::electromagnetism::SolarSailAcceleration::DoubleReturningFunction</definition>
+        <argsstring></argsstring>
+        <name>DoubleReturningFunction</name>
+        <briefdescription>
+<para>Typedef for double-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="84" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ac0c83f4a1fe3dbfa4304d2fc6a0f39d8" prot="private" static="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>typedef std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::SolarSailAcceleration::Vector3dReturningFunction</definition>
+        <argsstring></argsstring>
+        <name>Vector3dReturningFunction</name>
+        <briefdescription>
+<para>Typedef for Eigen::Vector3d-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="87" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ae438d86748c894b84399f2e1a8016cbc" prot="private" static="no">
+        <type>std::function&lt; Eigen::VectorXd() &gt;</type>
+        <definition>typedef std::function&lt; Eigen::VectorXd( ) &gt; tudat::electromagnetism::SolarSailAcceleration::VectorXdReturningFunction</definition>
+        <argsstring></argsstring>
+        <name>VectorXdReturningFunction</name>
+        <briefdescription>
+<para>Typedef for Eigen::Vector6d-returning function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="90" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a24a6ea887b7ad75ff2c11fcde440d1ae" prot="private" static="no" mutable="no">
+        <type>Vector3dReturningFunction</type>
+        <definition>Vector3dReturningFunction tudat::electromagnetism::SolarSailAcceleration::sourcePositionFunction_</definition>
+        <argsstring></argsstring>
+        <name>sourcePositionFunction_</name>
+        <briefdescription>
+<para>Function pointer returning position of source. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning position of source (3D vector). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="382" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="382" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a26a5618d196035b1cdf08569ec338bb9" prot="private" static="no" mutable="no">
+        <type>const Vector3dReturningFunction</type>
+        <definition>const Vector3dReturningFunction tudat::electromagnetism::SolarSailAcceleration::acceleratedBodyPositionFunction_</definition>
+        <argsstring></argsstring>
+        <name>acceleratedBodyPositionFunction_</name>
+        <briefdescription>
+<para>Function pointer returning position of accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning position of accelerated body (3D vector). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="388" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="388" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a2958c88109b3ffe928be061a1abd9b7e" prot="private" static="no" mutable="no">
+        <type>const Vector3dReturningFunction</type>
+        <definition>const Vector3dReturningFunction tudat::electromagnetism::SolarSailAcceleration::acceleratedBodyVelocityFunction_</definition>
+        <argsstring></argsstring>
+        <name>acceleratedBodyVelocityFunction_</name>
+        <briefdescription>
+<para>Function pointer returning velocity of accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning velocity of accelerated body (3D vector). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="394" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a50cbabfd885cd2379e9c795985e9ee58" prot="private" static="no" mutable="no">
+        <type>const Vector3dReturningFunction</type>
+        <definition>const Vector3dReturningFunction tudat::electromagnetism::SolarSailAcceleration::centralBodyVelocityFunction_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyVelocityFunction_</name>
+        <briefdescription>
+<para>Function pointer returning velocity of central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning velocity of central body (3D vector). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="400" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="400" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a9544cc5f721ac1ecb4d4fe3886f7b15f" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::radiationPressureFunction_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureFunction_</name>
+        <briefdescription>
+<para>Function pointer returning radiation pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning radiation pressure [N/m^{2}]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="406" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="406" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aa4d9d0cc457af525a375791ab56fd104" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::coneAngleFunction_</definition>
+        <argsstring></argsstring>
+        <name>coneAngleFunction_</name>
+        <briefdescription>
+<para>Function pointer returning cone angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning cone angle [rad]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="412" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="412" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a7cf8023d15e18a77c6372d230c4d3b49" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::clockAngleFunction_</definition>
+        <argsstring></argsstring>
+        <name>clockAngleFunction_</name>
+        <briefdescription>
+<para>Function pointer returning clock angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning clock angle [rad]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="419" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="419" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aafdf22139a3339cc8446f366b50e6e6b" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::frontEmissivityCoefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>frontEmissivityCoefficientFunction_</name>
+        <briefdescription>
+<para>Function pointer returning front emissivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning front emissivity coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="426" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="426" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a801d933748fd736f7dacc22a15219161" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::backEmissivityCoefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>backEmissivityCoefficientFunction_</name>
+        <briefdescription>
+<para>Function pointer returning back emissivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning back emissivity coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="433" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="433" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a5e32f7d9b55d6273e789b7499acd3d63" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::frontLambertianCoefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>frontLambertianCoefficientFunction_</name>
+        <briefdescription>
+<para>Function pointer returning front Lambertian coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning front Lambertian coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="440" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="440" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a1eebeb3812edac4702fdd1d9abc1795b" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::backLambertianCoefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>backLambertianCoefficientFunction_</name>
+        <briefdescription>
+<para>Function pointer returning back Lambertian coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning back Lambertian coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="447" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="447" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1af442c024e858a3bb08d4aef0ffeedbd2" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::reflectivityCoefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>reflectivityCoefficientFunction_</name>
+        <briefdescription>
+<para>Function pointer returning reflectivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning reflectivity coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="454" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="454" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a1a5e0c71ab0dc4ded0f4e5f150c436bc" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::specularReflectionCoefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>specularReflectionCoefficientFunction_</name>
+        <briefdescription>
+<para>Function pointer returning specular reflection coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning specular reflection coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="461" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="461" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a59e641a7301bca4eb68b3203d6ca9f33" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::areaFunction_</definition>
+        <argsstring></argsstring>
+        <name>areaFunction_</name>
+        <briefdescription>
+<para>Function pointer returning area on which radiation pressure is acting. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning area on which radiation pressure is acting [m^{2}]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="468" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="468" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a55cb316add059786be5c6f9a195ec989" prot="private" static="no" mutable="no">
+        <type>const DoubleReturningFunction</type>
+        <definition>const DoubleReturningFunction tudat::electromagnetism::SolarSailAcceleration::massFunction_</definition>
+        <argsstring></argsstring>
+        <name>massFunction_</name>
+        <briefdescription>
+<para>Function pointer returning mass of accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function pointer returning mass of accelerated body [kg]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="474" column="35" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="474" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a8022f53def6d643b059a15b763c36914" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentFrontEmissivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>currentFrontEmissivityCoefficient_</name>
+        <briefdescription>
+<para>Current front emissivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current front emissivity coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="481" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="481" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1abc8fe9c63ec78c62655102fbde44d08e" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentBackEmissivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>currentBackEmissivityCoefficient_</name>
+        <briefdescription>
+<para>Current back emissivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current back emissivity coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="487" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="487" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a64eb153c562fcd3e2b6d3f98b5159c0c" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentFrontLambertianCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>currentFrontLambertianCoefficient_</name>
+        <briefdescription>
+<para>Current front Lambertian coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current front Lambertian coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="493" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="493" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ac765f7484a4324b795be282491addc59" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentBackLambertianCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>currentBackLambertianCoefficient_</name>
+        <briefdescription>
+<para>Current back Lambertian coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current back Lambertian coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="499" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="499" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a9339cfa4a0a0c051b8111a318d73609f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentReflectivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>currentReflectivityCoefficient_</name>
+        <briefdescription>
+<para>Current reflectivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current reflectivity coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="505" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="505" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ae399a412dac2beb9749ea3b3fef3ef9c" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentSpecularReflectionCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>currentSpecularReflectionCoefficient_</name>
+        <briefdescription>
+<para>Current specular reflection coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current specular reflection coefficient [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="511" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="511" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1abc31507a84680870b582086b7c81f535" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::SolarSailAcceleration::currentNormalizedVectorToSource_</definition>
+        <argsstring></argsstring>
+        <name>currentNormalizedVectorToSource_</name>
+        <briefdescription>
+<para>Current normalised vector from accelerated body to source. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current normalised vector from accelerated body to source (3D vector) [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="517" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="517" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ae1ba68e11d119e0bb6ed552ad150fea2" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::SolarSailAcceleration::currentNormalizedVelocityVector_</definition>
+        <argsstring></argsstring>
+        <name>currentNormalizedVelocityVector_</name>
+        <briefdescription>
+<para>Current normalised velocity unit vector of the propagated body w.r.t. central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current normalised velocity unit vector of the propagated body w.r.t. central body (3D vector) [-]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="523" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="523" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a18cde7ebb6f89a0e3565a58789470be0" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentRadiationPressure_</definition>
+        <argsstring></argsstring>
+        <name>currentRadiationPressure_</name>
+        <briefdescription>
+<para>Current radiation pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current radiation pressure [N/m^{2}]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="529" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="529" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1af5f46d64070d5eefe9026acc2ba75137" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentArea_</definition>
+        <argsstring></argsstring>
+        <name>currentArea_</name>
+        <briefdescription>
+<para>Current area on which radiation pressure is acting. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current area on which radiation pressure is acting [m^{2}]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="535" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="535" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ab827a072a7aed0beb55979515239c1ff" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentConeAngle_</definition>
+        <argsstring></argsstring>
+        <name>currentConeAngle_</name>
+        <briefdescription>
+<para>Current cone angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current cone angle [rad]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="541" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="541" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aca88440b3b79b81cfc65387c72d89832" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentClockAngle_</definition>
+        <argsstring></argsstring>
+        <name>currentClockAngle_</name>
+        <briefdescription>
+<para>Current clock angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current clock angle [rad]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="547" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="547" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a9e6a2ec683e6ab7959fc368d64d1944a" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentMass_</definition>
+        <argsstring></argsstring>
+        <name>currentMass_</name>
+        <briefdescription>
+<para>Current mass of accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current mass of accelerated body [kg]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="553" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="553" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aa92477559bd9f9a5c90efd827971d9b7" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentDistanceToSource_</definition>
+        <argsstring></argsstring>
+        <name>currentDistanceToSource_</name>
+        <briefdescription>
+<para>Current distance between accelerated body and source body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current distance between accelerated body and source body [m]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="559" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="559" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aa0714147bad2c8879fd8195141b3c507" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::currentVelocityWrtSource_</definition>
+        <argsstring></argsstring>
+        <name>currentVelocityWrtSource_</name>
+        <briefdescription>
+<para>Current velocity of the accelerated body w.r.t. the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current velocity of the accelerated body w.r.t. the central body [m/s]. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="565" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="565" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a166ffee9ecf80807f7baf284834d013f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>EIGEN_MAKE_ALIGNED_OPERATOR_NEW</type>
+        <definition>EIGEN_MAKE_ALIGNED_OPERATOR_NEW tudat::electromagnetism::SolarSailAcceleration::SolarSailAcceleration</definition>
+        <argsstring>(const Vector3dReturningFunction sourcePositionFunction, const Vector3dReturningFunction acceleratedBodyPositionFunction, const Vector3dReturningFunction acceleratedBodyVelocityFunction, const Vector3dReturningFunction centralBodyVelocityFunction, const DoubleReturningFunction radiationPressureFunction, const DoubleReturningFunction coneAngleFunction, const DoubleReturningFunction clockAngleFunction, const DoubleReturningFunction frontEmissivityCoefficientFunction, const DoubleReturningFunction backEmissivityCoefficientFunction, const DoubleReturningFunction frontLambertianCoefficientFunction, const DoubleReturningFunction backLambertianCoefficientFunction, const DoubleReturningFunction reflectivityCoefficientFunction, const DoubleReturningFunction specularReflectionCoefficientFunction, const DoubleReturningFunction areaFunction, const DoubleReturningFunction massFunction)</argsstring>
+        <name>SolarSailAcceleration</name>
+        <param>
+          <type>const Vector3dReturningFunction</type>
+          <declname>sourcePositionFunction</declname>
+        </param>
+        <param>
+          <type>const Vector3dReturningFunction</type>
+          <declname>acceleratedBodyPositionFunction</declname>
+        </param>
+        <param>
+          <type>const Vector3dReturningFunction</type>
+          <declname>acceleratedBodyVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const Vector3dReturningFunction</type>
+          <declname>centralBodyVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>radiationPressureFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>coneAngleFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>clockAngleFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>frontEmissivityCoefficientFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>backEmissivityCoefficientFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>frontLambertianCoefficientFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>backLambertianCoefficientFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>reflectivityCoefficientFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>specularReflectionCoefficientFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>areaFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>massFunction</declname>
+        </param>
+        <briefdescription>
+<para>Constructor taking function pointers for all variables. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor taking function pointers for all variables. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sourcePositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning position of radiation source. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>acceleratedBodyPositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning position of body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>acceleratedBodyVelocityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning velocity of body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyVelocityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning velocity of central body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressureFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current radiation pressure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coneAngleFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current cone angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clockAngleFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current clock angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontEmissivityCoefficientFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current front emissivity coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backEmissivityCoefficientFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current back emissivity coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontLambertianCoefficientFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current front Lambertian coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backLambertianCoefficientFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current back Lambertian coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reflectivityCoefficientFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current reflectivity coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specularReflectionCoefficientFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current specular reflection coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areaFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current area assumed to undergo radiation pressure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current mass of body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="116" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="116" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ade75f698dd624fffe7d7f55bff4f5cce" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::electromagnetism::SolarSailAcceleration::SolarSailAcceleration</definition>
+        <argsstring>(const Vector3dReturningFunction sourcePositionFunction, const Vector3dReturningFunction acceleratedBodyPositionFunction, const Vector3dReturningFunction acceleratedBodyVelocityFunction, const Vector3dReturningFunction centralBodyVelocityFunction, const DoubleReturningFunction radiationPressureFunction, const DoubleReturningFunction coneAngleFunction, const DoubleReturningFunction clockAngleFunction, const double frontEmissivityCoefficient, const double backEmissivityCoefficient, const double frontLambertianCoefficient, const double backLambertianCoefficient, const double reflectivityCoefficient, const double specularReflectionCoefficient, const double area, const double mass)</argsstring>
+        <name>SolarSailAcceleration</name>
+        <param>
+          <type>const Vector3dReturningFunction</type>
+          <declname>sourcePositionFunction</declname>
+        </param>
+        <param>
+          <type>const Vector3dReturningFunction</type>
+          <declname>acceleratedBodyPositionFunction</declname>
+        </param>
+        <param>
+          <type>const Vector3dReturningFunction</type>
+          <declname>acceleratedBodyVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const Vector3dReturningFunction</type>
+          <declname>centralBodyVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>radiationPressureFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>coneAngleFunction</declname>
+        </param>
+        <param>
+          <type>const DoubleReturningFunction</type>
+          <declname>clockAngleFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frontEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frontLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>reflectivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specularReflectionCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>mass</declname>
+        </param>
+        <briefdescription>
+<para>Constructor taking functions pointers and constant values for parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor taking function pointers for position vectors and radiation pressure and constant values for other parameters. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sourcePositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning position of radiation source. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>acceleratedBodyPositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning position of body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>acceleratedBodyVelocityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning velocity vector of body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyVelocityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning velocity vector of central body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressureFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current radiation pressure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coneAngleFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current sail cone angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clockAngleFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning current sail clock angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant front emissivity coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant back emissivity coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant front Lambertian coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant back Lambertian coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reflectivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant reflectivity coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specularReflectionCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant specular reflection coefficient </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant area assumed to undergo radiation pressure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mass</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant mass of body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="171" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="171" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a558cf3923159ba15df919d1798ac20d4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::electromagnetism::SolarSailAcceleration::SolarSailAcceleration</definition>
+        <argsstring>(const std::shared_ptr&lt; SolarSailingRadiationPressureInterface &gt; radiationPressureInterface, const std::function&lt; double() &gt; massFunction)</argsstring>
+        <name>SolarSailAcceleration</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface" kindref="compound">SolarSailingRadiationPressureInterface</ref> &gt;</type>
+          <declname>radiationPressureInterface</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>massFunction</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for setting up the acceleration model, with input <ref refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface" kindref="compound">SolarSailingRadiationPressureInterface</ref> (and massFunction) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for setting up the acceleration model, with input <ref refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface" kindref="compound">SolarSailingRadiationPressureInterface</ref> (and massFunction). The massFunction is only used to convert force to acceleration. All solar sailing radiation pressure properties are taken from the <ref refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface" kindref="compound">SolarSailingRadiationPressureInterface</ref> object. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radiationPressureInterface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object in which solar sailing radiation pressure properties of accelerated body due to radiation from body causing acceleration is stored. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current mass of the body being accelerated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="217" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="217" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a7f04bb6f8b10efd1e0b9c9010d02401d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::SolarSailAcceleration::getAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getAcceleration</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750">getAcceleration</reimplements>
+        <briefdescription>
+<para>Get solar sail acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the solar sail acceleration. No arguments are passed to this function. Instead, all data required for computation is to be obtained from pointers to functions/ classes/structs, etc., which are to be set in a derived class and evaluated by the <ref refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a8817cdf729b907910cfd9c1ef1a33006" kindref="member">updateMembers()</ref> function below. This function is essentially a wrapper for the free function that computes the solar sail acceleration.</para>
+<para><simplesect kind="return"><para>Solar sail acceleration [m/s^2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="249" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="249" bodyend="258"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a8817cdf729b907910cfd9c1ef1a33006" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::electromagnetism::SolarSailAcceleration::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the radiation pressure acceleration model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates member variables used by the acceleration model. This function evaluates all dependent variables to the &apos;current&apos; values of these parameters. Only these current values, not the function-pointers are then used by the <ref refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a7f04bb6f8b10efd1e0b9c9010d02401d" kindref="member">getAcceleration( )</ref> function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated [s]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="268" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="268" bodyend="289"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1abc49dfeaeb6301b2771e5679651be23c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::electromagnetism::SolarSailAcceleration::getMassFunction</definition>
+        <argsstring>()</argsstring>
+        <name>getMassFunction</name>
+        <briefdescription>
+<para>Function to retrieve the function pointer returning mass of accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the function pointer returning mass of accelerated body. <simplesect kind="return"><para>Function pointer returning mass of accelerated body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="296" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="296" bodyend="299"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a1cb6f018e78f0ecf1796a00912d225ae" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::SolarSailAcceleration::getCurrentVectorToSource</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentVectorToSource</name>
+        <briefdescription>
+<para>Returns the current normalized vector from the accelerated body to the source body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current normalized vector from the accelerated body to the source body, as set by the last call to the updateMembers function <simplesect kind="return"><para>Crrent normalized vector from the accelerated body to the source body [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="306" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="306" bodyend="309"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a3a7e3f921d526a7e0607766ffa440908" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::SolarSailAcceleration::getCurrentVelocityVector</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentVelocityVector</name>
+        <briefdescription>
+<para>Returns the current normalized velocity vector vector of the accelerated body w.r.t. the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current normalized velocity vector vector of the accelerated body w.r.t. the central body. <simplesect kind="return"><para>Current normalized velocity vector of the accelerated body w.r.t. the central body [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="316" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="316" bodyend="319"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a65c14ff5a353202b3f06c7c87a482ed1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::getCurrentDistanceToSource</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentDistanceToSource</name>
+        <briefdescription>
+<para>Returns the current distance from the accelerated body to the source body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current distance from the accelerated body to the source body, as set by the last call to the updateMembers function (i.e. norm of the current vector from accelerated body to the source) <simplesect kind="return"><para>Current distance from the accelerated body to the source body [m]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="327" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="327" bodyend="330"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aff46e5272f695f28fd09dcc780ae5515" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::getCurrentVelocityWrtSource</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentVelocityWrtSource</name>
+        <briefdescription>
+<para>Returns the current velocity of the accelerated body w.r.t. the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current distance of the accelerated body w.r.t. the central body, as set by the last call to the updateMembers function (i.e. norm of the current velocity vector of the accelerated body w.r.t. central body) <simplesect kind="return"><para>Current velocity of the accelerated body w.r.t. the central body [m/s]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="338" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="338" bodyend="341"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a90f2fea92d5be5217bbcb54c689a030d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::getCurrentRadiationPressure</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentRadiationPressure</name>
+        <briefdescription>
+<para>Returns the current radiation pressure at the accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current radiation pressure at the accelerated body, as set by the last call to the updateMembers function (i.e. incident flux, in W/m^2, divided by speed of light) <simplesect kind="return"><para>Current radiation pressure at the accelerated body [N/m^2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="349" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="349" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1acc1b7e1a46a5720319a4eb4d8812a86f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::getCurrentMass</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentMass</name>
+        <briefdescription>
+<para>Returns the current mass of the accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current mass of the accelerated body, as set by the last call to the updateMembers function <simplesect kind="return"><para>Current mass of the accelerated body [kg]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="359" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="359" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a09f0f54b0869b836281f978e8c105bdf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailAcceleration::getCurrentArea</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentArea</name>
+        <briefdescription>
+<para>Returns the current area of the accelerated body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current area of the accelerated body, as set by the last call to the updateMembers function <simplesect kind="return"><para>Current area of the accelerated body [m^2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="369" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="369" bodyend="372"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Solar sail acceleration model class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for calculating the solar sail acceleration using a non-ideally reflective model. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::electromagnetism::SolarSailAcceleration</label>
+        <link refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>basic_astrodynamics::AccelerationModel3d</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::electromagnetism::SolarSailAcceleration</label>
+        <link refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>basic_astrodynamics::AccelerationModel3d</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="79" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="80" bodyend="567"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a26a5618d196035b1cdf08569ec338bb9" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>acceleratedBodyPositionFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a2958c88109b3ffe928be061a1abd9b7e" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>acceleratedBodyVelocityFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a36f72cf81cc4ff658919a1b92cdc33ad" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>AccelerationModel</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a59e641a7301bca4eb68b3203d6ca9f33" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>areaFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a801d933748fd736f7dacc22a15219161" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>backEmissivityCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a1eebeb3812edac4702fdd1d9abc1795b" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>backLambertianCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a50cbabfd885cd2379e9c795985e9ee58" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>centralBodyVelocityFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a7cf8023d15e18a77c6372d230c4d3b49" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>clockAngleFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aa4d9d0cc457af525a375791ab56fd104" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>coneAngleFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1af5f46d64070d5eefe9026acc2ba75137" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentArea_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1abc8fe9c63ec78c62655102fbde44d08e" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentBackEmissivityCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ac765f7484a4324b795be282491addc59" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentBackLambertianCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aca88440b3b79b81cfc65387c72d89832" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentClockAngle_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ab827a072a7aed0beb55979515239c1ff" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentConeAngle_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aa92477559bd9f9a5c90efd827971d9b7" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentDistanceToSource_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a8022f53def6d643b059a15b763c36914" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentFrontEmissivityCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a64eb153c562fcd3e2b6d3f98b5159c0c" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentFrontLambertianCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a9e6a2ec683e6ab7959fc368d64d1944a" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentMass_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1abc31507a84680870b582086b7c81f535" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentNormalizedVectorToSource_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ae1ba68e11d119e0bb6ed552ad150fea2" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentNormalizedVelocityVector_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a18cde7ebb6f89a0e3565a58789470be0" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentRadiationPressure_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a9339cfa4a0a0c051b8111a318d73609f" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentReflectivityCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ae399a412dac2beb9749ea3b3fef3ef9c" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentSpecularReflectionCoefficient_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a70f6593c9eec30136ed648ca0e6c9e88" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aa0714147bad2c8879fd8195141b3c507" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>currentVelocityWrtSource_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a99e44b0d741851fadd6181ced08dbd31" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>DoubleReturningFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aafdf22139a3339cc8446f366b50e6e6b" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>frontEmissivityCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a5e32f7d9b55d6273e789b7499acd3d63" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>frontLambertianCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a7f04bb6f8b10efd1e0b9c9010d02401d" prot="public" virt="virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getAcceleration</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a09f0f54b0869b836281f978e8c105bdf" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getCurrentArea</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a65c14ff5a353202b3f06c7c87a482ed1" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getCurrentDistanceToSource</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1acc1b7e1a46a5720319a4eb4d8812a86f" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getCurrentMass</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a90f2fea92d5be5217bbcb54c689a030d" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getCurrentRadiationPressure</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a1cb6f018e78f0ecf1796a00912d225ae" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getCurrentVectorToSource</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a3a7e3f921d526a7e0607766ffa440908" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getCurrentVelocityVector</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1aff46e5272f695f28fd09dcc780ae5515" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getCurrentVelocityWrtSource</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1abc49dfeaeb6301b2771e5679651be23c" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>getMassFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a55cb316add059786be5c6f9a195ec989" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>massFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a9544cc5f721ac1ecb4d4fe3886f7b15f" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>radiationPressureFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1af442c024e858a3bb08d4aef0ffeedbd2" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>reflectivityCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a325aae81896137d88b756aac15e188da" prot="public" virt="virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a166ffee9ecf80807f7baf284834d013f" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>SolarSailAcceleration</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ade75f698dd624fffe7d7f55bff4f5cce" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>SolarSailAcceleration</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a558cf3923159ba15df919d1798ac20d4" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>SolarSailAcceleration</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a24a6ea887b7ad75ff2c11fcde440d1ae" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>sourcePositionFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a1a5e0c71ab0dc4ded0f4e5f150c436bc" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>specularReflectionCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a8817cdf729b907910cfd9c1ef1a33006" prot="public" virt="virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ac0c83f4a1fe3dbfa4304d2fc6a0f39d8" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>Vector3dReturningFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1ae438d86748c894b84399f2e1a8016cbc" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>VectorXdReturningFunction</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a131bb0f8b79b410810f602d9b8865968" prot="public" virt="virtual"><scope>tudat::electromagnetism::SolarSailAcceleration</scope><name>~AccelerationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

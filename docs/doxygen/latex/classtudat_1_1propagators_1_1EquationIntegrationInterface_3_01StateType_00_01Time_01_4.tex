@@ -1,0 +1,69 @@
+\hypertarget{classtudat_1_1propagators_1_1EquationIntegrationInterface_3_01StateType_00_01Time_01_4}{}\doxysection{tudat\+::propagators\+::Equation\+Integration\+Interface$<$ State\+Type, Time $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1EquationIntegrationInterface_3_01StateType_00_01Time_01_4}\index{tudat::propagators::EquationIntegrationInterface$<$ StateType, Time $>$@{tudat::propagators::EquationIntegrationInterface$<$ StateType, Time $>$}}
+
+
+Interface class for integrating some state derivative function.  
+
+
+
+
+{\ttfamily \#include $<$integrate\+Equations.\+h$>$}
+
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails}{Propagation\+Termination\+Details}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1EquationIntegrationInterface_3_01StateType_00_01Time_01_4_aa5c7774d23747a96c391fe3fd0fbb868}{integrate\+Equations}} (std\+::function$<$ State\+Type(const \mbox{\hyperlink{classtudat_1_1Time}{Time}}, const State\+Type \&) $>$ state\+Derivative\+Function, std\+::map$<$ \mbox{\hyperlink{classtudat_1_1Time}{Time}}, State\+Type $>$ \&solution\+History, const State\+Type initial\+State, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ \mbox{\hyperlink{classtudat_1_1Time}{Time}} $>$ $>$ integrator\+Settings, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition}{Propagation\+Termination\+Condition}} $>$ propagation\+Termination\+Condition, std\+::map$<$ \mbox{\hyperlink{classtudat_1_1Time}{Time}}, Eigen\+::\+Vector\+Xd $>$ \&dependent\+Variable\+History, std\+::map$<$ \mbox{\hyperlink{classtudat_1_1Time}{Time}}, double $>$ \&cumulative\+Computation\+Time\+History, const std\+::function$<$ Eigen\+::\+Vector\+Xd() $>$ dependent\+Variable\+Function=std\+::function$<$ Eigen\+::\+Vector\+Xd() $>$(), const std\+::function$<$ void(State\+Type \&) $>$ state\+Post\+Processing\+Function=std\+::function$<$ void(State\+Type \&) $>$(), const \mbox{\hyperlink{classtudat_1_1Time}{Time}} print\+Interval=TUDAT\+\_\+\+NAN, const std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point initial\+Clock\+Time=std\+::chrono\+::steady\+\_\+clock\+::now())
+\begin{DoxyCompactList}\small\item\em Function to numerically integrate a given first order differential equation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Type$>$\newline
+class tudat\+::propagators\+::\+Equation\+Integration\+Interface$<$ State\+Type, Time $>$}
+
+Interface class for integrating some state derivative function. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1EquationIntegrationInterface_3_01StateType_00_01Time_01_4_aa5c7774d23747a96c391fe3fd0fbb868}\label{classtudat_1_1propagators_1_1EquationIntegrationInterface_3_01StateType_00_01Time_01_4_aa5c7774d23747a96c391fe3fd0fbb868}} 
+\index{tudat::propagators::EquationIntegrationInterface$<$ StateType, Time $>$@{tudat::propagators::EquationIntegrationInterface$<$ StateType, Time $>$}!integrateEquations@{integrateEquations}}
+\index{integrateEquations@{integrateEquations}!tudat::propagators::EquationIntegrationInterface$<$ StateType, Time $>$@{tudat::propagators::EquationIntegrationInterface$<$ StateType, Time $>$}}
+\doxysubsubsection{\texorpdfstring{integrateEquations()}{integrateEquations()}}
+{\footnotesize\ttfamily template$<$typename State\+Type $>$ \\
+static std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails}{Propagation\+Termination\+Details}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1EquationIntegrationInterface}{tudat\+::propagators\+::\+Equation\+Integration\+Interface}}$<$ State\+Type, \mbox{\hyperlink{classtudat_1_1Time}{Time}} $>$\+::integrate\+Equations (\begin{DoxyParamCaption}\item[{std\+::function$<$ State\+Type(const \mbox{\hyperlink{classtudat_1_1Time}{Time}}, const State\+Type \&) $>$}]{state\+Derivative\+Function,  }\item[{std\+::map$<$ \mbox{\hyperlink{classtudat_1_1Time}{Time}}, State\+Type $>$ \&}]{solution\+History,  }\item[{const State\+Type}]{initial\+State,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ \mbox{\hyperlink{classtudat_1_1Time}{Time}} $>$ $>$}]{integrator\+Settings,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition}{Propagation\+Termination\+Condition}} $>$}]{propagation\+Termination\+Condition,  }\item[{std\+::map$<$ \mbox{\hyperlink{classtudat_1_1Time}{Time}}, Eigen\+::\+Vector\+Xd $>$ \&}]{dependent\+Variable\+History,  }\item[{std\+::map$<$ \mbox{\hyperlink{classtudat_1_1Time}{Time}}, double $>$ \&}]{cumulative\+Computation\+Time\+History,  }\item[{const std\+::function$<$ Eigen\+::\+Vector\+Xd() $>$}]{dependent\+Variable\+Function = {\ttfamily std\+:\+:function$<$~Eigen\+:\+:VectorXd(~)~$>$(~)},  }\item[{const std\+::function$<$ void(State\+Type \&) $>$}]{state\+Post\+Processing\+Function = {\ttfamily std\+:\+:function$<$~void(~StateType\&~)~$>$(~)},  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}}}]{print\+Interval = {\ttfamily TUDAT\+\_\+NAN},  }\item[{const std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point}]{initial\+Clock\+Time = {\ttfamily std\+:\+:chrono\+:\+:steady\+\_\+clock\+:\+:now(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Function to numerically integrate a given first order differential equation. 
+
+Function to numerically integrate a given first order differential equation, with the state derivative a function of a single independent variable and the current state 
+\begin{DoxyParams}{Parameters}
+{\em state\+Derivative\+Function} & Function returning the state derivative from current time and state. \\
+\hline
+{\em solution\+History} & History of numerical states given as map (time as key; returned by reference) \\
+\hline
+{\em initial\+State} & Initial state \\
+\hline
+{\em integrator\+Settings} & Settings for numerical integrator. \\
+\hline
+{\em propagation\+Termination\+Condition} & Object to determine when/how the propagation is to be stopped at the current time. \\
+\hline
+{\em dependent\+Variable\+History} & History of dependent variables that are to be saved given as map (time as key; returned by reference) \\
+\hline
+{\em cumulative\+Computation\+Time\+History} & History of cumulative computation times that are to be saved given as map (time as key; returned by reference) \\
+\hline
+{\em dependent\+Variable\+Function} & Function returning dependent variables (obtained from environment and state derivative model). \\
+\hline
+{\em state\+Post\+Processing\+Function} & Function to post-\/process state after numerical integration (obtained from state derivative model). \\
+\hline
+{\em print\+Interval} & Frequency with which to print progress to console (nan = never). \\
+\hline
+{\em initial\+Clock\+Time} & Initial clock time from which to determine cumulative computation time. By default now(), i.\+e. the moment at which this function is called. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Event that triggered the termination of the propagation 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propagators/integrate\+Equations.\+h\end{DoxyCompactItemize}

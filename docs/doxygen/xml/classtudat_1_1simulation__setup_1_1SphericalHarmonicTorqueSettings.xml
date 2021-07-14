@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::SphericalHarmonicTorqueSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1TorqueSettings" prot="public" virt="non-virtual">tudat::simulation_setup::TorqueSettings</basecompoundref>
+    <includes refid="torqueSettings_8h" local="no">torqueSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings_1a3e71cb60a7c989e81899242e035364f3" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::SphericalHarmonicTorqueSettings::maximumDegree_</definition>
+        <argsstring></argsstring>
+        <name>maximumDegree_</name>
+        <briefdescription>
+<para>Maximum degree to which gravity field of body undergoing torque is to be exerted. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" line="73" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings_1ae66dc55b1964218d616ffd8927a19c83" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::SphericalHarmonicTorqueSettings::maximumOrder_</definition>
+        <argsstring></argsstring>
+        <name>maximumOrder_</name>
+        <briefdescription>
+<para>Maximum order to which gravity field of body undergoing torque is to be exerted. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" line="76" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings_1a365e441f485e31ad6d01741a9ebc733b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::SphericalHarmonicTorqueSettings::SphericalHarmonicTorqueSettings</definition>
+        <argsstring>(const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>SphericalHarmonicTorqueSettings</name>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree to which gravity field of body undergoing torque is to be exerted </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order to which gravity field of body undergoing torque is to be exerted </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" line="67" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" bodystart="67" bodyend="70"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for a spherical harmonic gravitational torque exerted by a point mass. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::TorqueSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1TorqueSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::SphericalHarmonicTorqueSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::TorqueSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1TorqueSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::SphericalHarmonicTorqueSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" line="57" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/torqueSettings.h" bodystart="58" bodyend="77"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings_1a3e71cb60a7c989e81899242e035364f3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicTorqueSettings</scope><name>maximumDegree_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings_1ae66dc55b1964218d616ffd8927a19c83" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicTorqueSettings</scope><name>maximumOrder_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicTorqueSettings_1a365e441f485e31ad6d01741a9ebc733b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicTorqueSettings</scope><name>SphericalHarmonicTorqueSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TorqueSettings_1aef8135ab1ca20c15545331a3ca9f2ed3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicTorqueSettings</scope><name>TorqueSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TorqueSettings_1a04c4dd13b71338767ccb7f4d794b8307" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicTorqueSettings</scope><name>torqueType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TorqueSettings_1ab2913703e491f276cfa956383d7a72d9" prot="public" virt="virtual"><scope>tudat::simulation_setup::SphericalHarmonicTorqueSettings</scope><name>~TorqueSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

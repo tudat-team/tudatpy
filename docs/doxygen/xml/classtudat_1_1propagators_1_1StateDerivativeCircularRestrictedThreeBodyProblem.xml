@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1StateDerivativeCircularRestrictedThreeBodyProblem" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::StateDerivativeCircularRestrictedThreeBodyProblem</compoundname>
+    <includes refid="stateDerivativeCircularRestrictedThreeBodyProblem_8h" local="no">stateDerivativeCircularRestrictedThreeBodyProblem.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1StateDerivativeCircularRestrictedThreeBodyProblem_1a766d5f6d14018281ac07af4270a89e3f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propagators::StateDerivativeCircularRestrictedThreeBodyProblem::massParameter</definition>
+        <argsstring></argsstring>
+        <name>massParameter</name>
+        <briefdescription>
+<para>Mass parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Value of mass parameter for the CRTBP. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h" line="63" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1StateDerivativeCircularRestrictedThreeBodyProblem_1a6f08a1a024ee43f7a091bb8194a7d8b5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::StateDerivativeCircularRestrictedThreeBodyProblem::StateDerivativeCircularRestrictedThreeBodyProblem</definition>
+        <argsstring>(const double aMassParameter)</argsstring>
+        <name>StateDerivativeCircularRestrictedThreeBodyProblem</name>
+        <param>
+          <type>const double</type>
+          <declname>aMassParameter</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor that defines the state derivative for a given CRTBP system. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aMassParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A value for mass parameter of CRTBP. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h" line="41" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h" bodystart="41" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1StateDerivativeCircularRestrictedThreeBodyProblem_1ad40af00fafa5e102cfc61eaacef1ec6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::propagators::StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative</definition>
+        <argsstring>(const double time, const Eigen::Vector6d &amp;cartesianState)</argsstring>
+        <name>computeStateDerivative</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>cartesianState</declname>
+        </param>
+        <briefdescription>
+<para>Compute state derivative. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the state derivative of CRTBP. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cartesianState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State derivative. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h" line="52" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.cpp" bodystart="28" bodyend="78"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>State derivative model class for CRTBP. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class that contains the state derivative model for the CRTBP. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h" line="32" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h" bodystart="33" bodyend="64"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1StateDerivativeCircularRestrictedThreeBodyProblem_1ad40af00fafa5e102cfc61eaacef1ec6e" prot="public" virt="non-virtual"><scope>tudat::propagators::StateDerivativeCircularRestrictedThreeBodyProblem</scope><name>computeStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1StateDerivativeCircularRestrictedThreeBodyProblem_1a766d5f6d14018281ac07af4270a89e3f" prot="private" virt="non-virtual"><scope>tudat::propagators::StateDerivativeCircularRestrictedThreeBodyProblem</scope><name>massParameter</name></member>
+      <member refid="classtudat_1_1propagators_1_1StateDerivativeCircularRestrictedThreeBodyProblem_1a6f08a1a024ee43f7a091bb8194a7d8b5" prot="public" virt="non-virtual"><scope>tudat::propagators::StateDerivativeCircularRestrictedThreeBodyProblem</scope><name>StateDerivativeCircularRestrictedThreeBodyProblem</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

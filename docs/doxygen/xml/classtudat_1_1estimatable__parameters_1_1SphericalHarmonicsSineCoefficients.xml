@@ -1,0 +1,336 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</basecompoundref>
+    <includes refid="sphericalHarmonicSineCoefficients_8h" local="no">sphericalHarmonicSineCoefficients.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a517ba94f9fbf529ec81fe838c5d36781" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::MatrixXd() &gt;</type>
+        <definition>std::function&lt; Eigen::MatrixXd( ) &gt; tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::getSineCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>getSineCoefficients_</name>
+        <briefdescription>
+<para>Function to retrieve the full set of sine coefficients, of which a subset is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="145" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a25c08057ed35f7f087710154e8e97e13" prot="private" static="no" mutable="no">
+        <type>std::function&lt; void(Eigen::MatrixXd) &gt;</type>
+        <definition>std::function&lt; void( Eigen::MatrixXd ) &gt; tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::setSineCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>setSineCoefficients_</name>
+        <briefdescription>
+<para>Function to reset the full set of sine coefficients, of which a subset is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="148" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a1deca20a362a21c1e481693b561733ab" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::pair&lt; int, int &gt; &gt;</type>
+        <definition>std::vector&lt; std::pair&lt; int, int &gt; &gt; tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::blockIndices_</definition>
+        <argsstring></argsstring>
+        <name>blockIndices_</name>
+        <briefdescription>
+<para>List of sine coefficient indices which are to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of sine coefficient indices which are to be estimated (first and second are degree and order for each vector entry). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="155" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a0d8470695b15d62d507a6169cbb7a600" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::parameterSize_</definition>
+        <argsstring></argsstring>
+        <name>parameterSize_</name>
+        <briefdescription>
+<para>Number of coefficients that are to be estimated (i.e. length of blockIndices_ vector). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="158" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a1f5877ca2766f0d7d1ce96ca87358839" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::SphericalHarmonicsSineCoefficients</definition>
+        <argsstring>(const std::function&lt; Eigen::MatrixXd() &gt; getSineCoefficients, const std::function&lt; void(Eigen::MatrixXd) &gt; setSineCoefficients, const std::vector&lt; std::pair&lt; int, int &gt; &gt; &amp;blockIndices, const std::string &amp;associatedBody)</argsstring>
+        <name>SphericalHarmonicsSineCoefficients</name>
+        <param>
+          <type>const std::function&lt; Eigen::MatrixXd() &gt;</type>
+          <declname>getSineCoefficients</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; void(Eigen::MatrixXd) &gt;</type>
+          <declname>setSineCoefficients</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::pair&lt; int, int &gt; &gt; &amp;</type>
+          <declname>blockIndices</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>getSineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to retrieve the full set of sine coefficients, of which a subset is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>setSineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to reset the full set of sine coefficients, of which a subset is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>blockIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of sine coefficient indices which are to be estimated (first and second are degree and order for each vector entry). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body for which sine coefficients are to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="49" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="49" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1adfab46c111df28d12d795e9de06c6649" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::~SphericalHarmonicsSineCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>~SphericalHarmonicsSineCoefficients</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="62" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a7f35c3406fdf98248ae2093dc10293e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::getParameterValue</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a63413b914f9e8b68705aba7048780200">getParameterValue</reimplements>
+        <briefdescription>
+<para>Function to retrieve the current values of the sine coefficients that are to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current values of the sine coefficients that are to be estimated. The order of the entries in this vector is the same as in the blockIndices_ member vector. <simplesect kind="return"><para>List of values for sine coefficients that are to be estimated. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="70" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.cpp" bodystart="21" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1addf046d353ecbacb2564945ef44e7a42" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::setParameterValue</definition>
+        <argsstring>(const Eigen::VectorXd parameterValue)</argsstring>
+        <name>setParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5df35bde257a6db401ca3c3613056554">setParameterValue</reimplements>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>parameterValue</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the sine coefficients that are to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the sine coefficients that are to be estimated. The order of the entries in this vector is the same as in the blockIndices_ member vector. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of new values for sine coefficients that are to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="78" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.cpp" bodystart="36" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a6bc279795f8d3018b578a0bc519607d9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::getParameterSize</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterSize</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a989d54bab5c5e09ab6f1b709755b22e8">getParameterSize</reimplements>
+        <briefdescription>
+<para>Function to retrieve the size of the parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the size of the parameter, equal to the length of the blcokIndices_ member vector, i.e. the number of coefficients that are to be estimated. <simplesect kind="return"><para>Size of parameter value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="86" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="86" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1af6b7d8a7069f385739f47cdd3d2fb828" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::pair&lt; int, int &gt; &gt;</type>
+        <definition>std::vector&lt; std::pair&lt; int, int &gt; &gt; tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::getBlockIndices</definition>
+        <argsstring>()</argsstring>
+        <name>getBlockIndices</name>
+        <briefdescription>
+<para>Function to retrieve the list of sine coefficient indices which are to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the list of sine coefficient indices which are to be estimated (first and second are degree and order for each vector entry). <simplesect kind="return"><para>List of sine coefficient indices which are to be estimated. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="94" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="94" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1ab62f4a087cbe7057483ffc1488313915" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::getParameterDescription</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterDescription</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5c264285d7e3ce9ce1452928ad8e7425">getParameterDescription</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="99" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="99" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a5d0617781cd4a9087ead6d54f16ed1c5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients::getDegreeTwoEntries</definition>
+        <argsstring>(int &amp;s21Index, int &amp;s22Index)</argsstring>
+        <name>getDegreeTwoEntries</name>
+        <param>
+          <type>int &amp;</type>
+          <declname>s21Index</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>s22Index</declname>
+        </param>
+        <briefdescription>
+<para>Function that returns the indices for degree two coefficients (if any) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that returns the indices for degree two coefficients (if any) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s21Index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index for degree=2, order=1 entry (-1 if none; returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>s22Index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index for degree=2, order=2 entry (-1 if none; returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="119" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="119" bodyend="138"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interface class for estimation of spherical harmonic gravity field sine coefficients. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Interface class for estimation of spherical harmonic gravity field sine coefficients. Interfaces the estimation with the member coefficients of an instance of the SphericalHarmonicsGravityField (or nominal coefficients of TimeDependentSphericalHarmonicsGravityField). </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h" bodystart="34" bodyend="159"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a1deca20a362a21c1e481693b561733ab" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>blockIndices_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a4012bde7f5f26c5c590c0a149283dd4d" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1af6b7d8a7069f385739f47cdd3d2fb828" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getBlockIndices</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1adc670898ad79d02d23cfcf82b5578ed0" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getConstraintRightHandSide</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1af7db7b4da27ca2787b0090c409087cd7" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getConstraintSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a9c6c6514f75b2efdbd30cc2292fa3d0f" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getConstraintStateMultipler</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a5d0617781cd4a9087ead6d54f16ed1c5" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getDegreeTwoEntries</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1ab62f4a087cbe7057483ffc1488313915" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getParameterDescription</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a23de3d6116f1414d5bb905f1b523cfdc" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getParameterName</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a6bc279795f8d3018b578a0bc519607d9" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getParameterSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a7f35c3406fdf98248ae2093dc10293e0" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1ae97f1a8ef867dcaf72ceeb5050e64629" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a517ba94f9fbf529ec81fe838c5d36781" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>getSineCoefficients_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a3d43d2db730c707b789768dad4de5ae6" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>parameterName_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a0d8470695b15d62d507a6169cbb7a600" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>parameterSize_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1addf046d353ecbacb2564945ef44e7a42" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>setParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a25c08057ed35f7f087710154e8e97e13" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>setSineCoefficients_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1a1f5877ca2766f0d7d1ce96ca87358839" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>SphericalHarmonicsSineCoefficients</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a211a379e14476e36a7693f43be29cb11" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>~EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_1adfab46c111df28d12d795e9de06c6649" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::SphericalHarmonicsSineCoefficients</scope><name>~SphericalHarmonicsSineCoefficients</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

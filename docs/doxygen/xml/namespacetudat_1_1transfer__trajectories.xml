@@ -1,0 +1,629 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1transfer__trajectories" kind="namespace" language="C++">
+    <compoundname>tudat::transfer_trajectories</compoundname>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1CaptureLeg" prot="public">tudat::transfer_trajectories::CaptureLeg</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg" prot="public">tudat::transfer_trajectories::DepartureLeg</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga" prot="public">tudat::transfer_trajectories::DepartureLegMga</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmPosition" prot="public">tudat::transfer_trajectories::DepartureLegMga1DsmPosition</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity" prot="public">tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1MissionLeg" prot="public">tudat::transfer_trajectories::MissionLeg</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg" prot="public">tudat::transfer_trajectories::SpaceLeg</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1SwingbyLeg" prot="public">tudat::transfer_trajectories::SwingbyLeg</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1SwingbyLegMga" prot="public">tudat::transfer_trajectories::SwingbyLegMga</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmPosition" prot="public">tudat::transfer_trajectories::SwingbyLegMga1DsmPosition</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmVelocity" prot="public">tudat::transfer_trajectories::SwingbyLegMga1DsmVelocity</innerclass>
+    <innerclass refid="classtudat_1_1transfer__trajectories_1_1Trajectory" prot="public">tudat::transfer_trajectories::Trajectory</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="trajectory_8h_1a77c6907640513e05a2b1c8c4279ea619" prot="public" static="no" strong="no">
+        <type></type>
+        <name>TransferLegType</name>
+        <enumvalue id="trajectory_8h_1a77c6907640513e05a2b1c8c4279ea619a05ce2aabb6673fcacaa68452a8dd370a" prot="public">
+          <name>mga_Departure</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="trajectory_8h_1a77c6907640513e05a2b1c8c4279ea619a7af5ccd5930f75025ade69692c565e65" prot="public">
+          <name>mga_Swingby</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="trajectory_8h_1a77c6907640513e05a2b1c8c4279ea619a78863773e274a826cad51c73f5be8b23" prot="public">
+          <name>mga1DsmPosition_Departure</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="trajectory_8h_1a77c6907640513e05a2b1c8c4279ea619a071a0d301962b97bb046ddead51b548a" prot="public">
+          <name>mga1DsmPosition_Swingby</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="trajectory_8h_1a77c6907640513e05a2b1c8c4279ea619ae334f305f91e71c1d1b7f19a0e4181de" prot="public">
+          <name>mga1DsmVelocity_Departure</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="trajectory_8h_1a77c6907640513e05a2b1c8c4279ea619ad7bd41fa8a6748852207ffa04722c571" prot="public">
+          <name>mga1DsmVelocity_Swingby</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="trajectory_8h_1a77c6907640513e05a2b1c8c4279ea619aed654cc53a71f47e866d4fd1cfb53204" prot="public">
+          <name>capture</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/trajectory.h" line="53" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/trajectory.h" bodystart="54" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="exportTrajectory_8h_1a9a27a2596154504fd23b888430085f61" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::returnTrajectory</definition>
+        <argsstring>(Eigen::VectorXd initialCartesianState, double centralBodyGravitationalParameter, double duration, double maximumTimeStep, std::vector&lt; Eigen::Vector3d &gt; &amp;positionVector, std::vector&lt; double &gt; &amp;timeVector, double startingTime=0.)</argsstring>
+        <name>returnTrajectory</name>
+        <param>
+          <type>Eigen::VectorXd</type>
+          <declname>initialCartesianState</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>duration</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>maximumTimeStep</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt; &amp;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>startingTime</declname>
+          <defval>0.</defval>
+        </param>
+        <briefdescription>
+<para>Return a vector of positions and times corresponding to a trajectory at a certain epoch. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>returns the trajectory of the spacecraft. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialCartesianState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>initial cartesian state of the spacecraft. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>central body gravitational paremeter. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>duration of the exported trajectory </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumTimeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum time step between the positions that are returned </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of positions along the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of times corresponding to the positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startingTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>initial time of the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/exportTrajectory.cpp" line="19" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/exportTrajectory.cpp" bodystart="19" bodyend="72" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/exportTrajectory.h" declline="41" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="exportTrajectory_8h_1a34a85b18b9a9f2e592c5c13b56c77d7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::returnCircularTrajectory</definition>
+        <argsstring>(double maximumTimeStep, std::vector&lt; Eigen::Vector3d &gt; &amp;positionVector, std::vector&lt; double &gt; &amp;timeVector, double semiMajorAxis, double centralGravitationalParamater, double startingTime=0.)</argsstring>
+        <name>returnCircularTrajectory</name>
+        <param>
+          <type>double</type>
+          <declname>maximumTimeStep</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt; &amp;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>semiMajorAxis</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>centralGravitationalParamater</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>startingTime</declname>
+          <defval>0.</defval>
+        </param>
+        <briefdescription>
+<para>Return a vector of positions and times corresponding to a 2D circular trajectory. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Return a vector of positions and times corresponding to a 2D circular trajectory. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumTimeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum time step between the positions that are returned. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of positions along the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of times corresponding to the positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>semiMajorAxis</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>semi-major axis of the circular orbit. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralGravitationalParamater</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>central body gravitational paremeter. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startingTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>initial time of the circular trajectory. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/exportTrajectory.cpp" line="75" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/exportTrajectory.cpp" bodystart="75" bodyend="102" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/exportTrajectory.h" declline="59" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="exportTrajectory_8h_1a600590d7a02a6bdb731c5a86614945d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::writeTrajectoryToFile</definition>
+        <argsstring>(std::vector&lt; Eigen::Vector3d &gt; positionVector, std::vector&lt; double &gt; timeVector, const std::string fileName)</argsstring>
+        <name>writeTrajectoryToFile</name>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Write a trajectory to a data file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Write a trajectory to a data file. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of positions along the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of times corresponding to the positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of the exported file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/exportTrajectory.cpp" line="105" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/exportTrajectory.cpp" bodystart="105" bodyend="117" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/exportTrajectory.h" declline="73" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="exportTrajectory_8h_1a025b9e49f457deb904a05ab94049b97c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::writeManeuversToFile</definition>
+        <argsstring>(std::vector&lt; Eigen::Vector3d &gt; positionVector, std::vector&lt; double &gt; timeVector, std::vector&lt; double &gt; deltaVVector, const char *fileName)</argsstring>
+        <name>writeManeuversToFile</name>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt;</type>
+          <declname>deltaVVector</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Write a trajectory to a data file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Write a trajectory to a data file. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of positions of the manuevers </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of times corresponding to the positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>deltaVVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of delta V&apos;s of the maneuvers. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of the exported file. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/exportTrajectory.cpp" line="120" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/exportTrajectory.cpp" bodystart="120" bodyend="133" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/exportTrajectory.h" declline="85" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="planetTrajectory_8h_1a5892a5df6e59e7ae35f2bb2cab4833ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::returnPlanetTrajectory</definition>
+        <argsstring>(const ephemerides::EphemerisPointer &amp;ephemerisPtr, const double duration, const double maximumTimeStep, std::vector&lt; Eigen::Vector3d &gt; &amp;positionVector, std::vector&lt; double &gt; &amp;timeVector, const double startingTime)</argsstring>
+        <name>returnPlanetTrajectory</name>
+        <param>
+          <type>const ephemerides::EphemerisPointer &amp;</type>
+          <declname>ephemerisPtr</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>duration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumTimeStep</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt; &amp;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>startingTime</declname>
+        </param>
+        <briefdescription>
+<para>Return a vector of positions and times from ephemeris data for a certain epoch and duration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Return a vector of positions and times from ephemeris data for a certain epoch and duration. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemerisPtr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the ephemeris of the planet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>duration for which the planet trajectory is given. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumTimeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum time between points along the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of positions along the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>times corresponding to the positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startingTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>initial time of the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/planetTrajectory.h" line="42" column="6" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/planetTrajectory.h" declline="42" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="planetTrajectory_8h_1aa2b9fb36f64259ebd0b5525ba4843af0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::returnSingleRevolutionPlanetTrajectory</definition>
+        <argsstring>(const ephemerides::EphemerisPointer &amp;ephemerisPtr, const double centralBodyGravitationalParameter, const double startingEpochMJD2000, const double maximumTimeStep, std::vector&lt; Eigen::Vector3d &gt; &amp;positionVector, std::vector&lt; double &gt; &amp;timeVector, const double startingTime=0.)</argsstring>
+        <name>returnSingleRevolutionPlanetTrajectory</name>
+        <param>
+          <type>const ephemerides::EphemerisPointer &amp;</type>
+          <declname>ephemerisPtr</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>startingEpochMJD2000</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumTimeStep</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt; &amp;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>startingTime</declname>
+          <defval>0.</defval>
+        </param>
+        <briefdescription>
+<para>Return a propagated vector of positions and times from ephemeris data for one revolution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Return a propagated vector of positions and times from ephemeris data for one revolution. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemerisPtr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the ephemeris of the planet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>central body gravitational parameter. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startingEpochMJD2000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>starting epoch in MJD2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumTimeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum time between points along the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of positions along the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>times corresponding to the positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startingTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>initial time of the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/planetTrajectory.cpp" line="68" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/planetTrajectory.cpp" bodystart="68" bodyend="95" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/planetTrajectory.h" declline="60" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="planetTrajectory_8cpp_1ac15fb05215eabcf932207044232d37a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::returnPlanetTrajectory</definition>
+        <argsstring>(const ephemerides::EphemerisPointer &amp;ephemerisPtr, const double centralBodyGravitationalParameter, const double startingEpochMJD2000, const double duration, const double maximumTimeStep, std::vector&lt; Eigen::Vector3d &gt; &amp;positionVector, std::vector&lt; double &gt; &amp;timeVector, const double startingTime)</argsstring>
+        <name>returnPlanetTrajectory</name>
+        <param>
+          <type>const ephemerides::EphemerisPointer &amp;</type>
+          <declname>ephemerisPtr</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>startingEpochMJD2000</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>duration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumTimeStep</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt; &amp;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>startingTime</declname>
+        </param>
+        <briefdescription>
+<para>Return a vector of positions and times from ephemeris data for a certain epoch and duration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/planetTrajectory.cpp" line="21" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/planetTrajectory.cpp" bodystart="21" bodyend="65"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/captureLeg.h" line="29" column="1"/>
+  </compounddef>
+</doxygen>

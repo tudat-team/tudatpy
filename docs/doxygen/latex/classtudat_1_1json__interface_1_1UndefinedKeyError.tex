@@ -1,0 +1,93 @@
+\hypertarget{classtudat_1_1json__interface_1_1UndefinedKeyError}{}\doxysection{tudat\+::json\+\_\+interface\+::Undefined\+Key\+Error Class Reference}
+\label{classtudat_1_1json__interface_1_1UndefinedKeyError}\index{tudat::json\_interface::UndefinedKeyError@{tudat::json\_interface::UndefinedKeyError}}
+
+
+Class for errors generated when trying to access a key from a {\ttfamily json} object that does not exist.  
+
+
+
+
+{\ttfamily \#include $<$error\+Handling.\+h$>$}
+
+Inheritance diagram for tudat\+::json\+\_\+interface\+::Undefined\+Key\+Error\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1json__interface_1_1UndefinedKeyError}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1UndefinedKeyError_a377bd3b71988918b0d881733e0506c2d}{Undefined\+Key\+Error}} (const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&\mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_aa2034325482fe4f045241bc10b8c6e91}{key\+Path}})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1UndefinedKeyError_a85d24fc22955403b49b79a6dbeeeab1c}{handle\+Use\+Of\+Default\+Value}} (const nlohmann\+::json \&default\+Value, const Exception\+Response\+Type \&response) const
+\begin{DoxyCompactList}\small\item\em Rethrow {\ttfamily this} if default values are not allowed, or print a message if requested by user. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename Number\+Type $>$ }\\void \mbox{\hyperlink{classtudat_1_1json__interface_1_1UndefinedKeyError_acf05535f504075ffd3c69299aa0489ab}{rethrow\+If\+Na\+NNot\+Allowed}} (bool allow\+NaN, const Number\+Type \&default\+Value) const
+\begin{DoxyCompactList}\small\item\em Rethrow {\ttfamily this} if NaN default values are not allowed and the provided default value is NaN. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for errors generated when trying to access a key from a {\ttfamily json} object that does not exist. 
+
+Class for errors generated when trying to access a key from a {\ttfamily json} object that does not exist. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1UndefinedKeyError_a377bd3b71988918b0d881733e0506c2d}\label{classtudat_1_1json__interface_1_1UndefinedKeyError_a377bd3b71988918b0d881733e0506c2d}} 
+\index{tudat::json\_interface::UndefinedKeyError@{tudat::json\_interface::UndefinedKeyError}!UndefinedKeyError@{UndefinedKeyError}}
+\index{UndefinedKeyError@{UndefinedKeyError}!tudat::json\_interface::UndefinedKeyError@{tudat::json\_interface::UndefinedKeyError}}
+\doxysubsubsection{\texorpdfstring{UndefinedKeyError()}{UndefinedKeyError()}}
+{\footnotesize\ttfamily tudat\+::json\+\_\+interface\+::\+Undefined\+Key\+Error\+::\+Undefined\+Key\+Error (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&}]{key\+Path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em key\+Path} & Key path trying to access when the error was generated. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1UndefinedKeyError_a85d24fc22955403b49b79a6dbeeeab1c}\label{classtudat_1_1json__interface_1_1UndefinedKeyError_a85d24fc22955403b49b79a6dbeeeab1c}} 
+\index{tudat::json\_interface::UndefinedKeyError@{tudat::json\_interface::UndefinedKeyError}!handleUseOfDefaultValue@{handleUseOfDefaultValue}}
+\index{handleUseOfDefaultValue@{handleUseOfDefaultValue}!tudat::json\_interface::UndefinedKeyError@{tudat::json\_interface::UndefinedKeyError}}
+\doxysubsubsection{\texorpdfstring{handleUseOfDefaultValue()}{handleUseOfDefaultValue()}}
+{\footnotesize\ttfamily void tudat\+::json\+\_\+interface\+::\+Undefined\+Key\+Error\+::handle\+Use\+Of\+Default\+Value (\begin{DoxyParamCaption}\item[{const nlohmann\+::json \&}]{default\+Value,  }\item[{const Exception\+Response\+Type \&}]{response }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Rethrow {\ttfamily this} if default values are not allowed, or print a message if requested by user. 
+
+Rethrow {\ttfamily this} if default values are not allowed, or print a message if requested by user. 
+\begin{DoxyParams}{Parameters}
+{\em default\+Value} & {\ttfamily json} representation of the dafault value to be used. \\
+\hline
+{\em response} & The response to usage of dafault values. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1UndefinedKeyError_acf05535f504075ffd3c69299aa0489ab}\label{classtudat_1_1json__interface_1_1UndefinedKeyError_acf05535f504075ffd3c69299aa0489ab}} 
+\index{tudat::json\_interface::UndefinedKeyError@{tudat::json\_interface::UndefinedKeyError}!rethrowIfNaNNotAllowed@{rethrowIfNaNNotAllowed}}
+\index{rethrowIfNaNNotAllowed@{rethrowIfNaNNotAllowed}!tudat::json\_interface::UndefinedKeyError@{tudat::json\_interface::UndefinedKeyError}}
+\doxysubsubsection{\texorpdfstring{rethrowIfNaNNotAllowed()}{rethrowIfNaNNotAllowed()}}
+{\footnotesize\ttfamily template$<$typename Number\+Type $>$ \\
+void tudat\+::json\+\_\+interface\+::\+Undefined\+Key\+Error\+::rethrow\+If\+Na\+NNot\+Allowed (\begin{DoxyParamCaption}\item[{bool}]{allow\+NaN,  }\item[{const Number\+Type \&}]{default\+Value }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Rethrow {\ttfamily this} if NaN default values are not allowed and the provided default value is NaN. 
+
+Rethrow {\ttfamily this} if NaN default values are not allowed and the provided default value is NaN. 
+\begin{DoxyParams}{Parameters}
+{\em allow\+NaN} & Whether NaN default values are allowed. \\
+\hline
+{\em default\+Value} & The default value to be checked. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/interface/json/support/error\+Handling.\+h\end{DoxyCompactItemize}

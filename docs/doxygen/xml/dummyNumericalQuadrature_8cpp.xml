@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dummyNumericalQuadrature_8cpp" kind="file" language="C++">
+    <compoundname>dummyNumericalQuadrature.cpp</compoundname>
+    <includes refid="numericalQuadrature_8h" local="yes">tudat/math/quadrature/numericalQuadrature.h</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="2">
+        <label>tudat/math/quadrature/numericalQuadrature.h</label>
+        <link refid="numericalQuadrature_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>vector</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/quadrature/dummyNumericalQuadrature.cpp</label>
+        <link refid="dummyNumericalQuadrature_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;tudat/math/quadrature/numericalQuadrature.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">//<sp/>FILE<sp/>INCLUDED<sp/>FOR<sp/>COMPATIBILITY<sp/>(MUST<sp/>HAVE<sp/>.CPP<sp/>FILE<sp/>ON<sp/>SOME<sp/>SYSTEMS)</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/quadrature/dummyNumericalQuadrature.cpp"/>
+  </compounddef>
+</doxygen>

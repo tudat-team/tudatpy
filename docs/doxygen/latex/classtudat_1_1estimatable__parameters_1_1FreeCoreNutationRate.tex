@@ -1,0 +1,118 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Free\+Core\+Nutation\+Rate Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate}\index{tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}}
+
+
+Interface class for estimation of a body\textquotesingle{}s free core nutation rate (for a full planetary rotational model).  
+
+
+
+
+{\ttfamily \#include $<$free\+Core\+Nutation\+Rate.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Free\+Core\+Nutation\+Rate\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_aa252ee29ed9c0f91ce1af183969be439}{Free\+Core\+Nutation\+Rate}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1PlanetaryRotationModel}{ephemerides\+::\+Planetary\+Rotation\+Model}} $>$ rotation\+Model, const std\+::string \&associated\+Body)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a4653817325ca1917735bc67c7260c920}\label{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a4653817325ca1917735bc67c7260c920}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a4653817325ca1917735bc67c7260c920}{$\sim$\+Free\+Core\+Nutation\+Rate}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_aa70f3314110c8e9e47e23c25facb26e1}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Get value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a77780ab05404b6d8e7d74976835c7dc1}{set\+Parameter\+Value}} (const double parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Reset value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a9d43e919537ea6967336933c385ded03}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter (always 1) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for estimation of a body\textquotesingle{}s free core nutation rate (for a full planetary rotational model). 
+
+Interface class for estimation of a body\textquotesingle{}s free core nutation rate (for a full planetary rotational model). Interfaces the estimation with the free core nutation rate of a Planetary\+Rotation\+Model object 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_aa252ee29ed9c0f91ce1af183969be439}\label{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_aa252ee29ed9c0f91ce1af183969be439}} 
+\index{tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}!FreeCoreNutationRate@{FreeCoreNutationRate}}
+\index{FreeCoreNutationRate@{FreeCoreNutationRate}!tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}}
+\doxysubsubsection{\texorpdfstring{FreeCoreNutationRate()}{FreeCoreNutationRate()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Free\+Core\+Nutation\+Rate\+::\+Free\+Core\+Nutation\+Rate (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1PlanetaryRotationModel}{ephemerides\+::\+Planetary\+Rotation\+Model}} $>$}]{rotation\+Model,  }\item[{const std\+::string \&}]{associated\+Body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em rotation\+Model} & Planetary\+Rotation\+Model object of which the free core nutation rate is a property. \\
+\hline
+{\em associated\+Body} & Name of body of which parameter is a property. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a9d43e919537ea6967336933c385ded03}\label{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a9d43e919537ea6967336933c385ded03}} 
+\index{tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Free\+Core\+Nutation\+Rate\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter (always 1) 
+
+Function to retrieve the size of the parameter (always 1) \begin{DoxyReturn}{Returns}
+Size of parameter. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_aa70f3314110c8e9e47e23c25facb26e1}\label{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_aa70f3314110c8e9e47e23c25facb26e1}} 
+\index{tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily double tudat\+::estimatable\+\_\+parameters\+::\+Free\+Core\+Nutation\+Rate\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model. 
+
+Get value of of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model. \begin{DoxyReturn}{Returns}
+Free core nutation rate 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a77780ab05404b6d8e7d74976835c7dc1}\label{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a77780ab05404b6d8e7d74976835c7dc1}} 
+\index{tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::FreeCoreNutationRate@{tudat::estimatable\_parameters::FreeCoreNutationRate}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Free\+Core\+Nutation\+Rate\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{const double}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reset value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model. 
+
+Reset value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New value of the free core nutation rate. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/free\+Core\+Nutation\+Rate.\+h\end{DoxyCompactItemize}

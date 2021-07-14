@@ -1,0 +1,235 @@
+\hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator}{}\doxysection{tudat\+::propagators\+::Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type, type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1DynamicsSimulator}\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+
+
+Base class for performing full numerical integration of a dynamical system.  
+
+
+
+
+{\ttfamily \#include $<$dynamics\+Simulator.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_adab48e1facc2bfe46e97076a64418e53}{Dynamics\+Simulator}} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies, const bool clear\+Numerical\+Solutions=true, const bool set\+Integrated\+Result=true)
+\begin{DoxyCompactList}\small\item\em Constructor of simulator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a88b8053599e97640a23aca87ec9673dd}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a88b8053599e97640a23aca87ec9673dd}} 
+virtual \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a88b8053599e97640a23aca87ec9673dd}{$\sim$\+Dynamics\+Simulator}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a0136cc85ce5a0938846bc55097fcd88c}{integrate\+Equations\+Of\+Motion}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&initial\+Global\+States)=0
+\begin{DoxyCompactList}\small\item\em This function numerically (re-\/)integrates the equations of motion. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a299c98e9a537ed7f32d9897d033f51b5}{integration\+Completed\+Successfully}} () const =0
+\begin{DoxyCompactList}\small\item\em Get whether the integration was completed successfully. \end{DoxyCompactList}\item 
+virtual std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a63672d5ad32468e2d352f3a145427e01}{get\+Equations\+Of\+Motion\+Numerical\+Solution\+Base}} ()=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function that returns the numerical result of the state propagation. \end{DoxyCompactList}\item 
+virtual std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_ac20b41aa54498743b4c8a4fb3019416d}{get\+Dependent\+Variable\+Numerical\+Solution\+Base}} ()=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function that returns the numerical result of the dependent variable history. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a21dd4ad2045c5596afe8ad00fd63d2ba}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a21dd4ad2045c5596afe8ad00fd63d2ba}} 
+virtual std\+::vector$<$ std\+::map$<$ Time\+Type, double $>$ $>$ {\bfseries get\+Cumulative\+Computation\+Time\+History\+Base} ()=0
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_aeee81515a527dc2f0d083020451f9f8d}{get\+Named\+Body\+Map}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the map of named bodies involved in simulation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a09ecdfd1f37e70b6e523453e6e296ddb}{reset\+Named\+Body\+Map}} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies)
+\begin{DoxyCompactList}\small\item\em Function to reset the named system of bodies. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_aa34c500851102371eecb00e43368bbe3}\label{classtudat_1_1propagators_1_1DynamicsSimulator_aa34c500851102371eecb00e43368bbe3}} 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_aa34c500851102371eecb00e43368bbe3}{get\+Set\+Integrated\+Result}} ()
+\begin{DoxyCompactList}\small\item\em fu \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a2ccd5a055e54b8353132b7e7264de8c7}{reset\+Set\+Integrated\+Result}} (const bool set\+Integrated\+Result)
+\begin{DoxyCompactList}\small\item\em Function to reset whether to automatically use the integrated results to set ephemerides. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a63213c599db30418b794bd9047ff08f1}{process\+Numerical\+Equations\+Of\+Motion\+Solution}} ()=0
+\begin{DoxyCompactList}\small\item\em This function updates the environment with the numerical solution of the propagation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a805137a2a7abb58239026a70a1e82b58}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a805137a2a7abb58239026a70a1e82b58}} 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a805137a2a7abb58239026a70a1e82b58}{bodies\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of bodies (with names) of all bodies in integration. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a9bbe7a7134636105ddfe4100fed77518}{clear\+Numerical\+Solutions\+\_\+}}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a031f7f17018368e86682675970dc9a2a}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a031f7f17018368e86682675970dc9a2a}} 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a031f7f17018368e86682675970dc9a2a}{set\+Integrated\+Result\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean to determine whether to automatically use the integrated results to set ephemerides. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Scalar\+Type = double, typename Time\+Type = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type = 0$>$\newline
+class tudat\+::propagators\+::\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type, type $>$}
+
+Base class for performing full numerical integration of a dynamical system. 
+
+Base class for performing full numerical integration of a dynamical system. Governing equations are set once, but can be re-\/integrated for different initial conditions using the same instance of the class. Derived classes define the specific kind of integration that is performed (single-\/arc/multi-\/arc/etc.) 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_adab48e1facc2bfe46e97076a64418e53}\label{classtudat_1_1propagators_1_1DynamicsSimulator_adab48e1facc2bfe46e97076a64418e53}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!DynamicsSimulator@{DynamicsSimulator}}
+\index{DynamicsSimulator@{DynamicsSimulator}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{DynamicsSimulator()}{DynamicsSimulator()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{Dynamics\+Simulator}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&}]{bodies,  }\item[{const bool}]{clear\+Numerical\+Solutions = {\ttfamily true},  }\item[{const bool}]{set\+Integrated\+Result = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor of simulator. 
+
+Constructor of simulator, constructs integrator and object for calculating each time step of integration. 
+\begin{DoxyParams}{Parameters}
+{\em bodies} & Map of bodies (with names) of all bodies in integration. \\
+\hline
+{\em clear\+Numerical\+Solutions} & Boolean to determine whether to clear the raw numerical solution member variables after propagation and resetting ephemerides (default true). \\
+\hline
+{\em set\+Integrated\+Result} & Boolean to determine whether to automatically use the integrated results to set ephemerides (default true). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_ac20b41aa54498743b4c8a4fb3019416d}\label{classtudat_1_1propagators_1_1DynamicsSimulator_ac20b41aa54498743b4c8a4fb3019416d}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!getDependentVariableNumericalSolutionBase@{getDependentVariableNumericalSolutionBase}}
+\index{getDependentVariableNumericalSolutionBase@{getDependentVariableNumericalSolutionBase}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{getDependentVariableNumericalSolutionBase()}{getDependentVariableNumericalSolutionBase()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+virtual std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::get\+Dependent\+Variable\+Numerical\+Solution\+Base (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function that returns the numerical result of the dependent variable history. 
+
+Pure virtual function that returns the numerical result of the dependent variable history \begin{DoxyReturn}{Returns}
+Numerical result of the dependent variable history. See derived class documentation for precise contents structure. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcDynamicsSimulator_ab405d7e155cdb149c418d8505f33ad5b}{tudat\+::propagators\+::\+Hybrid\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_a359b7693e69f2ea2f2bb9928a61cb631}{tudat\+::propagators\+::\+Multi\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a1f10218d1d259e7438b8a54026219da1}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a63672d5ad32468e2d352f3a145427e01}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a63672d5ad32468e2d352f3a145427e01}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!getEquationsOfMotionNumericalSolutionBase@{getEquationsOfMotionNumericalSolutionBase}}
+\index{getEquationsOfMotionNumericalSolutionBase@{getEquationsOfMotionNumericalSolutionBase}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{getEquationsOfMotionNumericalSolutionBase()}{getEquationsOfMotionNumericalSolutionBase()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+virtual std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::get\+Equations\+Of\+Motion\+Numerical\+Solution\+Base (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function that returns the numerical result of the state propagation. 
+
+Pure virtual function that returns the numerical result of the state propagation. \begin{DoxyReturn}{Returns}
+Numerical result of the state propagation. See derived class documentation for precise contents structure. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcDynamicsSimulator_a5a06698fa3361c46f80f1c344c060262}{tudat\+::propagators\+::\+Hybrid\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_a11a7aaf1c00bd38a3a39fae2eec339dc}{tudat\+::propagators\+::\+Multi\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6a087c4ec70779b901388558f1ad8b0e}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_aeee81515a527dc2f0d083020451f9f8d}\label{classtudat_1_1propagators_1_1DynamicsSimulator_aeee81515a527dc2f0d083020451f9f8d}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!getNamedBodyMap@{getNamedBodyMap}}
+\index{getNamedBodyMap@{getNamedBodyMap}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{getNamedBodyMap()}{getNamedBodyMap()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::get\+Named\+Body\+Map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the map of named bodies involved in simulation. 
+
+Function to get the map of named bodies involved in simulation. \begin{DoxyReturn}{Returns}
+Map of named bodies involved in simulation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a0136cc85ce5a0938846bc55097fcd88c}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a0136cc85ce5a0938846bc55097fcd88c}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!integrateEquationsOfMotion@{integrateEquationsOfMotion}}
+\index{integrateEquationsOfMotion@{integrateEquationsOfMotion}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{integrateEquationsOfMotion()}{integrateEquationsOfMotion()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::integrate\+Equations\+Of\+Motion (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&}]{initial\+Global\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+This function numerically (re-\/)integrates the equations of motion. 
+
+This function numerically (re-\/)integrates the equations of motion, using the settings set through the constructor and a new initial state vector provided here. The raw results are set in the equations\+Of\+Motion\+Numerical\+Solution\+\_\+ 
+\begin{DoxyParams}{Parameters}
+{\em initial\+Global\+States} & Initial state vector that is to be used for numerical integration. Note that this state should be in the correct frame (i.\+e. corresponding to central\+Bodies in propagator\+Settings\+\_\+), but not in the propagator-\/specific form (i.\+e Encke, Gauss, etc. for translational dynamics) \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative_aeab2b2a9eae937200a5def64dcf18960}{Single\+State\+Type\+Derivative\+::convert\+To\+Output\+Solution}} 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a299c98e9a537ed7f32d9897d033f51b5}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a299c98e9a537ed7f32d9897d033f51b5}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!integrationCompletedSuccessfully@{integrationCompletedSuccessfully}}
+\index{integrationCompletedSuccessfully@{integrationCompletedSuccessfully}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{integrationCompletedSuccessfully()}{integrationCompletedSuccessfully()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+virtual bool \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::integration\+Completed\+Successfully (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Get whether the integration was completed successfully. 
+
+Get whether the integration was completed successfully. \begin{DoxyReturn}{Returns}
+Whether the integration was completed successfully by reaching the termination condition. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcDynamicsSimulator_a1d939bad915104325d873ebfdeaa9533}{tudat\+::propagators\+::\+Hybrid\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_a6ed02a0f1ddd25aec13bf580d3df3cb5}{tudat\+::propagators\+::\+Multi\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5d2f201520cb4b28510714fec059faea}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a63213c599db30418b794bd9047ff08f1}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a63213c599db30418b794bd9047ff08f1}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!processNumericalEquationsOfMotionSolution@{processNumericalEquationsOfMotionSolution}}
+\index{processNumericalEquationsOfMotionSolution@{processNumericalEquationsOfMotionSolution}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{processNumericalEquationsOfMotionSolution()}{processNumericalEquationsOfMotionSolution()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::process\+Numerical\+Equations\+Of\+Motion\+Solution (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+This function updates the environment with the numerical solution of the propagation. 
+
+This function updates the environment with the numerical solution of the propagation. For instance, it sets the propagated translational dynamics solution as the new input for the Ephemeris object of the body that was propagated. This function is pure virtual and must be implemented in the derived class. 
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcDynamicsSimulator_a9c7b7539e83196b69af29d2e1a1de0d3}{tudat\+::propagators\+::\+Hybrid\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_a287886fe610cc3521d5e84d7b9b70b9e}{tudat\+::propagators\+::\+Multi\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a351d3d697039d983a7b6b24b85122f32}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a09ecdfd1f37e70b6e523453e6e296ddb}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a09ecdfd1f37e70b6e523453e6e296ddb}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!resetNamedBodyMap@{resetNamedBodyMap}}
+\index{resetNamedBodyMap@{resetNamedBodyMap}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{resetNamedBodyMap()}{resetNamedBodyMap()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::reset\+Named\+Body\+Map (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&}]{bodies }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the named system of bodies. 
+
+Function to reset the named system of bodies. 
+\begin{DoxyParams}{Parameters}
+{\em bodies} & The new named system of bodies. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a2ccd5a055e54b8353132b7e7264de8c7}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a2ccd5a055e54b8353132b7e7264de8c7}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!resetSetIntegratedResult@{resetSetIntegratedResult}}
+\index{resetSetIntegratedResult@{resetSetIntegratedResult}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{resetSetIntegratedResult()}{resetSetIntegratedResult()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::reset\+Set\+Integrated\+Result (\begin{DoxyParamCaption}\item[{const bool}]{set\+Integrated\+Result }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset whether to automatically use the integrated results to set ephemerides. 
+
+Function to reset whether to automatically use the integrated results to set ephemerides. 
+\begin{DoxyParams}{Parameters}
+{\em set\+Integrated\+Result} & New boolean to determine whether to automatically use the integrated results to set ephemerides. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1DynamicsSimulator_a9bbe7a7134636105ddfe4100fed77518}\label{classtudat_1_1propagators_1_1DynamicsSimulator_a9bbe7a7134636105ddfe4100fed77518}} 
+\index{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}!clearNumericalSolutions\_@{clearNumericalSolutions\_}}
+\index{clearNumericalSolutions\_@{clearNumericalSolutions\_}!tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$@{tudat::propagators::DynamicsSimulator$<$ StateScalarType, TimeType, type $>$}}
+\doxysubsubsection{\texorpdfstring{clearNumericalSolutions\_}{clearNumericalSolutions\_}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double, typename std\+::enable\+\_\+if$<$ is\+\_\+state\+\_\+scalar\+\_\+and\+\_\+time\+\_\+type$<$ State\+Scalar\+Type, Time\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type, type $>$\+::clear\+Numerical\+Solutions\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+Boolean to determine whether to clear the raw numerical solution member variables after propagation and resetting ephemerides. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/dynamics\+Simulator.\+h\end{DoxyCompactItemize}

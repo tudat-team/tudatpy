@@ -1,0 +1,413 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1interpolators_1_1MultiLinearInterpolator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::interpolators::MultiLinearInterpolator</compoundname>
+    <basecompoundref refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator" prot="public" virt="non-virtual">tudat::interpolators::MultiDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;</basecompoundref>
+    <includes refid="multiLinearInterpolator_8h" local="no">multiLinearInterpolator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+      <param>
+        <type>typename DependentVariableType</type>
+      </param>
+      <param>
+        <type>unsigned int</type>
+        <declname>NumberOfDimensions</declname>
+        <defname>NumberOfDimensions</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1a9a62b03483927cc4a2df0ceed0232e04" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::MultiLinearInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;::MultiLinearInterpolator</definition>
+        <argsstring>(const std::vector&lt; std::vector&lt; IndependentVariableType &gt; &gt; &amp;independentValues, const boost::multi_array&lt; DependentVariableType, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt; &amp;dependentData, const AvailableLookupScheme selectedLookupScheme=huntingAlgorithm, const std::vector&lt; BoundaryInterpolationType &gt; &amp;boundaryHandling=std::vector&lt; BoundaryInterpolationType &gt;(NumberOfDimensions, extrapolate_at_boundary), const std::vector&lt; std::pair&lt; DependentVariableType, DependentVariableType &gt; &gt; &amp;defaultExtrapolationValue=std::vector&lt; std::pair&lt; DependentVariableType, DependentVariableType &gt; &gt;(NumberOfDimensions, std::make_pair(IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;(), IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;())))</argsstring>
+        <name>MultiLinearInterpolator</name>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; IndependentVariableType &gt; &gt; &amp;</type>
+          <declname>independentValues</declname>
+        </param>
+        <param>
+          <type>const boost::multi_array&lt; DependentVariableType, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt; &amp;</type>
+          <declname>dependentData</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+          <defval>huntingAlgorithm</defval>
+        </param>
+        <param>
+          <type>const std::vector&lt; <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref> &gt; &amp;</type>
+          <declname>boundaryHandling</declname>
+          <defval>std::vector&lt; <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref> &gt;(NumberOfDimensions, extrapolate_at_boundary)</defval>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::pair&lt; DependentVariableType, DependentVariableType &gt; &gt; &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval>std::vector&lt; std::pair&lt; DependentVariableType, DependentVariableType &gt; &gt;(NumberOfDimensions, std::make_pair(<ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;(), <ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;()))</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor taking independent and dependent variable data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor taking independent and dependent variable data. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of vectors containing data points of independent variables, each must be sorted in ascending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Multi-dimensional array of dependent data at each point of hyper-rectangular grid formed by independent variable points. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of lookupscheme from enum. This algorithm is used to find the nearest lower data point in the independent variables when requesting interpolation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of boundary handling methods, in case independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of pairs of default values to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" line="88" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" bodystart="88" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1a0b3a360fd4eec22f64a47a1a098d944d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::MultiLinearInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;::MultiLinearInterpolator</definition>
+        <argsstring>(const std::vector&lt; std::vector&lt; IndependentVariableType &gt; &gt; &amp;independentValues, const boost::multi_array&lt; DependentVariableType, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt; &amp;dependentData, const AvailableLookupScheme selectedLookupScheme, const BoundaryInterpolationType boundaryHandling, const DependentVariableType &amp;defaultExtrapolationValue=IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;())</argsstring>
+        <name>MultiLinearInterpolator</name>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; IndependentVariableType &gt; &gt; &amp;</type>
+          <declname>independentValues</declname>
+        </param>
+        <param>
+          <type>const boost::multi_array&lt; DependentVariableType, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt; &amp;</type>
+          <declname>dependentData</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+        </param>
+        <param>
+          <type>const DependentVariableType &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval><ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor taking independent and dependent variable data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor taking independent and dependent variable data. This constructor only requires one boundary handling method, and assumes it for each dimension. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of vectors containing data points of independent variables, each must be sorted in ascending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Multi-dimensional array of dependent data at each point of hyper-rectangular grid formed by independent variable points. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of lookupscheme from enum. This algorithm is used to find the nearest lower data point in the independent variables when requesting interpolation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method, in case independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Default value to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" line="147" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" bodystart="147" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1a67681ba587347490e34a17750ba99d34" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::MultiLinearInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;::~MultiLinearInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>~MultiLinearInterpolator</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" line="163" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" bodystart="163" bodyend="163"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1ac41f7ee6508212d5827fb461c850a75f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::interpolators::MultiLinearInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;::interpolate</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentValuesToInterpolate)</argsstring>
+        <name>interpolate</name>
+        <reimplements refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1aebae2bb3772c8a893a6d4f9be0836746">interpolate</reimplements>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentValuesToInterpolate</declname>
+        </param>
+        <briefdescription>
+<para>Function to perform interpolation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function performs the multilinear interpolation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentValuesToInterpolate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of values of independent variables at which the value of the dependent variable is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value of dependent variable in all dimensions. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" line="172" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" bodystart="172" bodyend="219"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1a752282853e96b40626d92b9f66191804" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::interpolators::MultiLinearInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;::makeLookupSchemes</definition>
+        <argsstring>(const AvailableLookupScheme selectedScheme)</argsstring>
+        <name>makeLookupSchemes</name>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedScheme</declname>
+        </param>
+        <briefdescription>
+<para>Make the lookup scheme that is to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function creates the look up scheme that is to be used in determining the interval of the independent variable grid where the interpolation is to be performed. It takes the type of lookup scheme as an enum and constructs the lookup scheme from the independentValues_ that have been set previously. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>selectedScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of look-up scheme that is to be used </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" line="231" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" bodystart="231" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1af7954445db472f1aa021107bd09be1b0" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::interpolators::MultiLinearInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;::performRecursiveInterpolationStep</definition>
+        <argsstring>(const unsigned int currentDimension, const std::vector&lt; IndependentVariableType &gt; &amp;independentValuesToInterpolate, boost::array&lt; unsigned int, NumberOfDimensions &gt; currentArrayIndices, const std::vector&lt; int &gt; &amp;nearestLowerIndices)</argsstring>
+        <name>performRecursiveInterpolationStep</name>
+        <param>
+          <type>const unsigned int</type>
+          <declname>currentDimension</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentValuesToInterpolate</declname>
+        </param>
+        <param>
+          <type>boost::array&lt; unsigned int, NumberOfDimensions &gt;</type>
+          <declname>currentArrayIndices</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>nearestLowerIndices</declname>
+        </param>
+        <briefdescription>
+<para>Perform the step in a single dimension of the interpolation process. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function calculates single dimension of the interpolation process. Function calls itself if final dimension not yet reached. Calling this function with currentDimension = 0 will result in 2^{NumberOfDimensions} number of calls to the function at currentDimension = NumberOfDimensions -1. As such, the complete series of calls, starting at currentDimension = 0, retrieves the dependent variable values at all edges of the grid hyper-rectangle and properly scales them. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentDimension</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimension in which this interpolation step is to be performed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentValuesToInterpolate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of values of independent variables at which interpolation is to be performed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentArrayIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of indices modified at index = currentDimension at each call of function. Variable is passed to dependentData in highest step to return data for interpolation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nearestLowerIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Indices in subvectors of independentValues_ vector. That is, the n-th entry of nearestLowerIndices represent the nearest lower neighbour in the n-th interpolation dimension of the independent variable vectors. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value in a single dimension </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" line="286" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" bodystart="286" bodyend="340"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for performing multi-linear interpolation for arbitrary number of independent variables. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for performing multi-linear interpolation for arbitrary number of independent variables. Interpolation is calculated recursively over all dimensions of independent variables. Note that the types (i.e. double, float) of all independent variables must be the same. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type for independent variables. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>DependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type for dependent variable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NumberOfDimensions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of independent variables. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::interpolators::MultiLinearInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1MultiLinearInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::MultiDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::interpolators::MultiLinearInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1MultiLinearInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::MultiDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType, NumberOfDimensions &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" line="60" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/multiLinearInterpolator.h" bodystart="62" bodyend="341"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a1a6effea51ef8760e8b89a5511718524" prot="protected" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>boundaryHandling_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a0b612aad913ae5cf69a72627029a271f" prot="protected" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>checkBoundaryCase</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a34a47806dcfd964a1c47084e15be52fa" prot="protected" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>checkInterpolationBoundary</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1ad5a2bfc8d8fd23cae50ee313c8de1e0a" prot="protected" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>defaultExtrapolationValue_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a1a11b350427b56f373111d050430f294" prot="protected" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>dependentData_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a4a4959a451d0145773e19015eb7eba08" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>getDependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a72e989ed7e1f52d45da5463a30a4b115" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>getIndependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a743ca4a89833f3caf973e1bae624671d" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>getLookUpScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a6eff921f1aea578ea1cf4d3965675774" prot="public" virt="virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>getNumberOfDimensions</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a05964484d7da556f534f712620b7b035" prot="protected" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>independentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1ac41f7ee6508212d5827fb461c850a75f" prot="public" virt="virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1ab5209f8a4b02144d42f59326d6c184ec" prot="protected" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>lookUpSchemes_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1a752282853e96b40626d92b9f66191804" prot="private" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>makeLookupSchemes</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1af28cffe9a71ce0509f3431a3f189cf78" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>MultiDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1ac2511ef8990a450c946aa4b9e2daea4f" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>MultiDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a13faee42591c2ddaffe1862bcfcf4bba" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>MultiDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1a9a62b03483927cc4a2df0ceed0232e04" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>MultiLinearInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1a0b3a360fd4eec22f64a47a1a098d944d" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>MultiLinearInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1af7954445db472f1aa021107bd09be1b0" prot="private" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>performRecursiveInterpolationStep</name></member>
+      <member refid="classtudat_1_1interpolators_1_1Interpolator_1ac6359fc3104b07fb6cac0b3b3221cc3d" prot="public" virt="virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>~Interpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_1a24c9d57247dd6d962b0adfe7bebca93f" prot="public" virt="virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>~MultiDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1MultiLinearInterpolator_1a67681ba587347490e34a17750ba99d34" prot="public" virt="non-virtual"><scope>tudat::interpolators::MultiLinearInterpolator</scope><name>~MultiLinearInterpolator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

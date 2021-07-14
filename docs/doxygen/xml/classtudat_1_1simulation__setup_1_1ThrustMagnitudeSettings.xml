@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ThrustMagnitudeSettings</compoundname>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1ConstantThrustMagnitudeSettings" prot="public" virt="non-virtual">tudat::simulation_setup::ConstantThrustMagnitudeSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1FromBodyThrustMagnitudeSettings" prot="public" virt="non-virtual">tudat::simulation_setup::FromBodyThrustMagnitudeSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1FromFunctionThrustMagnitudeSettings" prot="public" virt="non-virtual">tudat::simulation_setup::FromFunctionThrustMagnitudeSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings" prot="public" virt="non-virtual">tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings" prot="public" virt="non-virtual">tudat::simulation_setup::ParameterizedThrustMagnitudeSettings</derivedcompoundref>
+    <includes refid="thrustSettings_8h" local="no">thrustSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1a8574e339929d412745ebdc559b704ce0" prot="public" static="no" mutable="no">
+        <type>ThrustMagnitudeTypes</type>
+        <definition>ThrustMagnitudeTypes tudat::simulation_setup::ThrustMagnitudeSettings::thrustMagnitudeGuidanceType_</definition>
+        <argsstring></argsstring>
+        <name>thrustMagnitudeGuidanceType_</name>
+        <briefdescription>
+<para>Type of thrust magnitude guidance that is to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="368" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="368" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1a3cf9eb28d99dfdcf64c81813389ca717" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::ThrustMagnitudeSettings::thrustOriginId_</definition>
+        <argsstring></argsstring>
+        <name>thrustOriginId_</name>
+        <briefdescription>
+<para>Reference id of thrust origin that is to be used (empty if N/A). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="371" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="371" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1ad2429ec4d0fb80fa4e1d65c52accffc7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ThrustMagnitudeSettings::ThrustMagnitudeSettings</definition>
+        <argsstring>(const ThrustMagnitudeTypes thrustMagnitudeGuidanceType, const std::string &amp;thrustOriginId)</argsstring>
+        <name>ThrustMagnitudeSettings</name>
+        <param>
+          <type>const ThrustMagnitudeTypes</type>
+          <declname>thrustMagnitudeGuidanceType</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>thrustOriginId</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustMagnitudeGuidanceType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of thrust magnitude guidance that is to be used </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thrustOriginId</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference id of thrust origin that is to be used (empty if N/A). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="358" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="358" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1ae23cfe129141b5b7157e42149763f553" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::simulation_setup::ThrustMagnitudeSettings::~ThrustMagnitudeSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~ThrustMagnitudeSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="365" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="365" bodyend="365"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class defining settings for the thrust magnitude. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for providing settings the thrust magnitude of a single thrust model. This class is a functional (base) class for settings of thrust magnitude that require no information in addition to their type. Classes defining settings for thrust magnitude requiring additional information must be derived from this class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="6">
+        <label>tudat::simulation_setup::ParameterizedThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::simulation_setup::FromFunctionThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1FromFunctionThrustMagnitudeSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::simulation_setup::FromBodyThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1FromBodyThrustMagnitudeSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::ConstantThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ConstantThrustMagnitudeSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>thrustOriginId_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="348" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="349" bodyend="373"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1a8574e339929d412745ebdc559b704ce0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustMagnitudeSettings</scope><name>thrustMagnitudeGuidanceType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1ad2429ec4d0fb80fa4e1d65c52accffc7" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustMagnitudeSettings</scope><name>ThrustMagnitudeSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1a3cf9eb28d99dfdcf64c81813389ca717" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustMagnitudeSettings</scope><name>thrustOriginId_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1ae23cfe129141b5b7157e42149763f553" prot="public" virt="virtual"><scope>tudat::simulation_setup::ThrustMagnitudeSettings</scope><name>~ThrustMagnitudeSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

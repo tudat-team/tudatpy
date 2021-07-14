@@ -1,0 +1,414 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1input__output_1_1dictionary" kind="namespace" language="C++">
+    <compoundname>tudat::input_output::dictionary</compoundname>
+    <innerclass refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer" prot="public">tudat::input_output::dictionary::DictionaryComparer</innerclass>
+    <innerclass refid="structtudat_1_1input__output_1_1dictionary_1_1DictionaryEntry" prot="public">tudat::input_output::dictionary::DictionaryEntry</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="dictionaryComparer_8h_1a3040e5e55aa1c802e9950519943fdc1f" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer" kindref="compound">DictionaryComparer</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; DictionaryComparer &gt; tudat::input_output::dictionary::DictionaryComparerPointer</definition>
+        <argsstring></argsstring>
+        <name>DictionaryComparerPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer" kindref="compound">DictionaryComparer</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="145" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="dictionaryEntry_8h_1aca5936343aa4b62825ea85885715a1ef" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="structtudat_1_1input__output_1_1dictionary_1_1DictionaryEntry" kindref="compound">DictionaryEntry</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; DictionaryEntry &gt; tudat::input_output::dictionary::DictionaryEntryPointer</definition>
+        <argsstring></argsstring>
+        <name>DictionaryEntryPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to dictionary entry. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryEntry.h" line="112" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryEntry.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="dictionaryTools_8h_1a660e3df2f11c5ae9671842e747975cb8" prot="public" static="no">
+        <type>std::set&lt; DictionaryEntryPointer, <ref refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer" kindref="compound">DictionaryComparer</ref> &gt;</type>
+        <definition>typedef std::set&lt; DictionaryEntryPointer, DictionaryComparer &gt; tudat::input_output::dictionary::Dictionary</definition>
+        <argsstring></argsstring>
+        <name>Dictionary</name>
+        <briefdescription>
+<para>Typedef for dictionary containing dictionary entries. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" line="33" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="dictionaryTools_8h_1afb8793c699a1660c1fc49994632c3da9" prot="public" static="no">
+        <type>Dictionary::const_iterator</type>
+        <definition>typedef Dictionary::const_iterator tudat::input_output::dictionary::DictionaryIterator</definition>
+        <argsstring></argsstring>
+        <name>DictionaryIterator</name>
+        <briefdescription>
+<para>Typedef iterator pointing to elements of Dictionary. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" line="36" column="36" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="dictionaryTools_8h_1a0cef0ba4384962405b7a2cda229ed959" prot="public" static="no">
+        <type>std::shared_ptr&lt; Dictionary &gt;</type>
+        <definition>typedef std::shared_ptr&lt; Dictionary &gt; tudat::input_output::dictionary::DictionaryPointer</definition>
+        <argsstring></argsstring>
+        <name>DictionaryPointer</name>
+        <briefdescription>
+<para>Typedef for pointer to dictionary containing dictionary entries. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" line="39" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="dictionaryTools_8h_1a0d17f4f03248937861f8cca404d81701" prot="public" static="no">
+        <type>std::set&lt; DictionaryEntryPointer, <ref refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer" kindref="compound">DictionaryComparer</ref> &gt;</type>
+        <definition>typedef std::set&lt; DictionaryEntryPointer, DictionaryComparer &gt; tudat::input_output::dictionary::RequiredParametersList</definition>
+        <argsstring></argsstring>
+        <name>RequiredParametersList</name>
+        <briefdescription>
+<para>Typedef for list of required parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" line="42" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="dictionaryTools_8h_1afa8217388055500f2cf0fa0f4f743e52" prot="public" static="no">
+        <type>parsed_data_vector_utilities::ParsedDataVector::const_iterator</type>
+        <definition>typedef parsed_data_vector_utilities::ParsedDataVector::const_iterator tudat::input_output::dictionary::DataLineIterator</definition>
+        <argsstring></argsstring>
+        <name>DataLineIterator</name>
+        <briefdescription>
+<para>Typedef iterator pointing to elements of ParsedDataVector. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" line="45" column="72" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="dictionaryTools_8h_1ac1d846899499e92731106fc424f295a1" prot="public" static="no">
+        <type>std::set&lt; std::string &gt;</type>
+        <definition>typedef std::set&lt; std::string &gt; tudat::input_output::dictionary::StringSet</definition>
+        <argsstring></argsstring>
+        <name>StringSet</name>
+        <briefdescription>
+<para>Typedef for set of strings. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" line="48" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="dictionaryTools_8h_1a232bbf0e311ed64a11c5786b666143db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::input_output::dictionary::checkRequiredParameters</definition>
+        <argsstring>(const DictionaryPointer &amp;aDictionary)</argsstring>
+        <name>checkRequiredParameters</name>
+        <param>
+          <type>const DictionaryPointer &amp;</type>
+          <declname>aDictionary</declname>
+        </param>
+        <briefdescription>
+<para>Check required parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks that all required parameters have been defined. This function checks that all required parameters have been extracted by looping through the given dictionary and checking the isExtracted flag for each entry. If any required parameters are missing, an error is thrown, listing all the missing parameters. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aDictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dictionary to search through. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/dictionaryTools.cpp" line="26" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/dictionaryTools.cpp" bodystart="26" bodyend="68" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" declline="58" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="dictionaryTools_8h_1a6c8c70bad9002c9ecfd359dcd5bc0052" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::input_output::dictionary::addEntry</definition>
+        <argsstring>(const DictionaryPointer &amp;dictionary, const std::string &amp;parameterName, const bool isRequired, const bool isCaseSensitive, const StringSet &amp;someSynonyms=StringSet())</argsstring>
+        <name>addEntry</name>
+        <param>
+          <type>const DictionaryPointer &amp;</type>
+          <declname>dictionary</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>parameterName</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isRequired</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isCaseSensitive</declname>
+        </param>
+        <param>
+          <type>const StringSet &amp;</type>
+          <declname>someSynonyms</declname>
+          <defval>StringSet()</defval>
+        </param>
+        <briefdescription>
+<para>Add entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Adds a new dictionary entry in a given dictionary as a shared-pointer. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter dictionary. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter name. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isRequired</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flag to indicate if parameter is required. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isCaseSensitive</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flag to indicate if parameter name (and any synonyms) are case-sensitive. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>someSynonyms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set of synonyms. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/dictionaryTools.cpp" line="71" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/dictionaryTools.cpp" bodystart="71" bodyend="76" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" declline="69" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="dictionaryTools_8h_1a730fbc9d903a4246fd2d7b253c8a73fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>DictionaryIterator</type>
+        <definition>DictionaryIterator tudat::input_output::dictionary::findEntry</definition>
+        <argsstring>(const DictionaryPointer dictionary, const std::string &amp;parameterName)</argsstring>
+        <name>findEntry</name>
+        <param>
+          <type>const DictionaryPointer</type>
+          <declname>dictionary</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>parameterName</declname>
+        </param>
+        <briefdescription>
+<para>Find entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Searches through the specified dictionary for a given parameter name and tries to find a match. The string matching is EXACT (case-sensitive). If the parameter name cannot be found in the dictionary, a runtime error is thrown indicating this. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dictionary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter dictionary. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter name as string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Iterator to matched dictionary entry (this will not be returned if the runtime error is triggered, in case the entry cannot be found). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/dictionaryTools.cpp" line="79" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/dictionaryTools.cpp" bodystart="79" bodyend="95" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" declline="83" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="dictionaryTools_8h_1a0da9087e408c5c1fffa856d0db4e4bef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename DataType</type>
+          </param>
+        </templateparamlist>
+        <type>DataType</type>
+        <definition>DataType tudat::input_output::dictionary::convertDummy</definition>
+        <argsstring>(DataType value)</argsstring>
+        <name>convertDummy</name>
+        <param>
+          <type>DataType</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Convert dummy value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts dummy value. This function simply returns the input value. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>DataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type of input and output values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unaffected input value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" line="93" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" bodystart="93" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="dictionaryTools_8h_1aeb9ee49ca27055259ea9f646372d317c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename DataType</type>
+          </param>
+        </templateparamlist>
+        <type>DataType</type>
+        <definition>DataType tudat::input_output::dictionary::extractParameterValue</definition>
+        <argsstring>(const DataLineIterator &amp;firstDataLine, const DataLineIterator &amp;lastDataLine, const DictionaryIterator &amp;dictionaryEntry, const DataType &amp;defaultValue=DataType(), const std::function&lt; DataType(DataType) &gt; &amp;convert=&amp;convertDummy&lt; DataType &gt;)</argsstring>
+        <name>extractParameterValue</name>
+        <param>
+          <type>const DataLineIterator &amp;</type>
+          <declname>firstDataLine</declname>
+        </param>
+        <param>
+          <type>const DataLineIterator &amp;</type>
+          <declname>lastDataLine</declname>
+        </param>
+        <param>
+          <type>const DictionaryIterator &amp;</type>
+          <declname>dictionaryEntry</declname>
+        </param>
+        <param>
+          <type>const DataType &amp;</type>
+          <declname>defaultValue</declname>
+          <defval>DataType()</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; DataType(DataType) &gt; &amp;</type>
+          <declname>convert</declname>
+          <defval>&amp;convertDummy&lt; DataType &gt;</defval>
+        </param>
+        <briefdescription>
+<para>Extract parameter value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Extracts the value of a parameter, given a range of data lines to search through and a dictionary entry containing the characteristics of the parameter. This function searches through the given set of data lines for a match with the required parameter, specified by an iterator to a <ref refid="structtudat_1_1input__output_1_1dictionary_1_1DictionaryEntry" kindref="compound">DictionaryEntry</ref> object. The search takes synonyms and case-(in)sensitivity into account using the <ref refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer" kindref="compound">DictionaryComparer</ref> functor. A conversion function can also be specified to convert the parameter value on the fly. Also, in case the parameter is not found, and is not required, a default value can be specified. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>DataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type of parameter value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>firstDataLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Iterator to first ParsedDataVector element to search through in range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lastDataLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Iterator to last ParsedDataVector element to search through in range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dictionaryEntry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Iterator to a <ref refid="structtudat_1_1input__output_1_1dictionary_1_1DictionaryEntry" kindref="compound">DictionaryEntry</ref> object for the requested parameter. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Default value that is used in case the requested parameter is optional and can&apos;t be found. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>convert</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to conversion function, to convert parameter value on the fly. The default value for this pointer is a dummy function that does nothing to the parameter value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1input__output_1_1dictionary_1_1DictionaryComparer" kindref="compound">DictionaryComparer</ref>, <ref refid="structtudat_1_1input__output_1_1dictionary_1_1DictionaryEntry" kindref="compound">DictionaryEntry</ref>, ParsedDataVector, convertDummy(). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" line="116" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryTools.h" bodystart="116" bodyend="159"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/dictionaryComparer.h" line="29" column="1"/>
+  </compounddef>
+</doxygen>

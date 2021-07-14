@@ -1,0 +1,834 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="numericalIntegrator_8h" kind="file" language="C++">
+    <compoundname>numericalIntegrator.h</compoundname>
+    <includes local="no">iostream</includes>
+    <includes local="no">limits</includes>
+    <includes local="no">functional</includes>
+    <includes local="no">memory</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes refid="basicTypedefs_8h" local="yes">tudat/basics/basicTypedefs.h</includes>
+    <includes refid="timeType_8h" local="yes">tudat/basics/timeType.h</includes>
+    <includes refid="utilityMacros_8h" local="yes">tudat/basics/utilityMacros.h</includes>
+    <includes refid="mathematicalConstants_8h" local="yes">tudat/math/basic/mathematicalConstants.h</includes>
+    <includedby refid="integrateEquations_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h</includedby>
+    <includedby refid="adamsBashforthMoultonIntegrator_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h</includedby>
+    <includedby refid="bulirschStoerVariableStepsizeIntegrator_8h" local="no">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h</includedby>
+    <includedby refid="createNumericalIntegrator_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h</includedby>
+    <includedby refid="reinitializableNumericalIntegrator_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/reinitializableNumericalIntegrator.h</includedby>
+    <includedby refid="integrators_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators.h</includedby>
+    <includedby refid="numericalIntegrator_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/numericalIntegrator.cpp</includedby>
+    <incdepgraph>
+      <node id="4">
+        <label>functional</label>
+      </node>
+      <node id="3">
+        <label>limits</label>
+      </node>
+      <node id="9">
+        <label>cmath</label>
+      </node>
+      <node id="6">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="11">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/numericalIntegrator.h</label>
+        <link refid="numericalIntegrator_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="8">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>iostream</label>
+      </node>
+      <node id="14">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>complex</label>
+      </node>
+      <node id="10">
+        <label>algorithm</label>
+      </node>
+      <node id="5">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h</label>
+        <link refid="unscentedKalmanFilter_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h</label>
+        <link refid="bulirschStoerVariableStepsizeIntegrator_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h</label>
+        <link refid="dynamicsSimulator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h</label>
+        <link refid="rungeKutta4Integrator_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/getZeroProperModeRotationalInitialState.h</label>
+        <link refid="getZeroProperModeRotationalInitialState_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationLowThrustProblem.h</label>
+        <link refid="propagationLowThrustProblem_8h_source"/>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/defaultBodies.h</label>
+        <link refid="defaultBodies_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createStateDerivativeModel.h</label>
+        <link refid="createStateDerivativeModel_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h</label>
+        <link refid="createBodies_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h</label>
+        <link refid="createNumericalIntegrator_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators.h</label>
+        <link refid="propagators_8h_source"/>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/state.h</label>
+        <link refid="state_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h</label>
+        <link refid="rungeKuttaVariableStepSizeIntegrator_8h_source"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNumericalSimulator.h</label>
+        <link refid="createNumericalSimulator_8h_source"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/kalmanFilter.h</label>
+        <link refid="kalmanFilter_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/export.h</label>
+        <link refid="export_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/linearKalmanFilter.h</label>
+        <link refid="linearKalmanFilter_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/unitTestSupport.h</label>
+        <link refid="unitTestSupport_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h</label>
+        <link refid="getRecommendedBaseFunctionsHodographicShaping_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h</label>
+        <link refid="propagationLambertTargeterFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h</label>
+        <link refid="integrator_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/numericalIntegrator.h</label>
+        <link refid="numericalIntegrator_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup.h</label>
+        <link refid="environment__setup_8h_source"/>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="49">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/extendedKalmanFilter.h</label>
+        <link refid="extendedKalmanFilter_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h</label>
+        <link refid="euler_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h</label>
+        <link refid="variationalEquationsSolver_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="45">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h</label>
+        <link refid="createFilter_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="28">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="32">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createEstimatableParameters.h</label>
+        <link refid="createEstimatableParameters_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/filter.h</label>
+        <link refid="filter_8h_source"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h</label>
+        <link refid="lowThrustLegSettings_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h</label>
+        <link refid="hodographicShapingOptimisationSetup_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShaping.h</label>
+        <link refid="hodographicShaping_8h_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h</label>
+        <link refid="adamsBashforthMoultonIntegrator_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/body.h</label>
+        <link refid="interface_2json_2environment_2body_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h</label>
+        <link refid="integrateEquations_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+      <node id="57">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/reinitializableNumericalIntegrator.h</label>
+        <link refid="reinitializableNumericalIntegrator_8h_source"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators.h</label>
+        <link refid="integrators_8h_source"/>
+      </node>
+      <node id="46">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters.h</label>
+        <link refid="filters_8h_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" prot="public">tudat::numerical_integrators::NumericalIntegrator</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1numerical__integrators">tudat::numerical_integrators</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_NUMERICAL_INTEGRATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_NUMERICAL_INTEGRATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;functional&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/basics/basicTypedefs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/basics/timeType.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/basics/utilityMacros.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/basic/mathematicalConstants.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">numerical_integrators</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>IndependentVariableType<sp/>=<sp/>double,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>StateType<sp/>=<sp/>Eigen::VectorXd,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>StateDerivativeType<sp/>=<sp/>StateType,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeStepType<sp/>=<sp/>IndependentVariableType<sp/>&gt;</highlight></codeline>
+<codeline lineno="45" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator</ref></highlight></codeline>
+<codeline lineno="46"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>StateDerivativeType(</highlight></codeline>
+<codeline lineno="55" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>IndependentVariableType,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>StateType&amp;<sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">StateDerivativeFunction</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" kindref="member">NumericalIntegrator</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">StateDerivativeFunction</ref>&amp;<sp/>stateDerivativeFunction<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a9da0d5b84797f0f84783447c6b6cffcf" kindref="member">stateDerivativeFunction_</ref>(<sp/>stateDerivativeFunction<sp/>),</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1acda867c5c181bc9f00c8cab0d8b31a8b" kindref="member">propagationTerminationFunction_</ref>(<sp/>[<sp/>=<sp/>](<sp/>const<sp/>double,<sp/>const<sp/>double<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/>}<sp/>)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abaa3ce86883c7bc620b6473500557ccb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abaa3ce86883c7bc620b6473500557ccb" kindref="member">~NumericalIntegrator</ref>(<sp/>)<sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ab8b38ad002b10d53adf7b2c2282a86cc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>TimeStepType<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ab8b38ad002b10d53adf7b2c2282a86cc" kindref="member">getNextStepSize</ref>(<sp/>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a90b09d8d6a9b07d495bfabe9122748a1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>StateType<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a90b09d8d6a9b07d495bfabe9122748a1" kindref="member">getCurrentState</ref>(<sp/>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a8ca318a39081842472ccd1a165ec06a4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>IndependentVariableType<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a8ca318a39081842472ccd1a165ec06a4" kindref="member">getCurrentIndependentVariable</ref>(<sp/>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a87d34e8535b55d430a511fb7e345dc2b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a87d34e8535b55d430a511fb7e345dc2b" kindref="member">rollbackToPreviousState</ref>(<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a5a1c2e20cb6ca8ddcb51bab3b1c5bc39" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>IndependentVariableType<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a5a1c2e20cb6ca8ddcb51bab3b1c5bc39" kindref="member">getPreviousIndependentVariable</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Function<sp/>getPreviousIndependentVariable<sp/>not<sp/>implemented<sp/>in<sp/>this<sp/>integrator&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a83ea0ccadf61e7d630ea692b4f8454a8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>StateType<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a83ea0ccadf61e7d630ea692b4f8454a8" kindref="member">getPreviousState</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Function<sp/>getPreviousState<sp/>not<sp/>implemented<sp/>in<sp/>this<sp/>integrator&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>StateType<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" kindref="member">integrateTo</ref>(</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>IndependentVariableType<sp/>intervalEnd,</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeStepType<sp/>initialStepSize,</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeStepType<sp/>finalTimeTolerance<sp/>=<sp/>std::numeric_limits&lt;<sp/>TimeStepType<sp/>&gt;::epsilon(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a125da80be4a16cd933707212caefe8a5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>StateType<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a125da80be4a16cd933707212caefe8a5" kindref="member">performIntegrationStep</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeStepType<sp/>stepSize<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abe7509347b34000520da61da0e090c47" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">StateDerivativeFunction</ref><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abe7509347b34000520da61da0e090c47" kindref="member">getStateDerivativeFunction</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a9da0d5b84797f0f84783447c6b6cffcf" kindref="member">stateDerivativeFunction_</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a04532c99a84b6a68247c7134fbdb43ed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a04532c99a84b6a68247c7134fbdb43ed" kindref="member">getPropagationTerminationConditionReached</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a3ca1dd274c2cafb901624c5e5600082a" kindref="member">propagationTerminationConditionReachedDuringStep_</ref>;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aa1fa7e7a16150c2fd79e6daba5765644" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aa1fa7e7a16150c2fd79e6daba5765644" kindref="member">setPropagationTerminationFunction</ref>(<sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>terminationFunction<sp/>)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1acda867c5c181bc9f00c8cab0d8b31a8b" kindref="member">propagationTerminationFunction_</ref><sp/>=<sp/>terminationFunction;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aeb76143b70710fa15543fc3df7d5e132" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aeb76143b70710fa15543fc3df7d5e132" kindref="member">setStepSizeControl</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>useStepSizeControl<sp/>)<sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a64080c154d27dc673784b289deb1eb57" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a64080c154d27dc673784b289deb1eb57" kindref="member">modifyCurrentState</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>StateType&amp;<sp/>newState,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>allowRollback<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TUDAT_UNUSED_PARAMETER(<sp/>newState<sp/>);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TUDAT_UNUSED_PARAMETER(<sp/>allowRollback<sp/>);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>in<sp/>numerical<sp/>integrator.<sp/>The<sp/>function<sp/>to<sp/>modify<sp/>the<sp/>current<sp/>state<sp/>has<sp/>not<sp/>been<sp/>implemented&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a1730c343a1fdb730ff4e576c1144657e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a1730c343a1fdb730ff4e576c1144657e" kindref="member">modifyCurrentIntegrationVariables</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>StateType&amp;<sp/>newState,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>IndependentVariableType<sp/>newTime,</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>allowRollback<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TUDAT_UNUSED_PARAMETER(<sp/>newState<sp/>);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TUDAT_UNUSED_PARAMETER(<sp/>newTime<sp/>);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TUDAT_UNUSED_PARAMETER(<sp/>allowRollback<sp/>);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>in<sp/>numerical<sp/>integrator.<sp/>The<sp/>function<sp/>to<sp/>modify<sp/>the<sp/>current<sp/>integration<sp/>variables<sp/>has<sp/>not<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;been<sp/>implemented<sp/>in<sp/>this<sp/>integrator.&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a9da0d5b84797f0f84783447c6b6cffcf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">StateDerivativeFunction</ref><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a9da0d5b84797f0f84783447c6b6cffcf" kindref="member">stateDerivativeFunction_</ref>;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a3ca1dd274c2cafb901624c5e5600082a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a3ca1dd274c2cafb901624c5e5600082a" kindref="member">propagationTerminationConditionReachedDuringStep_</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1acda867c5c181bc9f00c8cab0d8b31a8b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>bool(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1acda867c5c181bc9f00c8cab0d8b31a8b" kindref="member">propagationTerminationFunction_</ref>;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator &lt; double, Eigen::VectorXd, Eigen::VectorXd &gt;</ref>;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator &lt; double, Eigen::Vector6d, Eigen::Vector6d &gt;</ref>;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator &lt; double, Eigen::MatrixXd, Eigen::MatrixXd &gt;</ref>;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="keyword">template</highlight><highlight class="normal">&lt;<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>IndependentVariableType,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>StateType,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>StateDerivativeType,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>TimeStepType<sp/>&gt;</highlight></codeline>
+<codeline lineno="269" refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" refkind="member"><highlight class="normal">StateType<sp/><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" kindref="member">NumericalIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::integrateTo</ref>(</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>IndependentVariableType<sp/>intervalEnd,</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeStepType<sp/>initialStepSize,</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>TimeStepType<sp/>finalTimeTolerance<sp/>)</highlight></codeline>
+<codeline lineno="273"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/>TimeStepType<sp/>stepSize<sp/>=<sp/>initialStepSize;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Flag<sp/>to<sp/>indicate<sp/>that<sp/>the<sp/>integration<sp/>end<sp/>value<sp/>of<sp/>the<sp/>independent<sp/>variable<sp/>has<sp/>been</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>reached.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>atIntegrationIntervalEnd<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/>TimeStepType<sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>intervalEnd<sp/>-<sp/>getCurrentIndependentVariable(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>stepSize<sp/>/<sp/>std::fabs(<sp/>stepSize<sp/>)</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;=<sp/>finalTimeTolerance;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>loopCounter<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(<sp/>!atIntegrationIntervalEnd<sp/>)</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>if<sp/>the<sp/>remaining<sp/>interval<sp/>is<sp/>smaller<sp/>than<sp/>the<sp/>step<sp/>size.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/>std::fabs(<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/>TimeStepType<sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>intervalEnd<sp/>-<sp/>getCurrentIndependentVariable(<sp/>)<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;=<sp/>std::fabs(<sp/>stepSize<sp/>)<sp/>*</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/>1.0<sp/>+<sp/>finalTimeTolerance<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>The<sp/>next<sp/>step<sp/>is<sp/>beyond<sp/>the<sp/>end<sp/>of<sp/>the<sp/>integration<sp/>interval,<sp/>so<sp/>adjust<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>step<sp/>size<sp/>accordingly.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stepSize<sp/>=<sp/>intervalEnd<sp/>-<sp/>getCurrentIndependentVariable(<sp/>);</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Explicitly<sp/>flag<sp/>that<sp/>the<sp/>integration<sp/>interval<sp/>end<sp/>is<sp/>reached.<sp/>Due<sp/>to<sp/>rounding</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>off<sp/>errors,<sp/>it<sp/>may<sp/>not<sp/>be<sp/>possible<sp/>to<sp/>use</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>(<sp/>currentIndependentVariable<sp/>&gt;=<sp/>independentVariableEnd<sp/>)<sp/>//<sp/>in<sp/>the<sp/>while<sp/>condition.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atIntegrationIntervalEnd<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Perform<sp/>the<sp/>step.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>performIntegrationStep(<sp/>stepSize<sp/>);</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stepSize<sp/>=<sp/>getNextStepSize(<sp/>);</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Only<sp/>applicable<sp/>to<sp/>adaptive<sp/>step<sp/>size<sp/>methods:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Perform<sp/>additional<sp/>step(s)<sp/>to<sp/>reach<sp/>intervalEnd<sp/>exactly,<sp/>in<sp/>case<sp/>the<sp/>last<sp/>step<sp/>was<sp/>rejected<sp/>by</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>the<sp/>variable<sp/>step<sp/>size<sp/>routine<sp/>and<sp/>a<sp/>new<sp/>step<sp/>was<sp/>used<sp/>that<sp/>was<sp/>too<sp/>small<sp/>to<sp/>get<sp/>to<sp/>intervalEnd.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/>atIntegrationIntervalEnd<sp/>)</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>As<sp/>long<sp/>as<sp/>intervalEnd<sp/>is<sp/>not<sp/>reached,<sp/>perform<sp/>additional<sp/>steps<sp/>with<sp/>the<sp/>remaining<sp/>time</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>as<sp/>suggested<sp/>step<sp/>size<sp/>for<sp/>the<sp/>variable<sp/>step<sp/>size<sp/>routine.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>std::fabs(<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/>TimeStepType<sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>intervalEnd<sp/>-<sp/>getCurrentIndependentVariable(<sp/>)<sp/>)<sp/>)<sp/>&gt;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>finalTimeTolerance<sp/>)</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Ensure<sp/>that<sp/>integrateTo<sp/>function<sp/>does<sp/>not<sp/>get<sp/>stuck<sp/>in<sp/>a<sp/>loop.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>loopCounter<sp/>&lt;<sp/>1000<sp/>)</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atIntegrationIntervalEnd<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>loopCounter++;</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Warning,<sp/>integrateTo<sp/>function<sp/>has<sp/>failed<sp/>to<sp/>converge<sp/>to<sp/>final<sp/>time<sp/>to<sp/>within<sp/>tolerances,<sp/>difference<sp/>between<sp/>true<sp/>and<sp/>requested<sp/>final<sp/>time<sp/>is<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intervalEnd<sp/>-<sp/>getCurrentIndependentVariable(<sp/>)<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>final<sp/>time<sp/>is:<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>getCurrentIndependentVariable(<sp/>)<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>getCurrentState(<sp/>);</highlight></codeline>
+<codeline lineno="331"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>NumericalIntegrator&lt;<sp/>&gt;<sp/>&gt;<sp/>NumericalIntegratorXdPointer;</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>NumericalIntegrator&lt;<sp/>double,<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;<sp/>NumericalIntegratordPointer;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>numerical_integrators</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_NUMERICAL_INTEGRATOR_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/numericalIntegrator.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,291 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</compoundname>
+    <derivedcompoundref refid="classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface" prot="public" virt="non-virtual">tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface</derivedcompoundref>
+    <includes refid="controlSurfaceAerodynamicCoefficientInterface_8h" local="no">controlSurfaceAerodynamicCoefficientInterface.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1add6d7eb16644057489243d5fbdbbf3cb" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; AerodynamicCoefficientsIndependentVariables &gt;</type>
+        <definition>std::vector&lt; AerodynamicCoefficientsIndependentVariables &gt; tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::independentVariableNames_</definition>
+        <argsstring></argsstring>
+        <name>independentVariableNames_</name>
+        <briefdescription>
+<para>Vector with identifiers for the physical meaning of each independent variable of the aerodynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="172" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1ac8d30947065270db44a70ba9344236c2" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::numberOfIndependentVariables_</definition>
+        <argsstring></argsstring>
+        <name>numberOfIndependentVariables_</name>
+        <briefdescription>
+<para>Number of independent variables upon which the force and moment coefficient increments depend. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of independent variables upon which the force and moment coefficient increments depend, i.e. the length of the vectors that should be used as input to updateCurrentCoefficients </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="179" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1ab7c7dfdd3e7190abac6021345145bc34" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::currentForceCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>currentForceCoefficients_</name>
+        <briefdescription>
+<para>The current force coefficient increments. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The force coefficients increments at the current flight condition. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="185" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a940f44e0431811d8a3c1832aca5f7015" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::currentMomentCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>currentMomentCoefficients_</name>
+        <briefdescription>
+<para>The current moment coefficient increments. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The moment coefficient increments at the current flight condition. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="191" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a6e394a5420a42d40ba7f7fd39d97dfbe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::ControlSurfaceIncrementAerodynamicInterface</definition>
+        <argsstring>(const std::vector&lt; AerodynamicCoefficientsIndependentVariables &gt; independentVariableNames)</argsstring>
+        <name>ControlSurfaceIncrementAerodynamicInterface</name>
+        <param>
+          <type>const std::vector&lt; AerodynamicCoefficientsIndependentVariables &gt;</type>
+          <declname>independentVariableNames</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableNames</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of independent variable names. Note that an error is shown if not exactly one of these is a control_surface_deflection_dependent. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="49" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="49" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a36dca5cbb78f5bc4069ed99292bf90a1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::~ControlSurfaceIncrementAerodynamicInterface</definition>
+        <argsstring>()</argsstring>
+        <name>~ControlSurfaceIncrementAerodynamicInterface</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="75" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="75" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a50d3f4808de9cab082355ba42a9121cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::updateCurrentCoefficients</definition>
+        <argsstring>(std::vector&lt; double &gt; &amp;independentVariables)=0</argsstring>
+        <name>updateCurrentCoefficients</name>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface_1a8c5c91fb0c3fb66e5b4a599f117a8ddc">updateCurrentCoefficients</reimplementedby>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Compute the aerodynamic coefficient increments of the control surface. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the current force and moment coefficients increments of the control surface, and is to be implemented in derived classes. Input is a set of independent variables (doubles) which represent the variables from which the coefficients are calculated <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variables of force and moment coefficient determination implemented by derived class </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="85" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a9a61e5e0e6d382c6831cbe47b7bbe16d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::getCurrentForceCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentForceCoefficients</name>
+        <briefdescription>
+<para>Function for returning current aerodynamic force coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for returning current aerodynamic force coefficients. <simplesect kind="return"><para>Force coefficients at current independent variables </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="93" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="93" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a341c2c3abdd8c8720dd8c9aaf558c847" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::getCurrentMomentCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentMomentCoefficients</name>
+        <briefdescription>
+<para>Function for returning current aerodynamic moment coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for returning current aerodynamic moment coefficients. <simplesect kind="return"><para>Moment coefficients at current independent variables </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="103" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="103" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1ac0c849aaef1ea3191be6a4bff68a5e1e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 6, 1 &gt; tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::getCurrentAerodynamicCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentAerodynamicCoefficients</name>
+        <briefdescription>
+<para>Function for returning current aerodynamic force and moment coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for returning current aerodynamic force and moment coefficients <simplesect kind="return"><para>Force and moment coefficients at given independent variables </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="113" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="113" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a4de28c86ae40212514d2dcec8eb2ec64" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; AerodynamicCoefficientsIndependentVariables &gt;</type>
+        <definition>std::vector&lt; AerodynamicCoefficientsIndependentVariables &gt; tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::getIndependentVariableNames</definition>
+        <argsstring>()</argsstring>
+        <name>getIndependentVariableNames</name>
+        <briefdescription>
+<para>Function to return the identifiers of the physical meaning of each independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the identifiers of the physical meaning of each independent variable of the aerodynamic coefficient interface. <simplesect kind="return"><para>A vector with the identifiers of the physical meaning of each independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="127" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="127" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a8b2249fbdca499f342f09fdaaa3f9545" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>AerodynamicCoefficientsIndependentVariables</type>
+        <definition>AerodynamicCoefficientsIndependentVariables tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::getIndependentVariableName</definition>
+        <argsstring>(const unsigned int index)</argsstring>
+        <name>getIndependentVariableName</name>
+        <param>
+          <type>const unsigned int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Function to return a single identifier of the physical meaning of one independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return a single identifier of the physical meaning of one of the independent independent variable of the coefficient interface. The index of the variable is defined by the input variable. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of list of identfiers to return </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The identifiers of the physical meaning of the independent variable at the position of the input variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="141" column="49" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="141" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1aaee06c7be7a99ece4c3531d2d0ad42c7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface::getNumberOfIndependentVariables</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfIndependentVariables</name>
+        <briefdescription>
+<para>Function to return the number of independent variables upon which the coeficients depend. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the number of independent variables upon which the coeficients depend. The size of the vector used as input for updateCurrentCoefficients should always have the size returned by this variable. <simplesect kind="return"><para>Number of independent variables upon which the coeficients depend </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="164" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="164" bodyend="167"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class to hold an aerodynamic coefficient interface for a vehicle control surface. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class to hold an aerodynamic coefficient interface for a vehicle control surface. This interface can, for instance, be a database of coefficients or an aerodynamic analysis code which generates coefficients.The aerodynamic coefficients are defined as a function of any number of independent variables, the physical meaning of which is stored in the coefficient interface. The control surface increment interface is always stored in an <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">AerodynamicCoefficientInterface</ref>, and never used independently in propagation. As such, the aerodynamic reference quantities of this interface are not stored here, but are instead implicitly assumed to be equal to the <ref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" kindref="compound">AerodynamicCoefficientInterface</ref> hosting it. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface"/>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1CustomControlSurfaceIncrementAerodynamicInterface"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h" bodystart="40" bodyend="192"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a6e394a5420a42d40ba7f7fd39d97dfbe" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>ControlSurfaceIncrementAerodynamicInterface</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1ab7c7dfdd3e7190abac6021345145bc34" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>currentForceCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a940f44e0431811d8a3c1832aca5f7015" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>currentMomentCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1ac0c849aaef1ea3191be6a4bff68a5e1e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>getCurrentAerodynamicCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a9a61e5e0e6d382c6831cbe47b7bbe16d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>getCurrentForceCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a341c2c3abdd8c8720dd8c9aaf558c847" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>getCurrentMomentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a8b2249fbdca499f342f09fdaaa3f9545" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>getIndependentVariableName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a4de28c86ae40212514d2dcec8eb2ec64" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>getIndependentVariableNames</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1aaee06c7be7a99ece4c3531d2d0ad42c7" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>getNumberOfIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1add6d7eb16644057489243d5fbdbbf3cb" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>independentVariableNames_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1ac8d30947065270db44a70ba9344236c2" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>numberOfIndependentVariables_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a50d3f4808de9cab082355ba42a9121cf" prot="public" virt="pure-virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>updateCurrentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1ControlSurfaceIncrementAerodynamicInterface_1a36dca5cbb78f5bc4069ed99292bf90a1" prot="public" virt="virtual"><scope>tudat::aerodynamics::ControlSurfaceIncrementAerodynamicInterface</scope><name>~ControlSurfaceIncrementAerodynamicInterface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

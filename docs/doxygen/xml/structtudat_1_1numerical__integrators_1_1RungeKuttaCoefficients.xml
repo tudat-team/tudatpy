@@ -1,0 +1,333 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::numerical_integrators::RungeKuttaCoefficients</compoundname>
+    <includes refid="rungeKuttaCoefficients_8h" local="no">rungeKuttaCoefficients.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a97f8cb87fe196aa1f07f2355d0e4f8a3" prot="public" static="no" strong="no">
+        <type></type>
+        <name>OrderEstimateToIntegrate</name>
+        <enumvalue id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a97f8cb87fe196aa1f07f2355d0e4f8a3a5c5c8a7137a458356ef892d36b621b1b" prot="public">
+          <name>lower</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a97f8cb87fe196aa1f07f2355d0e4f8a3ab4349168de45d4f7d4a1dc0b5a673d9b" prot="public">
+          <name>higher</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum of order estimates that can be integrated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="34" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="34" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="enum" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" prot="public" static="no" strong="no">
+        <type></type>
+        <name>CoefficientSets</name>
+        <enumvalue id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17adaf2e4a7474ed1408ad2a2109fd421f8" prot="public">
+          <name>undefinedCoefficientSet</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17a9e98384b38bbecf5fb954e88d1f407db" prot="public">
+          <name>rungeKuttaFehlberg45</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17ac9ec811862458cd791a269a8fce381b1" prot="public">
+          <name>rungeKuttaFehlberg56</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17afc4cab4e03b0fafdcb4d56b68f720394" prot="public">
+          <name>rungeKuttaFehlberg78</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17a5f6a3a80b13ec10a4292b87b5238e540" prot="public">
+          <name>rungeKutta87DormandPrince</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum of predefined coefficient sets. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="93" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="94" bodyend="100"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1aa3a5c88883d3e2fb4c13c693d8806c62" prot="public" static="no" mutable="no">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::numerical_integrators::RungeKuttaCoefficients::aCoefficients</definition>
+        <argsstring></argsstring>
+        <name>aCoefficients</name>
+        <briefdescription>
+<para>Main table of the Butcher tableau. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="37" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1ac74c7cb4330fa64ae632a4690c13047e" prot="public" static="no" mutable="no">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::numerical_integrators::RungeKuttaCoefficients::bCoefficients</definition>
+        <argsstring></argsstring>
+        <name>bCoefficients</name>
+        <briefdescription>
+<para>Bottom rows of the Butcher tableau. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="40" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1ab24ddd8697269e30f66eb9a0b53c345d" prot="public" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::numerical_integrators::RungeKuttaCoefficients::cCoefficients</definition>
+        <argsstring></argsstring>
+        <name>cCoefficients</name>
+        <briefdescription>
+<para>First column of the Butcher tableau. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="43" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a4cc0763688c5b430894b989d9fc594a0" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::numerical_integrators::RungeKuttaCoefficients::higherOrder</definition>
+        <argsstring></argsstring>
+        <name>higherOrder</name>
+        <briefdescription>
+<para>Order of the higher order estimate. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="46" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a988d19836e8a6310e20a1a905da39459" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::numerical_integrators::RungeKuttaCoefficients::lowerOrder</definition>
+        <argsstring></argsstring>
+        <name>lowerOrder</name>
+        <briefdescription>
+<para>Order of the lower order estimate. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="49" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1ae966d42ae651b1205c4f1bd36589cf6a" prot="public" static="no" mutable="no">
+        <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a97f8cb87fe196aa1f07f2355d0e4f8a3" kindref="member">OrderEstimateToIntegrate</ref></type>
+        <definition>OrderEstimateToIntegrate tudat::numerical_integrators::RungeKuttaCoefficients::orderEstimateToIntegrate</definition>
+        <argsstring></argsstring>
+        <name>orderEstimateToIntegrate</name>
+        <briefdescription>
+<para>Order estimate to integrate. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="52" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1adbfdb02514c94b8fee1bf4e82a2e8847" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::RungeKuttaCoefficients::RungeKuttaCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>RungeKuttaCoefficients</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor that initializes coefficients to 0. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="58" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="58" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a7e872ba39e98e8aba04ac23e3a68187a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::RungeKuttaCoefficients::RungeKuttaCoefficients</definition>
+        <argsstring>(const Eigen::MatrixXd &amp;aCoefficients_, const Eigen::MatrixXd &amp;bCoefficients_, const Eigen::MatrixXd &amp;cCoefficients_, const unsigned int higherOrder_, const unsigned int lowerOrder_, OrderEstimateToIntegrate order)</argsstring>
+        <name>RungeKuttaCoefficients</name>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>aCoefficients_</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>bCoefficients_</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>cCoefficients_</declname>
+        </param>
+        <param>
+          <type>const unsigned int</type>
+          <declname>higherOrder_</declname>
+        </param>
+        <param>
+          <type>const unsigned int</type>
+          <declname>lowerOrder_</declname>
+        </param>
+        <param>
+          <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a97f8cb87fe196aa1f07f2355d0e4f8a3" kindref="member">OrderEstimateToIntegrate</ref></type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor that sets the coefficients. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aCoefficients_</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Main table of the Butcher tableau. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bCoefficients_</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bottom rows of the Butcher tableau. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cCoefficients_</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column of the Butcher tableau. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>higherOrder_</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the integrator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lowerOrder_</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the embedded low-order integrator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Enum denoting whether to use the lower or higher order scheme for numerical integration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="78" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="78" bodyend="90"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1abadf6be2eb5a42a4890b40ddc707789f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> &amp;</type>
+        <definition>const RungeKuttaCoefficients &amp; tudat::numerical_integrators::RungeKuttaCoefficients::get</definition>
+        <argsstring>(CoefficientSets coefficientSet)</argsstring>
+        <name>get</name>
+        <param>
+          <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">CoefficientSets</ref></type>
+          <declname>coefficientSet</declname>
+        </param>
+        <briefdescription>
+<para>Get coefficients for a specified coefficient set. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns coefficients for a specified coefficient set. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coefficientSet</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The set to get the coefficients for. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The requested coefficient set. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="108" column="41" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" bodystart="415" bodyend="457"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Struct that defines the coefficients of a Runge-Kutta integrator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Struct that defines coefficients of a Runge-Kutta integrators </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="31" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="32" bodyend="109"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1aa3a5c88883d3e2fb4c13c693d8806c62" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>aCoefficients</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1ac74c7cb4330fa64ae632a4690c13047e" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>bCoefficients</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1ab24ddd8697269e30f66eb9a0b53c345d" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>cCoefficients</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>CoefficientSets</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1abadf6be2eb5a42a4890b40ddc707789f" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>get</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a97f8cb87fe196aa1f07f2355d0e4f8a3ab4349168de45d4f7d4a1dc0b5a673d9b" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>higher</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a4cc0763688c5b430894b989d9fc594a0" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>higherOrder</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a97f8cb87fe196aa1f07f2355d0e4f8a3a5c5c8a7137a458356ef892d36b621b1b" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>lower</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a988d19836e8a6310e20a1a905da39459" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>lowerOrder</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1ae966d42ae651b1205c4f1bd36589cf6a" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>orderEstimateToIntegrate</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a97f8cb87fe196aa1f07f2355d0e4f8a3" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>OrderEstimateToIntegrate</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17a5f6a3a80b13ec10a4292b87b5238e540" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>rungeKutta87DormandPrince</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1adbfdb02514c94b8fee1bf4e82a2e8847" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>RungeKuttaCoefficients</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a7e872ba39e98e8aba04ac23e3a68187a" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>RungeKuttaCoefficients</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17a9e98384b38bbecf5fb954e88d1f407db" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>rungeKuttaFehlberg45</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17ac9ec811862458cd791a269a8fce381b1" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>rungeKuttaFehlberg56</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17afc4cab4e03b0fafdcb4d56b68f720394" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>rungeKuttaFehlberg78</name></member>
+      <member refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17adaf2e4a7474ed1408ad2a2109fd421f8" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaCoefficients</scope><name>undefinedCoefficientSet</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

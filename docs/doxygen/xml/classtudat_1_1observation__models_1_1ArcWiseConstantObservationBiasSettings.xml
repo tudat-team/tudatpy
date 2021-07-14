@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::ArcWiseConstantObservationBiasSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationBiasSettings" prot="public" virt="non-virtual">tudat::observation_models::ObservationBiasSettings</basecompoundref>
+    <includes refid="createObservationModel_8h" local="no">createObservationModel.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1afcc307b3e4aaa12c9be377a050d06890" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::observation_models::ArcWiseConstantObservationBiasSettings::arcStartTimes_</definition>
+        <argsstring></argsstring>
+        <name>arcStartTimes_</name>
+        <briefdescription>
+<para>Start times for arcs in which biases (observationBiases) are used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="167" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="167" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1abc7e7f934e3a9dd2a17c6485481e0ccb" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; Eigen::VectorXd &gt;</type>
+        <definition>std::vector&lt; Eigen::VectorXd &gt; tudat::observation_models::ArcWiseConstantObservationBiasSettings::observationBiases_</definition>
+        <argsstring></argsstring>
+        <name>observationBiases_</name>
+        <briefdescription>
+<para>List of observation biases per arc. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="170" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1adcce64e68110a414f0979007b6a68f65" prot="public" static="no" mutable="no">
+        <type>LinkEndType</type>
+        <definition>LinkEndType tudat::observation_models::ArcWiseConstantObservationBiasSettings::linkEndForTime_</definition>
+        <argsstring></argsstring>
+        <name>linkEndForTime_</name>
+        <briefdescription>
+<para>Link end at which time is to be evaluated to determine current time (and current arc) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="173" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1ab23559e546bc554e9037d4b8833760c4" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::observation_models::ArcWiseConstantObservationBiasSettings::useAbsoluteBias_</definition>
+        <argsstring></argsstring>
+        <name>useAbsoluteBias_</name>
+        <briefdescription>
+<para>Boolean to denote whether an absolute or relative bias is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="176" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1a1e14ee37dc96df952c2e6077db3f47f4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ArcWiseConstantObservationBiasSettings::ArcWiseConstantObservationBiasSettings</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;arcStartTimes, const std::vector&lt; Eigen::VectorXd &gt; &amp;observationBiases, const LinkEndType linkEndForTime, const bool useAbsoluteBias)</argsstring>
+        <name>ArcWiseConstantObservationBiasSettings</name>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; Eigen::VectorXd &gt; &amp;</type>
+          <declname>observationBiases</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndForTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useAbsoluteBias</declname>
+        </param>
+        <briefdescription>
+<para>Constuctor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constuctor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start times for arcs in which biases (observationBiases) are used </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observationBiases</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of observation biases per arc </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndForTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which time is to be evaluated to determine current time (and current arc) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useAbsoluteBias</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether an absolute or relative bias is to be created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="136" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="136" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1a97da32e5a4f8c52de68d1c9262ba951e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ArcWiseConstantObservationBiasSettings::ArcWiseConstantObservationBiasSettings</definition>
+        <argsstring>(const std::map&lt; double, Eigen::VectorXd &gt; &amp;observationBiases, const LinkEndType linkEndForTime, const bool useAbsoluteBias)</argsstring>
+        <name>ArcWiseConstantObservationBiasSettings</name>
+        <param>
+          <type>const std::map&lt; double, Eigen::VectorXd &gt; &amp;</type>
+          <declname>observationBiases</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndForTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useAbsoluteBias</declname>
+        </param>
+        <briefdescription>
+<para>Constuctor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constuctor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationBiases</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of observation biases per arc, with bias as map value, and arc start time as map key </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndForTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which time is to be evaluated to determine current time (and current arc) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useAbsoluteBias</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether an absolute or relative bias is to be created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="153" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="153" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1a407645308a07bf325515b9fd59d13bff" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ArcWiseConstantObservationBiasSettings::~ArcWiseConstantObservationBiasSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~ArcWiseConstantObservationBiasSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="164" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="164" bodyend="164"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for defining settings for the creation of an arc-wise constant absolute or relative observation bias model. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationBiasSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationBiasSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::ArcWiseConstantObservationBiasSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationBiasSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationBiasSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::ArcWiseConstantObservationBiasSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="124" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="125" bodyend="177"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1afcc307b3e4aaa12c9be377a050d06890" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>arcStartTimes_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1a1e14ee37dc96df952c2e6077db3f47f4" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>ArcWiseConstantObservationBiasSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1a97da32e5a4f8c52de68d1c9262ba951e" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>ArcWiseConstantObservationBiasSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1adcce64e68110a414f0979007b6a68f65" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>linkEndForTime_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1abc7e7f934e3a9dd2a17c6485481e0ccb" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>observationBiases_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBiasSettings_1a8891d0de2b295dfdcf7c90658b330ff8" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>ObservationBiasSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBiasSettings_1a266bee2fa0cb992dcba900c518c1141c" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>observationBiasType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1ab23559e546bc554e9037d4b8833760c4" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>useAbsoluteBias_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ArcWiseConstantObservationBiasSettings_1a407645308a07bf325515b9fd59d13bff" prot="public" virt="non-virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>~ArcWiseConstantObservationBiasSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBiasSettings_1a38745c948766019a40516c791613445b" prot="public" virt="virtual"><scope>tudat::observation_models::ArcWiseConstantObservationBiasSettings</scope><name>~ObservationBiasSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

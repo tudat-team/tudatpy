@@ -1,0 +1,169 @@
+\hypertarget{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris}{}\doxysection{tudat\+::ephemerides\+::Constant\+Rotational\+Ephemeris Class Reference}
+\label{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris}\index{tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}}
+
+
+Rotational ephemeris class that gives a constant (i.\+e. time independent) state.  
+
+
+
+
+{\ttfamily \#include $<$constant\+Rotational\+Ephemeris.\+h$>$}
+
+Inheritance diagram for tudat\+::ephemerides\+::Constant\+Rotational\+Ephemeris\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a0554247e19f5d60ef07bdae436709803}{Constant\+Rotational\+Ephemeris}} (const Eigen\+::\+Vector7d constant\+State, const std\+::string \&base\+Frame\+Orientation=\char`\"{}\char`\"{}, const std\+::string \&target\+Frame\+Orientation=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor of a constant \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} object. \end{DoxyCompactList}\item 
+Eigen\+::\+Quaterniond \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a52e2d9c175cd13a65b2ac20dad5c6f84}{get\+Rotation\+To\+Base\+Frame}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Get rotation quaternion from target frame to base frame. \end{DoxyCompactList}\item 
+Eigen\+::\+Quaterniond \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_abd6ed21195ee351aaf00d60177608f3c}{get\+Rotation\+To\+Target\+Frame}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Get rotation quaternion from base frame to target frame. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix3d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a103af4ebe28bc515c0f7c4ab9efcc132}{get\+Derivative\+Of\+Rotation\+To\+Target\+Frame}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Function to calculate the derivative of the rotation matrix from base frame to target frame. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix3d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a22bcfaf2a7fade63fb5cc2df0b691fba}{get\+Derivative\+Of\+Rotation\+To\+Base\+Frame}} (const double seconds\+Since\+Epoch)
+\begin{DoxyCompactList}\small\item\em Function to calculate the derivative of the rotation matrix from target frame to base frame. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a95c71c6c768c3405ccb6049284f67e4d}{update\+Constant\+State}} (const Eigen\+::\+Vector7d \&new\+State)
+\begin{DoxyCompactList}\small\item\em Modifies the constant state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Rotational ephemeris class that gives a constant (i.\+e. time independent) state. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a0554247e19f5d60ef07bdae436709803}\label{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a0554247e19f5d60ef07bdae436709803}} 
+\index{tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}!ConstantRotationalEphemeris@{ConstantRotationalEphemeris}}
+\index{ConstantRotationalEphemeris@{ConstantRotationalEphemeris}!tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{ConstantRotationalEphemeris()}{ConstantRotationalEphemeris()}}
+{\footnotesize\ttfamily tudat\+::ephemerides\+::\+Constant\+Rotational\+Ephemeris\+::\+Constant\+Rotational\+Ephemeris (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector7d}]{constant\+State,  }\item[{const std\+::string \&}]{base\+Frame\+Orientation = {\ttfamily \char`\"{}\char`\"{}},  }\item[{const std\+::string \&}]{target\+Frame\+Orientation = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor of a constant \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} object. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em constant\+State} & Constant state value. \\
+\hline
+{\em base\+Frame\+Orientation} & Origin of reference frame in which state is defined. \\
+\hline
+{\em target\+Frame\+Orientation} & Orientation of reference frame in which state is defined. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a22bcfaf2a7fade63fb5cc2df0b691fba}\label{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a22bcfaf2a7fade63fb5cc2df0b691fba}} 
+\index{tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}!getDerivativeOfRotationToBaseFrame@{getDerivativeOfRotationToBaseFrame}}
+\index{getDerivativeOfRotationToBaseFrame@{getDerivativeOfRotationToBaseFrame}!tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getDerivativeOfRotationToBaseFrame()}{getDerivativeOfRotationToBaseFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix3d tudat\+::ephemerides\+::\+Constant\+Rotational\+Ephemeris\+::get\+Derivative\+Of\+Rotation\+To\+Base\+Frame (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to calculate the derivative of the rotation matrix from target frame to base frame. 
+
+Function to calculate the derivative of the rotation matrix from target frame to base frame at specified time. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which rotational ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Derivative of rotation from target (body-\/fixed) to base frame at specified time. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_ae3d4f6abdc820c309328747397b25afc}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a103af4ebe28bc515c0f7c4ab9efcc132}\label{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a103af4ebe28bc515c0f7c4ab9efcc132}} 
+\index{tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}!getDerivativeOfRotationToTargetFrame@{getDerivativeOfRotationToTargetFrame}}
+\index{getDerivativeOfRotationToTargetFrame@{getDerivativeOfRotationToTargetFrame}!tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getDerivativeOfRotationToTargetFrame()}{getDerivativeOfRotationToTargetFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix3d tudat\+::ephemerides\+::\+Constant\+Rotational\+Ephemeris\+::get\+Derivative\+Of\+Rotation\+To\+Target\+Frame (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to calculate the derivative of the rotation matrix from base frame to target frame. 
+
+Function to calculate the derivative of the rotation matrix from base frame to target frame at specified time. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which rotational ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Derivative of rotation from base to target (body-\/fixed) frame at specified time. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_a8749ef7c763d598973acf970c546c601}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a52e2d9c175cd13a65b2ac20dad5c6f84}\label{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a52e2d9c175cd13a65b2ac20dad5c6f84}} 
+\index{tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}!getRotationToBaseFrame@{getRotationToBaseFrame}}
+\index{getRotationToBaseFrame@{getRotationToBaseFrame}!tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getRotationToBaseFrame()}{getRotationToBaseFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Quaterniond tudat\+::ephemerides\+::\+Constant\+Rotational\+Ephemeris\+::get\+Rotation\+To\+Base\+Frame (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get rotation quaternion from target frame to base frame. 
+
+Function to calculate and return the rotation quaternion from target frame to base frame at specified time. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which rotational ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Rotation quaternion computed from target frame to base frame 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_a48c05e29f3a225433eb02feb09d1b77a}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_abd6ed21195ee351aaf00d60177608f3c}\label{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_abd6ed21195ee351aaf00d60177608f3c}} 
+\index{tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}!getRotationToTargetFrame@{getRotationToTargetFrame}}
+\index{getRotationToTargetFrame@{getRotationToTargetFrame}!tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{getRotationToTargetFrame()}{getRotationToTargetFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Quaterniond tudat\+::ephemerides\+::\+Constant\+Rotational\+Ephemeris\+::get\+Rotation\+To\+Target\+Frame (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Since\+Epoch }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get rotation quaternion from base frame to target frame. 
+
+Function to calculate and return the rotation quaternion from base frame to target frame at specified time. 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which rotational ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Rotation quaternion computed from base frame to target frame 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris_a569eeb2b7416693589b6f2b4707932a7}{tudat\+::ephemerides\+::\+Rotational\+Ephemeris}}.
+
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a95c71c6c768c3405ccb6049284f67e4d}\label{classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris_a95c71c6c768c3405ccb6049284f67e4d}} 
+\index{tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}!updateConstantState@{updateConstantState}}
+\index{updateConstantState@{updateConstantState}!tudat::ephemerides::ConstantRotationalEphemeris@{tudat::ephemerides::ConstantRotationalEphemeris}}
+\doxysubsubsection{\texorpdfstring{updateConstantState()}{updateConstantState()}}
+{\footnotesize\ttfamily void tudat\+::ephemerides\+::\+Constant\+Rotational\+Ephemeris\+::update\+Constant\+State (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector7d \&}]{new\+State }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Modifies the constant state. 
+
+Changes the constant state value to a new value. 
+\begin{DoxyParams}{Parameters}
+{\em new\+State} & New value for constant state. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/ephemerides/constant\+Rotational\+Ephemeris.\+h\end{DoxyCompactItemize}

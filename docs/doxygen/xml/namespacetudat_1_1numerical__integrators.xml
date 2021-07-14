@@ -1,0 +1,1387 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1numerical__integrators" kind="namespace" language="C++">
+    <compoundname>tudat::numerical_integrators</compoundname>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator" prot="public">tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1BulirschStoerVariableStepSizeIntegrator" prot="public">tudat::numerical_integrators::BulirschStoerVariableStepSizeIntegrator</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" prot="public">tudat::numerical_integrators::IntegratorSettings</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeBaseSettings" prot="public">tudat::numerical_integrators::RungeKuttaVariableStepSizeBaseSettings</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeSettingsScalarTolerances" prot="public">tudat::numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeSettingsVectorTolerances" prot="public">tudat::numerical_integrators::RungeKuttaVariableStepSizeSettingsVectorTolerances</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1BulirschStoerIntegratorSettings" prot="public">tudat::numerical_integrators::BulirschStoerIntegratorSettings</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonSettings" prot="public">tudat::numerical_integrators::AdamsBashforthMoultonSettings</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator" prot="public">tudat::numerical_integrators::EulerIntegrator</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" prot="public">tudat::numerical_integrators::NumericalIntegrator</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" prot="public">tudat::numerical_integrators::ReinitializableNumericalIntegrator</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator" prot="public">tudat::numerical_integrators::RungeKutta4Integrator</innerclass>
+    <innerclass refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" prot="public">tudat::numerical_integrators::RungeKuttaCoefficients</innerclass>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator" prot="public">tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="bulirschStoerVariableStepsizeIntegrator_8h_1ae44063514f4b6c8f266fdd93fda337b9" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ExtrapolationMethodStepSequences</name>
+        <enumvalue id="bulirschStoerVariableStepsizeIntegrator_8h_1ae44063514f4b6c8f266fdd93fda337b9afca909a15b1d54c625a286e643877f9f" prot="public">
+          <name>bulirsch_stoer_sequence</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="bulirschStoerVariableStepsizeIntegrator_8h_1ae44063514f4b6c8f266fdd93fda337b9a94fa0405f6ca6e93ea46f6ec62143650" prot="public">
+          <name>deufelhard_sequence</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Types of sequences available for extrapolation integration methods. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h" line="31" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h" bodystart="32" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="enum" id="createNumericalIntegrator_8h_1a9217171368524531f169da04dfdb63ac" prot="public" static="no" strong="no">
+        <type></type>
+        <name>AvailableIntegrators</name>
+        <enumvalue id="createNumericalIntegrator_8h_1a9217171368524531f169da04dfdb63acabdfa991b9237fdc142bfe9ffb39bee6d" prot="public">
+          <name>euler</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="createNumericalIntegrator_8h_1a9217171368524531f169da04dfdb63aca9eba04ae76ea482930ca66f76d6e398a" prot="public">
+          <name>rungeKutta4</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="createNumericalIntegrator_8h_1a9217171368524531f169da04dfdb63acaa1be57e6f9d03c946cb453785ec033b3" prot="public">
+          <name>rungeKuttaVariableStepSize</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="createNumericalIntegrator_8h_1a9217171368524531f169da04dfdb63acad1b03f5bfa808d0992c4224906f463e2" prot="public">
+          <name>bulirschStoer</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="createNumericalIntegrator_8h_1a9217171368524531f169da04dfdb63acac83809b22f805cc0eaec95927238b848" prot="public">
+          <name>adamsBashforthMoulton</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum to define available integrators. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="34" bodyend="40"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="adamsBashforthMoultonIntegrator_8h_1a5133c12720ce2e1ec8f1b7165b4c3b94" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator" kindref="compound">AdamsBashforthMoultonIntegrator</ref>&lt; &gt;</type>
+        <definition>typedef AdamsBashforthMoultonIntegrator&lt; &gt; tudat::numerical_integrators::AdamsBashforthMoultonIntegratorXd</definition>
+        <argsstring></argsstring>
+        <name>AdamsBashforthMoultonIntegratorXd</name>
+        <briefdescription>
+<para>Typedef of Adam-Bashforh-Moulton integrator (state/state derivative = VectorXd, independent variable = double). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of a Adams-Bashforth-Moulton integrator with VectorXds as state and state derivative and double as independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1056" column="41" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1056" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="adamsBashforthMoultonIntegrator_8h_1acc6e5815fd5c1b2397fe20a0013f53e3" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator" kindref="compound">AdamsBashforthMoultonIntegrator</ref>&lt; double, double, double, double &gt;</type>
+        <definition>typedef AdamsBashforthMoultonIntegrator&lt; double, double, double, double &gt; tudat::numerical_integrators::AdamsBashforthMoultonIntegratord</definition>
+        <argsstring></argsstring>
+        <name>AdamsBashforthMoultonIntegratord</name>
+        <briefdescription>
+<para>Typedef of a scalar Adams-Bashforth-Moulton integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of an Adams-Bashforth-Moulton integrator with doubles as state and state derivative and independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1063" column="41" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1063" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="adamsBashforthMoultonIntegrator_8h_1a98c279e7d6c549a0767dc3929340c62f" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator" kindref="compound">AdamsBashforthMoultonIntegratorXd</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; AdamsBashforthMoultonIntegratorXd &gt; tudat::numerical_integrators::AdamsBashforthMoultonIntegratorXdPointer</definition>
+        <argsstring></argsstring>
+        <name>AdamsBashforthMoultonIntegratorXdPointer</name>
+        <briefdescription>
+<para>Typedef of pointer to default Adams-Bashforth-Moulton integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of pointer to a Adams-Bashforth-Moulton integrator with VectorXds as state and state derivative and double as independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1070" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1070" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="adamsBashforthMoultonIntegrator_8h_1a119502ebc06b3063ce6ce8c1d5a6aac7" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator" kindref="compound">AdamsBashforthMoultonIntegratord</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; AdamsBashforthMoultonIntegratord &gt; tudat::numerical_integrators::AdamsBashforthMoultonIntegratordPointer</definition>
+        <argsstring></argsstring>
+        <name>AdamsBashforthMoultonIntegratordPointer</name>
+        <briefdescription>
+<para>Typedef of pointer to a scalar Adams-Bashforth-Moulton integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of pointer to an Adams-Bashforth-Moulton integrator with doubles as state and state derivative and independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1077" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1077" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="bulirschStoerVariableStepsizeIntegrator_8h_1ab676761818d0e2896f67b5ab8e5a5beb" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1BulirschStoerVariableStepSizeIntegrator" kindref="compound">BulirschStoerVariableStepSizeIntegrator</ref>&lt; &gt;</type>
+        <definition>typedef BulirschStoerVariableStepSizeIntegrator&lt; &gt; tudat::numerical_integrators::BulirschStoerVariableStepSizeIntegratorXd</definition>
+        <argsstring></argsstring>
+        <name>BulirschStoerVariableStepSizeIntegratorXd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of variable-step size Bulirsch-Stoer integrator (state/state derivative = VectorXd, independent variable = double).</para>
+<para>Typedef of a variable-step size Bulirsch-Stoer integrator with VectorXds as state and state derivative and double as independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h" line="521" column="49" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h" bodystart="521" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="createNumericalIntegrator_8h_1a62846cb75d1bc2beaf35f5531fa3867c" prot="public" static="no">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeSettingsScalarTolerances" kindref="compound">RungeKuttaVariableStepSizeSettingsScalarTolerances</ref>&lt; IndependentVariableType &gt;</type>
+        <definition>using tudat::numerical_integrators::RungeKuttaVariableStepSizeSettings = typedef RungeKuttaVariableStepSizeSettingsScalarTolerances&lt; IndependentVariableType &gt;</definition>
+        <argsstring></argsstring>
+        <name>RungeKuttaVariableStepSizeSettings</name>
+        <briefdescription>
+<para>Alias for variable step RK numerical integrator with scalar tolerances (added for compatibility with old code). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="321" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="321" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="euler_8h_1a6aab6d45d121bcf8d6e9bb5978e4e1d3" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator" kindref="compound">EulerIntegrator</ref>&lt; &gt;</type>
+        <definition>typedef EulerIntegrator&lt; &gt; tudat::numerical_integrators::EulerIntegratorXd</definition>
+        <argsstring></argsstring>
+        <name>EulerIntegratorXd</name>
+        <briefdescription>
+<para>Typedef of Euler integrator (state/state derivative = VectorXd, independent variable = double). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of an Euler integrator with VectorXds as state and state derivative and double as independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="242" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="242" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="euler_8h_1adc326118515e7ff01bfa68d6446b4099" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator" kindref="compound">EulerIntegrator</ref>&lt; double, double, double &gt;</type>
+        <definition>typedef EulerIntegrator&lt; double, double, double &gt; tudat::numerical_integrators::EulerIntegratord</definition>
+        <argsstring></argsstring>
+        <name>EulerIntegratord</name>
+        <briefdescription>
+<para>Typedef of a scalar Euler integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of a Euler integrator with doubles as state and state derivative and independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="248" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="248" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="euler_8h_1afb00b44943fe9e3cd80c8d308574211a" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator" kindref="compound">EulerIntegratorXd</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; EulerIntegratorXd &gt; tudat::numerical_integrators::EulerIntegratorXdPointer</definition>
+        <argsstring></argsstring>
+        <name>EulerIntegratorXdPointer</name>
+        <briefdescription>
+<para>Typedef for a shared-pointer to default Euler integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef for a shared-pointer to an Euler integrator with VectorXds as state and state derivative and double as independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="255" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="255" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="euler_8h_1a24eed904dcdaf040470e51ee22b25907" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1EulerIntegrator" kindref="compound">EulerIntegratord</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; EulerIntegratord &gt; tudat::numerical_integrators::EulerIntegratordPointer</definition>
+        <argsstring></argsstring>
+        <name>EulerIntegratordPointer</name>
+        <briefdescription>
+<para>Typedef of pointer to a scalar Euler integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of pointer to an Euler integrator with doubles as state and state derivative and independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" line="262" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/euler.h" bodystart="262" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="numericalIntegrator_8h_1a333e9c2c6d648790b0a59dd98fcb4756" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator</ref>&lt; &gt; &gt;</type>
+        <definition>typedef std::shared_ptr&lt; NumericalIntegrator&lt; &gt; &gt; tudat::numerical_integrators::NumericalIntegratorXdPointer</definition>
+        <argsstring></argsstring>
+        <name>NumericalIntegratorXdPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to default numerical integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef for shared-pointer to a default numerical integrator (IndependentVariableType = double, StateType = Eigen::VectorXd, StateDerivativeType = Eigen::VectorXd). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/numericalIntegrator.h" line="338" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/numericalIntegrator.h" bodystart="338" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="numericalIntegrator_8h_1a6beb26bc960ec1fcb60a403c4dbafcc6" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator</ref>&lt; double, double, double &gt; &gt;</type>
+        <definition>typedef std::shared_ptr&lt; NumericalIntegrator&lt; double, double, double &gt; &gt; tudat::numerical_integrators::NumericalIntegratordPointer</definition>
+        <argsstring></argsstring>
+        <name>NumericalIntegratordPointer</name>
+        <briefdescription>
+<para>Typedef for a shared-pointer to a scalar numerical integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef for shared-pointer to a scalar numerical integrator (IndependentVariableType = double, StateType = double, StateDerivativeType = double). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/numericalIntegrator.h" line="345" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/numericalIntegrator.h" bodystart="345" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="reinitializableNumericalIntegrator_8h_1a8d87dc95b407beabc9e2a8467801c1e0" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" kindref="compound">ReinitializableNumericalIntegrator</ref>&lt; &gt; &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ReinitializableNumericalIntegrator&lt; &gt; &gt; tudat::numerical_integrators::ReinitializableNumericalIntegratorXdPointer</definition>
+        <argsstring></argsstring>
+        <name>ReinitializableNumericalIntegratorXdPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to default, re-initializable numerical integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef for shared-pointer to a default, re-initializable numerical integrator (IndependentVariableType = double, StateType = Eigen::VectorXd, StateDerivativeType = Eigen::VectorXd). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/reinitializableNumericalIntegrator.h" line="79" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/reinitializableNumericalIntegrator.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="reinitializableNumericalIntegrator_8h_1a6e15af6f78b44b9db735a4780317256f" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" kindref="compound">ReinitializableNumericalIntegrator</ref>&lt; double, double, double &gt; &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ReinitializableNumericalIntegrator&lt; double, double, double &gt; &gt; tudat::numerical_integrators::ReinitializableNumericalIntegratordPointer</definition>
+        <argsstring></argsstring>
+        <name>ReinitializableNumericalIntegratordPointer</name>
+        <briefdescription>
+<para>Typedef for a shared-pointer to a scalar, re-initializable numerical integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef for shared-pointer to a scalar numerical, re-initializable integrator (IndependentVariableType = double, StateType = double, StateDerivativeType = double). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/reinitializableNumericalIntegrator.h" line="87" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/reinitializableNumericalIntegrator.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rungeKutta4Integrator_8h_1acf29c4d7b817e8b87b81f9ce49a0f8bd" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator" kindref="compound">RungeKutta4Integrator</ref>&lt; &gt;</type>
+        <definition>typedef RungeKutta4Integrator&lt; &gt; tudat::numerical_integrators::RungeKutta4IntegratorXd</definition>
+        <argsstring></argsstring>
+        <name>RungeKutta4IntegratorXd</name>
+        <briefdescription>
+<para>Typedef of RK4 integrator (state/state derivative = VectorXd, independent variable = double). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of a RK4 integrator with VectorXds as state and state derivative and double as independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h" line="289" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h" bodystart="289" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rungeKutta4Integrator_8h_1a9f99395b34cad435ec02bc2448370f8a" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator" kindref="compound">RungeKutta4Integrator</ref>&lt; double, double, double &gt;</type>
+        <definition>typedef RungeKutta4Integrator&lt; double, double, double &gt; tudat::numerical_integrators::RungeKutta4Integratord</definition>
+        <argsstring></argsstring>
+        <name>RungeKutta4Integratord</name>
+        <briefdescription>
+<para>Typedef of a scalar RK4 integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of an RK4 integrator with doubles as state and state derivative and independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h" line="296" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h" bodystart="296" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rungeKutta4Integrator_8h_1a58bb5928778217a4b3d2262b3bbfffc6" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator" kindref="compound">RungeKutta4IntegratorXd</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; RungeKutta4IntegratorXd &gt; tudat::numerical_integrators::RungeKutta4IntegratorXdPointer</definition>
+        <argsstring></argsstring>
+        <name>RungeKutta4IntegratorXdPointer</name>
+        <briefdescription>
+<para>Typedef of pointer to default RK4 integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of pointer to a RK4 integrator with VectorXds as state and state derivative and double as independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h" line="303" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h" bodystart="303" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rungeKutta4Integrator_8h_1ac5b35e949690bc910a1b15c7880a138c" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator" kindref="compound">RungeKutta4Integratord</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; RungeKutta4Integratord &gt; tudat::numerical_integrators::RungeKutta4IntegratordPointer</definition>
+        <argsstring></argsstring>
+        <name>RungeKutta4IntegratordPointer</name>
+        <briefdescription>
+<para>Typedef of pointer to a scalar RK4 integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of pointer to an RK4 integrator with doubles as state and state derivative and independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h" line="310" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKutta4Integrator.h" bodystart="310" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rungeKuttaCoefficients_8h_1a5e33e66a906caf44a8f44fbbb78ed3cc" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; RungeKuttaCoefficients &gt; tudat::numerical_integrators::RungeKuttaCoefficientsPointer</definition>
+        <argsstring></argsstring>
+        <name>RungeKuttaCoefficientsPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" line="112" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaCoefficients.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rungeKuttaVariableStepSizeIntegrator_8h_1a0fcb2abe90b69b2e7443c09c44290092" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator" kindref="compound">RungeKuttaVariableStepSizeIntegrator</ref>&lt; &gt;</type>
+        <definition>typedef RungeKuttaVariableStepSizeIntegrator&lt; &gt; tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd</definition>
+        <argsstring></argsstring>
+        <name>RungeKuttaVariableStepSizeIntegratorXd</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of variable-step size Runge-Kutta integrator (state/state derivative = VectorXd, independent variable = double).</para>
+<para>Typedef of a variable-step size Runge-Kutta integrator with VectorXds as state and state derivative and double as independent variable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="752" column="46" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="752" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rungeKuttaVariableStepSizeIntegrator_8h_1a863b99067ef4a5b988a35d983f5e5160" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator" kindref="compound">RungeKuttaVariableStepSizeIntegratorXd</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; RungeKuttaVariableStepSizeIntegratorXd &gt; tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXdPointer</definition>
+        <argsstring></argsstring>
+        <name>RungeKuttaVariableStepSizeIntegratorXdPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to RungeKuttaVariableStepSizeIntegratorXd object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="756" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="756" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="integrator_8h_1a464b9a152b79b1c47e498dd457ce677c" prot="public" static="yes" mutable="no">
+        <type>std::map&lt; AvailableIntegrators, std::string &gt;</type>
+        <definition>std::map&lt; AvailableIntegrators, std::string &gt; tudat::numerical_integrators::integratorTypes</definition>
+        <argsstring></argsstring>
+        <name>integratorTypes</name>
+        <initializer>=
+{
+    { rungeKutta4, &quot;rungeKutta4&quot; },
+    { euler, &quot;euler&quot; },
+    { rungeKuttaVariableStepSize, &quot;rungeKuttaVariableStepSize&quot; },
+    { adamsBashforthMoulton, &quot;adamsBashforthMoulton&quot; },
+    { bulirschStoer, &quot;bulirschStoer&quot; },
+}</initializer>
+        <briefdescription>
+<para>Map of <computeroutput>AvailableIntegrators</computeroutput> string representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="25" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="integrator_8h_1a2f98551688d8dd58865823f0e3b4693c" prot="public" static="yes" mutable="no">
+        <type>std::vector&lt; AvailableIntegrators &gt;</type>
+        <definition>std::vector&lt; AvailableIntegrators &gt; tudat::numerical_integrators::unsupportedIntegratorTypes</definition>
+        <argsstring></argsstring>
+        <name>unsupportedIntegratorTypes</name>
+        <initializer>= { }</initializer>
+        <briefdescription>
+<para><computeroutput>AvailableIntegrators</computeroutput> not supported by <computeroutput>json_interface</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="35" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="integrator_8h_1a747613e600e2bd6d0207adf34381ea97" prot="public" static="yes" mutable="no">
+        <type>std::map&lt; <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">RungeKuttaCoefficients::CoefficientSets</ref>, std::string &gt;</type>
+        <definition>std::map&lt; RungeKuttaCoefficients::CoefficientSets, std::string &gt; tudat::numerical_integrators::rungeKuttaCoefficientSets</definition>
+        <argsstring></argsstring>
+        <name>rungeKuttaCoefficientSets</name>
+        <initializer>=
+{
+    { RungeKuttaCoefficients::rungeKuttaFehlberg45, &quot;rungeKuttaFehlberg45&quot; },
+    { RungeKuttaCoefficients::rungeKuttaFehlberg56, &quot;rungeKuttaFehlberg56&quot; },
+    { RungeKuttaCoefficients::rungeKuttaFehlberg78, &quot;rungeKuttaFehlberg78&quot; },
+    { RungeKuttaCoefficients::rungeKutta87DormandPrince, &quot;rungeKutta87DormandPrince&quot; }
+}</initializer>
+        <briefdescription>
+<para>Map of <computeroutput><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">RungeKuttaCoefficients::CoefficientSets</ref></computeroutput> string representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="51" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="integrator_8h_1a2ba7260d4a3958f2b0993b3d3309f8be" prot="public" static="yes" mutable="no">
+        <type>std::vector&lt; <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">RungeKuttaCoefficients::CoefficientSets</ref> &gt;</type>
+        <definition>std::vector&lt; RungeKuttaCoefficients::CoefficientSets &gt; tudat::numerical_integrators::unsupportedRungeKuttaCoefficientSets</definition>
+        <argsstring></argsstring>
+        <name>unsupportedRungeKuttaCoefficientSets</name>
+        <initializer>= { }</initializer>
+        <briefdescription>
+<para><computeroutput><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">RungeKuttaCoefficients::CoefficientSets</ref></computeroutput> not supported by <computeroutput>json_interface</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="60" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="integrator_8h_1aa5ac270dff571ad9618a6c88261ff91c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const AvailableIntegrators &amp;availableIntegrator)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const AvailableIntegrators &amp;</type>
+          <declname>availableIntegrator</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>AvailableIntegrators</computeroutput> to <computeroutput>json</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="38" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="38" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="integrator_8h_1ad96b65a0d5d44b67355f0d5ecf1778ef" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, AvailableIntegrators &amp;availableIntegrator)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>AvailableIntegrators &amp;</type>
+          <declname>availableIntegrator</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>json</computeroutput> to <computeroutput>AvailableIntegrators</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="44" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="44" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="integrator_8h_1a495bbaafd480771a4bcada0a754a393f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const RungeKuttaCoefficients::CoefficientSets &amp;rungeKuttaCoefficientSet)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">RungeKuttaCoefficients::CoefficientSets</ref> &amp;</type>
+          <declname>rungeKuttaCoefficientSet</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">RungeKuttaCoefficients::CoefficientSets</ref></computeroutput> to <computeroutput>json</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="63" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="63" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="integrator_8h_1ab3aa3e65c758cb848d42a0ae3afa813e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, RungeKuttaCoefficients::CoefficientSets &amp;rungeKuttaCoefficientSet)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">RungeKuttaCoefficients::CoefficientSets</ref> &amp;</type>
+          <declname>rungeKuttaCoefficientSet</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>json</computeroutput> to <computeroutput><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">RungeKuttaCoefficients::CoefficientSets</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="69" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="69" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="integrator_8h_1a90b438dd163ac520d6559f343cdef3c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const std::shared_ptr&lt; IntegratorSettings&lt; TimeType &gt; &gt; &amp;integratorSettings)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; TimeType &gt; &gt; &amp;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>json</computeroutput> object from a shared pointer to an <computeroutput><ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref></computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="78" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="78" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="integrator_8h_1a469cac974e099f6368280fd748b149f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, std::shared_ptr&lt; IntegratorSettings&lt; TimeType &gt; &gt; &amp;integratorSettings)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; TimeType &gt; &gt; &amp;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>json</computeroutput> object from a shared pointer to an <computeroutput><ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref></computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="179" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" bodystart="179" bodyend="290"/>
+      </memberdef>
+      <memberdef kind="function" id="bulirschStoerVariableStepsizeIntegrator_8h_1ab728ee0025f304c39db8eb7acdf18b06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; unsigned int &gt;</type>
+        <definition>std::vector&lt; unsigned int &gt; tudat::numerical_integrators::getBulirschStoerStepSequence</definition>
+        <argsstring>(const ExtrapolationMethodStepSequences &amp;extrapolationMethodStepSequenceType=bulirsch_stoer_sequence, const unsigned int lengthOfSequence=12)</argsstring>
+        <name>getBulirschStoerStepSequence</name>
+        <param>
+          <type>const ExtrapolationMethodStepSequences &amp;</type>
+          <declname>extrapolationMethodStepSequenceType</declname>
+          <defval>bulirsch_stoer_sequence</defval>
+        </param>
+        <param>
+          <type>const unsigned int</type>
+          <declname>lengthOfSequence</declname>
+          <defval>12</defval>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>extrapolationMethodStepSequenceType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of sequence that is to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lengthOfSequence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of the sequence that is to be retrieved (default 12) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/bulirschStoerVariableStepsizeIntegrator.cpp" line="20" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/bulirschStoerVariableStepsizeIntegrator.cpp" bodystart="20" bodyend="47" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h" declline="44" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1a0127455c29ec179ae5c746f33a4bdf3e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; IntegratorSettings&lt; IndependentVariableType &gt; &gt; tudat::numerical_integrators::eulerSettings</definition>
+        <argsstring>(const IndependentVariableType initialTime, const IndependentVariableType initialTimeStep, const int saveFrequency=1, const bool assessTerminationOnMinorSteps=false)</argsstring>
+        <name>eulerSettings</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTimeStep</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>saveFrequency</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>assessTerminationOnMinorSteps</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="557" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="557" bodyend="565"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1aae37ebb35628877fe13153d3fa940e35" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; IntegratorSettings&lt; IndependentVariableType &gt; &gt; tudat::numerical_integrators::rungeKutta4Settings</definition>
+        <argsstring>(const IndependentVariableType initialTime, const IndependentVariableType initialTimeStep, const int saveFrequency=1, const bool assessTerminationOnMinorSteps=false)</argsstring>
+        <name>rungeKutta4Settings</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTimeStep</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>saveFrequency</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>assessTerminationOnMinorSteps</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="568" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="568" bodyend="576"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1a9de23d3eefc8f0da5cf34fe0507d4aa6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; IntegratorSettings&lt; IndependentVariableType &gt; &gt; tudat::numerical_integrators::rungeKuttaVariableStepSettingsScalarTolerances</definition>
+        <argsstring>(const IndependentVariableType initialTime, const IndependentVariableType initialTimeStep, const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet, const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize, const IndependentVariableType &amp;relativeErrorTolerance, const IndependentVariableType &amp;absoluteErrorTolerance, const int saveFrequency=1, const bool assessTerminationOnMinorSteps=false, const IndependentVariableType safetyFactorForNextStepSize=0.8, const IndependentVariableType maximumFactorIncreaseForNextStepSize=4.0, const IndependentVariableType minimumFactorDecreaseForNextStepSize=0.1)</argsstring>
+        <name>rungeKuttaVariableStepSettingsScalarTolerances</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTimeStep</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">numerical_integrators::RungeKuttaCoefficients::CoefficientSets</ref></type>
+          <declname>coefficientSet</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType &amp;</type>
+          <declname>relativeErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType &amp;</type>
+          <declname>absoluteErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>saveFrequency</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>assessTerminationOnMinorSteps</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>safetyFactorForNextStepSize</declname>
+          <defval>0.8</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumFactorIncreaseForNextStepSize</declname>
+          <defval>4.0</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumFactorDecreaseForNextStepSize</declname>
+          <defval>0.1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="579" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="579" bodyend="600"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1a1b8b3e27d20aac05ee2ba559f7fdd4f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; IntegratorSettings&lt; IndependentVariableType &gt; &gt; tudat::numerical_integrators::rungeKuttaVariableStepSettingsVectorTolerances</definition>
+        <argsstring>(const IndependentVariableType initialTime, const IndependentVariableType initialTimeStep, const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet, const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize, const Eigen::Matrix&lt; IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt; relativeErrorTolerance, const Eigen::Matrix&lt; IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt; absoluteErrorTolerance, const int saveFrequency=1, const bool assessTerminationOnMinorSteps=false, const IndependentVariableType safetyFactorForNextStepSize=0.8, const IndependentVariableType maximumFactorIncreaseForNextStepSize=4.0, const IndependentVariableType minimumFactorDecreaseForNextStepSize=0.1)</argsstring>
+        <name>rungeKuttaVariableStepSettingsVectorTolerances</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTimeStep</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_1a462b6c2e353f7f84ce09e693fb6c7f17" kindref="member">numerical_integrators::RungeKuttaCoefficients::CoefficientSets</ref></type>
+          <declname>coefficientSet</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+          <declname>relativeErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+          <declname>absoluteErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>saveFrequency</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>assessTerminationOnMinorSteps</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>safetyFactorForNextStepSize</declname>
+          <defval>0.8</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumFactorIncreaseForNextStepSize</declname>
+          <defval>4.0</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumFactorDecreaseForNextStepSize</declname>
+          <defval>0.1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="603" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="603" bodyend="626"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1ac49374c2aee46e81e6ec482515533562" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; IntegratorSettings&lt; IndependentVariableType &gt; &gt; tudat::numerical_integrators::bulirschStoerIntegratorSettings</definition>
+        <argsstring>(const IndependentVariableType initialTime, const IndependentVariableType initialTimeStep, const ExtrapolationMethodStepSequences extrapolationSequence, const unsigned int maximumNumberOfSteps, const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize, const IndependentVariableType relativeErrorTolerance=1.0E-12, const IndependentVariableType absoluteErrorTolerance=1.0E-12, const int saveFrequency=1, const bool assessTerminationOnMinorSteps=false, const IndependentVariableType safetyFactorForNextStepSize=0.7, const IndependentVariableType maximumFactorIncreaseForNextStepSize=10.0, const IndependentVariableType minimumFactorDecreaseForNextStepSize=0.1)</argsstring>
+        <name>bulirschStoerIntegratorSettings</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTimeStep</declname>
+        </param>
+        <param>
+          <type>const ExtrapolationMethodStepSequences</type>
+          <declname>extrapolationSequence</declname>
+        </param>
+        <param>
+          <type>const unsigned int</type>
+          <declname>maximumNumberOfSteps</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>relativeErrorTolerance</declname>
+          <defval>1.0E-12</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>absoluteErrorTolerance</declname>
+          <defval>1.0E-12</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>saveFrequency</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>assessTerminationOnMinorSteps</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>safetyFactorForNextStepSize</declname>
+          <defval>0.7</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumFactorIncreaseForNextStepSize</declname>
+          <defval>10.0</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumFactorDecreaseForNextStepSize</declname>
+          <defval>0.1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="629" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="629" bodyend="652"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1a6a1a467832a7cfee337fb025b95574f8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; IntegratorSettings&lt; IndependentVariableType &gt; &gt; tudat::numerical_integrators::adamsBashforthMoultonSettings</definition>
+        <argsstring>(const IndependentVariableType initialTime, const IndependentVariableType initialTimeStep, const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize, const IndependentVariableType relativeErrorTolerance=1.0E-12, const IndependentVariableType absoluteErrorTolerance=1.0E-12, const int minimumOrder=6, const int maximumOrder=11, const int saveFrequency=1, const bool assessTerminationOnMinorSteps=false, const IndependentVariableType bandwidth=200.)</argsstring>
+        <name>adamsBashforthMoultonSettings</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTimeStep</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>relativeErrorTolerance</declname>
+          <defval>1.0E-12</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>absoluteErrorTolerance</declname>
+          <defval>1.0E-12</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>minimumOrder</declname>
+          <defval>6</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+          <defval>11</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>saveFrequency</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>assessTerminationOnMinorSteps</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>bandwidth</declname>
+          <defval>200.</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="655" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="655" bodyend="674"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1ad931a0a6c3fe1fcc490a66d0b096bad5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+          <param>
+            <type>typename DependentVariableType</type>
+          </param>
+          <param>
+            <type>typename IndependentVariableStepType</type>
+            <defval>IndependentVariableType</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; IndependentVariableType, DependentVariableType,DependentVariableType, IndependentVariableStepType &gt; &gt; tudat::numerical_integrators::createIntegrator</definition>
+        <argsstring>(std::function&lt; DependentVariableType(const IndependentVariableType, const DependentVariableType &amp;) &gt; stateDerivativeFunction, const DependentVariableType initialState, std::shared_ptr&lt; IntegratorSettings&lt; IndependentVariableType &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator</name>
+        <param>
+          <type>std::function&lt; DependentVariableType(const IndependentVariableType, const DependentVariableType &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const DependentVariableType</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; IndependentVariableType &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+<para>Function to create a numerical integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a numerical integrator from given integrator settings, state derivative function and initial state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the state derivative from current time and state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state for numerical integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for numerical integrator. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Numerical integrator object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="687" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="687" bodyend="938"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1a43f6b1cd21cc73b9470b3999daafa2b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt; &gt;</type>
+        <definition>template std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt; &gt; tudat::numerical_integrators::createIntegrator&lt; double, Eigen::VectorXd, double &gt;</definition>
+        <argsstring>(std::function&lt; Eigen::VectorXd(const double, const Eigen::VectorXd &amp;) &gt; stateDerivativeFunction, const Eigen::VectorXd initialState, std::shared_ptr&lt; IntegratorSettings&lt; double &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator&lt; double, Eigen::VectorXd, double &gt;</name>
+        <param>
+          <type>std::function&lt; Eigen::VectorXd(const double, const Eigen::VectorXd &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; double &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="941" column="8" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" declline="941" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1afe152627fcf9baddab80730512ef203c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; double, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, double &gt; &gt;</type>
+        <definition>template std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; double, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, double &gt; &gt; tudat::numerical_integrators::createIntegrator&lt; double, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, double &gt;</definition>
+        <argsstring>(std::function&lt; Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;(const double, const Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt; &amp;) &gt; stateDerivativeFunction, const Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt; initialState, std::shared_ptr&lt; IntegratorSettings&lt; double &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator&lt; double, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, double &gt;</name>
+        <param>
+          <type>std::function&lt; Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;(const double, const Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt; &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; double &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="946" column="8" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" declline="946" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1a2227ef8f50c74b3e4ef099ebbe6ca756" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, Eigen::VectorXd, Eigen::VectorXd, long double &gt; &gt;</type>
+        <definition>template std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; Time, Eigen::VectorXd, Eigen::VectorXd, long double &gt; &gt; tudat::numerical_integrators::createIntegrator&lt; Time, Eigen::VectorXd, long double &gt;</definition>
+        <argsstring>(std::function&lt; Eigen::VectorXd(const Time, const Eigen::VectorXd &amp;) &gt; stateDerivativeFunction, const Eigen::VectorXd initialState, std::shared_ptr&lt; IntegratorSettings&lt; Time &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator&lt; Time, Eigen::VectorXd, long double &gt;</name>
+        <param>
+          <type>std::function&lt; Eigen::VectorXd(const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, const Eigen::VectorXd &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="952" column="8" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" declline="952" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8h_1a650c20de95ad41ea13a9032e91cbd53a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, long double &gt; &gt;</type>
+        <definition>template std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; Time, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, long double &gt; &gt; tudat::numerical_integrators::createIntegrator&lt; Time, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, long double &gt;</definition>
+        <argsstring>(std::function&lt; Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;(const Time, const Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt; &amp;) &gt; stateDerivativeFunction, const Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt; initialState, std::shared_ptr&lt; IntegratorSettings&lt; Time &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator&lt; Time, Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;, long double &gt;</name>
+        <param>
+          <type>std::function&lt; Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;(const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, const Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt; &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; long double, Eigen::Dynamic, 1 &gt;</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="957" column="8" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" declline="957" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8cpp_1af7d22bc4bd3df31e62e1fefed9c8a0c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; double, Eigen::MatrixXd, Eigen::MatrixXd, double &gt; &gt;</type>
+        <definition>template std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; double, Eigen::MatrixXd,Eigen::MatrixXd, double &gt; &gt; tudat::numerical_integrators::createIntegrator&lt; double, Eigen::MatrixXd, double &gt;</definition>
+        <argsstring>(std::function&lt; Eigen::MatrixXd(const double, const Eigen::MatrixXd &amp;) &gt; stateDerivativeFunction, const Eigen::MatrixXd initialState, std::shared_ptr&lt; IntegratorSettings&lt; double &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator&lt; double, Eigen::MatrixXd, double &gt;</name>
+        <param>
+          <type>std::function&lt; Eigen::MatrixXd(const double, const Eigen::MatrixXd &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; double &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/createNumericalIntegrator.cpp" line="33" column="1" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/createNumericalIntegrator.cpp" declline="33" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8cpp_1a0cfa4c7ecee8df3710f552157ef74a98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; double, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, double &gt; &gt;</type>
+        <definition>template std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; double, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;,Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, double &gt; &gt; tudat::numerical_integrators::createIntegrator&lt; double, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, double &gt;</definition>
+        <argsstring>(std::function&lt; Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;(const double, const Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;) &gt; stateDerivativeFunction, const Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt; initialState, std::shared_ptr&lt; IntegratorSettings&lt; double &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator&lt; double, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, double &gt;</name>
+        <param>
+          <type>std::function&lt; Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;(const double, const Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; double &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/createNumericalIntegrator.cpp" line="38" column="1" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/createNumericalIntegrator.cpp" declline="38" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8cpp_1a20a738b3e8907eb293ff5a889d3db6c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, Eigen::MatrixXd, Eigen::MatrixXd, long double &gt; &gt;</type>
+        <definition>template std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; Time, Eigen::MatrixXd,Eigen::MatrixXd, long double &gt; &gt; tudat::numerical_integrators::createIntegrator&lt; Time, Eigen::MatrixXd, long double &gt;</definition>
+        <argsstring>(std::function&lt; Eigen::MatrixXd(const Time, const Eigen::MatrixXd &amp;) &gt; stateDerivativeFunction, const Eigen::MatrixXd initialState, std::shared_ptr&lt; IntegratorSettings&lt; Time &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator&lt; Time, Eigen::MatrixXd, long double &gt;</name>
+        <param>
+          <type>std::function&lt; Eigen::MatrixXd(const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, const Eigen::MatrixXd &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/createNumericalIntegrator.cpp" line="44" column="1" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/createNumericalIntegrator.cpp" declline="44" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="createNumericalIntegrator_8cpp_1aa6390815e94f8caf886f492e70903ae5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">numerical_integrators::NumericalIntegrator</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, long double &gt; &gt;</type>
+        <definition>template std::shared_ptr&lt; numerical_integrators::NumericalIntegrator&lt; Time, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;,Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, long double &gt; &gt; tudat::numerical_integrators::createIntegrator&lt; Time, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, long double &gt;</definition>
+        <argsstring>(std::function&lt; Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;(const Time, const Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;) &gt; stateDerivativeFunction, const Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt; initialState, std::shared_ptr&lt; IntegratorSettings&lt; Time &gt; &gt; integratorSettings)</argsstring>
+        <name>createIntegrator&lt; Time, Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;, long double &gt;</name>
+        <param>
+          <type>std::function&lt; Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;(const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, const Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; long double, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">IntegratorSettings</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/createNumericalIntegrator.cpp" line="49" column="1" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/createNumericalIntegrator.cpp" declline="49" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="rungeKuttaCoefficients_8cpp_1a7b8245b503533d89527597b2394eff90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::initializeRungeKuttaFehlberg45Coefficients</definition>
+        <argsstring>(RungeKuttaCoefficients &amp;rungeKuttaFehlberg45Coefficients)</argsstring>
+        <name>initializeRungeKuttaFehlberg45Coefficients</name>
+        <param>
+          <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> &amp;</type>
+          <declname>rungeKuttaFehlberg45Coefficients</declname>
+        </param>
+        <briefdescription>
+<para>Initialize RKF45 coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" line="31" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" bodystart="31" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="rungeKuttaCoefficients_8cpp_1a243c98b9ae87c10e8f862f27faccace1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::initializeRungeKuttaFehlberg56Coefficients</definition>
+        <argsstring>(RungeKuttaCoefficients &amp;rungeKuttaFehlberg56Coefficients)</argsstring>
+        <name>initializeRungeKuttaFehlberg56Coefficients</name>
+        <param>
+          <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> &amp;</type>
+          <declname>rungeKuttaFehlberg56Coefficients</declname>
+        </param>
+        <briefdescription>
+<para>Initialize RKF56 coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" line="91" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" bodystart="91" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="rungeKuttaCoefficients_8cpp_1a8982fbd9cf6c074e444fd5335b6f41e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::initializeRungeKuttaFehlberg78Coefficients</definition>
+        <argsstring>(RungeKuttaCoefficients &amp;rungeKuttaFehlberg78Coefficients)</argsstring>
+        <name>initializeRungeKuttaFehlberg78Coefficients</name>
+        <param>
+          <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> &amp;</type>
+          <declname>rungeKuttaFehlberg78Coefficients</declname>
+        </param>
+        <briefdescription>
+<para>Initialize RKF78 coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" line="164" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" bodystart="164" bodyend="284"/>
+      </memberdef>
+      <memberdef kind="function" id="rungeKuttaCoefficients_8cpp_1afcc5bdd49160f03217aa96e8b5d1afc2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::initializerungeKutta87DormandPrinceCoefficients</definition>
+        <argsstring>(RungeKuttaCoefficients &amp;rungeKutta87DormandPrinceCoefficients)</argsstring>
+        <name>initializerungeKutta87DormandPrinceCoefficients</name>
+        <param>
+          <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> &amp;</type>
+          <declname>rungeKutta87DormandPrinceCoefficients</declname>
+        </param>
+        <briefdescription>
+<para>Initialize RK87 (Dormand and Prince) coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" line="287" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/integrators/rungeKuttaCoefficients.cpp" bodystart="287" bodyend="412"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/math/integrator.h" line="21" column="1"/>
+  </compounddef>
+</doxygen>

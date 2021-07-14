@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_8941148a7172d6959e7c700f3618ee5c" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments</compoundname>
+    <innerfile refid="escapeAndCapture_8cpp">escapeAndCapture.cpp</innerfile>
+    <innerfile refid="gravityAssist_8cpp">gravityAssist.cpp</innerfile>
+    <innerfile refid="improvedInversePolynomialWall_8cpp">improvedInversePolynomialWall.cpp</innerfile>
+    <innerfile refid="lambertRoutines_8cpp">lambertRoutines.cpp</innerfile>
+    <innerfile refid="lambertTargeterGooding_8cpp">lambertTargeterGooding.cpp</innerfile>
+    <innerfile refid="lambertTargeterIzzo_8cpp">lambertTargeterIzzo.cpp</innerfile>
+    <innerfile refid="multiRevolutionLambertTargeterIzzo_8cpp">multiRevolutionLambertTargeterIzzo.cpp</innerfile>
+    <innerfile refid="oscillatingFunctionNovak_8cpp">oscillatingFunctionNovak.cpp</innerfile>
+    <innerfile refid="zeroRevolutionLambertTargeterIzzo_8cpp">zeroRevolutionLambertTargeterIzzo.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1FieldTransform" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::input_output::FieldTransform</compoundname>
+    <derivedcompoundref refid="classtudat_1_1input__output_1_1LinearFieldTransform" prot="public" virt="non-virtual">tudat::input_output::LinearFieldTransform</derivedcompoundref>
+    <includes refid="fieldTransform_8h" local="no">fieldTransform.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1FieldTransform_1af96f02794dd22ee9db116bb83f81f0a9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::input_output::FieldTransform::~FieldTransform</definition>
+        <argsstring>()</argsstring>
+        <name>~FieldTransform</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldTransform.h" line="36" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldTransform.h" bodystart="36" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1FieldTransform_1ada04c5a176670ac008e69ceabd61f537" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::shared_ptr&lt; std::string &gt;</type>
+        <definition>virtual std::shared_ptr&lt; std::string &gt; tudat::input_output::FieldTransform::transform</definition>
+        <argsstring>(const std::string &amp;input)=0</argsstring>
+        <name>transform</name>
+        <reimplementedby refid="classtudat_1_1input__output_1_1LinearFieldTransform_1a23717b970ceead4ff08e6bf6c86ef5ed">transform</reimplementedby>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>input</declname>
+        </param>
+        <briefdescription>
+<para>Transform input string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns a transformed string. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>input</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Shared-pointer to transformed string. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldTransform.h" line="44" column="29"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Field transform base class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This abstract class belongs to the parser-extractor architecture implemented in Tudat. This base class can be used to derive specific transformation classes that take strings and return shared-pointers to transformed strings. <simplesect kind="see"><para><ref refid="classtudat_1_1input__output_1_1Extractor" kindref="compound">Extractor</ref>, <ref refid="classtudat_1_1input__output_1_1Parser" kindref="compound">Parser</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::input_output::FieldTransform</label>
+        <link refid="classtudat_1_1input__output_1_1FieldTransform"/>
+      </node>
+      <node id="2">
+        <label>tudat::input_output::LinearFieldTransform</label>
+        <link refid="classtudat_1_1input__output_1_1LinearFieldTransform"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldTransform.h" line="31" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/fieldTransform.h" bodystart="32" bodyend="49"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1FieldTransform_1ada04c5a176670ac008e69ceabd61f537" prot="public" virt="pure-virtual"><scope>tudat::input_output::FieldTransform</scope><name>transform</name></member>
+      <member refid="classtudat_1_1input__output_1_1FieldTransform_1af96f02794dd22ee9db116bb83f81f0a9" prot="public" virt="virtual"><scope>tudat::input_output::FieldTransform</scope><name>~FieldTransform</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

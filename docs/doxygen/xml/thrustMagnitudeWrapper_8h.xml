@@ -1,0 +1,1843 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="thrustMagnitudeWrapper_8h" kind="file" language="C++">
+    <compoundname>thrustMagnitudeWrapper.h</compoundname>
+    <includes local="no">memory</includes>
+    <includes local="no">functional</includes>
+    <includes local="no">boost/lambda/lambda.hpp</includes>
+    <includes local="no">iostream</includes>
+    <includes refid="engineModel_8h" local="yes">tudat/astro/system_models/engineModel.h</includes>
+    <includes refid="interpolator_8h" local="yes">tudat/math/interpolators/interpolator.h</includes>
+    <includes refid="modifiedEquinoctialElementConversions_8h" local="yes">tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h</includes>
+    <includedby refid="thrustAccelerationModel_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustAccelerationModel.h</includedby>
+    <includedby refid="propulsion_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion.h</includedby>
+    <includedby refid="createThrustModelGuidance_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createThrustModelGuidance.h</includedby>
+    <includedby refid="thrustSettings_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h</includedby>
+    <includedby refid="hybridMethod_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/hybridMethod.cpp</includedby>
+    <includedby refid="createAccelerationModels_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/propagation_setup/createAccelerationModels.cpp</includedby>
+    <incdepgraph>
+      <node id="4">
+        <label>boost/lambda/lambda.hpp</label>
+      </node>
+      <node id="3">
+        <label>functional</label>
+      </node>
+      <node id="12">
+        <label>limits</label>
+      </node>
+      <node id="34">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>boost/math/special_functions/atanh.hpp</label>
+      </node>
+      <node id="28">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="22">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>cmath</label>
+      </node>
+      <node id="42">
+        <label>tudat/math/root_finders/newtonRaphson.h</label>
+        <link refid="newtonRaphson_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>stdexcept</label>
+      </node>
+      <node id="7">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="38">
+        <label>string</label>
+      </node>
+      <node id="26">
+        <label>tudat/astro/basic_astro/orbitalElementConversions.h</label>
+        <link refid="orbitalElementConversions_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>map</label>
+      </node>
+      <node id="25">
+        <label>tudat/astro/basic_astro/missionGeometry.h</label>
+        <link refid="missionGeometry_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>tudat/math/basic/functionProxy.h</label>
+        <link refid="functionProxy_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat/astro/propulsion/thrustFunctions.h</label>
+        <link refid="thrustFunctions_8h_source"/>
+      </node>
+      <node id="33">
+        <label>tudat/math/root_finders/createRootFinder.h</label>
+        <link refid="createRootFinder_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="24">
+        <label>tudat/astro/basic_astro/stateVectorIndices.h</label>
+        <link refid="stateVectorIndices_8h_source"/>
+      </node>
+      <node id="20">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat/astro/system_models/engineModel.h</label>
+        <link refid="engineModel_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>tudat/math/root_finders/halleyRootFinder.h</label>
+        <link refid="halleyRootFinder_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h</label>
+        <link refid="thrustMagnitudeWrapper_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>boost/math/special_functions/asinh.hpp</label>
+      </node>
+      <node id="14">
+        <label>vector</label>
+      </node>
+      <node id="39">
+        <label>tudat/math/root_finders/bisection.h</label>
+        <link refid="bisection_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="47">
+        <label>tudat/math/basic/basicFunction.h</label>
+        <link refid="basicFunction_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>tudat/math/basic/convergenceException.h</label>
+        <link refid="convergenceException_8h_source"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h</label>
+        <link refid="modifiedEquinoctialElementConversions_8h_source"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>iostream</label>
+      </node>
+      <node id="9">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="29">
+        <label>tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h</label>
+        <link refid="convertMeanToEccentricAnomalies_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>tudat/math/root_finders/secantRootFinder.h</label>
+        <link refid="secantRootFinder_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>type_traits</label>
+      </node>
+      <node id="31">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="10">
+        <label>complex</label>
+      </node>
+      <node id="16">
+        <label>algorithm</label>
+      </node>
+      <node id="2">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="65">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h</label>
+        <link refid="inertiaTensorPartial_8h_source"/>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/variationalEquations.h</label>
+        <link refid="variationalEquations_8h_source"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="76">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelQuaternionsStateDerivative.h</label>
+        <link refid="nBodyUnifiedStateModelQuaternionsStateDerivative_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h</label>
+        <link refid="directTidalDissipationAccelerationPartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="71">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyCowellStateDerivative.h</label>
+        <link refid="nBodyCowellStateDerivative_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h</label>
+        <link refid="panelledRadiationPressureAccelerationPartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/radiationPressureAccelerationPartial.h</label>
+        <link refid="radiationPressureAccelerationPartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h</label>
+        <link refid="dynamicsSimulator_8h_source"/>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="67">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h</label>
+        <link refid="stateDerivativePartial_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h</label>
+        <link refid="propagationTermination_8h_source"/>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutput.h</label>
+        <link refid="propagationOutput_8h_source"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h</label>
+        <link refid="accelerationPartial_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/acceleration.h</label>
+        <link refid="acceleration_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/dynamicsStateDerivativeModel.h</label>
+        <link refid="dynamicsStateDerivativeModel_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h</label>
+        <link refid="sphericalHarmonicGravitationalTorquePartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h</label>
+        <link refid="aerodynamicAccelerationPartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/getZeroProperModeRotationalInitialState.h</label>
+        <link refid="getZeroProperModeRotationalInitialState_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="81">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationLowThrustProblem.h</label>
+        <link refid="propagationLowThrustProblem_8h_source"/>
+      </node>
+      <node id="55">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/defaultBodies.h</label>
+        <link refid="defaultBodies_8h_source"/>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="69">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createStateDerivativeModel.h</label>
+        <link refid="createStateDerivativeModel_8h_source"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h</label>
+        <link refid="createBodies_8h_source"/>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="92">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h</label>
+        <link refid="massRateFromThrust_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+      </node>
+      <node id="86">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createAccelerationModels.h</label>
+        <link refid="createAccelerationModels_8h_source"/>
+        <childnode refid="77" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="77">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h</label>
+        <link refid="propagationSettings_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createTorquePartials.h</label>
+        <link refid="createTorquePartials_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h</label>
+        <link refid="thirdBodyGravityPartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/empiricalAccelerationPartial.h</label>
+        <link refid="empiricalAccelerationPartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination.h</label>
+        <link refid="orbit__determination_8h_source"/>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators.h</label>
+        <link refid="propagators_8h_source"/>
+      </node>
+      <node id="27">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/state.h</label>
+        <link refid="state_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="62">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h</label>
+        <link refid="torquePartial_8h_source"/>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNumericalSimulator.h</label>
+        <link refid="createNumericalSimulator_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModelTypes.h</label>
+        <link refid="accelerationModelTypes_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="79" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/export.h</label>
+        <link refid="export_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="74">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h</label>
+        <link refid="nBodyUnifiedStateModelExponentialMapStateDerivative_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="94">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createThrustModelGuidance.h</label>
+        <link refid="createThrustModelGuidance_8h_source"/>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="85">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/thrust.h</label>
+        <link refid="thrust_8h_source"/>
+      </node>
+      <node id="30">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createAccelerationPartials.h</label>
+        <link refid="createAccelerationPartials_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustAccelerationModel.h</label>
+        <link refid="thrustAccelerationModel_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="82">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h</label>
+        <link refid="setNumericallyIntegratedStates_8h_source"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/unitTestSupport.h</label>
+        <link refid="unitTestSupport_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h</label>
+        <link refid="propagationLambertTargeterFullProblem_8h_source"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="83">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h</label>
+        <link refid="accelerationSettings_8h_source"/>
+        <childnode refid="84" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="93">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion.h</label>
+        <link refid="propulsion_8h_source"/>
+      </node>
+      <node id="87">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createMassRateModels.h</label>
+        <link refid="createMassRateModels_8h_source"/>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="64">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h</label>
+        <link refid="inertialTorquePartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h</label>
+        <link refid="thrustMagnitudeWrapper_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="94" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup.h</label>
+        <link refid="environment__setup_8h_source"/>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="68">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyEnckeStateDerivative.h</label>
+        <link refid="nBodyEnckeStateDerivative_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+      </node>
+      <node id="88">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/massRateModel.h</label>
+        <link refid="interface_2json_2propagation_2massRateModel_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h</label>
+        <link refid="variationalEquationsSolver_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.h</label>
+        <link refid="nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+      </node>
+      <node id="95">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h</label>
+        <link refid="thrustSettings_8h_source"/>
+        <childnode refid="85" relation="include">
+        </childnode>
+        <childnode refid="94" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="66">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/secondDegreeGravitationalTorquePartial.h</label>
+        <link refid="secondDegreeGravitationalTorquePartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h</label>
+        <link refid="centralGravityAccelerationPartial_8h_source"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="91">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h</label>
+        <link refid="desaturationDeltaV_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="70">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyStateDerivative.h</label>
+        <link refid="nBodyStateDerivative_8h_source"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createEstimatableParameters.h</label>
+        <link refid="createEstimatableParameters_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createStateDerivativePartials.h</label>
+        <link refid="createStateDerivativePartials_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/constantTorquePartial.h</label>
+        <link refid="constantTorquePartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="90">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/variable.h</label>
+        <link refid="variable_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="73">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyGaussModifiedEquinoctialStateDerivative.h</label>
+        <link refid="nBodyGaussModifiedEquinoctialStateDerivative_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+      </node>
+      <node id="79">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/createEnvironmentUpdater.h</label>
+        <link refid="createEnvironmentUpdater_8h_source"/>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h</label>
+        <link refid="sphericalHarmonicAccelerationPartial_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/body.h</label>
+        <link refid="interface_2json_2environment_2body_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="89">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h</label>
+        <link refid="propagationOutputSettings_8h_source"/>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro.h</label>
+        <link refid="basic__astro_8h_source"/>
+      </node>
+      <node id="78">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/environmentUpdater.h</label>
+        <link refid="environmentUpdater_8h_source"/>
+        <childnode refid="79" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h</label>
+        <link refid="mutualSphericalHarmonicGravityPartial_8h_source"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h</label>
+        <link refid="integrateEquations_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+      <node id="46">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h</label>
+        <link refid="thrustAccelerationPartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/relativisticAccelerationPartial.h</label>
+        <link refid="relativisticAccelerationPartial_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="72">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/nBodyGaussKeplerStateDerivative.h</label>
+        <link refid="nBodyGaussKeplerStateDerivative_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" prot="public">tudat::propulsion::ThrustMagnitudeWrapper</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper" prot="public">tudat::propulsion::CustomThrustMagnitudeWrapper</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper" prot="public">tudat::propulsion::MeeCostatesBangBangThrustMagnitudeWrapper</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper" prot="public">tudat::propulsion::ThrustMagnitudeFromEngineWrapper</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper" prot="public">tudat::propulsion::ParameterizedThrustMagnitudeWrapper</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1propulsion">tudat::propulsion</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_THRUSTMAGNITUDEWRAPPER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_THRUSTMAGNITUDEWRAPPER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;functional&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/lambda/lambda.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/system_models/engineModel.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/interpolators/interpolator.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">propulsion</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" kindref="compound">ThrustMagnitudeWrapper</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a0126b90dd3bef583db2e9eef56039e23" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a0126b90dd3bef583db2e9eef56039e23" kindref="member">ThrustMagnitudeWrapper</ref>(<sp/>):</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref>(<sp/>TUDAT_NAN<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a971baaa499be4e44e1573a3eaf07fe07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a971baaa499be4e44e1573a3eaf07fe07" kindref="member">~ThrustMagnitudeWrapper</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a6a515296199563f2fcece10923d6dcca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a6a515296199563f2fcece10923d6dcca" kindref="member">update</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a303af8ecc94a8e0151a58711700dafe2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a303af8ecc94a8e0151a58711700dafe2" kindref="member">getCurrentThrustMagnitude</ref>(<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1abea551383a711c4fe3e04a77df3d3c0c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1abea551383a711c4fe3e04a77df3d3c0c" kindref="member">getCurrentMassRate</ref>(<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a53398012b76013f2d10b0471847a8f24" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a53398012b76013f2d10b0471847a8f24" kindref="member">resetCurrentTime</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref><sp/>=<sp/>currentTime;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1acece32d609bb4946504acc94ec86504b" kindref="member">resetDerivedClassCurrentTime</ref>(<sp/>currentTime<sp/>);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1acece32d609bb4946504acc94ec86504b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1acece32d609bb4946504acc94ec86504b" kindref="member">resetDerivedClassCurrentTime</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper" kindref="compound">CustomThrustMagnitudeWrapper</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" kindref="compound">ThrustMagnitudeWrapper</ref></highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1aa7fcbe4d271c0f38d2c933075a5a2f84" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1aa7fcbe4d271c0f38d2c933075a5a2f84" kindref="member">CustomThrustMagnitudeWrapper</ref>(</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>thrustMagnitudeFunction,</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>specificImpulseFunction,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>isEngineOnFunction<sp/>=<sp/>[<sp/>](<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/>}<sp/>,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>void(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>customThrustResetFunction<sp/>=<sp/>std::function&lt;<sp/>void(<sp/>const<sp/>double<sp/>)<sp/>&gt;(<sp/>)<sp/>):</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thrustMagnitudeFunction_(<sp/>thrustMagnitudeFunction<sp/>),</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificImpulseFunction_(<sp/>specificImpulseFunction<sp/>),</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>isEngineOnFunction_(<sp/>isEngineOnFunction<sp/>),</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulse_(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>customThrustResetFunction_(<sp/>customThrustResetFunction<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1a9614b524a326593549730d15c6708ae2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1a9614b524a326593549730d15c6708ae2" kindref="member">~CustomThrustMagnitudeWrapper</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133" refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1ad018abccc9285d40a5776f706fd675a0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1ad018abccc9285d40a5776f706fd675a0" kindref="member">update</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref><sp/>==<sp/>time<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>engine<sp/>is<sp/>one,<sp/>update<sp/>engine.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>isEngineOnFunction_(<sp/>time<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_<sp/>=<sp/>thrustMagnitudeFunction_(<sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulse_<sp/>=<sp/>specificImpulseFunction_(<sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>engine<sp/>is<sp/>off,<sp/>set<sp/>thrust<sp/>to<sp/>zero.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulse_<sp/>=<sp/>TUDAT_NAN;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref><sp/>=<sp/>time;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158" refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1a8f8d5325f4570b0bd0420827386d787c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1a8f8d5325f4570b0bd0420827386d787c" kindref="member">getCurrentThrustMagnitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>currentThrustMagnitude_;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168" refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1a5de652e5d4f9f9e8b300c0f7ea79affc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1a5de652e5d4f9f9e8b300c0f7ea79affc" kindref="member">getCurrentMassRate</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>currentThrustMagnitude_<sp/>!=<sp/>0.0<sp/>)</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>propulsion::computePropellantMassRateFromSpecificImpulse(</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_,<sp/>currentSpecificImpulse_<sp/>);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188" refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1a486076e5cf7a197691025e71b44533ee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_1a486076e5cf7a197691025e71b44533ee" kindref="member">resetDerivedClassCurrentTime</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/>customThrustResetFunction_<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal"><sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>customThrustResetFunction_(<sp/>currentTime<sp/>);\</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>thrustMagnitudeFunction_;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>specificImpulseFunction_;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>bool(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>isEngineOnFunction_;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentThrustMagnitude_;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentSpecificImpulse_;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>void(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>customThrustResetFunction_;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223" refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper" kindref="compound">MeeCostatesBangBangThrustMagnitudeWrapper</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" kindref="compound">ThrustMagnitudeWrapper</ref></highlight></codeline>
+<codeline lineno="224"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236" refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1a0fb664efb8c7b189e1f8056b07185390" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1a0fb664efb8c7b189e1f8056b07185390" kindref="member">MeeCostatesBangBangThrustMagnitudeWrapper</ref>(</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>Eigen::Vector6d(<sp/>)<sp/>&gt;<sp/>thrustingBodyStateFunction,</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>Eigen::Vector6d(<sp/>)<sp/>&gt;<sp/>centralBodyStateFunction,</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/>)<sp/>&gt;<sp/>centralBodyGravitationalParameterFunction,</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>Eigen::VectorXd(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>costateFunction,</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>thrustMagnitude,</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>specificImpulseFunction,</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/>)<sp/>&gt;<sp/>thrustingBodyMassFunction,</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>customThrustResetFunction<sp/>=<sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;(<sp/>)<sp/>):</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thrustingBodyStateFunction_(<sp/>thrustingBodyStateFunction<sp/>),</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>centralBodyStateFunction_(<sp/>centralBodyStateFunction<sp/>),</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>centralBodyGravitationalParameterFunction_(<sp/>centralBodyGravitationalParameterFunction<sp/>),</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>costateFunction_(<sp/>costateFunction<sp/>),</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>maximumThrustMagnitude_(<sp/>thrustMagnitude<sp/>),</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificImpulseFunction_(<sp/>specificImpulseFunction<sp/>),</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thrustingBodyMassFunction_(<sp/>thrustingBodyMassFunction<sp/>),</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulse_(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>customThrustResetFunction_(<sp/>customThrustResetFunction<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257" refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1acf11e761e7532a30c6fab55867760761" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1acf11e761e7532a30c6fab55867760761" kindref="member">~MeeCostatesBangBangThrustMagnitudeWrapper</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264" refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1abfe64dbfd1c25cbde5d4004357241954" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1abfe64dbfd1c25cbde5d4004357241954" kindref="member">update</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref><sp/>==<sp/>time<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::VectorXd<sp/>costates_<sp/>=<sp/>costateFunction_(<sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Get<sp/>the<sp/>current<sp/>state<sp/>in<sp/>cartesian<sp/>coordinates<sp/>and<sp/>keplerian<sp/>elements,<sp/>and<sp/>some<sp/>convenient<sp/>parameters</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::Vector6d<sp/>currentState<sp/>=<sp/>thrustingBodyStateFunction_(<sp/>)<sp/>-<sp/>centralBodyStateFunction_(<sp/>);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>centralBodyGravitationalParameter<sp/>=<sp/>centralBodyGravitationalParameterFunction_(<sp/>);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Obtain<sp/>ModifiedEquinoctial<sp/>elements,<sp/>flag<sp/>of<sp/>0<sp/>indicates<sp/>that<sp/>singularity<sp/>occurs<sp/>at<sp/>180<sp/>deg<sp/>inclination.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::Vector6d<sp/>modifiedEquinoctialElements<sp/>=</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentState,<sp/>centralBodyGravitationalParameter,<sp/>0<sp/>);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>modified<sp/>equinoctial<sp/>elements.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>p<sp/>=<sp/>modifiedEquinoctialElements[<sp/>orbital_element_conversions::semiParameterIndex<sp/>];</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>f<sp/>=<sp/>modifiedEquinoctialElements[<sp/>orbital_element_conversions::fElementIndex<sp/>];</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>g<sp/>=<sp/>modifiedEquinoctialElements[<sp/>orbital_element_conversions::gElementIndex<sp/>];</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>h<sp/>=<sp/>modifiedEquinoctialElements[<sp/>orbital_element_conversions::hElementIndex<sp/>];</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>k<sp/>=<sp/>modifiedEquinoctialElements[<sp/>orbital_element_conversions::kElementIndex<sp/>];</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>L<sp/>=<sp/>modifiedEquinoctialElements[<sp/>orbital_element_conversions::trueLongitudeIndex<sp/>];</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>w1<sp/>=<sp/>1.0<sp/>+<sp/>f<sp/>*<sp/>std::cos(<sp/>L<sp/>)<sp/>+<sp/>g<sp/>*<sp/>std::sin(<sp/>L<sp/>);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>w2<sp/>=<sp/>1.0<sp/>+<sp/>h<sp/>*<sp/>h<sp/>+<sp/>k<sp/>*<sp/>k;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>all<sp/>required<sp/>auxiliary<sp/>variables<sp/>to<sp/>compute<sp/>optimal<sp/>angle<sp/>alpha.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdap<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::semiParameterIndex<sp/>]<sp/>*<sp/>(<sp/>2.0<sp/>*<sp/>p<sp/>)<sp/>/<sp/>w1;</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdaf1<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::fElementIndex<sp/>]<sp/>*<sp/>std::sin(<sp/>L<sp/>);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdag1<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::gElementIndex<sp/>]<sp/>*<sp/>std::cos(<sp/>L<sp/>);</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdaf2<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::fElementIndex<sp/>]<sp/>/<sp/>w1<sp/>*</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/>(<sp/>w1<sp/>+<sp/>1.0<sp/>)<sp/>*<sp/>std::cos(<sp/>L<sp/>)<sp/>+<sp/>f<sp/>);</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//costates_[<sp/>orbital_element_conversions::fElementIndex<sp/>]<sp/>*<sp/>(<sp/>(<sp/>w1<sp/>+<sp/>1.0<sp/>)<sp/>*<sp/>std::cos(<sp/>L<sp/>)<sp/>+<sp/>f<sp/>)<sp/>/<sp/>w1;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdag2<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::gElementIndex<sp/>]<sp/>/<sp/>w1<sp/>*<sp/>(<sp/>(<sp/>w1<sp/>+<sp/>1.0<sp/>)<sp/>*<sp/>std::sin(<sp/>L<sp/>)<sp/>+<sp/>g<sp/>);</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>sinus<sp/>of<sp/>the<sp/>optimal<sp/>value<sp/>of<sp/>angle<sp/>alpha.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>sinOptimalAlpha<sp/>=<sp/>-<sp/>(<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>)<sp/>/</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::sqrt(<sp/>(<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>)<sp/>*<sp/>(<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>)<sp/>+</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)<sp/>*<sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>cosinus<sp/>of<sp/>the<sp/>optimal<sp/>value<sp/>of<sp/>angle<sp/>alpha.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>cosOptimalAlpha<sp/>=<sp/>-<sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)<sp/>/</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::sqrt(<sp/>(<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>)<sp/>*<sp/>(<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>)<sp/>+</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)<sp/>*<sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>all<sp/>required<sp/>auxiliary<sp/>variables<sp/>to<sp/>compute<sp/>optimal<sp/>angle<sp/>beta.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lambdap<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::semiParameterIndex<sp/>]<sp/>*<sp/>(<sp/>2.0<sp/>*<sp/>p<sp/>)<sp/>/<sp/>w1<sp/>*<sp/>cosOptimalAlpha;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lambdaf1<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::fElementIndex<sp/>]<sp/>*<sp/>std::sin(<sp/>L<sp/>)<sp/>*<sp/>sinOptimalAlpha;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lambdag1<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::gElementIndex<sp/>]<sp/>*<sp/>std::cos(<sp/>L<sp/>)<sp/>*<sp/>sinOptimalAlpha;</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lambdaf2<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::fElementIndex<sp/>]<sp/>*<sp/>(<sp/>(<sp/>1.0<sp/>+<sp/>w1<sp/>)<sp/>*<sp/>std::cos(<sp/>L<sp/>)<sp/>+<sp/>f<sp/>)<sp/>/<sp/>w1<sp/>*<sp/>cosOptimalAlpha;</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lambdag2<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::gElementIndex<sp/>]<sp/>*<sp/>(<sp/>(<sp/>1.0<sp/>+<sp/>w1<sp/>)<sp/>*<sp/>std::sin(<sp/>L<sp/>)<sp/>+<sp/>g<sp/>)<sp/>/<sp/>w1<sp/>*<sp/>cosOptimalAlpha;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdaf3<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::fElementIndex<sp/>]<sp/>*<sp/>(<sp/>g<sp/>/<sp/>w1<sp/>)<sp/>*<sp/>(<sp/>h<sp/>*<sp/>std::sin(<sp/>L<sp/>)<sp/>-<sp/>k<sp/>*<sp/>std::cos(<sp/>L<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdag3<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::gElementIndex<sp/>]<sp/>*<sp/>(<sp/>f<sp/>/<sp/>w1<sp/>)<sp/>*<sp/>(<sp/>h<sp/>*<sp/>std::sin(<sp/>L<sp/>)<sp/>-<sp/>k<sp/>*<sp/>std::cos(<sp/>L<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdah<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::hElementIndex<sp/>]<sp/>*<sp/>(<sp/>w2<sp/>*<sp/>std::cos(<sp/>L<sp/>)<sp/>)<sp/>/<sp/>(<sp/>2.0<sp/>*<sp/>w1<sp/>);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lambdak<sp/>=<sp/>costates_[<sp/>orbital_element_conversions::kElementIndex<sp/>]<sp/>*<sp/>(<sp/>w2<sp/>*<sp/>std::sin(<sp/>L<sp/>)<sp/>)<sp/>/<sp/>(<sp/>2.0<sp/>*<sp/>w1<sp/>);</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>sinus<sp/>of<sp/>optimal<sp/>thrust<sp/>angle<sp/>beta.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>sinOptimalBeta<sp/>=<sp/>-<sp/>(<sp/>-<sp/>lambdaf3<sp/>+<sp/>lambdag3<sp/>+<sp/>lambdah<sp/>+<sp/>lambdak<sp/>)<sp/>/</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::sqrt(<sp/>(<sp/>-<sp/>lambdaf3<sp/>+<sp/>lambdag3<sp/>+<sp/>lambdah<sp/>+<sp/>lambdak<sp/>)<sp/>*<sp/>(<sp/>-<sp/>lambdaf3<sp/>+<sp/>lambdag3<sp/>+<sp/>lambdah<sp/>+<sp/>lambdak<sp/>)</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>cosinus<sp/>of<sp/>optimal<sp/>thrust<sp/>angle<sp/>beta.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>cosOptimalBeta<sp/>=<sp/>-<sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)<sp/>/</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::sqrt(<sp/>(<sp/>-<sp/>lambdaf3<sp/>+<sp/>lambdag3<sp/>+<sp/>lambdah<sp/>+<sp/>lambdak<sp/>)<sp/>*<sp/>(<sp/>-<sp/>lambdaf3<sp/>+<sp/>lambdag3<sp/>+<sp/>lambdah<sp/>+<sp/>lambdak<sp/>)</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>(<sp/>lambdap<sp/>+<sp/>lambdaf1<sp/>-<sp/>lambdag1<sp/>+<sp/>lambdaf2<sp/>+<sp/>lambdag2<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Switching<sp/>function<sp/>for<sp/>the<sp/>thrust<sp/>magnitude.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>thrustMagnitudeSwitchingCondition<sp/>=<sp/>(<sp/>1.0<sp/>/<sp/>thrustingBodyMassFunction_(<sp/>)<sp/>)<sp/>*</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<sp/>lambdap<sp/>*<sp/>cosOptimalBeta<sp/>+<sp/>lambdah<sp/>*<sp/>sinOptimalBeta<sp/>+<sp/>lambdak<sp/>*<sp/>sinOptimalBeta</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>lambdaf1<sp/>*<sp/>cosOptimalBeta<sp/>+<sp/>lambdaf2<sp/>*<sp/>cosOptimalBeta<sp/>-<sp/>lambdaf3<sp/>*<sp/>sinOptimalBeta</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-<sp/>lambdag1<sp/>*<sp/>cosOptimalBeta<sp/>+<sp/>lambdag2<sp/>*<sp/>cosOptimalBeta<sp/>+<sp/>lambdag3<sp/>*<sp/>sinOptimalBeta<sp/>);</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>current<sp/>thrust<sp/>magnitude<sp/>and<sp/>specific<sp/>impulse.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/>thrustMagnitudeSwitchingCondition<sp/>&lt;=<sp/>0.0<sp/>)</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/>&quot;INSIDE<sp/>THRUST<sp/>MAGNITUDE<sp/>FUNCTION,<sp/>THRUST<sp/>ON.<sp/>&quot;<sp/>&lt;&lt;<sp/>&quot;\n\n&quot;;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_<sp/>=<sp/>maximumThrustMagnitude_;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulse_<sp/>=<sp/>specificImpulseFunction_(<sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cout<sp/>&lt;&lt;<sp/>&quot;INSIDE<sp/>THRUST<sp/>MAGNITUDE<sp/>FUNCTION,<sp/>THRUST<sp/>OFF.<sp/>&quot;<sp/>&lt;&lt;<sp/>&quot;\n\n&quot;;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulse_<sp/>=<sp/>specificImpulseFunction_(<sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref><sp/>=<sp/>time;</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight></codeline>
+<codeline lineno="364" refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1a9c632dba92964a6d14f460efa83a9bb1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1a9c632dba92964a6d14f460efa83a9bb1" kindref="member">getCurrentThrustMagnitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>currentThrustMagnitude_;</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="374" refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1a6dafeda781bab89d5a164b333088cddc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1a6dafeda781bab89d5a164b333088cddc" kindref="member">getCurrentMassRate</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>currentThrustMagnitude_<sp/>!=<sp/>0.0<sp/>)</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>propulsion::computePropellantMassRateFromSpecificImpulse(</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_,<sp/>currentSpecificImpulse_<sp/>);</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"></highlight></codeline>
+<codeline lineno="387"><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394" refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1abd076a2eb8024e03927432f58f6fdcdc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper_1abd076a2eb8024e03927432f58f6fdcdc" kindref="member">resetDerivedClassCurrentTime</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/>customThrustResetFunction_<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal"><sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>customThrustResetFunction_(<sp/>currentTime<sp/>);\</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight></codeline>
+<codeline lineno="402"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>Eigen::Vector6d(<sp/>)<sp/>&gt;<sp/>thrustingBodyStateFunction_;</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"></highlight></codeline>
+<codeline lineno="408"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>Eigen::Vector6d(<sp/>)<sp/>&gt;<sp/>centralBodyStateFunction_;</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"></highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/>)<sp/>&gt;<sp/>centralBodyGravitationalParameterFunction_;</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"></highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>Eigen::VectorXd(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>costateFunction_;</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"></highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>maximumThrustMagnitude_;</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"></highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>specificImpulseFunction_;</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/>)<sp/>&gt;<sp/>thrustingBodyMassFunction_;</highlight></codeline>
+<codeline lineno="424"><highlight class="normal"></highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentThrustMagnitude_;</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"></highlight></codeline>
+<codeline lineno="429"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentSpecificImpulse_;</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"></highlight></codeline>
+<codeline lineno="431"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>void(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>customThrustResetFunction_;</highlight></codeline>
+<codeline lineno="432"><highlight class="normal"></highlight></codeline>
+<codeline lineno="433"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="434"><highlight class="normal"></highlight></codeline>
+<codeline lineno="435"><highlight class="normal"></highlight></codeline>
+<codeline lineno="437" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper" kindref="compound">ThrustMagnitudeFromEngineWrapper</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" kindref="compound">ThrustMagnitudeWrapper</ref></highlight></codeline>
+<codeline lineno="438"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="440"><highlight class="normal"></highlight></codeline>
+<codeline lineno="442"><highlight class="normal"></highlight></codeline>
+<codeline lineno="446" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1aa84600fa7d3d2a2d7f2611832464e746" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1aa84600fa7d3d2a2d7f2611832464e746" kindref="member">ThrustMagnitudeFromEngineWrapper</ref>(</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>system_models::EngineModel<sp/>&gt;<sp/>engineModel<sp/>):</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" kindref="member">currentThrust_</ref>(<sp/>TUDAT_NAN<sp/>),<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" kindref="member">currentMassRate_</ref>(<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" kindref="member">engineModels_</ref>.push_back(<sp/>engineModel<sp/>);</highlight></codeline>
+<codeline lineno="451"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="452"><highlight class="normal"></highlight></codeline>
+<codeline lineno="454"><highlight class="normal"></highlight></codeline>
+<codeline lineno="458" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a6d829586f0cc43a20687e684574af0cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a6d829586f0cc43a20687e684574af0cd" kindref="member">ThrustMagnitudeFromEngineWrapper</ref>(</highlight></codeline>
+<codeline lineno="459"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>system_models::EngineModel<sp/>&gt;<sp/>&gt;<sp/>engineModels<sp/>):</highlight></codeline>
+<codeline lineno="460"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" kindref="member">engineModels_</ref>(<sp/>engineModels<sp/>),<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" kindref="member">currentThrust_</ref>(<sp/>TUDAT_NAN<sp/>),<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" kindref="member">currentMassRate_</ref>(<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="462"><highlight class="normal"></highlight></codeline>
+<codeline lineno="464" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ad217c8d2a8cc9a231b0ecebea503539e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ad217c8d2a8cc9a231b0ecebea503539e" kindref="member">~ThrustMagnitudeFromEngineWrapper</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"></highlight></codeline>
+<codeline lineno="466"><highlight class="normal"></highlight></codeline>
+<codeline lineno="468"><highlight class="normal"></highlight></codeline>
+<codeline lineno="472" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a54420ac820119f526d5f33d7d6380fb7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a54420ac820119f526d5f33d7d6380fb7" kindref="member">update</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref><sp/>=<sp/>time<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="475"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" kindref="member">currentThrust_</ref><sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" kindref="member">currentMassRate_</ref><sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"></highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Update<sp/>engine<sp/>models</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="480"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" kindref="member">engineModels_</ref>.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="481"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" kindref="member">engineModels_</ref>.at(<sp/>i<sp/>)-&gt;updateEngineModel(<sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="483"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"></highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Add<sp/>thrust<sp/>and<sp/>mass<sp/>rate.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" kindref="member">engineModels_</ref>.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="487"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="488"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" kindref="member">currentThrust_</ref><sp/>+=<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" kindref="member">engineModels_</ref>.at(<sp/>i<sp/>)-&gt;getCurrentThrust(<sp/>);</highlight></codeline>
+<codeline lineno="489"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" kindref="member">currentMassRate_</ref><sp/>+=<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" kindref="member">engineModels_</ref>.at(<sp/>i<sp/>)-&gt;getCurrentMassRate(<sp/>);</highlight></codeline>
+<codeline lineno="490"><highlight class="normal"></highlight></codeline>
+<codeline lineno="491"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"></highlight></codeline>
+<codeline lineno="496"><highlight class="normal"></highlight></codeline>
+<codeline lineno="500" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1afc91cb58c14ddb83956db4c51f0ded54" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1afc91cb58c14ddb83956db4c51f0ded54" kindref="member">getCurrentThrustMagnitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="501"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="502"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" kindref="member">currentThrust_</ref>;</highlight></codeline>
+<codeline lineno="503"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="504"><highlight class="normal"></highlight></codeline>
+<codeline lineno="506"><highlight class="normal"></highlight></codeline>
+<codeline lineno="510" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1aa79a92ce41bfd5aeacb59bcc675180a0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1aa79a92ce41bfd5aeacb59bcc675180a0" kindref="member">getCurrentMassRate</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="511"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="512"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" kindref="member">currentMassRate_</ref>;</highlight></codeline>
+<codeline lineno="513"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="514"><highlight class="normal"></highlight></codeline>
+<codeline lineno="515"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="516"><highlight class="normal"></highlight></codeline>
+<codeline lineno="518" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>system_models::EngineModel<sp/>&gt;<sp/>&gt;<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1a55de6ff6a534790deea362549427e63b" kindref="member">engineModels_</ref>;</highlight></codeline>
+<codeline lineno="519"><highlight class="normal"></highlight></codeline>
+<codeline lineno="521" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1adbe1d232b6363786f9cd1e785415ab6f" kindref="member">currentThrust_</ref>;</highlight></codeline>
+<codeline lineno="522"><highlight class="normal"></highlight></codeline>
+<codeline lineno="524" refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper_1ae5febedd296949c8ec57b69a4a911b75" kindref="member">currentMassRate_</ref>;</highlight></codeline>
+<codeline lineno="525"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="526"><highlight class="normal"></highlight></codeline>
+<codeline lineno="528"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>ThrustIndependentVariables</highlight></codeline>
+<codeline lineno="529"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="530"><highlight class="normal"><sp/><sp/><sp/><sp/>mach_number_dependent_thrust,</highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/><sp/><sp/>altitude_dependent_thrust,</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"><sp/><sp/><sp/><sp/>density_dependent_thrust,</highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/>dynamic_pressure_dependent_thrust,</highlight></codeline>
+<codeline lineno="534"><highlight class="normal"><sp/><sp/><sp/><sp/>pressure_dependent_thrust,</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"><sp/><sp/><sp/><sp/>guidance_input_dependent_thrust,</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"><sp/><sp/><sp/><sp/>throttle_dependent_thrust</highlight></codeline>
+<codeline lineno="537"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"></highlight></codeline>
+<codeline lineno="541"><highlight class="normal"></highlight></codeline>
+<codeline lineno="551" refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper" kindref="compound">ParameterizedThrustMagnitudeWrapper</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" kindref="compound">ThrustMagnitudeWrapper</ref></highlight></codeline>
+<codeline lineno="552"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="554"><highlight class="normal"></highlight></codeline>
+<codeline lineno="556"><highlight class="normal"></highlight></codeline>
+<codeline lineno="575" refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1afc7b9278c9fbded2187ad2f70fbabb38" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1afc7b9278c9fbded2187ad2f70fbabb38" kindref="member">ParameterizedThrustMagnitudeWrapper</ref>(</highlight></codeline>
+<codeline lineno="576"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>)<sp/>&gt;<sp/>thrustMagnitudeFunction,</highlight></codeline>
+<codeline lineno="577"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>)<sp/>&gt;<sp/>specificImpulseFunction,</highlight></codeline>
+<codeline lineno="578"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/>)<sp/>&gt;<sp/>&gt;<sp/>thrustInputVariableFunctions,</highlight></codeline>
+<codeline lineno="579"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/>)<sp/>&gt;<sp/>&gt;<sp/>specificImpulseInputVariableFunctions,</highlight></codeline>
+<codeline lineno="580"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>propulsion::ThrustIndependentVariables<sp/>&gt;<sp/>thrustIndependentVariables,</highlight></codeline>
+<codeline lineno="581"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>propulsion::ThrustIndependentVariables<sp/>&gt;<sp/>specificImpulseDependentVariables,</highlight></codeline>
+<codeline lineno="582"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)<sp/>&gt;<sp/>inputUpdateFunction<sp/>=</highlight></codeline>
+<codeline lineno="583"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)<sp/>&gt;(<sp/>)<sp/>):</highlight></codeline>
+<codeline lineno="584"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thrustMagnitudeFunction_(<sp/>thrustMagnitudeFunction<sp/>),</highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificImpulseFunction_(<sp/>specificImpulseFunction<sp/>),</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thrustInputVariableFunctions_(<sp/>thrustInputVariableFunctions<sp/>),</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificImpulseInputVariableFunctions_(<sp/>specificImpulseInputVariableFunctions<sp/>),</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>thrustIndependentVariables_(<sp/>thrustIndependentVariables<sp/>),</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificImpulseDependentVariables_(<sp/>specificImpulseDependentVariables<sp/>),</highlight></codeline>
+<codeline lineno="590"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>inputUpdateFunction_(<sp/>inputUpdateFunction<sp/>),</highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_(<sp/>TUDAT_NAN<sp/>),</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulse_(<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="594"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>thrustInputVariableFunctions_.size(<sp/>)<sp/>!=<sp/>thrustIndependentVariables_.size(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="595"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="596"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>in<sp/>parameterized<sp/>thrust,<sp/>inconsistent<sp/>number<sp/>of<sp/>user-defined<sp/>input<sp/>variables<sp/>for<sp/>thrust&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="597"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="598"><highlight class="normal"></highlight></codeline>
+<codeline lineno="599"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>specificImpulseInputVariableFunctions_.size(<sp/>)<sp/>!=<sp/>specificImpulseDependentVariables_.size(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="600"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="601"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>in<sp/>parameterized<sp/>thrust,<sp/>inconsistent<sp/>number<sp/>of<sp/>user-defined<sp/>input<sp/>variables<sp/>for<sp/>Isp&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="602"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="603"><highlight class="normal"></highlight></codeline>
+<codeline lineno="604"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustInputVariables_.resize(<sp/>thrustInputVariableFunctions.size(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="605"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulseInputVariables_.resize(<sp/>specificImpulseInputVariableFunctions.size(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="606"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="607"><highlight class="normal"></highlight></codeline>
+<codeline lineno="609" refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a578598427e7002773a448a398b822f0d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a578598427e7002773a448a398b822f0d" kindref="member">~ParameterizedThrustMagnitudeWrapper</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="610"><highlight class="normal"></highlight></codeline>
+<codeline lineno="612"><highlight class="normal"></highlight></codeline>
+<codeline lineno="616" refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a9986324434fea86a4e9b54d86e0200b3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a9986324434fea86a4e9b54d86e0200b3" kindref="member">update</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/><ref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" kindref="member">currentTime_</ref><sp/>==<sp/>time<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="619"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="620"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/>inputUpdateFunction_<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal"><sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="621"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>inputUpdateFunction_(<sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="623"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="624"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>thrust<sp/>independent<sp/>variables</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="625"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>thrustInputVariableFunctions_.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="626"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="627"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustInputVariables_[<sp/>i<sp/>]<sp/>=<sp/>thrustInputVariableFunctions_.at(<sp/>i<sp/>)(<sp/>);</highlight></codeline>
+<codeline lineno="628"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="629"><highlight class="normal"></highlight></codeline>
+<codeline lineno="630"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>thrust</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="631"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_<sp/>=<sp/>thrustMagnitudeFunction_(<sp/>currentThrustInputVariables_<sp/>);</highlight></codeline>
+<codeline lineno="632"><highlight class="normal"></highlight></codeline>
+<codeline lineno="633"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Retrieve<sp/>specific<sp/>impulse<sp/>independent<sp/>variables</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="634"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>specificImpulseInputVariableFunctions_.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulseInputVariables_[<sp/>i<sp/>]<sp/>=<sp/>specificImpulseInputVariableFunctions_.at(<sp/>i<sp/>)(<sp/>);</highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"></highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>specific<sp/>impulse</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentSpecificImpulse_<sp/>=<sp/>specificImpulseFunction_(<sp/>currentSpecificImpulseInputVariables_<sp/>);</highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="643"><highlight class="normal"></highlight></codeline>
+<codeline lineno="645"><highlight class="normal"></highlight></codeline>
+<codeline lineno="650" refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1aad77dd957a787846b3220792bc138fe6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1aad77dd957a787846b3220792bc138fe6" kindref="member">resetDerivedClassCurrentTime</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="651"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="652"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/>inputUpdateFunction_<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal"><sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="653"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="654"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>inputUpdateFunction_(<sp/>currentTime<sp/>);</highlight></codeline>
+<codeline lineno="655"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="656"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="657"><highlight class="normal"></highlight></codeline>
+<codeline lineno="659"><highlight class="normal"></highlight></codeline>
+<codeline lineno="663" refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1ae58d66ba89046b58507f1245f5184611" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1ae58d66ba89046b58507f1245f5184611" kindref="member">getCurrentThrustMagnitude</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="664"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="665"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>currentThrustMagnitude_;</highlight></codeline>
+<codeline lineno="666"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="667"><highlight class="normal"></highlight></codeline>
+<codeline lineno="669"><highlight class="normal"></highlight></codeline>
+<codeline lineno="673" refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a20169ccccc57cba8106be96e0a9cc592" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a20169ccccc57cba8106be96e0a9cc592" kindref="member">getCurrentMassRate</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="674"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="675"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>propulsion::computePropellantMassRateFromSpecificImpulse(</highlight></codeline>
+<codeline lineno="676"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentThrustMagnitude_,<sp/>currentSpecificImpulse_<sp/>);</highlight></codeline>
+<codeline lineno="677"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="678"><highlight class="normal"></highlight></codeline>
+<codeline lineno="679"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="680"><highlight class="normal"></highlight></codeline>
+<codeline lineno="682"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>)<sp/>&gt;<sp/>thrustMagnitudeFunction_;</highlight></codeline>
+<codeline lineno="683"><highlight class="normal"></highlight></codeline>
+<codeline lineno="685"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>)<sp/>&gt;<sp/>specificImpulseFunction_;</highlight></codeline>
+<codeline lineno="686"><highlight class="normal"></highlight></codeline>
+<codeline lineno="688"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::function&lt;<sp/>double(<sp/>)<sp/>&gt;<sp/>&gt;<sp/>thrustInputVariableFunctions_;</highlight></codeline>
+<codeline lineno="689"><highlight class="normal"></highlight></codeline>
+<codeline lineno="691"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::function&lt;<sp/>double(<sp/>)<sp/>&gt;<sp/>&gt;<sp/>specificImpulseInputVariableFunctions_;</highlight></codeline>
+<codeline lineno="692"><highlight class="normal"></highlight></codeline>
+<codeline lineno="695"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>propulsion::ThrustIndependentVariables<sp/>&gt;<sp/>thrustIndependentVariables_;</highlight></codeline>
+<codeline lineno="696"><highlight class="normal"></highlight></codeline>
+<codeline lineno="699"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>propulsion::ThrustIndependentVariables<sp/>&gt;<sp/>specificImpulseDependentVariables_;</highlight></codeline>
+<codeline lineno="700"><highlight class="normal"></highlight></codeline>
+<codeline lineno="702"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>currentThrustInputVariables_;</highlight></codeline>
+<codeline lineno="703"><highlight class="normal"></highlight></codeline>
+<codeline lineno="705"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>currentSpecificImpulseInputVariables_;</highlight></codeline>
+<codeline lineno="706"><highlight class="normal"></highlight></codeline>
+<codeline lineno="707"><highlight class="normal"></highlight></codeline>
+<codeline lineno="709"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>void(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)<sp/>&gt;<sp/>inputUpdateFunction_;</highlight></codeline>
+<codeline lineno="710"><highlight class="normal"></highlight></codeline>
+<codeline lineno="712"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentThrustMagnitude_;</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"></highlight></codeline>
+<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentSpecificImpulse_;</highlight></codeline>
+<codeline lineno="716"><highlight class="normal"></highlight></codeline>
+<codeline lineno="717"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="718"><highlight class="normal"></highlight></codeline>
+<codeline lineno="719"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>propulsion</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="720"><highlight class="normal"></highlight></codeline>
+<codeline lineno="721"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="722"><highlight class="normal"></highlight></codeline>
+<codeline lineno="723"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_THRUSTMAGNITUDEWRAPPER_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h"/>
+  </compounddef>
+</doxygen>

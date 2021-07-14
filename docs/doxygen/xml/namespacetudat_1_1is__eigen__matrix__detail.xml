@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1is__eigen__matrix__detail" kind="namespace" language="C++">
+    <compoundname>tudat::is_eigen_matrix_detail</compoundname>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="tudatTypeTraits_8h_1ae093137f0a362dff979040c222338413" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>std::true_type</type>
+        <definition>std::true_type tudat::is_eigen_matrix_detail::test</definition>
+        <argsstring>(const Eigen::MatrixBase&lt; T &gt; *)</argsstring>
+        <name>test</name>
+        <param>
+          <type>const Eigen::MatrixBase&lt; T &gt; *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="32" column="16" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" declline="32" declcolumn="16"/>
+      </memberdef>
+      <memberdef kind="function" id="tudatTypeTraits_8h_1a8237c3b9dea1cae7aa431d6b41413261" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::false_type</type>
+        <definition>std::false_type tudat::is_eigen_matrix_detail::test</definition>
+        <argsstring>(...)</argsstring>
+        <name>test</name>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="34" column="17" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" declline="34" declcolumn="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="29" column="1"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,44 @@
+\hypertarget{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem}{}\doxysection{tudat\+::shape\+\_\+based\+\_\+methods\+::Hodographic\+Shaping\+Optimisation\+Problem Struct Reference}
+\label{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem}\index{tudat::shape\_based\_methods::HodographicShapingOptimisationProblem@{tudat::shape\_based\_methods::HodographicShapingOptimisationProblem}}
+
+
+Test function for a new low-\/thrust trajectory class in Tudat.  
+
+
+
+
+{\ttfamily \#include $<$hodographic\+Shaping\+Optimisation\+Setup.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_a37c7c78b8f74ad01d56dcca86f48e79c}\label{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_a37c7c78b8f74ad01d56dcca86f48e79c}} 
+typedef std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping}{shape\+\_\+based\+\_\+methods\+::\+Base\+Function\+Hodographic\+Shaping}} $>$ $>$ {\bfseries Base\+Function\+Vector}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_ab003dbdadfce89d3cc81bd85813eb4e6}\label{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_ab003dbdadfce89d3cc81bd85813eb4e6}} 
+{\bfseries Hodographic\+Shaping\+Optimisation\+Problem} (const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$ \&initial\+State\+Function, const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$ \&final\+State\+Function, const double central\+Body\+Gravitational\+Parameter, const int number\+Of\+Revolutions, const std\+::function$<$ std\+::vector$<$ Base\+Function\+Vector $>$(const double) $>$ basis\+Functions\+Function, const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&free\+Coefficients\+Bounds, const bool minimize\+Maximum\+Thrust=false, const double initial\+Mass=TUDAT\+\_\+\+NAN)
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_abad9021bd110fd9d2dbde3ce554027bf}\label{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_abad9021bd110fd9d2dbde3ce554027bf}} 
+std\+::vector$<$ double $>$ {\bfseries fitness} (const std\+::vector$<$ double $>$ \&x) const
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_ad4d007eb751a10b5d80354fd311c600d}\label{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_ad4d007eb751a10b5d80354fd311c600d}} 
+std\+::pair$<$ std\+::vector$<$ double $>$, std\+::vector$<$ double $>$ $>$ {\bfseries get\+\_\+bounds} () const
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_a282c1ea50a7785945afeba90a6f2e4bc}\label{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_a282c1ea50a7785945afeba90a6f2e4bc}} 
+{\footnotesize template$<$typename Archive $>$ }\\void {\bfseries serialize} (Archive \&ar)
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_a7a9082e37bf5763ab198f00106177378}\label{structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_a7a9082e37bf5763ab198f00106177378}} 
+vector\+\_\+double\+::size\+\_\+type {\bfseries get\+\_\+nobj} () const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Test function for a new low-\/thrust trajectory class in Tudat. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/shape\+\_\+based/hodographic\+Shaping\+Optimisation\+Setup.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/shape\+\_\+based/hodographic\+Shaping\+Optimisation\+Setup.\+cpp\end{DoxyCompactItemize}

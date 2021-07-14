@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_e70cb4e509b58d1007a7e22b7ddfcd0f" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials</compoundname>
+    <innerfile refid="aerodynamicAccelerationPartial_8cpp">aerodynamicAccelerationPartial.cpp</innerfile>
+    <innerfile refid="centralGravityAccelerationPartial_8cpp">centralGravityAccelerationPartial.cpp</innerfile>
+    <innerfile refid="directTidalDissipationAccelerationPartial_8cpp">directTidalDissipationAccelerationPartial.cpp</innerfile>
+    <innerfile refid="empiricalAccelerationPartial_8cpp">empiricalAccelerationPartial.cpp</innerfile>
+    <innerfile refid="mutualSphericalHarmonicGravityPartial_8cpp">mutualSphericalHarmonicGravityPartial.cpp</innerfile>
+    <innerfile refid="numericalAccelerationPartial_8cpp">numericalAccelerationPartial.cpp</innerfile>
+    <innerfile refid="panelledRadiationPressureAccelerationPartial_8cpp">panelledRadiationPressureAccelerationPartial.cpp</innerfile>
+    <innerfile refid="radiationPressureAccelerationPartial_8cpp">radiationPressureAccelerationPartial.cpp</innerfile>
+    <innerfile refid="relativisticAccelerationPartial_8cpp">relativisticAccelerationPartial.cpp</innerfile>
+    <innerfile refid="sphericalHarmonicAccelerationPartial_8cpp">sphericalHarmonicAccelerationPartial.cpp</innerfile>
+    <innerfile refid="sphericalHarmonicPartialFunctions_8cpp">sphericalHarmonicPartialFunctions.cpp</innerfile>
+    <innerfile refid="thrustAccelerationPartial_8cpp">thrustAccelerationPartial.cpp</innerfile>
+    <innerfile refid="tidalLoveNumberPartialInterface_8cpp">tidalLoveNumberPartialInterface.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/"/>
+  </compounddef>
+</doxygen>

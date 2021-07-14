@@ -1,0 +1,153 @@
+\hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial}{}\doxysection{tudat\+::observation\+\_\+partials\+::One\+Way\+Doppler\+Partial Class Reference}
+\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial}\index{tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}}
+
+
+Class to compute the partial derivatives of a one-\/way doppler observation partial.  
+
+
+
+
+{\ttfamily \#include $<$one\+Way\+Doppler\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::One\+Way\+Doppler\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1OneWayDopplerPartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a428560ca0275f4d3a2887174c6fef944}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a428560ca0275f4d3a2887174c6fef944}} 
+typedef std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 1, Eigen\+::\+Dynamic $>$, double $>$ $>$ {\bfseries One\+Way\+Doppler\+Partial\+Return\+Type}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a5070024c368e27bbddec0936ca2f2d11}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a5070024c368e27bbddec0936ca2f2d11}} 
+typedef std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 1, Eigen\+::\+Dynamic $>$, double $>$ {\bfseries Single\+One\+Way\+Doppler\+Partial\+Return\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a571b6468a85bfef091e8873e59282cfd}{One\+Way\+Doppler\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerScaling}{One\+Way\+Doppler\+Scaling}} $>$ one\+Way\+Doppler\+Scaler, const std\+::map$<$ observation\+\_\+models\+::\+Link\+End\+Type, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{Cartesian\+State\+Partial}} $>$ $>$ \&position\+Partial\+List, const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier parameter\+Identifier, const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial}{observation\+\_\+partials\+::\+Light\+Time\+Correction\+Partial}} $>$ $>$ \&ligh\+Time\+Correction\+Partials=std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial}{observation\+\_\+partials\+::\+Light\+Time\+Correction\+Partial}} $>$ $>$())
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a6287fcd66c92f7a9f416338c9b9a6114}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a6287fcd66c92f7a9f416338c9b9a6114}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a6287fcd66c92f7a9f416338c9b9a6114}{$\sim$\+One\+Way\+Doppler\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+One\+Way\+Doppler\+Partial\+Return\+Type \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a26cf61a992fdf38aac5244580c3b8083}{calculate\+Partial}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Of\+Fixed\+Time, const Eigen\+::\+Vector1d \&current\+Observation=Eigen\+::\+Vector1d\+::\+Constant(TUDAT\+\_\+\+NAN))
+\begin{DoxyCompactList}\small\item\em Function to calculate the observation partial(s) at required time and state. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerScaling}{One\+Way\+Doppler\+Scaling}} $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a804073d87df5acbb9474af3de5ba0cb7}{get\+One\+Way\+Doppler\+Scaler}} ()
+\begin{DoxyCompactList}\small\item\em Function to get scaling object used for mapping partials of positions to partials of observable. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a05626fc98ac832b476a6866405890b2c}{get\+Number\+Of\+Ligh\+Time\+Correction\+Partials\+Functions}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the number of light-\/time correction partial functions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a414921deb14ecf6ec146abff550a2ed4}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a414921deb14ecf6ec146abff550a2ed4}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerScaling}{One\+Way\+Doppler\+Scaling}} $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a414921deb14ecf6ec146abff550a2ed4}{one\+Way\+Doppler\+Scaler\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Scaling object used for mapping partials of positions to partials of observable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a00a0d5e3317c3cb218dce4fe84083a4b}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a00a0d5e3317c3cb218dce4fe84083a4b}} 
+std\+::map$<$ observation\+\_\+models\+::\+Link\+End\+Type, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{Cartesian\+State\+Partial}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a00a0d5e3317c3cb218dce4fe84083a4b}{position\+Partial\+List\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of position partials per link end. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a48def55ef35a1bb942fe36e14e41fcfb}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a48def55ef35a1bb942fe36e14e41fcfb}} 
+std\+::map$<$ observation\+\_\+models\+::\+Link\+End\+Type, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{Cartesian\+State\+Partial}} $>$ $>$\+::iterator \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a48def55ef35a1bb942fe36e14e41fcfb}{position\+Partial\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Iterator over list of position partials per link end. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a6f6e2c7d62d95eb26b2a19d5e0de348b}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a6f6e2c7d62d95eb26b2a19d5e0de348b}} 
+std\+::vector$<$ std\+::function$<$ Single\+One\+Way\+Doppler\+Partial\+Return\+Type(const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&, const std\+::vector$<$ double $>$ \&) $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a6f6e2c7d62d95eb26b2a19d5e0de348b}{ligh\+Time\+Correction\+Partials\+Functions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of light-\/time correction partial functions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_aa98a8d6ca38958dd6a3e89166be21d31}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_aa98a8d6ca38958dd6a3e89166be21d31}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial}{observation\+\_\+partials\+::\+Light\+Time\+Correction\+Partial}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_aa98a8d6ca38958dd6a3e89166be21d31}{ligh\+Time\+Correction\+Partials\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of light-\/time correction partial objects. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_aaeea1120f669f71fbc016b7fa64642b2}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_aaeea1120f669f71fbc016b7fa64642b2}} 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_aaeea1120f669f71fbc016b7fa64642b2}{current\+State\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Pre-\/declared state variable to be used in calculate\+Partial function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a227f45d4f2ec8affdca7da43fe3bac41}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a227f45d4f2ec8affdca7da43fe3bac41}} 
+double \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a227f45d4f2ec8affdca7da43fe3bac41}{current\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Pre-\/declared time variable to be used in calculate\+Partial function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a1e3d5d7a87f1536676a612b2fa471a6b}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a1e3d5d7a87f1536676a612b2fa471a6b}} 
+bool \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a1e3d5d7a87f1536676a612b2fa471a6b}{add\+Proper\+Time\+Parameter\+Partials\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean to denote whether partials of proper time w.\+r.\+t. parameters should be added to final partial. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the partial derivatives of a one-\/way doppler observation partial. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a571b6468a85bfef091e8873e59282cfd}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a571b6468a85bfef091e8873e59282cfd}} 
+\index{tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}!OneWayDopplerPartial@{OneWayDopplerPartial}}
+\index{OneWayDopplerPartial@{OneWayDopplerPartial}!tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}}
+\doxysubsubsection{\texorpdfstring{OneWayDopplerPartial()}{OneWayDopplerPartial()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Partial\+::\+One\+Way\+Doppler\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerScaling}{One\+Way\+Doppler\+Scaling}} $>$}]{one\+Way\+Doppler\+Scaler,  }\item[{const std\+::map$<$ observation\+\_\+models\+::\+Link\+End\+Type, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{Cartesian\+State\+Partial}} $>$ $>$ \&}]{position\+Partial\+List,  }\item[{const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier}]{parameter\+Identifier,  }\item[{const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial}{observation\+\_\+partials\+::\+Light\+Time\+Correction\+Partial}} $>$ $>$ \&}]{ligh\+Time\+Correction\+Partials = {\ttfamily std\+:\+:vector$<$~std\+:\+:shared\+\_\+ptr$<$~\mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial}{observation\+\_\+partials\+::\+Light\+Time\+Correction\+Partial}}~$>$~$>$(~)} }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em one\+Way\+Doppler\+Scaler} & Scaling object used for mapping partials of positions to partials of observable \\
+\hline
+{\em position\+Partial\+List} & List of position partials per link end. \\
+\hline
+{\em parameter\+Identifier} & Id of parameter for which instance of class computes partial derivatives. \\
+\hline
+{\em ligh\+Time\+Correction\+Partials} & List if light-\/time correction partial objects. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a26cf61a992fdf38aac5244580c3b8083}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a26cf61a992fdf38aac5244580c3b8083}} 
+\index{tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}!calculatePartial@{calculatePartial}}
+\index{calculatePartial@{calculatePartial}!tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}}
+\doxysubsubsection{\texorpdfstring{calculatePartial()}{calculatePartial()}}
+{\footnotesize\ttfamily One\+Way\+Doppler\+Partial\+::\+One\+Way\+Doppler\+Partial\+Return\+Type tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Partial\+::calculate\+Partial (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Of\+Fixed\+Time,  }\item[{const Eigen\+::\+Vector1d \&}]{current\+Observation = {\ttfamily Eigen\+:\+:Vector1d\+:\+:Constant(~TUDAT\+\_\+NAN~)} }\end{DoxyParamCaption})}
+
+
+
+Function to calculate the observation partial(s) at required time and state. 
+
+Function to calculate the observation partial(s) at required time and state. State and time are typically obtained from evaluation of observation model. 
+\begin{DoxyParams}{Parameters}
+{\em states} & Link end states. Index maps to link end for a given Obsevable\+Type through get\+Link\+End\+Index function. \\
+\hline
+{\em times} & Link end time. \\
+\hline
+{\em link\+End\+Of\+Fixed\+Time} & Link end that is kept fixed when computing the observable. \\
+\hline
+{\em current\+Observation} & Value of the observation for which the partial is to be computed (default NaN for compatibility purposes). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of pairs containing partial values and associated times. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a05626fc98ac832b476a6866405890b2c}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a05626fc98ac832b476a6866405890b2c}} 
+\index{tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}!getNumberOfLighTimeCorrectionPartialsFunctions@{getNumberOfLighTimeCorrectionPartialsFunctions}}
+\index{getNumberOfLighTimeCorrectionPartialsFunctions@{getNumberOfLighTimeCorrectionPartialsFunctions}!tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}}
+\doxysubsubsection{\texorpdfstring{getNumberOfLighTimeCorrectionPartialsFunctions()}{getNumberOfLighTimeCorrectionPartialsFunctions()}}
+{\footnotesize\ttfamily int tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Partial\+::get\+Number\+Of\+Ligh\+Time\+Correction\+Partials\+Functions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the number of light-\/time correction partial functions. 
+
+Number of light-\/time correction partial functions. \begin{DoxyReturn}{Returns}
+Number of light-\/time correction partial functions. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a804073d87df5acbb9474af3de5ba0cb7}\label{classtudat_1_1observation__partials_1_1OneWayDopplerPartial_a804073d87df5acbb9474af3de5ba0cb7}} 
+\index{tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}!getOneWayDopplerScaler@{getOneWayDopplerScaler}}
+\index{getOneWayDopplerScaler@{getOneWayDopplerScaler}!tudat::observation\_partials::OneWayDopplerPartial@{tudat::observation\_partials::OneWayDopplerPartial}}
+\doxysubsubsection{\texorpdfstring{getOneWayDopplerScaler()}{getOneWayDopplerScaler()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerScaling}{One\+Way\+Doppler\+Scaling}} $>$ tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Partial\+::get\+One\+Way\+Doppler\+Scaler (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get scaling object used for mapping partials of positions to partials of observable. 
+
+Function to get scaling object used for mapping partials of positions to partials of observable \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/one\+Way\+Doppler\+Partial.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/observation\+\_\+partials/one\+Way\+Doppler\+Partial.\+cpp\end{DoxyCompactItemize}

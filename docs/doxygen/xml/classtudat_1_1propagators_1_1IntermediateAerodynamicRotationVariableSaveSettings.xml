@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings" prot="public" virt="non-virtual">tudat::propagators::SingleDependentVariableSaveSettings</basecompoundref>
+    <includes refid="propagationOutputSettings_8h" local="no">propagationOutputSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings_1aaf2d71a72a6a01d30c1d594d0f4524ad" prot="public" static="no" mutable="no">
+        <type>reference_frames::AerodynamicsReferenceFrames</type>
+        <definition>reference_frames::AerodynamicsReferenceFrames tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings::baseFrame_</definition>
+        <argsstring></argsstring>
+        <name>baseFrame_</name>
+        <briefdescription>
+<para>Frame from which rotation is to take place. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="322" column="51" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="322" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings_1a15e4f881ccf43a927162c1f479654d07" prot="public" static="no" mutable="no">
+        <type>reference_frames::AerodynamicsReferenceFrames</type>
+        <definition>reference_frames::AerodynamicsReferenceFrames tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings::targetFrame_</definition>
+        <argsstring></argsstring>
+        <name>targetFrame_</name>
+        <briefdescription>
+<para>Frame to which the rotation is to take place. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="325" column="51" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="325" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings_1a81f8de722b6c0651f72f4cdc866c560c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings::IntermediateAerodynamicRotationVariableSaveSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const reference_frames::AerodynamicsReferenceFrames baseFrame, const reference_frames::AerodynamicsReferenceFrames targetFrame, const int componentIndex=-1)</argsstring>
+        <name>IntermediateAerodynamicRotationVariableSaveSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const reference_frames::AerodynamicsReferenceFrames</type>
+          <declname>baseFrame</declname>
+        </param>
+        <param>
+          <type>const reference_frames::AerodynamicsReferenceFrames</type>
+          <declname>targetFrame</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>componentIndex</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which the rotation matrix is to be saved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>baseFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame from which rotation is to take place. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame to which the rotation is to take place. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>componentIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of the component to be saved. Only applicable to vectorial dependent variables. By default -1, i.e. all the components are saved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="312" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="312" bodyend="319"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::propagators::VariableSettings</label>
+        <link refid="classtudat_1_1propagators_1_1VariableSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::propagators::VariableSettings</label>
+        <link refid="classtudat_1_1propagators_1_1VariableSettings"/>
+      </node>
+      <node id="4">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>associatedBody_</edgelabel>
+          <edgelabel>secondaryBody_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="299" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="300" bodyend="327"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1a75122aa26880a97151b0caa4cc54f786" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>associatedBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings_1aaf2d71a72a6a01d30c1d594d0f4524ad" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>baseFrame_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1a70571bf244f86184b51cf3d35d729ce2" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>componentIndex_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1ac9d4da0711fb2550e3478452a1259cf0" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>dependentVariableType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings_1a81f8de722b6c0651f72f4cdc866c560c" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>IntermediateAerodynamicRotationVariableSaveSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1ae753de13467b2d1b065651f3ba7c0633" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>secondaryBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1aab1f0f83270f9007d5ffee52568358f9" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>SingleDependentVariableSaveSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1IntermediateAerodynamicRotationVariableSaveSettings_1a15e4f881ccf43a927162c1f479654d07" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>targetFrame_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1af61b6a0eef072c45660f5ea1989c2363" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>VariableSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1a976fc230d756ed3251ea04ee48fc1994" prot="public" virt="non-virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>variableType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1a93ead6417aadfc5ba47e87cf38d89997" prot="public" virt="virtual"><scope>tudat::propagators::IntermediateAerodynamicRotationVariableSaveSettings</scope><name>~VariableSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

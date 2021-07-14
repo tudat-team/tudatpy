@@ -1,0 +1,372 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1root__finders_1_1Bisection" kind="class" language="C++" prot="public">
+    <compoundname>tudat::root_finders::Bisection</compoundname>
+    <basecompoundref refid="classtudat_1_1root__finders_1_1RootFinder" prot="public" virt="non-virtual">tudat::root_finders::RootFinder&lt; double &gt;</basecompoundref>
+    <includes refid="bisection_8h" local="no">bisection.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename DataType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1root__finders_1_1Bisection_1a49e45ae65ad17ba498d6e48890003643" prot="public" static="no">
+        <type><ref refid="classtudat_1_1root__finders_1_1RootFinder" kindref="compound">RootFinder</ref>&lt; DataType &gt;::<ref refid="classtudat_1_1root__finders_1_1Bisection_1a49e45ae65ad17ba498d6e48890003643" kindref="member">FunctionPointer</ref></type>
+        <definition>typedef RootFinder&lt; DataType &gt;::FunctionPointer tudat::root_finders::Bisection&lt; DataType &gt;::FunctionPointer</definition>
+        <argsstring></argsstring>
+        <name>FunctionPointer</name>
+        <briefdescription>
+<para>Useful type definition for the function pointer (from base class). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="62" column="51" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1root__finders_1_1Bisection_1a6fbc07ded9876bfc5098d38ec3fd921e" prot="public" static="no">
+        <type><ref refid="classtudat_1_1root__finders_1_1RootFinder" kindref="compound">RootFinder</ref>&lt; DataType &gt;::<ref refid="classtudat_1_1root__finders_1_1Bisection_1a6fbc07ded9876bfc5098d38ec3fd921e" kindref="member">TerminationFunction</ref></type>
+        <definition>typedef RootFinder&lt; DataType &gt;::TerminationFunction tudat::root_finders::Bisection&lt; DataType &gt;::TerminationFunction</definition>
+        <argsstring></argsstring>
+        <name>TerminationFunction</name>
+        <briefdescription>
+<para>Useful type definition for the termination function (from base class). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="65" column="55" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1root__finders_1_1Bisection_1a1e42554c41e569bf75ba808d0c83d589" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::root_finders::Bisection&lt; DataType &gt;::lowerBound_</definition>
+        <argsstring></argsstring>
+        <name>lowerBound_</name>
+        <briefdescription>
+<para>Lower bound of the bracket containing the solution. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="225" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="225" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1root__finders_1_1Bisection_1a5a69e6f6a5b3067c38071122bd3d4436" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::root_finders::Bisection&lt; DataType &gt;::upperBound_</definition>
+        <argsstring></argsstring>
+        <name>upperBound_</name>
+        <briefdescription>
+<para>Upper bound of the bracket containing the solution. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="228" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="228" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1root__finders_1_1Bisection_1a6f26fb04a9fe7c556b7b19ca033f1149" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::root_finders::Bisection&lt; DataType &gt;::Bisection</definition>
+        <argsstring>(const TerminationFunction terminationFunction, const DataType lowerBound=-1.0, const DataType upperBound=1.0)</argsstring>
+        <name>Bisection</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1root__finders_1_1Bisection_1a6fbc07ded9876bfc5098d38ec3fd921e" kindref="member">TerminationFunction</ref></type>
+          <declname>terminationFunction</declname>
+        </param>
+        <param>
+          <type>const DataType</type>
+          <declname>lowerBound</declname>
+          <defval>-1.0</defval>
+        </param>
+        <param>
+          <type>const DataType</type>
+          <declname>upperBound</declname>
+          <defval>1.0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor taking a general termination function and the bracket of the solution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of the <ref refid="classtudat_1_1root__finders_1_1Bisection" kindref="compound">Bisection</ref> root-finder, taking the termination function (function determining whether to terminate the root-finding process) and the search interval with an upper and lower bound. It is required that the function values at upper and lower bound have an opposite sign. The default interval is [-1, 1]. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terminationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The function specifying the termination conditions of the root-finding process. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>RootFinderCore::terminationFunction </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lowerBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lower bound of the interval containing a root. (Default is -1.0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>upperBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Upper bound of the interval containing a root. (Default is 1.0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="78" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="78" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1root__finders_1_1Bisection_1a94d9e3d5805ac84d042266b178cf12d2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::root_finders::Bisection&lt; DataType &gt;::Bisection</definition>
+        <argsstring>(const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations, const DataType lowerBound=-1.0, const DataType upperBound=1.0)</argsstring>
+        <name>Bisection</name>
+        <param>
+          <type>const DataType</type>
+          <declname>relativeIndependentVariableTolerance</declname>
+        </param>
+        <param>
+          <type>const unsigned int</type>
+          <declname>maxIterations</declname>
+        </param>
+        <param>
+          <type>const DataType</type>
+          <declname>lowerBound</declname>
+          <defval>-1.0</defval>
+        </param>
+        <param>
+          <type>const DataType</type>
+          <declname>upperBound</declname>
+          <defval>1.0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor taking typical convergence criteria and the bracket of the solution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of the <ref refid="classtudat_1_1root__finders_1_1Bisection" kindref="compound">Bisection</ref> root-finder, taking the maximum number of iterations, the relative tolerance for the independent variable, and the search interval with upper and lower bound. It is required that the function values at upper and lower bound have an opposite sign. The default interval is [-1, 1]. If desired, a custom convergence function can be provided to the alternative constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>relativeIndependentVariableTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Relative difference between the root solution of two subsequent solutions below which convergence is reached. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxIterations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of iterations after which the root finder is terminated, i.e. convergence is assumed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lowerBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lower bound of the interval containing a root. (Default is -1.0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>upperBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Upper bound of the interval containing a root. (Default is 1.0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="98" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="98" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1root__finders_1_1Bisection_1adf34ad7b539bdb8b5cf7ab446b105fb8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::root_finders::Bisection&lt; DataType &gt;::~Bisection</definition>
+        <argsstring>()</argsstring>
+        <name>~Bisection</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="107" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="107" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1root__finders_1_1Bisection_1a130451907152ff915dddbdc549d27c1f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>DataType</type>
+        <definition>DataType tudat::root_finders::Bisection&lt; DataType &gt;::execute</definition>
+        <argsstring>(const FunctionPointer rootFunction, const DataType initialGuess=0.0)</argsstring>
+        <name>execute</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1root__finders_1_1Bisection_1a49e45ae65ad17ba498d6e48890003643" kindref="member">FunctionPointer</ref></type>
+          <declname>rootFunction</declname>
+        </param>
+        <param>
+          <type>const DataType</type>
+          <declname>initialGuess</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Find a root of the function provided as input. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Find a root of the function provided as input, using the termination function set by the constructor. (Note that the initial guess is not used, but is a requirement of the root-finder architecture.) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rootFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to find the root of. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialGuess</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The initial guess of the root. (Not used, default is 0.0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Root of the rootFunction that is found. </para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>ConvergenceExeption</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If the solution does not converge to a root value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>std::runtime_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If the interval does not bracket the root. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="120" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="120" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1root__finders_1_1Bisection_1a500f87173c4d36c6821ae1bfd43cf635" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::root_finders::Bisection&lt; DataType &gt;::resetBoundaries</definition>
+        <argsstring>(const DataType lowerBound, const DataType upperBound)</argsstring>
+        <name>resetBoundaries</name>
+        <param>
+          <type>const DataType</type>
+          <declname>lowerBound</declname>
+        </param>
+        <param>
+          <type>const DataType</type>
+          <declname>upperBound</declname>
+        </param>
+        <briefdescription>
+<para>Reset the bracket of the solution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets the search interval with an upper and lower bound. It is required that the function values at upper and lower bound have an opposite sign. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lowerBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lower bound of the interval containing a root. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>upperBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Upper bound of the interval containing a root. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="214" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="214" bodyend="218"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1root__finders_1_1Bisection" kindref="compound">Bisection</ref> root-finding method. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The bisection root-finding method, a basic and robust root-finder that will always find a root given that a root exists, the function is continuous on the interval, and that it is bracketed by the lower and upper bound (required). For this method only the function of which the zero is sought is required, and no derivatives. It is recommended to use this method for validation only, as it is relatively slow.</para>
+<para>It works by repeatedly shrinking the [lowerbound, upperbound] interval until the root has been found with sufficient accuracy. The shrinking is done by dividing the interval in half and evaluating in which interval the root lies. This sub-interval is then kept for the next iteration. The process is continued until the interval is sufficiently small. [Press et al., 2007] Defined shorthand notations: BisectionCore&lt; double &gt; =&gt; <ref refid="classtudat_1_1root__finders_1_1Bisection" kindref="compound">Bisection</ref> <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>DataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type used to represent floating-point values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::root_finders::Bisection&lt; DataType &gt;</label>
+        <link refid="classtudat_1_1root__finders_1_1Bisection"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::root_finders::RootFinder&lt; double &gt;</label>
+        <link refid="classtudat_1_1root__finders_1_1RootFinder"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::root_finders::Bisection&lt; DataType &gt;</label>
+        <link refid="classtudat_1_1root__finders_1_1Bisection"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::root_finders::RootFinder&lt; double &gt;</label>
+        <link refid="classtudat_1_1root__finders_1_1RootFinder"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" line="57" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/root_finders/bisection.h" bodystart="58" bodyend="230"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1a6f26fb04a9fe7c556b7b19ca033f1149" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>Bisection</name></member>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1a94d9e3d5805ac84d042266b178cf12d2" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>Bisection</name></member>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1a130451907152ff915dddbdc549d27c1f" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>execute</name></member>
+      <member refid="classtudat_1_1root__finders_1_1RootFinder_1a5009700f9daaefe9592520f41f0acd4a" prot="public" virt="pure-virtual" ambiguityscope="RootFinder&lt; double &gt;::"><scope>tudat::root_finders::Bisection</scope><name>execute</name></member>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1a49e45ae65ad17ba498d6e48890003643" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>FunctionPointer</name></member>
+      <member refid="classtudat_1_1root__finders_1_1RootFinder_1a27434ca7484c4e45e77bdfe63f5a7252" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>getFunction</name></member>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1a1e42554c41e569bf75ba808d0c83d589" prot="private" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>lowerBound_</name></member>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1a500f87173c4d36c6821ae1bfd43cf635" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>resetBoundaries</name></member>
+      <member refid="classtudat_1_1root__finders_1_1RootFinder_1a9b965801f22c3ff27f3c34996bf092ad" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>RootFinder</name></member>
+      <member refid="classtudat_1_1root__finders_1_1RootFinder_1aafc876b28429d8519b47778d9d5f56b8" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>RootFinder</name></member>
+      <member refid="classtudat_1_1root__finders_1_1RootFinder_1acd11d2e8941f562b59f756b6e65c4a8d" prot="protected" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>rootFunction</name></member>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1a6fbc07ded9876bfc5098d38ec3fd921e" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>TerminationFunction</name></member>
+      <member refid="classtudat_1_1root__finders_1_1RootFinder_1ab90854fae8530fd91376d100b3a26818" prot="protected" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>terminationFunction_</name></member>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1a5a69e6f6a5b3067c38071122bd3d4436" prot="private" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>upperBound_</name></member>
+      <member refid="classtudat_1_1root__finders_1_1Bisection_1adf34ad7b539bdb8b5cf7ab446b105fb8" prot="public" virt="non-virtual"><scope>tudat::root_finders::Bisection</scope><name>~Bisection</name></member>
+      <member refid="classtudat_1_1root__finders_1_1RootFinder_1ad501cc8971bd751fcd6f971853ab2e60" prot="public" virt="virtual"><scope>tudat::root_finders::Bisection</scope><name>~RootFinder</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

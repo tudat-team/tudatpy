@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::BaseStateInterfaceImplementation</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1BaseStateInterface" prot="public" virt="non-virtual">tudat::simulation_setup::BaseStateInterface</basecompoundref>
+    <includes refid="simulation_2environment__setup_2body_8h" local="no">body.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename TimeType</type>
+      </param>
+      <param>
+        <type>typename StateScalarType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a36e3db997cb614884aad07e96c301984" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;const TimeType)&gt;</type>
+        <definition>std::function&lt;Eigen::Matrix&lt;StateScalarType, 6, 1&gt;const TimeType)&gt; tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;::stateFunction_</definition>
+        <argsstring></argsstring>
+        <name>stateFunction_</name>
+        <briefdescription>
+<para>Function returning frame&apos;s inertial state as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="183" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a27befcd202106f9b3213b4a5dc059aa4" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;::stateMultiplier_</definition>
+        <argsstring></argsstring>
+        <name>stateMultiplier_</name>
+        <briefdescription>
+<para>Value (1 or -1) by which to multiply the state returned by stateFunction_. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="186" column="7" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1ae2929519aa3006a2f36e13b182f25eeb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;::BaseStateInterfaceImplementation</definition>
+        <argsstring>(const std::string baseFrameId, const std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;(const TimeType)&gt; stateFunction, const bool subtractStateFunction=0)</argsstring>
+        <name>BaseStateInterfaceImplementation</name>
+        <param>
+          <type>const std::string</type>
+          <declname>baseFrameId</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;(const TimeType)&gt;</type>
+          <declname>stateFunction</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>subtractStateFunction</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>baseFrameId</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of frame origin for which inertial state is computed by this class </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning frame&apos;s inertial state as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subtractStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether to subtract or add the state function (i.e. whether to multiply result of stateFunction by -1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="127" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="127" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a7f082ae2a3552dcdf8cdfccb7f9454e3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;::~BaseStateInterfaceImplementation</definition>
+        <argsstring>()</argsstring>
+        <name>~BaseStateInterfaceImplementation</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="134" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="134" bodyend="134"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1aba73247c64840695efc8b8171078d811" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;double, 6, 1&gt; tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;::getBaseFrameDoubleState</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>getBaseFrameDoubleState</name>
+        <reimplements refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1a82280d56b9ede9dbcbf3359f0089635e">getBaseFrameDoubleState</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function through which the state of baseFrameId_ in the inertial frame can be determined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function through which the state of baseFrameId_ in the inertial frame can be determined (double time and double state scalar). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertial state of frame origin at requested time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="144" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="144" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a65bfb8d9925c93926bebac63a73dd2b5" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;long double, 6, 1&gt; tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;::getBaseFrameLongDoubleState</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>getBaseFrameLongDoubleState</name>
+        <reimplements refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1a52d33e7bc9e7dde9727c73de16ed4710">getBaseFrameLongDoubleState</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function through which the state of baseFrameId_ in the inertial frame can be determined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function through which the state of baseFrameId_ in the inertial frame can be determined (double time and double long state scalar). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertial state of frame origin at requested time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="155" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="155" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a054ae402930b3e97930c51baa2da525a" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;double, 6, 1&gt; tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;::getBaseFrameDoubleState</definition>
+        <argsstring>(const Time &amp;time)</argsstring>
+        <name>getBaseFrameDoubleState</name>
+        <reimplements refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1ab13c4e402362995b12e0740c6a160d66">getBaseFrameDoubleState</reimplements>
+        <param>
+          <type>const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function through which the state of baseFrameId_ in the inertial frame can be determined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function through which the state of baseFrameId_ in the inertial frame can be determined (<ref refid="classtudat_1_1Time" kindref="compound">Time</ref> object time and double state scalar). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertial state of frame origin at requested time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="166" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="166" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a400243d985c985f2791dad8b7eec1d13" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; long double, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt;long double, 6, 1&gt; tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;::getBaseFrameLongDoubleState</definition>
+        <argsstring>(const Time &amp;time)</argsstring>
+        <name>getBaseFrameLongDoubleState</name>
+        <reimplements refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1ac94ad90d8870309a6bba98b2e3c88aae">getBaseFrameLongDoubleState</reimplements>
+        <param>
+          <type>const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &amp;</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function through which the state of baseFrameId_ in the inertial frame can be determined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function through which the state of baseFrameId_ in the inertial frame can be determined (<ref refid="classtudat_1_1Time" kindref="compound">Time</ref> object time and long double state scalar). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertial state of frame origin at requested time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="177" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="177" bodyend="179"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used for the determination of the inertial state of a <ref refid="classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref>&apos;s ephemeris origin. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::BaseStateInterface</label>
+        <link refid="classtudat_1_1simulation__setup_1_1BaseStateInterface"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::BaseStateInterfaceImplementation&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::BaseStateInterface</label>
+        <link refid="classtudat_1_1simulation__setup_1_1BaseStateInterface"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>baseFrameId_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" line="117" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/body.h" bodystart="117" bodyend="187"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1a4ae6ef15cf68aadd882c34de0cf3f503" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>baseFrameId_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1aaef83a88c7daddd073c395d2c7f12361" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>BaseStateInterface</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1ae2929519aa3006a2f36e13b182f25eeb" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>BaseStateInterfaceImplementation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1aba73247c64840695efc8b8171078d811" prot="protected" virt="virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>getBaseFrameDoubleState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a054ae402930b3e97930c51baa2da525a" prot="protected" virt="virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>getBaseFrameDoubleState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a65bfb8d9925c93926bebac63a73dd2b5" prot="protected" virt="virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>getBaseFrameLongDoubleState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a400243d985c985f2791dad8b7eec1d13" prot="protected" virt="virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>getBaseFrameLongDoubleState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1a29b4c3db7b1bf4d56033131b90bbb77d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>getBaseFrameState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1a9ef1139380260ef592c40897d51f20fb" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>getBaseFrameState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1afc84a9d6d3b0ae9708cb064dc0699c47" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>getBaseFrameState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a36e3db997cb614884aad07e96c301984" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>stateFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a27befcd202106f9b3213b4a5dc059aa4" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>stateMultiplier_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterface_1ab3c1b1a5b34c7518b6ca72830835ee30" prot="public" virt="virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>~BaseStateInterface</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1BaseStateInterfaceImplementation_1a7f082ae2a3552dcdf8cdfccb7f9454e3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::BaseStateInterfaceImplementation</scope><name>~BaseStateInterfaceImplementation</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

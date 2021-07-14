@@ -1,0 +1,278 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</basecompoundref>
+    <includes refid="radiationPressureCoefficient_8h" local="no">radiationPressureCoefficient.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a59fd2ae8c704f35589e3d5373b678ca2" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" kindref="compound">electromagnetism::RadiationPressureInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; electromagnetism::RadiationPressureInterface &gt; tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::radiationPressureInterface_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureInterface_</name>
+        <briefdescription>
+<para>Object containing the radiation pressure coefficient to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="180" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a7c4f13fdcc358719ee2b5efa4c2a7447" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::timeLimits_</definition>
+        <argsstring></argsstring>
+        <name>timeLimits_</name>
+        <briefdescription>
+<para>Times at which the arcs are to start (including end time at maximum double value). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="183" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a4e01e2ee4d248512e1e6f8991c272873" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::radiationPressureCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureCoefficients_</name>
+        <briefdescription>
+<para>Values of radiation pressure coefficients in each arc. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="186" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a4673c2fe8ecf072d9a717edb7dc39ae5" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::fullRadiationPressureCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>fullRadiationPressureCoefficients_</name>
+        <briefdescription>
+<para>Values of radiation pressure coefficients in each arc, with additional value copied at end. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="189" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1ab0823cd066dde62085fc5563702fb31c" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator" kindref="compound">interpolators::PiecewiseConstantInterpolator</ref>&lt; double, double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::PiecewiseConstantInterpolator&lt; double, double &gt; &gt; tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::coefficientInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>coefficientInterpolator_</name>
+        <briefdescription>
+<para>Interpolator that returns the radiation pressure coefficient as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="192" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="192" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1ae6d248d9bb28c6a1af87256e23bfd90a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::ArcWiseRadiationPressureCoefficient</definition>
+        <argsstring>(const std::shared_ptr&lt; electromagnetism::RadiationPressureInterface &gt; radiationPressureInterface, const std::vector&lt; double &gt; timeLimits, const std::string &amp;associatedBody)</argsstring>
+        <name>ArcWiseRadiationPressureCoefficient</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" kindref="compound">electromagnetism::RadiationPressureInterface</ref> &gt;</type>
+          <declname>radiationPressureInterface</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>timeLimits</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radiationPressureInterface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object containing the radiation pressure coefficient to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeLimits</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Times at which the arcs are to start. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body containing the radiationPressureInterface object </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="98" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="98" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a22727ae08c9a343e33ab7df42bb573b5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::~ArcWiseRadiationPressureCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>~ArcWiseRadiationPressureCoefficient</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="127" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="127" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a2c03c0e1056504f84bc431fef5754619" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::getParameterValue</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a63413b914f9e8b68705aba7048780200">getParameterValue</reimplements>
+        <briefdescription>
+<para>Function to get the current value of the radiation pressure coefficient that is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the current value of the radiation pressure coefficient that is to be estimated. <simplesect kind="return"><para>Current value of the radiation pressure coefficient that is to be estimated. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="134" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="134" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a32501e76464402fd47786bab8d82cdb1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::setParameterValue</definition>
+        <argsstring>(Eigen::VectorXd parameterValue)</argsstring>
+        <name>setParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5df35bde257a6db401ca3c3613056554">setParameterValue</reimplements>
+        <param>
+          <type>Eigen::VectorXd</type>
+          <declname>parameterValue</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the value of the radiation pressure coefficient that is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the value of the radiation pressure coefficient that is to be estimated. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New value of the radiation pressure coefficient that is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="144" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="144" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a2f465736205161cca2bb70245a0ade3d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::getParameterSize</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterSize</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a989d54bab5c5e09ab6f1b709755b22e8">getParameterSize</reimplements>
+        <briefdescription>
+<para>Function to retrieve the size of the parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the size of the parameter <simplesect kind="return"><para>Size of parameter value </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="167" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="167" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1aad81538c0eeb519b4ce17caf3e8ad3ae" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1LookUpScheme" kindref="compound">interpolators::LookUpScheme</ref>&lt; double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::LookUpScheme&lt; double &gt; &gt; tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient::getArcTimeLookupScheme</definition>
+        <argsstring>()</argsstring>
+        <name>getArcTimeLookupScheme</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="170" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="170" bodyend="173"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interface class for the estimation of an arc-wise (piecewise constant) radiation pressure coefficient. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" line="87" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h" bodystart="88" bodyend="193"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1ae6d248d9bb28c6a1af87256e23bfd90a" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>ArcWiseRadiationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1ab0823cd066dde62085fc5563702fb31c" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>coefficientInterpolator_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a4012bde7f5f26c5c590c0a149283dd4d" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a4673c2fe8ecf072d9a717edb7dc39ae5" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>fullRadiationPressureCoefficients_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1aad81538c0eeb519b4ce17caf3e8ad3ae" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getArcTimeLookupScheme</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1adc670898ad79d02d23cfcf82b5578ed0" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getConstraintRightHandSide</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1af7db7b4da27ca2787b0090c409087cd7" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getConstraintSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a9c6c6514f75b2efdbd30cc2292fa3d0f" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getConstraintStateMultipler</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5c264285d7e3ce9ce1452928ad8e7425" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getParameterDescription</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a23de3d6116f1414d5bb905f1b523cfdc" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getParameterName</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a2f465736205161cca2bb70245a0ade3d" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getParameterSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a2c03c0e1056504f84bc431fef5754619" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1ae97f1a8ef867dcaf72ceeb5050e64629" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a3d43d2db730c707b789768dad4de5ae6" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>parameterName_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a4e01e2ee4d248512e1e6f8991c272873" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>radiationPressureCoefficients_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a59fd2ae8c704f35589e3d5373b678ca2" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>radiationPressureInterface_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a32501e76464402fd47786bab8d82cdb1" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>setParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a7c4f13fdcc358719ee2b5efa4c2a7447" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>timeLimits_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_1a22727ae08c9a343e33ab7df42bb573b5" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>~ArcWiseRadiationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a211a379e14476e36a7693f43be29cb11" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficient</scope><name>~EstimatableParameter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

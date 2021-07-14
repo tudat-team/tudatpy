@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1interpolators_1_1LookUpScheme" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::interpolators::LookUpScheme</compoundname>
+    <derivedcompoundref refid="classtudat_1_1interpolators_1_1BinarySearchLookupScheme" prot="public" virt="non-virtual">tudat::interpolators::BinarySearchLookupScheme&lt; IndependentVariableType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1interpolators_1_1HuntingAlgorithmLookupScheme" prot="public" virt="non-virtual">tudat::interpolators::HuntingAlgorithmLookupScheme&lt; IndependentVariableType &gt;</derivedcompoundref>
+    <includes refid="lookupScheme_8h" local="no">lookupScheme.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LookUpScheme_1a753a3db9ce3acfe0bbb4272155360ab7" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; IndependentVariableType &gt;</type>
+        <definition>std::vector&lt; IndependentVariableType &gt; tudat::interpolators::LookUpScheme&lt; IndependentVariableType &gt;::independentVariableValues_</definition>
+        <argsstring></argsstring>
+        <name>independentVariableValues_</name>
+        <briefdescription>
+<para>Vector of independent variable values in which lookup is to be performed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of independent variable values in which lookup is to be performed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="78" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LookUpScheme_1a6e9a14c5e9a66966beba83a190f145eb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::LookUpScheme&lt; IndependentVariableType &gt;::LookUpScheme</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentVariableValues)</argsstring>
+        <name>LookUpScheme</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentVariableValues</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, used to set data vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, used to set data vector. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector of independent variable values in which to perform lookup procedure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="53" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" bodystart="53" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LookUpScheme_1a61dad132b9b66c6a673d6afa811a516d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::interpolators::LookUpScheme&lt; IndependentVariableType &gt;::~LookUpScheme</definition>
+        <argsstring>()</argsstring>
+        <name>~LookUpScheme</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="61" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LookUpScheme_1a7749ee1bb2df25690a6e040a3e61f646" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>int</type>
+        <definition>virtual int tudat::interpolators::LookUpScheme&lt; IndependentVariableType &gt;::findNearestLowerNeighbour</definition>
+        <argsstring>(const IndependentVariableType valueToLookup)=0</argsstring>
+        <name>findNearestLowerNeighbour</name>
+        <reimplementedby refid="classtudat_1_1interpolators_1_1HuntingAlgorithmLookupScheme_1a52750dd9d4c1b1177459ee5630b24451">findNearestLowerNeighbour</reimplementedby>
+        <reimplementedby refid="classtudat_1_1interpolators_1_1BinarySearchLookupScheme_1a9c91bd06d198e6a5dc2a15ad7314c91f">findNearestLowerNeighbour</reimplementedby>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>valueToLookup</declname>
+        </param>
+        <briefdescription>
+<para>Find nearest left neighbour. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function finds nearest left neighbour of given value in independentVariableValues_. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>valueToLookup</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of which nearest neaighbour is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Index of entry in independentVariableValues_ vector which is nearest lower neighbour to valueToLookup. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="70" column="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Look-up scheme class for nearest left neighbour search. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Look-up scheme class for nearest left neighbour search, allows for different types of look-up scheme with a single interface. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of entries of vector in which lookup is to be performed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::interpolators::BinarySearchLookupScheme&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1BinarySearchLookupScheme"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::interpolators::HuntingAlgorithmLookupScheme&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1HuntingAlgorithmLookupScheme"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::interpolators::LookUpScheme&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1LookUpScheme"/>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" line="43" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lookupScheme.h" bodystart="44" bodyend="79"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1interpolators_1_1LookUpScheme_1a7749ee1bb2df25690a6e040a3e61f646" prot="public" virt="pure-virtual"><scope>tudat::interpolators::LookUpScheme</scope><name>findNearestLowerNeighbour</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LookUpScheme_1a753a3db9ce3acfe0bbb4272155360ab7" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LookUpScheme</scope><name>independentVariableValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LookUpScheme_1a6e9a14c5e9a66966beba83a190f145eb" prot="public" virt="non-virtual"><scope>tudat::interpolators::LookUpScheme</scope><name>LookUpScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LookUpScheme_1a61dad132b9b66c6a673d6afa811a516d" prot="public" virt="virtual"><scope>tudat::interpolators::LookUpScheme</scope><name>~LookUpScheme</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

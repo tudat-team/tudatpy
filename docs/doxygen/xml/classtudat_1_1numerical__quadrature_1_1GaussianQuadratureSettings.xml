@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::numerical_quadrature::GaussianQuadratureSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1numerical__quadrature_1_1QuadratureSettings" prot="public" virt="non-virtual">tudat::numerical_quadrature::QuadratureSettings&lt; double &gt;</basecompoundref>
+    <includes refid="createNumericalQuadrature_8h" local="no">createNumericalQuadrature.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings_1a40d0699a7b23dceef30460b3079751fb" prot="public" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_quadrature::GaussianQuadratureSettings&lt; IndependentVariableType &gt;::initialIndependentVariable_</definition>
+        <argsstring></argsstring>
+        <name>initialIndependentVariable_</name>
+        <briefdescription>
+<para>Starting independent variable of numerical quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" line="103" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings_1ad7f1509847a7f8ce8386a3d886b3901b" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::numerical_quadrature::GaussianQuadratureSettings&lt; IndependentVariableType &gt;::numberOfNodes_</definition>
+        <argsstring></argsstring>
+        <name>numberOfNodes_</name>
+        <briefdescription>
+<para>Number of nodes at which the function to be integrated will be evaluated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" line="106" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings_1a0b88717542d9ca720b9a1ff04759a6af" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_quadrature::GaussianQuadratureSettings&lt; IndependentVariableType &gt;::GaussianQuadratureSettings</definition>
+        <argsstring>(const IndependentVariableType initialIndependentVariable, const unsigned int numberOfNodes)</argsstring>
+        <name>GaussianQuadratureSettings</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialIndependentVariable</declname>
+        </param>
+        <param>
+          <type>const unsigned int</type>
+          <declname>numberOfNodes</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for gaussian quadrature settings. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialIndependentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting independent variable of numerical quadrature. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfNodes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of nodes at which the function to be integrated will be evaluated. Must be an integer value between 2 and 64. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" line="83" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" bodystart="83" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings_1aad23a69b4688dca201326908dd9e29c2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_quadrature::GaussianQuadratureSettings&lt; IndependentVariableType &gt;::~GaussianQuadratureSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~GaussianQuadratureSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" line="100" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" bodystart="100" bodyend="100"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings of gaussian quadrature. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to define settings of gaussian quadrature. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::numerical_quadrature::GaussianQuadratureSettings&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::numerical_quadrature::QuadratureSettings&lt; double &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1QuadratureSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::numerical_quadrature::GaussianQuadratureSettings&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::numerical_quadrature::QuadratureSettings&lt; double &gt;</label>
+        <link refid="classtudat_1_1numerical__quadrature_1_1QuadratureSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" line="73" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" bodystart="74" bodyend="108"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings_1a0b88717542d9ca720b9a1ff04759a6af" prot="public" virt="non-virtual"><scope>tudat::numerical_quadrature::GaussianQuadratureSettings</scope><name>GaussianQuadratureSettings</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings_1a40d0699a7b23dceef30460b3079751fb" prot="public" virt="non-virtual"><scope>tudat::numerical_quadrature::GaussianQuadratureSettings</scope><name>initialIndependentVariable_</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings_1ad7f1509847a7f8ce8386a3d886b3901b" prot="public" virt="non-virtual"><scope>tudat::numerical_quadrature::GaussianQuadratureSettings</scope><name>numberOfNodes_</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1QuadratureSettings_1aaf87067eb81be938f5667a3ce1562b7a" prot="public" virt="non-virtual"><scope>tudat::numerical_quadrature::GaussianQuadratureSettings</scope><name>QuadratureSettings</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1QuadratureSettings_1a10a9797c4a2aad65f7624c106c27eb65" prot="public" virt="non-virtual"><scope>tudat::numerical_quadrature::GaussianQuadratureSettings</scope><name>quadratureType_</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings_1aad23a69b4688dca201326908dd9e29c2" prot="public" virt="non-virtual"><scope>tudat::numerical_quadrature::GaussianQuadratureSettings</scope><name>~GaussianQuadratureSettings</name></member>
+      <member refid="classtudat_1_1numerical__quadrature_1_1QuadratureSettings_1a2f4adec806377bf61a044949ac9423e4" prot="public" virt="virtual"><scope>tudat::numerical_quadrature::GaussianQuadratureSettings</scope><name>~QuadratureSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

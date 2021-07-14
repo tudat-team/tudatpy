@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" prot="public" virt="non-virtual">tudat::observation_partials::RotationMatrixPartial</basecompoundref>
+    <includes refid="rotationMatrixPartial_8h" local="no">rotationMatrixPartial.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a9ff96a04cad11c25f9c45386ea1cd7b2" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1PlanetaryRotationModel" kindref="compound">ephemerides::PlanetaryRotationModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ephemerides::PlanetaryRotationModel &gt; tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate::bodyRotationModel_</definition>
+        <argsstring></argsstring>
+        <name>bodyRotationModel_</name>
+        <briefdescription>
+<para>Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="695" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="695" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1ae6247787f209f35953f4ed9d41ef299e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate::RotationMatrixPartialWrtFreeCoreNutationRate</definition>
+        <argsstring>(const std::shared_ptr&lt; ephemerides::PlanetaryRotationModel &gt; bodyRotationModel)</argsstring>
+        <name>RotationMatrixPartialWrtFreeCoreNutationRate</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1PlanetaryRotationModel" kindref="compound">ephemerides::PlanetaryRotationModel</ref> &gt;</type>
+          <declname>bodyRotationModel</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="646" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="646" bodyend="649"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1ad795651bfeeba16665d828710669c85d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate::~RotationMatrixPartialWrtFreeCoreNutationRate</definition>
+        <argsstring>()</argsstring>
+        <name>~RotationMatrixPartialWrtFreeCoreNutationRate</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="652" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="652" bodyend="652"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a270851ffbfe70aff5c088ef7270cf47b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::vector&lt; Eigen::Matrix3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Matrix3d &gt; tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate::calculatePartialOfRotationMatrixToBaseFrameWrParameter</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>calculatePartialOfRotationMatrixToBaseFrameWrParameter</name>
+        <reimplements refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a758db711ec18f3efbaa759488e45daf1">calculatePartialOfRotationMatrixToBaseFrameWrParameter</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt the free core nutation rate.</para>
+<para>Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt the free core nutation rate, using the properties of the bodyRotationModel_ member. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the partial is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of size 1 containing partials of rotation matrix from body-fixed to inertial frame wrt free core nutation rate. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="663" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="663" bodyend="671"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a53bb490f7227271865c3b3dc0069e237" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::vector&lt; Eigen::Matrix3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Matrix3d &gt; tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</name>
+        <reimplements refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a21af519e8a78ffd2978586549f3569c4">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>free core nutation rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame wrt</para>
+<para>Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame wrt the free core nutation rate, using the properties of the bodyRotationModel_ member. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the partial is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of size 0 containing partials of rotation matrix derivative from body-fixed to inertial frame wrt free core nutation rate. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="682" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="682" bodyend="690"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the free core nutation rate. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the PlanetaryRotationModel class, w.r.t. free core nutation rate. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_partials::RotationMatrixPartial</label>
+        <link refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</label>
+        <link refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_partials::RotationMatrixPartial</label>
+        <link refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</label>
+        <link refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="641" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="642" bodyend="697"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a9ff96a04cad11c25f9c45386ea1cd7b2" prot="private" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>bodyRotationModel_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1ac71e83a0bce8b3b19b687d050eabb1a9" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>calculatePartialOfInertialPositionWrtParameter</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a3cda8d4ab37d7bab0a8d20a9dd67a298" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>calculatePartialOfInertialVelocityWrtParameter</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a53bb490f7227271865c3b3dc0069e237" prot="public" virt="virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a270851ffbfe70aff5c088ef7270cf47b" prot="public" virt="virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>calculatePartialOfRotationMatrixToBaseFrameWrParameter</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a0e55c2d7ab65b053705dcfa3e37048b5" prot="public" virt="virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a9d452105ad40e0190f103a9475e9db42" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>RotationMatrixPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1ae6247787f209f35953f4ed9d41ef299e" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>RotationMatrixPartialWrtFreeCoreNutationRate</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1ac90b8767b8be5c52ee6b919ab384f227" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>rotationModel_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a74a1aafeff8ba51c4020aef18ec4d42b" prot="public" virt="virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>~RotationMatrixPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1ad795651bfeeba16665d828710669c85d" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</scope><name>~RotationMatrixPartialWrtFreeCoreNutationRate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

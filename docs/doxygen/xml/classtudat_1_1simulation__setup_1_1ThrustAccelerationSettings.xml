@@ -1,0 +1,352 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ThrustAccelerationSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1AccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AccelerationSettings</basecompoundref>
+    <includes refid="accelerationSettings_8h" local="no">accelerationSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1aab00ce2598eba383df2e840aea25758d" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings" kindref="compound">ThrustDirectionGuidanceSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ThrustDirectionGuidanceSettings &gt; tudat::simulation_setup::ThrustAccelerationSettings::thrustDirectionGuidanceSettings_</definition>
+        <argsstring></argsstring>
+        <name>thrustDirectionGuidanceSettings_</name>
+        <briefdescription>
+<para>Settings for the direction of the thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="502" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="502" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1aa4159aebc2e42f780e40a683b2ddb818" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings" kindref="compound">ThrustMagnitudeSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ThrustMagnitudeSettings &gt; tudat::simulation_setup::ThrustAccelerationSettings::thrustMagnitudeSettings_</definition>
+        <argsstring></argsstring>
+        <name>thrustMagnitudeSettings_</name>
+        <briefdescription>
+<para>Settings for the magnitude of the thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="505" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="505" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a8e65899e335590c983e024a1ab6808e5" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::ThrustAccelerationSettings::constantSpecificImpulse_</definition>
+        <argsstring></argsstring>
+        <name>constantSpecificImpulse_</name>
+        <initializer>= TUDAT_NAN</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constant specific impulse used when determining the direction and magnitude of thrust from an interpolator. NaN if the specific impulse is not constant (i.e. is defined using a std::function). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="509" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="509" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a769892c0ff68a3a332aee38e5395790b" prot="public" static="no" mutable="no">
+        <type>ThrustFrames</type>
+        <definition>ThrustFrames tudat::simulation_setup::ThrustAccelerationSettings::thrustFrame_</definition>
+        <argsstring></argsstring>
+        <name>thrustFrame_</name>
+        <briefdescription>
+<para>Identifier of frame in which thrust returned by fullThrustInterpolator is expressed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Identifier of frame in which thrust returned by fullThrustInterpolator is expressed. Unspecifief by default, only used if interpolatorInterface_ is set </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="516" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="516" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1ad5c45c7305e18e1decb708f122cb7b70" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::ThrustAccelerationSettings::centralBody_</definition>
+        <argsstring></argsstring>
+        <name>centralBody_</name>
+        <briefdescription>
+<para>Central body identifier for thrustFrame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Central body identifier for thrustFrame. Empty by default, only used if interpolatorInterface_ is set </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="523" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="523" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a4fa1e5f2c58e84a06ace5a12177a55c6" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1DataInterpolationSettings" kindref="compound">interpolators::DataInterpolationSettings</ref>&lt; double, Eigen::Vector3d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::DataInterpolationSettings&lt; double, Eigen::Vector3d &gt; &gt; tudat::simulation_setup::ThrustAccelerationSettings::dataInterpolationSettings_</definition>
+        <argsstring></argsstring>
+        <name>dataInterpolationSettings_</name>
+        <briefdescription>
+<para>Settings to create the interpolator interface. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="526" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="526" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a70885ff10898ec9b84ad680ac4d4c61b" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface" kindref="compound">FullThrustInterpolationInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; FullThrustInterpolationInterface &gt; tudat::simulation_setup::ThrustAccelerationSettings::interpolatorInterface_</definition>
+        <argsstring></argsstring>
+        <name>interpolatorInterface_</name>
+        <briefdescription>
+<para>Interface object used when full thrust (direction and magnitude) are defined by a single user-supplied interpolation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="529" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="529" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a547c2f04e9a8c062a82ac783dcd527ae" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ThrustAccelerationSettings::ThrustAccelerationSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; ThrustDirectionGuidanceSettings &gt; thrustDirectionGuidanceSettings, const std::shared_ptr&lt; ThrustMagnitudeSettings &gt; thrustMagnitudeSettings)</argsstring>
+        <name>ThrustAccelerationSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings" kindref="compound">ThrustDirectionGuidanceSettings</ref> &gt;</type>
+          <declname>thrustDirectionGuidanceSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings" kindref="compound">ThrustMagnitudeSettings</ref> &gt;</type>
+          <declname>thrustMagnitudeSettings</declname>
+        </param>
+        <briefdescription>
+<para>Constructor from separate magnitude and diretion settings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor from separate magnitude and diretion settings. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustDirectionGuidanceSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the direction of the thrust </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thrustMagnitudeSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the magnitude of the thrust </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="431" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="431" bodyend="437"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a20566c5ab581d064ea88ec4c08773db0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ThrustAccelerationSettings::ThrustAccelerationSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; interpolators::DataInterpolationSettings&lt; double, Eigen::Vector3d &gt; &gt; &amp;dataInterpolationSettings, const std::function&lt; double(const double) &gt; specificImpulseFunction, const ThrustFrames thrustFrame=unspecified_thrust_frame, const std::string centralBody=&quot;&quot;)</argsstring>
+        <name>ThrustAccelerationSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1DataInterpolationSettings" kindref="compound">interpolators::DataInterpolationSettings</ref>&lt; double, Eigen::Vector3d &gt; &gt; &amp;</type>
+          <declname>dataInterpolationSettings</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>specificImpulseFunction</declname>
+        </param>
+        <param>
+          <type>const ThrustFrames</type>
+          <declname>thrustFrame</declname>
+          <defval>unspecified_thrust_frame</defval>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>centralBody</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using variable specific impulse</para>
+<para>Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using variable specific impulse <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataInterpolationSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings to create the interpolator that returns the thrust as a function of time in frame defined by thrustFrame </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulseFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the specific impulse as a function of time </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thrustFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of frame in which thrust returned by fullThrustInterpolator is expressed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Central body identifier for thrustFrame (if needed; empty by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="450" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="450" bodyend="469"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a565051fe6664ed126cb93c0f49f1f591" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ThrustAccelerationSettings::ThrustAccelerationSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; interpolators::DataInterpolationSettings&lt; double, Eigen::Vector3d &gt; &gt; &amp;dataInterpolationSettings, const double constantSpecificImpulse, const ThrustFrames thrustFrame=unspecified_thrust_frame, const std::string centralBody=&quot;&quot;)</argsstring>
+        <name>ThrustAccelerationSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1DataInterpolationSettings" kindref="compound">interpolators::DataInterpolationSettings</ref>&lt; double, Eigen::Vector3d &gt; &gt; &amp;</type>
+          <declname>dataInterpolationSettings</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>constantSpecificImpulse</declname>
+        </param>
+        <param>
+          <type>const ThrustFrames</type>
+          <declname>thrustFrame</declname>
+          <defval>unspecified_thrust_frame</defval>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>centralBody</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant specific impulse</para>
+<para>Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant specific impulse <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataInterpolationSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings to create the interpolator that returns the thrust as a function of time in frame defined by thrustFrame </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>constantSpecificImpulse</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant specific impulse </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thrustFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of frame in which thrust returned by fullThrustInterpolator is expressed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Central body identifier for thrustFrame (if needed; empty by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="482" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="482" bodyend="494"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a8454a64ad1922663d0e7ab1e19aa4860" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ThrustAccelerationSettings::~ThrustAccelerationSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~ThrustAccelerationSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="498" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="498" bodyend="498"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for providing acceleration settings for a thrust acceleration model. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude guidance of the thrust are provided/ </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ThrustAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ThrustAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>centralBody_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="421" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="422" bodyend="531"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a61a6c91bf73a293adb523ebe2b71f379" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>AccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1aaf1f7742077003cf7055c96ec934e4d8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>accelerationType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1ad5c45c7305e18e1decb708f122cb7b70" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>centralBody_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a8e65899e335590c983e024a1ab6808e5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>constantSpecificImpulse_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a4fa1e5f2c58e84a06ace5a12177a55c6" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>dataInterpolationSettings_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a70885ff10898ec9b84ad680ac4d4c61b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>interpolatorInterface_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a547c2f04e9a8c062a82ac783dcd527ae" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>ThrustAccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a20566c5ab581d064ea88ec4c08773db0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>ThrustAccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a565051fe6664ed126cb93c0f49f1f591" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>ThrustAccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1aab00ce2598eba383df2e840aea25758d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>thrustDirectionGuidanceSettings_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a769892c0ff68a3a332aee38e5395790b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>thrustFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1aa4159aebc2e42f780e40a683b2ddb818" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>thrustMagnitudeSettings_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a66bf9df8526ebaf6ed16a1100811a3ef" prot="public" virt="virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>~AccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings_1a8454a64ad1922663d0e7ab1e19aa4860" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustAccelerationSettings</scope><name>~ThrustAccelerationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

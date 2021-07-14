@@ -1,0 +1,78 @@
+\hypertarget{classtudat_1_1statistics_1_1RandomVariableGenerator}{}\doxysection{tudat\+::statistics\+::Random\+Variable\+Generator$<$ Dependent\+Variable\+Type $>$ Class Template Reference}
+\label{classtudat_1_1statistics_1_1RandomVariableGenerator}\index{tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$@{tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$}}
+
+
+Base class for random number generation.  
+
+
+
+
+{\ttfamily \#include $<$random\+Variable\+Generator.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1statistics_1_1RandomVariableGenerator_a1c76f64e24da9ff114c38d92538a8dd0}{Random\+Variable\+Generator}} (const double seed)
+\begin{DoxyCompactList}\small\item\em Constructor, sets the seed for the base random number generator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1statistics_1_1RandomVariableGenerator_a267e1b8d4d8f4f78d73d8411f623bc9d}\label{classtudat_1_1statistics_1_1RandomVariableGenerator_a267e1b8d4d8f4f78d73d8411f623bc9d}} 
+virtual \mbox{\hyperlink{classtudat_1_1statistics_1_1RandomVariableGenerator_a267e1b8d4d8f4f78d73d8411f623bc9d}{$\sim$\+Random\+Variable\+Generator}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual Dependent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1statistics_1_1RandomVariableGenerator_a8fec0a593026cd247608027404ef4438}{get\+Random\+Variable\+Value}} ()=0
+\begin{DoxyCompactList}\small\item\em Function to generate random number. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1statistics_1_1RandomVariableGenerator_a09e496e2d7564d95f22482eee2860b96}\label{classtudat_1_1statistics_1_1RandomVariableGenerator_a09e496e2d7564d95f22482eee2860b96}} 
+boost\+::random\+::mt19937 \mbox{\hyperlink{classtudat_1_1statistics_1_1RandomVariableGenerator_a09e496e2d7564d95f22482eee2860b96}{random\+Number\+Generator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Uniform (0,1) random number generator, to be mapped to specific distribution by derived classes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Dependent\+Variable\+Type$>$\newline
+class tudat\+::statistics\+::\+Random\+Variable\+Generator$<$ Dependent\+Variable\+Type $>$}
+
+Base class for random number generation. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1statistics_1_1RandomVariableGenerator_a1c76f64e24da9ff114c38d92538a8dd0}\label{classtudat_1_1statistics_1_1RandomVariableGenerator_a1c76f64e24da9ff114c38d92538a8dd0}} 
+\index{tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$@{tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$}!RandomVariableGenerator@{RandomVariableGenerator}}
+\index{RandomVariableGenerator@{RandomVariableGenerator}!tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$@{tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{RandomVariableGenerator()}{RandomVariableGenerator()}}
+{\footnotesize\ttfamily template$<$typename Dependent\+Variable\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1statistics_1_1RandomVariableGenerator}{tudat\+::statistics\+::\+Random\+Variable\+Generator}}$<$ Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1statistics_1_1RandomVariableGenerator}{Random\+Variable\+Generator}} (\begin{DoxyParamCaption}\item[{const double}]{seed }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets the seed for the base random number generator. 
+
+Constructor, sets the seed for the base random number generator. 
+\begin{DoxyParams}{Parameters}
+{\em seed} & Seed of random number generator (default is pseudo-\/random time(0)) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1statistics_1_1RandomVariableGenerator_a8fec0a593026cd247608027404ef4438}\label{classtudat_1_1statistics_1_1RandomVariableGenerator_a8fec0a593026cd247608027404ef4438}} 
+\index{tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$@{tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$}!getRandomVariableValue@{getRandomVariableValue}}
+\index{getRandomVariableValue@{getRandomVariableValue}!tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$@{tudat::statistics::RandomVariableGenerator$<$ DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{getRandomVariableValue()}{getRandomVariableValue()}}
+{\footnotesize\ttfamily template$<$typename Dependent\+Variable\+Type $>$ \\
+virtual Dependent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1statistics_1_1RandomVariableGenerator}{tudat\+::statistics\+::\+Random\+Variable\+Generator}}$<$ Dependent\+Variable\+Type $>$\+::get\+Random\+Variable\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function to generate random number. 
+
+This function generates a random number from the distribution defined by the derived class. It maps the random number (representing the cdf value) generated by the random\+Number\+Generator\+\_\+ member to that of the value of the independent variable according to the distribution implemented in the derived class.. \begin{DoxyReturn}{Returns}
+Randomly generated number of derived class distribution. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator_a91d2ccdbad16f47c24ec8d97e6aa53c3}{tudat\+::statistics\+::\+Continuous\+Random\+Variable\+Generator}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/statistics/random\+Variable\+Generator.\+h\end{DoxyCompactItemize}

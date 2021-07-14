@@ -1,0 +1,1333 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1sofa__interface" kind="namespace" language="C++">
+    <compoundname>tudat::sofa_interface</compoundname>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="fundamentalArguments_8h_1aead481a2de5ac2a80b020c023be4764d" prot="public" static="yes" mutable="no">
+        <type>const Eigen::Matrix&lt; double, 5, 5 &gt;</type>
+        <definition>const Eigen::Matrix&lt; double, 5, 5 &gt; tudat::sofa_interface::delaunayToDoodsonArguments</definition>
+        <argsstring></argsstring>
+        <name>delaunayToDoodsonArguments</name>
+        <initializer>=
+        ( Eigen::Matrix&lt; double, 5, 5 &gt;( ) &lt;&lt;
+           0.0,  0.0, 1.0,  0.0,  1.0,
+           0.0,  0.0, 1.0, -1.0,  1.0,
+          -1.0,  0.0, 1.0,  0.0,  1.0,
+           0.0,  0.0, 0.0,  0.0, -1.0,
+           0.0, -1.0, 1.0, -1.0,  1.0 ).finished( )</initializer>
+        <briefdescription>
+<para>Matrix to convert 5 Doodson arguments (without GMST) to Delaunay arguments. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Matrix to convert 5 Doodson arguments (without GMST) to Delaunay arguments. For order: <simplesect kind="see"><para>calculateDoodsonFundamentalArguments </para>
+</simplesect>
+<simplesect kind="see"><para>calculateDelaunayFundamentalArguments </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" line="39" column="28" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="fundamentalArguments_8h_1a07bde41e83d23469204d42eb7bacf5b0" prot="public" static="yes" mutable="no">
+        <type>const Eigen::Matrix&lt; double, 5, 5 &gt;</type>
+        <definition>const Eigen::Matrix&lt; double, 5, 5 &gt; tudat::sofa_interface::doodsonToDelaunayArguments</definition>
+        <argsstring></argsstring>
+        <name>doodsonToDelaunayArguments</name>
+        <initializer>=
+        ( Eigen::Matrix&lt; double, 5, 5 &gt;( ) &lt;&lt;
+          1.0,  0.0, -1.0,  0.0,  0.0,
+          0.0,  1.0,  0.0,  0.0, -1.0,
+          1.0,  0.0,  0.0,  1.0,  0.0,
+          1.0, -1.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0, -1.0,  0.0 ).finished( )</initializer>
+        <briefdescription>
+<para>Matrix to convert delaunay arguments to 5 Doodson arguments (without GMST). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Matrix to convert delaunay arguments to 5 Doodson arguments (without GMST). For order: <simplesect kind="see"><para>calculateDoodsonFundamentalArguments </para>
+</simplesect>
+<simplesect kind="see"><para>calculateDelaunayFundamentalArguments </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" line="53" column="28" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="earthOrientation_8h_1a82d1d4d5e2f3fbbeadd0556f532fc9c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::Vector2d, double &gt;</type>
+        <definition>std::pair&lt; Eigen::Vector2d, double &gt; tudat::sofa_interface::getPositionOfCipInGcrs</definition>
+        <argsstring>(const double terrestrialTime, const double referenceJulianDay=basic_astrodynamics::JULIAN_DAY_ON_J2000, const basic_astrodynamics::IAUConventions precessionNutationTheory=basic_astrodynamics::iau_2000_b)</argsstring>
+        <name>getPositionOfCipInGcrs</name>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceJulianDay</declname>
+          <defval>basic_astrodynamics::JULIAN_DAY_ON_J2000</defval>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::IAUConventions</type>
+          <declname>precessionNutationTheory</declname>
+          <defval>basic_astrodynamics::iau_2000_b</defval>
+        </param>
+        <briefdescription>
+<para>Function to calculate CIP and CIO locator according to requested IAU conventions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate CIP (Celestial Intermediate Pole, typically denoted as X and Y) and CIO locator (Celestial Intermediate Origin, typically denoted s) according to requested IAU conventions using Sofa implementation. See Petit et al. (2010), chap. 5 for more details on requested variables. Note that this function does not include empirical corrections, published as daily values by the IERS. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TT in seconds since referenceJulianDay julianDay. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceJulianDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian day wrt which tt is referenced (default = J2000) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>precessionNutationTheory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IAU conventions that are to be used for calculation (i.e. determining which Sofa function to call) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of first: Vector of entries X, Y (in that order) CIP values and second: CIO locator. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="24" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="24" bodyend="58" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" declline="56" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8h_1ae6f3a88e1751d8b234303511d32e8a51" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateGreenwichMeanSiderealTime</definition>
+        <argsstring>(const double terrestrialTime, const double universalTime1, const double referenceJulianDay=basic_astrodynamics::JULIAN_DAY_ON_J2000, const basic_astrodynamics::IAUConventions iauConvention=basic_astrodynamics::iau_2000_b)</argsstring>
+        <name>calculateGreenwichMeanSiderealTime</name>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>universalTime1</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceJulianDay</declname>
+          <defval>basic_astrodynamics::JULIAN_DAY_ON_J2000</defval>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::IAUConventions</type>
+          <declname>iauConvention</declname>
+          <defval>basic_astrodynamics::iau_2000_b</defval>
+        </param>
+        <briefdescription>
+<para>Function to calculate GMST according to requested IAU conventions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate GMST (Greenwich Mean Sidereal <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) according to requested IAU conventions using Sofa implementation. Note that this function does not include empirical corrections, as published as daily values by IERS. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TT in seconds since reference julian day. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>universalTime1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UT1 in seconds since reference julian day. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceJulianDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian day wrt which input times are referenced (default = J2000) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iauConvention</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IAU conventions that are to be used for calculation (i.e. determining which Sofa function to call) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current GMST (normalized to [0,2 pi]). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="61" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="61" bodyend="92" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" declline="71" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8h_1abe2437cefc1f88e6acc8e8d5f66cac19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateEquationOfEquinoxes</definition>
+        <argsstring>(const double terrestrialTime, const double referenceJulianDay=basic_astrodynamics::JULIAN_DAY_ON_J2000, const basic_astrodynamics::IAUConventions iauConvention=basic_astrodynamics::iau_2000_b)</argsstring>
+        <name>calculateEquationOfEquinoxes</name>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceJulianDay</declname>
+          <defval>basic_astrodynamics::JULIAN_DAY_ON_J2000</defval>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::IAUConventions</type>
+          <declname>iauConvention</declname>
+          <defval>basic_astrodynamics::iau_2000_b</defval>
+        </param>
+        <briefdescription>
+<para>Function to calculate the equation of equinoxes at the given epoch according to requested IAU conventions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the equation of equinoxes at the given epoch according to requested IAU conventions using a SOFA implementation. This equation gives the angular difference between the mean and true equinox of date. This can in turn be used to e.g. convert GMST to GAST (and vice versa) or convert a state in the TEME frame to the TOD frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TT in seconds since reference julian day. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceJulianDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian day wrt which input times are referenced (default = J2000). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iauConvention</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IAU conventions that are to be used for calculation (i.e. determining which Sofa function to call). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Equation of equinoxes (in radians). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="95" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="95" bodyend="117" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" declline="88" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8h_1a5cb9ed66b19ce456aa2eb9079c4894cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::sofa_interface::getPrecessionNutationMatrix</definition>
+        <argsstring>(const double terrestrialTime, const double referenceJulianDay=basic_astrodynamics::JULIAN_DAY_ON_J2000)</argsstring>
+        <name>getPrecessionNutationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceJulianDay</declname>
+          <defval>basic_astrodynamics::JULIAN_DAY_ON_J2000</defval>
+        </param>
+        <briefdescription>
+<para>Function to calculate the combined precession/nutation rotation matrix to go from the GCRF to the True Of Date (TOD) frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the rotation matrix incorporating the combined effect of nutation and precession, based on the 1976 and 1980 IAU models. It is a function of the epoch that is the argument of this function. Since Tudat usually works with times measured from J2000, it is normally sufficient to provide the first argument only, containing the number of seconds terrestrial time since the J2000 epoch. If a different reference epoch is desired, it is mandatory to provide this epoch as a Julian day as the second argument. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Epoch in seconds since the reference epoch at which the precession/nutation rotation matrix is to be retrieved from SOFA. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceJulianDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian Day (JD) of the reference epoch from which the terrestrial time argument is measured. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Eigen rotation matrix that can be used to rotate 3D vectors (position or velocity) from the J2000 to the True Of Date frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="119" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="119" bodyend="130" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" declline="102" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8h_1af900ba5d65268dbbadf21d74cf9e076d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::sofa_interface::getPrecessionAngles</definition>
+        <argsstring>(double &amp;zeta, double &amp;z, double &amp;theta, const double terrestrialTime, const double referenceJulianDay=basic_astrodynamics::JULIAN_DAY_ON_J2000)</argsstring>
+        <name>getPrecessionAngles</name>
+        <param>
+          <type>double &amp;</type>
+          <declname>zeta</declname>
+        </param>
+        <param>
+          <type>double &amp;</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>double &amp;</type>
+          <declname>theta</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceJulianDay</declname>
+          <defval>basic_astrodynamics::JULIAN_DAY_ON_J2000</defval>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the IAU-1976 precession model angles zeta, z, and theta. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the IAU-1976 precession model angles zeta, z, and theta. These angles embody the transformation from the Mean-Of-Date frame to the GCRF frame. The definition of these angles can be found on pages 226 to 228 in Vallado (2013). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>zeta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Precession angle zeta (third rotation; about z-axis). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>z</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Precession angle z (first rotation, about z-axis). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>theta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Precession angle Theta (second rotation, about y-axis). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Epoch in seconds since reference day at which the angles are to be retrieved from SOFA. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceJulianDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference epoch for the former parameter, given in Julian Days (default = J2000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="132" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="132" bodyend="135" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" declline="115" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8h_1a2d55726cf82e7f30fa9fb16691b32587" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateEarthRotationAngle</definition>
+        <argsstring>(const double ut1, const double referenceJulianDay)</argsstring>
+        <name>calculateEarthRotationAngle</name>
+        <param>
+          <type>const double</type>
+          <declname>ut1</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceJulianDay</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate ERA (earth rotation angle) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate ERA (earth rotation angle) from current UT1. The ERA represents one of the Euler angles (between CIO and TIO) for transforming from ITRS to GCRS, see Petit et al. chap. 5 <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ut1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UT1 in seconds since referenceJulianDay julianDay. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceJulianDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian day wrt which ut1 is referenced (default = J2000) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current Earth rotation angle (normalized to [0,2 pi]). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="138" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="138" bodyend="141" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" declline="127" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8h_1a0b3e1c99cbe4dddfb8a124486ece1cbc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateEarthRotationAngleTemplated</definition>
+        <argsstring>(const TimeType currentUt1)</argsstring>
+        <name>calculateEarthRotationAngleTemplated</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>currentUt1</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate ERA (earth rotation angle) in templated precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate ERA (earth rotation angle) from current UT1 in templated precision. The ERA represents one of the Euler angles (between CIO and TIO) for transforming from ITRS to GCRS, see Petit et al. chap. 5 <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentUt1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UT1 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current Earth rotation angle (normalized to [0,2 pi]). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" line="139" column="8" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" declline="139" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8h_1aa2178b69f871ceca8cbf73ab488d0150" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::sofa_interface::getFrameBias</definition>
+        <argsstring>(const double julianDaysSinceReference, const basic_astrodynamics::IAUConventions precessionNutationTheory=basic_astrodynamics::iau_2006, const double referenceJulianDay=basic_astrodynamics::JULIAN_DAY_ON_J2000)</argsstring>
+        <name>getFrameBias</name>
+        <param>
+          <type>const double</type>
+          <declname>julianDaysSinceReference</declname>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::IAUConventions</type>
+          <declname>precessionNutationTheory</declname>
+          <defval>basic_astrodynamics::iau_2006</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceJulianDay</declname>
+          <defval>basic_astrodynamics::JULIAN_DAY_ON_J2000</defval>
+        </param>
+        <briefdescription>
+<para>Function to compute the rotation matrix from GCRS to J2000 at epoch. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the rotation matrix from GCRS to J2000 at epoch, e.g. frame bias <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>julianDaysSinceReference</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Days since reference epoch at which the frame bias is to be determined </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>precessionNutationTheory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IAU precession theory to use </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceJulianDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference Julian day for julianDaysSinceReference </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="167" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="167" bodyend="185" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" declline="149" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1a26e1edb163ac000845758427ecc4a732" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateMeanElongationOfMoonFromSun</definition>
+        <argsstring>(const double julianCenturiesSinceJ2000)</argsstring>
+        <name>calculateMeanElongationOfMoonFromSun</name>
+        <param>
+          <type>const double</type>
+          <declname>julianCenturiesSinceJ2000</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate mean elongation of the Moon from the Sun. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate mean elongation of the Moon from the Sun fundamental argument using Sofa implementation <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>julianCenturiesSinceJ2000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian centuries (period of 36525 days of 86400 seconds) since J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Mean elongation of the Moon from the Sun </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="21" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="21" bodyend="24" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="67" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1a89d79f213e856fceb87013264d0ac5f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateMeanArgumentOfLatitudeOfMoon</definition>
+        <argsstring>(const double julianCenturiesSinceJ2000)</argsstring>
+        <name>calculateMeanArgumentOfLatitudeOfMoon</name>
+        <param>
+          <type>const double</type>
+          <declname>julianCenturiesSinceJ2000</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate mean argument of latitude of the Moon. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate mean argument of latitude of the Moon fundamental argument using Sofa implementation <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>julianCenturiesSinceJ2000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian centuries (period of 36525 days of 86400 seconds) since J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Mean argument of latitude of the Moon </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="27" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="27" bodyend="30" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="75" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1ac8320b5024015395e59d7a0e86047903" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateMeanAnomalyOfMoon</definition>
+        <argsstring>(const double julianCenturiesSinceJ2000)</argsstring>
+        <name>calculateMeanAnomalyOfMoon</name>
+        <param>
+          <type>const double</type>
+          <declname>julianCenturiesSinceJ2000</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate mean anomaly of the Moon. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate mean anomaly of the Moon fundamental argument using Sofa implementation <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>julianCenturiesSinceJ2000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian centuries (period of 36525 days of 86400 seconds) since J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Mean anomaly of the Moon </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="33" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="33" bodyend="36" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="83" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1a2d19656980e5246cefbd83886b726493" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateMeanAnomalyOfSun</definition>
+        <argsstring>(const double julianCenturiesSinceJ2000)</argsstring>
+        <name>calculateMeanAnomalyOfSun</name>
+        <param>
+          <type>const double</type>
+          <declname>julianCenturiesSinceJ2000</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate mean anomaly of the Sun. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate mean anomaly of the Sun fundamental argument using Sofa implementation <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>julianCenturiesSinceJ2000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian centuries (period of 36525 days of 86400 seconds) since J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Mean anomaly of the Sun </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="39" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="39" bodyend="42" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="91" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1a6eee0b6a1311a4d278aea0e9ef866691" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateLongitudeOfMoonsAscendingNode</definition>
+        <argsstring>(const double julianCenturiesSinceJ2000)</argsstring>
+        <name>calculateLongitudeOfMoonsAscendingNode</name>
+        <param>
+          <type>const double</type>
+          <declname>julianCenturiesSinceJ2000</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate longitude of the Moon&apos;s ascending node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate longitude of the Moon&apos;s ascending node fundamental argument using Sofa implementation <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>julianCenturiesSinceJ2000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian centuries (period of 36525 days of 86400 seconds) since J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Longitude of the Moon&apos;s ascending node </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="45" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="45" bodyend="48" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="99" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1a5fc5714b5a6871f15aac5dfbf9dd9ede" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix&lt; double, 5, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 5, 1 &gt; tudat::sofa_interface::calculateDelaunayFundamentalArguments</definition>
+        <argsstring>(const double tdbTime)</argsstring>
+        <name>calculateDelaunayFundamentalArguments</name>
+        <param>
+          <type>const double</type>
+          <declname>tdbTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the Delaunay fundamental arguments at the requested time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the Delaunay fundamental arguments at the requested time, using Sofa implementation of angle calculations. Using the typical notation of the angles, the output order is: l, l&apos;, F, D, Omega. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tdbTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TDB at which the arguments are to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Delaunay fundamental arguments at the requested time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="51" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="51" bodyend="63" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="108" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1abbeeefd762e848354733cbe47046cf29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst</definition>
+        <argsstring>(const double tdbTime, const double terrestrialTime, const double universalTime1)</argsstring>
+        <name>calculateDelaunayFundamentalArgumentsWithGmst</name>
+        <param>
+          <type>const double</type>
+          <declname>tdbTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>universalTime1</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation of angle calculations. Using the typical notation of the angles, the output order is: (GMST + pi), l, l&apos;, F, D, Omega. We stress that the first argument is GMST with a 180 degree phase shift <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tdbTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TDB at which the arguments are to be calculated, in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TT at which the arguments are to be calculated, in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>universalTime1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UT1 at which the arguments are to be calculated, in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Delaunay fundamental arguments and (GMST + pi) at the requested time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="66" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="66" bodyend="80" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="122" declcolumn="18"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1a778ce450c6ded2c79c5635b4f7e061ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst</definition>
+        <argsstring>(const double tdbTime)</argsstring>
+        <name>calculateApproximateDelaunayFundamentalArgumentsWithGmst</name>
+        <param>
+          <type>const double</type>
+          <declname>tdbTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation of angle calculations. When using this function, TT and TDB are assumed equal, as are UTC and UT1, for the purposes of calculating GMST (which requires TT and UT1). Using the typical notation of the angles, the output order is: (GMST + pi), l, l&apos;, F, D, Omega. We stress that the first argument is GMST with a 180 degree phase shift <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tdbTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TDB at which the arguments are to be calculated, in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Delaunay fundamental arguments and (GMST + pi) at the requested time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="83" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="83" bodyend="87" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="135" declcolumn="18"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1ae81c6f74ae7fdd28dfd87bedb7c82875" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::sofa_interface::calculateDoodsonFundamentalArguments</definition>
+        <argsstring>(const double tdbTime, const double terrestrialTime, const double universalTime1)</argsstring>
+        <name>calculateDoodsonFundamentalArguments</name>
+        <param>
+          <type>const double</type>
+          <declname>tdbTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>terrestrialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>universalTime1</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the Doodson arguments at the requested time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the Doodson arguments at the requested time, using Sofa implementation of angle calculations. Using the typical notation of the angles, the output order is: (GMST + pi - s), s, h, p, N&apos;, p_{s}. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tdbTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TDB at which the arguments are to be calculated, in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terrestrialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TT at which the arguments are to be calculated, in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>universalTime1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UT1 at which the arguments are to be calculated, in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Doodson arguments and at the requested time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="90" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="90" bodyend="120" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="148" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="fundamentalArguments_8h_1aff53eb350653f14bf206edc5d97b291a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::sofa_interface::calculateDoodsonFundamentalArguments</definition>
+        <argsstring>(const double tdbTime)</argsstring>
+        <name>calculateDoodsonFundamentalArguments</name>
+        <param>
+          <type>const double</type>
+          <declname>tdbTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the Doodson arguments at the requested time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the Doodson arguments at the requested time, using Sofa implementation of angle calculations. he Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation of angle calculations. When using this function, TT and TDB are assumed equal, as are UTC and UT1, for the purposes of calculating GMST (which requires TT and UT1). Using the typical notation of the angles, the output order is: (GMST + pi - s), s, h, p, N&apos;, p_{s}. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tdbTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TDB at which the arguments are to be calculated, in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Doodson arguments and at the requested time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" line="123" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/fundamentalArguments.cpp" bodystart="123" bodyend="126" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/fundamentalArguments.h" declline="161" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1a0fad3e85c5652d2de85b156b7876a090" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::getDeltaAtFromUtc</definition>
+        <argsstring>(const double utcInJulianDays)</argsstring>
+        <name>getDeltaAtFromUtc</name>
+        <param>
+          <type>const double</type>
+          <declname>utcInJulianDays</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate number of leap seconds from UTC input. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate number of leap seconds from UTC (Universal Coordinated <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) input. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>utcInJulianDays</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UTC; in julianDays since J2000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of leap seconds at requested time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" line="25" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" bodystart="25" bodyend="53" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" declline="40" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1a26f7bb36d0d60c9052d6b1ef3ee3666d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::getDeltaAtFromTai</definition>
+        <argsstring>(const double taiInJulianDays)</argsstring>
+        <name>getDeltaAtFromTai</name>
+        <param>
+          <type>const double</type>
+          <declname>taiInJulianDays</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate number of leap seconds from TAI input. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate number of leap seconds from UTC (International Atomic <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) input. Note: this function will not work properly near the introduction of a leap second (specifically if TAI is less than the number of leap seconds from the leap second introduction) . In case of incorrect conversion, an error message is produced. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>taiInJulianDays</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TAI; in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of leap seconds at requested time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" line="56" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" bodystart="56" bodyend="87" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" declline="50" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1a570699f404736988d03cb4cc7818ab99" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>TimeType</type>
+        <definition>TimeType tudat::sofa_interface::convertTAItoUTC</definition>
+        <argsstring>(const TimeType taiSeconds)</argsstring>
+        <name>convertTAItoUTC</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>taiSeconds</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert TAI to UTC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert TAI (International Atomic <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) to UTC (Universal Coordinated <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) by subtracting bias ( i.e. number of leap seconds since reference epoch) as determined by Sofa. Note: this function will not work properly near the introduction of a leap second, <simplesect kind="see"><para>getDeltaAtFromTai </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>taiSeconds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TAI; in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UTC; in seconds since J2000 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" line="63" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" bodystart="63" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1a1b60a1c474fc4a294bf8af6347856c40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>TimeType</type>
+        <definition>TimeType tudat::sofa_interface::convertUTCtoTAI</definition>
+        <argsstring>(const TimeType utcSeconds)</argsstring>
+        <name>convertUTCtoTAI</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>utcSeconds</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert UTC to TAI. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert UTC (Universal Coordinated <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) to TAI (International Atomic <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) by adding bias (i.e. number of leap seconds since reference epoch) as determined by Sofa. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>utcSeconds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UTC; in seconds since J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TAI; in seconds since J2000 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" line="84" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" bodystart="84" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1a62e4e737382cd2e5defb9618fc4d64f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>TimeType</type>
+        <definition>TimeType tudat::sofa_interface::convertTTtoUTC</definition>
+        <argsstring>(const TimeType tt)</argsstring>
+        <name>convertTTtoUTC</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>tt</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert TT to UTC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert TT (Terrestrial <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) to UTC (Universal Coordinated <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) by determining bias (i.e. number of leap seconds since reference epoch and constant bias of TAI wrt TT) as determined by Sofa. Note: this function will not work properly near the introduction of a leap second, <simplesect kind="see"><para>getDeltaAtFromTai </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TT; in seconds since J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UTC; in seconds since J2000 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" line="101" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" bodystart="101" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1a6fbcb5fb1990427c8b48749f7da2cc25" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>TimeType</type>
+        <definition>TimeType tudat::sofa_interface::convertUTCtoTT</definition>
+        <argsstring>(const TimeType utc)</argsstring>
+        <name>convertUTCtoTT</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>utc</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert UTC to TT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert UTC (Universal Coordinated <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) to TT (Terrestrial <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) by determining bias (i.e. number of leap seconds since reference epoch and constant bias of TAI wrt TT) as determined by Sofa. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>utc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in UTC in seconds since J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in TT; in seconds since J2000 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" line="114" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" bodystart="114" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1a28ac24915b7ef397e7450a55988bf975" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::getTDBminusTT</definition>
+        <argsstring>(const double tdbTime, const double universalTimeFractionOfDay, const double stationLongitude, const double distanceFromSpinAxis, const double distanceFromEquatorialPlane)</argsstring>
+        <name>getTDBminusTT</name>
+        <param>
+          <type>const double</type>
+          <declname>tdbTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>universalTimeFractionOfDay</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>stationLongitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceFromSpinAxis</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceFromEquatorialPlane</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate difference between TDB and TT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>! Function to convert UTC to UT1 *!</para>
+<para>Function to calculate difference between TDB (Dynamical Barycentric <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) and TT (Terrestrial <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>), from Sofa function, which is based on decomposition of time ephemeris generated by Fairhead an Bretagnon (1990). Note that the time ephemeris should be generated by the direct solution of differential equations of proper time using custom ephemerides that, if very high consistency is required. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tdbTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TDB in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>universalTimeFractionOfDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UT1 in fraction of current day. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stationLongitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude of point on Earth where difference is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceFromSpinAxis</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance from Earth spin axis where difference is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceFromEquatorialPlane</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance from Earth equatorial plane where difference is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Difference between TDB and TT at requested position and TDB </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" line="96" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" bodystart="96" bodyend="102" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" declline="143" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1af92e15262b3db9a5fcb50b38384c9ecc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::getTDBminusTT</definition>
+        <argsstring>(const double tdbTime, const double universalTimeFractionOfDay, const Eigen::Vector3d &amp;stationCartesianPosition)</argsstring>
+        <name>getTDBminusTT</name>
+        <param>
+          <type>const double</type>
+          <declname>tdbTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>universalTimeFractionOfDay</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>stationCartesianPosition</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate difference between TDB and TT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate difference between TDB (Dynamical Barycentric <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) and TT (Terrestrial <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>), from Sofa function, which is based on decomposition of time ephemeris generated by Fairhead an Bretagnon (1990). Note that the time ephemeris should be generated by the direct solution of differential equations of proper time using custom ephemerides that, if very high consistency is required. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tdbTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TDB in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>universalTimeFractionOfDay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UT1 in fraction of current day. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stationCartesianPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Earth-fixed Cartesian position of evaluation point </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Difference between TDB and TT at requested position and TDB </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" line="105" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" bodystart="105" bodyend="114" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" declline="157" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1a6efebd0221f2889cf32c3e78a68e9359" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::getTDBminusTT</definition>
+        <argsstring>(const double ttOrTdbSinceJ2000, const double stationLongitude, const double distanceFromSpinAxis, const double distanceFromEquatorialPlane)</argsstring>
+        <name>getTDBminusTT</name>
+        <param>
+          <type>const double</type>
+          <declname>ttOrTdbSinceJ2000</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>stationLongitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceFromSpinAxis</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceFromEquatorialPlane</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate difference between TDB and TT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate difference between TDB (Dynamical Barycentric <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) and TT (Terrestrial <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>), from Sofa function, which is based on decomposition of time ephemeris generated by Fairhead an Bretagnon (1990). This function uses a simplification for the input to the algorithm: it is assumed that UTC and UT1 coincide for the purposes of the time difference calculation (as needed for the topocentric term of the time conversion). Also, the first input argument may be TDB or TT and the difference between the two is neglected in the internal calculations (TDB is formally required). These simplifications make this function unsuitable for moderately high precision applications. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ttOrTdbSinceJ2000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TDB or TT in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stationLongitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude of point on Earth where difference is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceFromSpinAxis</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance from Earth spin axis where difference is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceFromEquatorialPlane</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance from Earth equatorial plane where difference is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Difference between TDB and TT at requested position and TDB </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" line="117" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" bodystart="117" bodyend="131" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" declline="175" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="sofaTimeConversions_8h_1afbad688e6ec1a58dd2194195094d72f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::sofa_interface::getTDBminusTT</definition>
+        <argsstring>(const double ttOrTdbSinceJ2000, const Eigen::Vector3d &amp;stationCartesianPosition)</argsstring>
+        <name>getTDBminusTT</name>
+        <param>
+          <type>const double</type>
+          <declname>ttOrTdbSinceJ2000</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>stationCartesianPosition</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate difference between TDB and TT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate difference between TDB (Dynamical Barycentric <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>) and TT (Terrestrial <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>), from Sofa function, which is based on decomposition of time ephemeris generated by Fairhead an Bretagnon (1990). This function uses a simplification for the input to the algorithm: it is assumed that UTC and UT1 coincide for the purposes of the time difference calculation (as needed for the topocentric term of the time conversion). Also, the first input argument may be TDB or TT and the difference between the two is neglected in the internal calculations (TDB is formally required). These simplifications make this function unsuitable for moderately high precision applications. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ttOrTdbSinceJ2000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TDB or TT in seconds since J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stationCartesianPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Earth-fixed Cartesian position of evaluation point </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Difference between TDB and TT at requested position and TDB </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" line="134" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/sofaTimeConversions.cpp" bodystart="134" bodyend="142" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/sofaTimeConversions.h" declline="191" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8cpp_1ab51855152b58dfdc7ad490a92113feb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateEarthRotationAngleTemplated&lt; double &gt;</definition>
+        <argsstring>(const double currentUt1)</argsstring>
+        <name>calculateEarthRotationAngleTemplated&lt; double &gt;</name>
+        <param>
+          <type>const double</type>
+          <declname>currentUt1</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate ERA (earth rotation angle) in double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="145" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="145" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="earthOrientation_8cpp_1a0c3d2e1580522ef122d6e3c8d23ca44e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double tudat::sofa_interface::calculateEarthRotationAngleTemplated&lt; Time &gt;</definition>
+        <argsstring>(const Time currentUt1)</argsstring>
+        <name>calculateEarthRotationAngleTemplated&lt; Time &gt;</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref></type>
+          <declname>currentUt1</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate ERA (earth rotation angle) in <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" line="153" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa/earthOrientation.cpp" bodystart="153" bodyend="164"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/sofa/earthOrientation.h" line="41" column="1"/>
+  </compounddef>
+</doxygen>

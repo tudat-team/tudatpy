@@ -1,0 +1,57 @@
+\hypertarget{classtudat_1_1ephemerides_1_1KeplerStateExtractor}{}\doxysection{tudat\+::ephemerides\+::Kepler\+State\+Extractor Class Reference}
+\label{classtudat_1_1ephemerides_1_1KeplerStateExtractor}\index{tudat::ephemerides::KeplerStateExtractor@{tudat::ephemerides::KeplerStateExtractor}}
+
+
+Keplerian State extractor class.  
+
+
+
+
+{\ttfamily \#include $<$kepler\+State\+Extractor.\+h$>$}
+
+Inheritance diagram for tudat\+::ephemerides\+::Kepler\+State\+Extractor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1ephemerides_1_1KeplerStateExtractor}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ Eigen\+::\+Vector6d $>$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1KeplerStateExtractor_a99148026478cace2c2c85f1d04afc5a9}{extract}} (\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}{Parsed\+Data\+Line\+Map\+Ptr}} data\+Line\+Map)
+\begin{DoxyCompactList}\small\item\em Extract the Keplerian Elements. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Keplerian State extractor class. 
+
+This class contains the functionality of extracting the Keplerian elements from a parsed data line map. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1KeplerStateExtractor_a99148026478cace2c2c85f1d04afc5a9}\label{classtudat_1_1ephemerides_1_1KeplerStateExtractor_a99148026478cace2c2c85f1d04afc5a9}} 
+\index{tudat::ephemerides::KeplerStateExtractor@{tudat::ephemerides::KeplerStateExtractor}!extract@{extract}}
+\index{extract@{extract}!tudat::ephemerides::KeplerStateExtractor@{tudat::ephemerides::KeplerStateExtractor}}
+\doxysubsubsection{\texorpdfstring{extract()}{extract()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ Eigen\+::\+Vector6d $>$ tudat\+::ephemerides\+::\+Kepler\+State\+Extractor\+::extract (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}{Parsed\+Data\+Line\+Map\+Ptr}}}]{data\+Line\+Map }\end{DoxyParamCaption})}
+
+
+
+Extract the Keplerian Elements. 
+
+Returns a Keplerian\+Elements object containing the orbital parameters found in the input data line map. If one of the elements is not present, the function throws an exception. If no true anomaly field type is found, the function searches for the mean anomaly field type and performs the necessary conversions. The if-\/statements can be easily extended to deal with other non-\/standard field types.
+
+
+\begin{DoxyParams}{Parameters}
+{\em data\+Line\+Map} & Data map corresponding to a parsed line. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A Keplerian\+Elements object containing the orbital parameters found in the data map. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/ephemerides/kepler\+State\+Extractor.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/ephemerides/kepler\+State\+Extractor.\+cpp\end{DoxyCompactItemize}

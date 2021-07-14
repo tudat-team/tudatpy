@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::EstimatableParameterSettings</compoundname>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1ArcWiseConstantObservationBiasEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::ArcWiseConstantObservationBiasEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1ArcWiseDragCoefficientEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::ArcWiseDragCoefficientEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1ArcWiseEmpiricalAccelerationEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::ArcWiseEmpiricalAccelerationEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficientEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficientEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::ConstantObservationBiasEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicEstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::SphericalHarmonicEstimatableParameterSettings</derivedcompoundref>
+    <includes refid="estimatableParameterSettings_8h" local="no">estimatableParameterSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a5879aeacc6f924dd33459251044bdc6e" prot="public" static="no" mutable="no">
+        <type>EstimatebleParameterIdentifier</type>
+        <definition>EstimatebleParameterIdentifier tudat::estimatable_parameters::EstimatableParameterSettings::parameterType_</definition>
+        <argsstring></argsstring>
+        <name>parameterType_</name>
+        <briefdescription>
+<para>Identifier for parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Identifier for parameter, contains type of parameter and body of which parameter is a property. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="59" column="36" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a9daf25d39f47b7253d0705460760c79c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::EstimatableParameterSettings::EstimatableParameterSettings</definition>
+        <argsstring>(const std::string associatedBody, const EstimatebleParametersEnum parameterType, const std::string pointOnBodyId=&quot;&quot;)</argsstring>
+        <name>EstimatableParameterSettings</name>
+        <param>
+          <type>const std::string</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const EstimatebleParametersEnum</type>
+          <declname>parameterType</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>pointOnBodyId</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, takes parameter type and body of which it is a property. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body of which parameter is a property. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of parameter. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pointOnBodyId</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point on body associated with parameter (empty by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="43" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="43" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a337ccc9c7a09be382677b818d3042082" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::estimatable_parameters::EstimatableParameterSettings::~EstimatableParameterSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~EstimatableParameterSettings</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual destructor </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="52" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="52" bodyend="52"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for providing settings for parameters to estimate. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for providing settings for parameters to estimate. This class is a functional base class for parameters that require no information in addition to their type. This class can be used for the easy setup of parameter objects (see <ref refid="createEstimatableParameters_8h_source" kindref="compound">createEstimatableParameters.h</ref>), but users may also chose to do so manually. (Derived) Class members are all public, for ease of access and modification. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="14">
+        <label>tudat::estimatable_parameters::SphericalHarmonicEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1SphericalHarmonicEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::estimatable_parameters::ArcWiseEmpiricalAccelerationEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseEmpiricalAccelerationEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat::estimatable_parameters::FullDegreeTidalLoveNumberEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumberEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat::estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLagEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>tudat::estimatable_parameters::SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::ArcWiseConstantObservationBiasEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseConstantObservationBiasEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat::estimatable_parameters::ConstantObservationBiasEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat::estimatable_parameters::ArcWiseRadiationPressureCoefficientEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficientEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::estimatable_parameters::ArcWiseDragCoefficientEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseDragCoefficientEstimatableParameterSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="32" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="33" bodyend="61"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a9daf25d39f47b7253d0705460760c79c" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::EstimatableParameterSettings</scope><name>EstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a5879aeacc6f924dd33459251044bdc6e" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::EstimatableParameterSettings</scope><name>parameterType_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a337ccc9c7a09be382677b818d3042082" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::EstimatableParameterSettings</scope><name>~EstimatableParameterSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

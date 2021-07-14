@@ -1,0 +1,466 @@
+\hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial}{}\doxysection{tudat\+::acceleration\+\_\+partials\+::Acceleration\+Partial Class Reference}
+\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial}\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+
+
+Base class for objects calculating partial derivatives of accelerations w.\+r.\+t. states, model parameters.  
+
+
+
+
+{\ttfamily \#include $<$acceleration\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::acceleration\+\_\+partials\+::Acceleration\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=7.583333cm]{classtudat_1_1acceleration__partials_1_1AccelerationPartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ad4f4594c6e13138a1895dd008a14bf7e}{Acceleration\+Partial}} (const std\+::string \&accelerated\+Body, const std\+::string \&accelerating\+Body, const basic\+\_\+astrodynamics\+::\+Available\+Acceleration acceleration\+Type)
+\begin{DoxyCompactList}\small\item\em Base class constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab373fff70206231b312a988e59902038}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab373fff70206231b312a988e59902038}} 
+virtual \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab373fff70206231b312a988e59902038}{$\sim$\+Acceleration\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+std\+::pair$<$ std\+::function$<$ void(Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$) $>$, int $>$ \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a1b40573f9d0a7ad203e379327f13757e}{get\+Derivative\+Function\+Wrt\+State\+Of\+Integrated\+Body}} (const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a94b95390a37109627270bd8dfbca5342}{is\+State\+Derivative\+Dependent\+On\+Integrated\+Additional\+State\+Types}} (const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type)
+\begin{DoxyCompactList}\small\item\em Function for determining if the acceleration is dependent on a non-\/translational integrated state (default none). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab05fd603c6228f4639e6f00ac4f9527c}{is\+State\+Derivative\+Dependent\+On\+Integrated\+State}} (const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type)
+\begin{DoxyCompactList}\small\item\em Function to check whether a partial w.\+r.\+t. some integrated state is non-\/zero. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a629ee1ab826d64e6493d1dbf0fe7586b}{wrt\+Position\+Of\+Accelerated\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=0)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function for calculating the partial of the acceleration w.\+r.\+t. the position of the accelerated body. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ad3bb8ec281acf660baed8eb5127fcf5d}{wrt\+Velocity\+Of\+Accelerated\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=3)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the accelerated body. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a0576a63608bc8bee1da8bf2aea0ea7b6}{wrt\+State\+Of\+Accelerated\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the body undergoing acceleration. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a779c9c208d2054d8425178f4ea8f6021}{wrt\+Position\+Of\+Accelerating\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=0)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function for calculating the partial of the acceleration w.\+r.\+t. the position of the body exerting acceleration. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab411157f1ab0d7b8bdcb771024b4f5a9}{wrt\+Velocity\+Of\+Accelerating\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=3)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the body exerting acceleration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a8bfba67b7f9e9a3d6021b2b1759fc33e}{wrt\+State\+Of\+Accelerating\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the body exerting acceleration. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab222ba1108201aa02e916c64ce82d599}{wrt\+Position\+Of\+Additional\+Body}} (const std\+::string \&body\+Name, Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=0)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the acceleration w.\+r.\+t. the position of the third body. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a1566f99b2cfd42d523c06ee6c1559435}{wrt\+Velocity\+Of\+Additional\+Body}} (const std\+::string \&body\+Name, Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=3)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the third body. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a8e21b7ff67f97af2e7e2a963cd0da3b2}{wrt\+State\+Of\+Additional\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const std\+::string \&body\+Name)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the third body. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a781bc99dab9ab8dd805c63edf4e0d8f5}{wrt\+Non\+Translational\+State\+Of\+Additional\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type, const bool add\+Contribution=true)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the acceleration w.\+r.\+t. a non-\/translational integrated state. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab6d26ee307ebc4bb8f2cdca9f53e5097}{is\+Acceleration\+Partial\+Wrt\+Additional\+Body\+Nonnullptr}} (const std\+::string \&body\+Name)
+\begin{DoxyCompactList}\small\item\em Function to check whether the partial derivative w.\+r.\+t. the translational state of a third body is non-\/zero. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a0bf7d418855165be4d40b82cfbeb115c}{get\+Accelerated\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the name of the body undergoing acceleration. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ac74a861f66f3362524aec1f0266513cf}{get\+Accelerating\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the name of the body exerting acceleration. \end{DoxyCompactList}\item 
+basic\+\_\+astrodynamics\+::\+Available\+Acceleration \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a6b6e323de35eaeb1292e4bfb410da7b1}{get\+Acceleration\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the type of acceleration w.\+r.\+t. which partial is taken.. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a655662aa6427373647cc9c26327e9565}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a655662aa6427373647cc9c26327e9565}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a655662aa6427373647cc9c26327e9565}{accelerated\+Body\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Name of the body undergoing acceleration. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_aa0cb4d885b7833a39db39212a797ebd2}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_aa0cb4d885b7833a39db39212a797ebd2}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_aa0cb4d885b7833a39db39212a797ebd2}{accelerating\+Body\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Name of the body exerting acceleration. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a32cc6c58e4aa187b2110b4c6c7d4ccf4}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a32cc6c58e4aa187b2110b4c6c7d4ccf4}} 
+basic\+\_\+astrodynamics\+::\+Available\+Acceleration \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a32cc6c58e4aa187b2110b4c6c7d4ccf4}{acceleration\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of acceleration w.\+r.\+t. which partial is taken.. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Base class for objects calculating partial derivatives of accelerations w.\+r.\+t. states, model parameters. 
+
+Base class for objects calculating partial derivatives of accelerations w.\+r.\+t. states, model parameters. Such calculations are used in orbit determination, for the computation of the state transition; sensitivity matrices. Derived classes implement derivative-\/calculating models for specific acceleration models, so that the calculation of all partials of a single type acceleration model is encompassed in a single derived class. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ad4f4594c6e13138a1895dd008a14bf7e}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ad4f4594c6e13138a1895dd008a14bf7e}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!AccelerationPartial@{AccelerationPartial}}
+\index{AccelerationPartial@{AccelerationPartial}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{AccelerationPartial()}{AccelerationPartial()}}
+{\footnotesize\ttfamily tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::\+Acceleration\+Partial (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{accelerated\+Body,  }\item[{const std\+::string \&}]{accelerating\+Body,  }\item[{const basic\+\_\+astrodynamics\+::\+Available\+Acceleration}]{acceleration\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Base class constructor. 
+
+Constructor of base class, sets the base class member variables identifying the body undergoing and exerting the acceleration. 
+\begin{DoxyParams}{Parameters}
+{\em accelerated\+Body} & Body undergoing acceleration. \\
+\hline
+{\em accelerating\+Body} & Body exerting acceleration. \\
+\hline
+{\em acceleration\+Type} & Type of acceleration w.\+r.\+t. which partial is taken. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a0bf7d418855165be4d40b82cfbeb115c}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a0bf7d418855165be4d40b82cfbeb115c}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!getAcceleratedBody@{getAcceleratedBody}}
+\index{getAcceleratedBody@{getAcceleratedBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{getAcceleratedBody()}{getAcceleratedBody()}}
+{\footnotesize\ttfamily std\+::string tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::get\+Accelerated\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the name of the body undergoing acceleration. 
+
+Function to retrieve the name of the body undergoing acceleration. \begin{DoxyReturn}{Returns}
+Name of the body undergoing acceleration. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ac74a861f66f3362524aec1f0266513cf}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ac74a861f66f3362524aec1f0266513cf}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!getAcceleratingBody@{getAcceleratingBody}}
+\index{getAcceleratingBody@{getAcceleratingBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{getAcceleratingBody()}{getAcceleratingBody()}}
+{\footnotesize\ttfamily std\+::string tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::get\+Accelerating\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the name of the body exerting acceleration. 
+
+Function to retrieve the name of the body exerting acceleration. \begin{DoxyReturn}{Returns}
+Name of the body exerting acceleration. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a6b6e323de35eaeb1292e4bfb410da7b1}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a6b6e323de35eaeb1292e4bfb410da7b1}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!getAccelerationType@{getAccelerationType}}
+\index{getAccelerationType@{getAccelerationType}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{getAccelerationType()}{getAccelerationType()}}
+{\footnotesize\ttfamily basic\+\_\+astrodynamics\+::\+Available\+Acceleration tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::get\+Acceleration\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the type of acceleration w.\+r.\+t. which partial is taken.. 
+
+Function to retrieve the type of acceleration w.\+r.\+t. which partial is taken.. \begin{DoxyReturn}{Returns}
+Type of acceleration w.\+r.\+t. which partial is taken.. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a1b40573f9d0a7ad203e379327f13757e}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a1b40573f9d0a7ad203e379327f13757e}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!getDerivativeFunctionWrtStateOfIntegratedBody@{getDerivativeFunctionWrtStateOfIntegratedBody}}
+\index{getDerivativeFunctionWrtStateOfIntegratedBody@{getDerivativeFunctionWrtStateOfIntegratedBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{getDerivativeFunctionWrtStateOfIntegratedBody()}{getDerivativeFunctionWrtStateOfIntegratedBody()}}
+{\footnotesize\ttfamily std\+::pair$<$ std\+::function$<$ void( Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ ) $>$, int $>$ tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::get\+Derivative\+Function\+Wrt\+State\+Of\+Integrated\+Body (\begin{DoxyParamCaption}\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. 
+
+Function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Reference\+Point} & Reference point (id) for propagated state (i.\+e. body name for translational dynamics). \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pair with function, returning partial derivative, and number of columns in partial vector, 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ab4fa1fbffa888476633642ca3e1a1dd1}{tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab6d26ee307ebc4bb8f2cdca9f53e5097}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab6d26ee307ebc4bb8f2cdca9f53e5097}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!isAccelerationPartialWrtAdditionalBodyNonnullptr@{isAccelerationPartialWrtAdditionalBodyNonnullptr}}
+\index{isAccelerationPartialWrtAdditionalBodyNonnullptr@{isAccelerationPartialWrtAdditionalBodyNonnullptr}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{isAccelerationPartialWrtAdditionalBodyNonnullptr()}{isAccelerationPartialWrtAdditionalBodyNonnullptr()}}
+{\footnotesize\ttfamily virtual bool tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::is\+Acceleration\+Partial\+Wrt\+Additional\+Body\+Nonnullptr (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to check whether the partial derivative w.\+r.\+t. the translational state of a third body is non-\/zero. 
+
+Function to check whether the partial derivative w.\+r.\+t. the translational state of a third body is non-\/zero. This function returns false by default, should be redefined in derived class if any third-\/bodyd dependencies exist. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Name} & Name of third body. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if third body dependency exists, false otherwise. 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a48504d4899079b3a80909d991c72d4cb}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a94b95390a37109627270bd8dfbca5342}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a94b95390a37109627270bd8dfbca5342}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!isStateDerivativeDependentOnIntegratedAdditionalStateTypes@{isStateDerivativeDependentOnIntegratedAdditionalStateTypes}}
+\index{isStateDerivativeDependentOnIntegratedAdditionalStateTypes@{isStateDerivativeDependentOnIntegratedAdditionalStateTypes}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{isStateDerivativeDependentOnIntegratedAdditionalStateTypes()}{isStateDerivativeDependentOnIntegratedAdditionalStateTypes()}}
+{\footnotesize\ttfamily virtual bool tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::is\+State\+Derivative\+Dependent\+On\+Integrated\+Additional\+State\+Types (\begin{DoxyParamCaption}\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for determining if the acceleration is dependent on a non-\/translational integrated state (default none). 
+
+Function for determining if the acceleration is dependent on a non-\/translational integrated state. No dependency is implemented is returned in this base class function, but may be overriden by derived class. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Reference\+Point} & Reference point id of propagated state \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state for which dependency is to be determined. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if dependency exists (non-\/zero partial), false otherwise. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7d6dc0c6a70e33af5aefedf00dee1959}{tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_a5ce17e25105436d860a7e6d4545cecc2}{tudat\+::acceleration\+\_\+partials\+::\+Momentum\+Wheel\+Desaturation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a3b2270ed356d4d160791f27e08abddfd}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a46303a708d5697dff414538e8dc42912}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_a655cf2b7a07572b8af83b42c11e667fb}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_acb1a163e59f398cba8929feb0c64627d}{tudat\+::acceleration\+\_\+partials\+::\+Cannon\+Ball\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_ad9eac4e9f3b342b6bd3c7fe6031dc37f}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_a8b2783d84e2d5d6692887b9b30c9d598}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_ae34f4b0350fb63296433e29f1ede15ae}{tudat\+::acceleration\+\_\+partials\+::\+Central\+Gravitation\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_a0a61b86bf520d9d668c87eb8b5cd9d94}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab05fd603c6228f4639e6f00ac4f9527c}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab05fd603c6228f4639e6f00ac4f9527c}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!isStateDerivativeDependentOnIntegratedState@{isStateDerivativeDependentOnIntegratedState}}
+\index{isStateDerivativeDependentOnIntegratedState@{isStateDerivativeDependentOnIntegratedState}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{isStateDerivativeDependentOnIntegratedState()}{isStateDerivativeDependentOnIntegratedState()}}
+{\footnotesize\ttfamily bool tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::is\+State\+Derivative\+Dependent\+On\+Integrated\+State (\begin{DoxyParamCaption}\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to check whether a partial w.\+r.\+t. some integrated state is non-\/zero. 
+
+Function to check whether a partial w.\+r.\+t. some integrated state is non-\/zero. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Reference\+Point} & Reference point (id) for propagated state (i.\+e. body name for translational dynamics). \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if dependency exists, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a781bc99dab9ab8dd805c63edf4e0d8f5}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a781bc99dab9ab8dd805c63edf4e0d8f5}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtNonTranslationalStateOfAdditionalBody@{wrtNonTranslationalStateOfAdditionalBody}}
+\index{wrtNonTranslationalStateOfAdditionalBody@{wrtNonTranslationalStateOfAdditionalBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtNonTranslationalStateOfAdditionalBody()}{wrtNonTranslationalStateOfAdditionalBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+Non\+Translational\+State\+Of\+Additional\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type,  }\item[{const bool}]{add\+Contribution = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the acceleration w.\+r.\+t. a non-\/translational integrated state. 
+
+Function for calculating the partial of the acceleration w.\+r.\+t. a non-\/translational integrated state and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of where current partial is to be added. \\
+\hline
+{\em state\+Reference\+Point} & Reference point id of propagated state \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state for which partial is to be computed. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_ad665fe05ea9c95fbe020081b37990363}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_aef6175182c71375a77b74d54f88e1455}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_ac665acb9479084781d8445a48ef6f612}{tudat\+::acceleration\+\_\+partials\+::\+Cannon\+Ball\+Radiation\+Pressure\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a1133ebd3e79f1a58fdf93abc6db4f84f}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a629ee1ab826d64e6493d1dbf0fe7586b}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a629ee1ab826d64e6493d1dbf0fe7586b}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtPositionOfAcceleratedBody@{wrtPositionOfAcceleratedBody}}
+\index{wrtPositionOfAcceleratedBody@{wrtPositionOfAcceleratedBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtPositionOfAcceleratedBody()}{wrtPositionOfAcceleratedBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+Position\+Of\+Accelerated\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function for calculating the partial of the acceleration w.\+r.\+t. the position of the accelerated body. 
+
+Pure virtual function for calculating the partial of the acceleration w.\+r.\+t. the position of the accelerated body and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian position of body undergoing acceleration where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_a7124a5c70e63bb14f82bb53fe80677b1}{tudat\+::acceleration\+\_\+partials\+::\+Momentum\+Wheel\+Desaturation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a85d59afceca8c7a5705b6f5b83ff5e04}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a572e602e9a2469577bb7a6e51f04136b}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_a76bcefb2f171944358e161999f998255}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_a7105f4ca7565bc0b0ffe893755ee3b26}{tudat\+::acceleration\+\_\+partials\+::\+Cannon\+Ball\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_a329ffe0ccc7b432d1cadf7cd4302aba5}{tudat\+::acceleration\+\_\+partials\+::\+Panelled\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a25ef9232475bfcac1b4e1506268f183e}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial_a562658f5b1897b49962ea04367bb7f7e}{tudat\+::acceleration\+\_\+partials\+::\+Empirical\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_a6cf9c69cc44f44bcbf00f3da4e570047}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_a32b9a3d09a2c6df6102f1e76192457e8}{tudat\+::acceleration\+\_\+partials\+::\+Central\+Gravitation\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_a40ede1c0cfdb7fc5bb01d723c6cf936b}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a779c9c208d2054d8425178f4ea8f6021}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a779c9c208d2054d8425178f4ea8f6021}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtPositionOfAcceleratingBody@{wrtPositionOfAcceleratingBody}}
+\index{wrtPositionOfAcceleratingBody@{wrtPositionOfAcceleratingBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtPositionOfAcceleratingBody()}{wrtPositionOfAcceleratingBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+Position\+Of\+Accelerating\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function for calculating the partial of the acceleration w.\+r.\+t. the position of the body exerting acceleration. 
+
+Pure virtual function for calculating the partial of the acceleration w.\+r.\+t. the position of the body exerting acceleration and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian position of body exerting acceleration where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_a4b82cb7b1a3a45b3d4e60f75b55a5483}{tudat\+::acceleration\+\_\+partials\+::\+Momentum\+Wheel\+Desaturation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a87fdfb39c5cbeb0f8f2fe1d07cac0c9f}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a21f310f69efdfbdc36c1fc72ca8168fa}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_ac43a5f8f3a4aac38ada48cc52ac1b0f3}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_ac7c82002af8222d1de3cf7c2a5d37341}{tudat\+::acceleration\+\_\+partials\+::\+Cannon\+Ball\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_abb67a696786351af522e13ec30a50465}{tudat\+::acceleration\+\_\+partials\+::\+Panelled\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a85fe5efe5c87f5f948669a1437b79c04}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial_a0a55d3f8c4af6ff8aba6236864dba22a}{tudat\+::acceleration\+\_\+partials\+::\+Empirical\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_a8e4580ff0d04766443efbc597890f883}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_a7093f71f2e445a31878d3e90f6b02cb4}{tudat\+::acceleration\+\_\+partials\+::\+Central\+Gravitation\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_aee2795ef63ef62b256be3eabdd6d4d79}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab222ba1108201aa02e916c64ce82d599}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab222ba1108201aa02e916c64ce82d599}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtPositionOfAdditionalBody@{wrtPositionOfAdditionalBody}}
+\index{wrtPositionOfAdditionalBody@{wrtPositionOfAdditionalBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtPositionOfAdditionalBody()}{wrtPositionOfAdditionalBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+Position\+Of\+Additional\+Body (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Name,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the position of the third body. 
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the position of the third body and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Name} & Name of third body. \\
+\hline
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian position of third body where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_aa6daacc7ade3f5713b11bb9c779b4423}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a0576a63608bc8bee1da8bf2aea0ea7b6}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a0576a63608bc8bee1da8bf2aea0ea7b6}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtStateOfAcceleratedBody@{wrtStateOfAcceleratedBody}}
+\index{wrtStateOfAcceleratedBody@{wrtStateOfAcceleratedBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtStateOfAcceleratedBody()}{wrtStateOfAcceleratedBody()}}
+{\footnotesize\ttfamily void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+State\+Of\+Accelerated\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the body undergoing acceleration. 
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the body undergoing acceleration and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian state of body undergoing acceleration where current partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a8bfba67b7f9e9a3d6021b2b1759fc33e}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a8bfba67b7f9e9a3d6021b2b1759fc33e}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtStateOfAcceleratingBody@{wrtStateOfAcceleratingBody}}
+\index{wrtStateOfAcceleratingBody@{wrtStateOfAcceleratingBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtStateOfAcceleratingBody()}{wrtStateOfAcceleratingBody()}}
+{\footnotesize\ttfamily void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+State\+Of\+Accelerating\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the body exerting acceleration. 
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the body exerting acceleration and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian state of body exerting acceleration where current partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a8e21b7ff67f97af2e7e2a963cd0da3b2}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a8e21b7ff67f97af2e7e2a963cd0da3b2}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtStateOfAdditionalBody@{wrtStateOfAdditionalBody}}
+\index{wrtStateOfAdditionalBody@{wrtStateOfAdditionalBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtStateOfAdditionalBody()}{wrtStateOfAdditionalBody()}}
+{\footnotesize\ttfamily void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+State\+Of\+Additional\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const std\+::string \&}]{body\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the third body. 
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the Cartesian state of the third body and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Name} & Name of third body. \\
+\hline
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian state of third body where current partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ad3bb8ec281acf660baed8eb5127fcf5d}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ad3bb8ec281acf660baed8eb5127fcf5d}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtVelocityOfAcceleratedBody@{wrtVelocityOfAcceleratedBody}}
+\index{wrtVelocityOfAcceleratedBody@{wrtVelocityOfAcceleratedBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtVelocityOfAcceleratedBody()}{wrtVelocityOfAcceleratedBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+Velocity\+Of\+Accelerated\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 3} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the accelerated body. 
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the accelerated body and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian velocity of body undergoing acceleration where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_adb69907bf7bac1aae8bbc30a92e064e5}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a6942af4b6be577fbf8036a7cc05b168d}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_a7b6225c1e2a407f5c5dbdb5bf8fc7db7}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial_ac63f0c1979b302d4be0c365d2050e4b8}{tudat\+::acceleration\+\_\+partials\+::\+Empirical\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_ae13fe83eaf5a9985d40d3f11c78809d4}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_a704b030097808dd80b2921792e40fdf1}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab411157f1ab0d7b8bdcb771024b4f5a9}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_ab411157f1ab0d7b8bdcb771024b4f5a9}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtVelocityOfAcceleratingBody@{wrtVelocityOfAcceleratingBody}}
+\index{wrtVelocityOfAcceleratingBody@{wrtVelocityOfAcceleratingBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtVelocityOfAcceleratingBody()}{wrtVelocityOfAcceleratingBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+Velocity\+Of\+Accelerating\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 3} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the body exerting acceleration. 
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the body exerting a acceleration. . Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian velocity of body exerting acceleration where current partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a8969f306e082943d424c249a25319923}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a24c7ae61cb6e382a9840bcc21f4dd9df}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_a7bdc9f22b2f39cd8cc3a05ad200d1814}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial_a0802e0ab5f9bbb2866a20aef969d0514}{tudat\+::acceleration\+\_\+partials\+::\+Empirical\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_a1c989a8fd135d9fcf91aabe2913dc62d}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_a21593703ed843fbe246075c931dd1679}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a1566f99b2cfd42d523c06ee6c1559435}\label{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a1566f99b2cfd42d523c06ee6c1559435}} 
+\index{tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}!wrtVelocityOfAdditionalBody@{wrtVelocityOfAdditionalBody}}
+\index{wrtVelocityOfAdditionalBody@{wrtVelocityOfAdditionalBody}!tudat::acceleration\_partials::AccelerationPartial@{tudat::acceleration\_partials::AccelerationPartial}}
+\doxysubsubsection{\texorpdfstring{wrtVelocityOfAdditionalBody()}{wrtVelocityOfAdditionalBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial\+::wrt\+Velocity\+Of\+Additional\+Body (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Name,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 3} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the third body. 
+
+Function for calculating the partial of the acceleration w.\+r.\+t. the velocity of the third body and adding it to the existing partial block. . Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Name} & Name of third body. \\
+\hline
+{\em partial\+Matrix} & Block of partial derivatives of acceleration w.\+r.\+t. Cartesian velocity of third body where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a8ec877ad5a988357b71cd6e3ebce5ae0}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/acceleration\+\_\+partials/acceleration\+Partial.\+h\end{DoxyCompactItemize}

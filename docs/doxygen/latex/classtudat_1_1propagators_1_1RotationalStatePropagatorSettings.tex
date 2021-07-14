@@ -1,0 +1,167 @@
+\hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}{}\doxysection{tudat\+::propagators\+::Rotational\+State\+Propagator\+Settings$<$ State\+Scalar\+Type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}\index{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}}
+
+
+Class for defining settings for propagating rotational dynamics.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Rotational\+State\+Propagator\+Settings$<$ State\+Scalar\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a7408a87de189344ef68cb1d5c5778918}{Rotational\+State\+Propagator\+Settings}} (const basic\+\_\+astrodynamics\+::\+Torque\+Model\+Map \&torque\+Model\+Map, const std\+::vector$<$ std\+::string $>$ \&bodies\+To\+Integrate, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&initial\+Body\+States, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ termination\+Settings, const Rotational\+Propagator\+Type propagator=quaternions, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$ dependent\+Variables\+To\+Save=std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$(), const double print\+Interval=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Constructor with already-\/created torque models. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a70003d4967fe8e4e49dbcb1c3add4e6b}{Rotational\+State\+Propagator\+Settings}} (const simulation\+\_\+setup\+::\+Selected\+Torque\+Map \&torque\+Settings\+Map, const std\+::vector$<$ std\+::string $>$ \&bodies\+To\+Integrate, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&initial\+Body\+States, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ termination\+Settings, const Rotational\+Propagator\+Type propagator=quaternions, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$ dependent\+Variables\+To\+Save=std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$(), const double print\+Interval=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Constructor with settings for torque models. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a9c931cd130db7adb91999f425fa64bf3}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a9c931cd130db7adb91999f425fa64bf3}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a9c931cd130db7adb91999f425fa64bf3}{$\sim$\+Rotational\+State\+Propagator\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a542a6dfad8c9cc82a2380a6546d8b07a}{reset\+Integrated\+State\+Models}} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies)
+\begin{DoxyCompactList}\small\item\em Function to create the torque models. \end{DoxyCompactList}\item 
+simulation\+\_\+setup\+::\+Selected\+Torque\+Map \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a71ca1fa37f81c99d882f77a0f97f8f8c}{get\+Torque\+Settings\+Map}} () const
+\begin{DoxyCompactList}\small\item\em Function to get the torque settings map. \end{DoxyCompactList}\item 
+basic\+\_\+astrodynamics\+::\+Torque\+Model\+Map \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a1e2064a2afa1c4cf7fa1abb05ee03ed2}{get\+Torque\+Models\+Map}} () const
+\begin{DoxyCompactList}\small\item\em Function to get the torque models map. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a44b1bc56dbcd06463cc64613b9e5670c}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a44b1bc56dbcd06463cc64613b9e5670c}} 
+void {\bfseries reset\+Torque\+Models\+Map} (const basic\+\_\+astrodynamics\+::\+Torque\+Model\+Map \&torque\+Model\+Map)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_ab835e29cbf25e06a62f4109930e8efa2}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_ab835e29cbf25e06a62f4109930e8efa2}} 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_ab835e29cbf25e06a62f4109930e8efa2}{bodies\+To\+Integrate\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of bodies that are to be propagated numerically. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a9ef23d5791bc53a5e5e1aedab8fb2d4a}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a9ef23d5791bc53a5e5e1aedab8fb2d4a}} 
+Rotational\+Propagator\+Type \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a9ef23d5791bc53a5e5e1aedab8fb2d4a}{propagator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of translational state propagator to be used. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Scalar\+Type = double$>$\newline
+class tudat\+::propagators\+::\+Rotational\+State\+Propagator\+Settings$<$ State\+Scalar\+Type $>$}
+
+Class for defining settings for propagating rotational dynamics. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a7408a87de189344ef68cb1d5c5778918}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a7408a87de189344ef68cb1d5c5778918}} 
+\index{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}!RotationalStatePropagatorSettings@{RotationalStatePropagatorSettings}}
+\index{RotationalStatePropagatorSettings@{RotationalStatePropagatorSettings}!tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{RotationalStatePropagatorSettings()}{RotationalStatePropagatorSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}{tudat\+::propagators\+::\+Rotational\+State\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}{Rotational\+State\+Propagator\+Settings}} (\begin{DoxyParamCaption}\item[{const basic\+\_\+astrodynamics\+::\+Torque\+Model\+Map \&}]{torque\+Model\+Map,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{bodies\+To\+Integrate,  }\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&}]{initial\+Body\+States,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$}]{termination\+Settings,  }\item[{const Rotational\+Propagator\+Type}]{propagator = {\ttfamily quaternions},  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$}]{dependent\+Variables\+To\+Save = {\ttfamily std\+:\+:shared\+\_\+ptr$<$~\mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}}~$>$(~)},  }\item[{const double}]{print\+Interval = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with already-\/created torque models. 
+
+Constructor with already-\/created torque models. 
+\begin{DoxyParams}{Parameters}
+{\em torque\+Model\+Map} & List of torque models that are to be used in propagation \\
+\hline
+{\em bodies\+To\+Integrate} & List of bodies that are to be propagated numerically. \\
+\hline
+{\em initial\+Body\+States} & Initial state used as input for numerical integration \\
+\hline
+{\em termination\+Settings} & Settings for creating the object that checks whether the propagation is finished. \\
+\hline
+{\em propagator} & Type of rotational state propagator to be used. \\
+\hline
+{\em dependent\+Variables\+To\+Save} & Settings for the dependent variables that are to be saved during propagation (default none). \\
+\hline
+{\em print\+Interval} & Variable indicating how often (once per print\+Interval\+\_\+ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a70003d4967fe8e4e49dbcb1c3add4e6b}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a70003d4967fe8e4e49dbcb1c3add4e6b}} 
+\index{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}!RotationalStatePropagatorSettings@{RotationalStatePropagatorSettings}}
+\index{RotationalStatePropagatorSettings@{RotationalStatePropagatorSettings}!tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{RotationalStatePropagatorSettings()}{RotationalStatePropagatorSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}{tudat\+::propagators\+::\+Rotational\+State\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}{Rotational\+State\+Propagator\+Settings}} (\begin{DoxyParamCaption}\item[{const simulation\+\_\+setup\+::\+Selected\+Torque\+Map \&}]{torque\+Settings\+Map,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{bodies\+To\+Integrate,  }\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&}]{initial\+Body\+States,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$}]{termination\+Settings,  }\item[{const Rotational\+Propagator\+Type}]{propagator = {\ttfamily quaternions},  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$}]{dependent\+Variables\+To\+Save = {\ttfamily std\+:\+:shared\+\_\+ptr$<$~\mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}}~$>$(~)},  }\item[{const double}]{print\+Interval = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with settings for torque models. 
+
+Constructor with settings for torque models. 
+\begin{DoxyParams}{Parameters}
+{\em torque\+Settings\+Map} & List of settings for torque models that are to be used in propagation \\
+\hline
+{\em bodies\+To\+Integrate} & List of bodies that are to be propagated numerically. \\
+\hline
+{\em initial\+Body\+States} & Initial state used as input for numerical integration \\
+\hline
+{\em termination\+Settings} & Settings for creating the object that checks whether the propagation is finished. \\
+\hline
+{\em propagator} & Type of rotational state propagator to be used. \\
+\hline
+{\em dependent\+Variables\+To\+Save} & Settings for the dependent variables that are to be saved during propagation (default none). \\
+\hline
+{\em print\+Interval} & Variable indicating how often (once per print\+Interval\+\_\+ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a1e2064a2afa1c4cf7fa1abb05ee03ed2}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a1e2064a2afa1c4cf7fa1abb05ee03ed2}} 
+\index{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}!getTorqueModelsMap@{getTorqueModelsMap}}
+\index{getTorqueModelsMap@{getTorqueModelsMap}!tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getTorqueModelsMap()}{getTorqueModelsMap()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+basic\+\_\+astrodynamics\+::\+Torque\+Model\+Map \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}{tudat\+::propagators\+::\+Rotational\+State\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::get\+Torque\+Models\+Map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the torque models map. 
+
+Function to get the torque models map. \begin{DoxyReturn}{Returns}
+The torque models map. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a71ca1fa37f81c99d882f77a0f97f8f8c}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a71ca1fa37f81c99d882f77a0f97f8f8c}} 
+\index{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}!getTorqueSettingsMap@{getTorqueSettingsMap}}
+\index{getTorqueSettingsMap@{getTorqueSettingsMap}!tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getTorqueSettingsMap()}{getTorqueSettingsMap()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+simulation\+\_\+setup\+::\+Selected\+Torque\+Map \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}{tudat\+::propagators\+::\+Rotational\+State\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::get\+Torque\+Settings\+Map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the torque settings map. 
+
+Function to get the torque settings map. \begin{DoxyReturn}{Returns}
+The torque settings map. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a542a6dfad8c9cc82a2380a6546d8b07a}\label{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings_a542a6dfad8c9cc82a2380a6546d8b07a}} 
+\index{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}!resetIntegratedStateModels@{resetIntegratedStateModels}}
+\index{resetIntegratedStateModels@{resetIntegratedStateModels}!tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::RotationalStatePropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetIntegratedStateModels()}{resetIntegratedStateModels()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStatePropagatorSettings}{tudat\+::propagators\+::\+Rotational\+State\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::reset\+Integrated\+State\+Models (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&}]{bodies }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to create the torque models. 
+
+Function to create the torque models. 
+\begin{DoxyParams}{Parameters}
+{\em bodies} & Map of bodies in the propagation, with keys the names of the bodies. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagatorSettings_a18182c016d4f3bfd0229485425f9c395}{tudat\+::propagators\+::\+Propagator\+Settings$<$ double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Settings.\+h\end{DoxyCompactItemize}

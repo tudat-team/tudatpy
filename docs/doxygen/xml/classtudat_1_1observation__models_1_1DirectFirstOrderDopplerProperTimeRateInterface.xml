@@ -1,0 +1,370 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface" prot="public" virt="non-virtual">tudat::observation_models::DopplerProperTimeRateInterface</basecompoundref>
+    <includes refid="oneWayDopplerObservationModel_8h" local="no">oneWayDopplerObservationModel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1aa665ac869a78eb49e39d746bbedf1586" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::gravitationalParameterFunction_</definition>
+        <argsstring></argsstring>
+        <name>gravitationalParameterFunction_</name>
+        <briefdescription>
+<para>Function that returns the gravitational parameter of the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="413" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="413" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a901be46aaa362fca73417abde07e9784" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::referenceBody_</definition>
+        <argsstring></argsstring>
+        <name>referenceBody_</name>
+        <briefdescription>
+<para>Name of body generating the gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="416" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="416" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a7b268a82012455f062901d519109a13a" prot="private" static="no" mutable="no">
+        <type>LinkEndType</type>
+        <definition>LinkEndType tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::referencePointLinkEndType_</definition>
+        <argsstring></argsstring>
+        <name>referencePointLinkEndType_</name>
+        <briefdescription>
+<para>Link end type of central body (unidentified_link_end if central body is not one of the link ends) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="419" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="419" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a68dbc7e047619c8ae12402963b4dc000" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector6d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector6d( const double ) &gt; tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::referencePointStateFunction_</definition>
+        <argsstring></argsstring>
+        <name>referencePointStateFunction_</name>
+        <briefdescription>
+<para>Function that returns the state of the central body as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that returns the state of the central body as a function of time, must be provided if referencePointLinkEndType equals unidentified_link_end. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="426" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="426" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a2d34a05ec701ce74c61357aa7e717f68" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::DirectFirstOrderDopplerProperTimeRateInterface</definition>
+        <argsstring>(const LinkEndType computationPointLinkEndType, const std::function&lt; double() &gt; gravitationalParameterFunction, const std::string &amp;referenceBody, const LinkEndType referencePointLinkEndType=unidentified_link_end, const std::function&lt; Eigen::Vector6d(const double) &gt; referencePointStateFunction=std::function&lt; Eigen::Vector6d(const double) &gt;())</argsstring>
+        <name>DirectFirstOrderDopplerProperTimeRateInterface</name>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>computationPointLinkEndType</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>gravitationalParameterFunction</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceBody</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>referencePointLinkEndType</declname>
+          <defval>unidentified_link_end</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d(const double) &gt;</type>
+          <declname>referencePointStateFunction</declname>
+          <defval>std::function&lt; Eigen::Vector6d(const double) &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>computationPointLinkEndType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable that denotes for which link end this object computes the proper time rate </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns the gravitational parameter of the central body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body generating the gravity field. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referencePointLinkEndType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end type of central body (default unidentified_link_end, meaning that the central body is not one of the link ends) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referencePointStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns the state of the central body as a function of time, default empty, but must be provided if referencePointLinkEndType equals unidentified_link_end. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="284" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="284" bodyend="321"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1ac74680dbdce11d9f846384f37d253bd5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::~DirectFirstOrderDopplerProperTimeRateInterface</definition>
+        <argsstring>()</argsstring>
+        <name>~DirectFirstOrderDopplerProperTimeRateInterface</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="324" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="324" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a08c16e35f38500edb3e173865a8ca548" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::getOberverProperTimeDeviation</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;linkEndTimes, const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)</argsstring>
+        <name>getOberverProperTimeDeviation</name>
+        <reimplements refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface_1a1b78e6a5acafe98b899cac5fb2a5d8cf">getOberverProperTimeDeviation</reimplements>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to coompute the proper time rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to coompute the proper time rate as (dtau/dt-1), with tau and t proper and coordinate time, respectively. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end coordinate times for one-way Doppler observale for which proper time rate is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end Cartesian states for one-way Doppler observale for which proper time rate is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Proper time rate difference as (dtau/dt-1). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="334" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="334" bodyend="351"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a9201e2c669c0e4452530e7a057be7291" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::getComputationPointRelativeState</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;linkEndTimes, const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)</argsstring>
+        <name>getComputationPointRelativeState</name>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the state of the computation point w.r.t. the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the state of the computation point w.r.t. the central body <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end coordinate times for one-way Doppler observale for which proper time rate is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end Cartesian states for one-way Doppler observale for which proper time rate is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The state of the computation point w.r.t. the central body </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="360" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="360" bodyend="366"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1af3bbe64a99adb404c31da888ec457482" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::getReferencePointState</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;linkEndTimes, const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)</argsstring>
+        <name>getReferencePointState</name>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the state of the central body (e.g. origin for positions and velocities in proper time calculations) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the state of the central body (e.g. origin for positions and velocities in proper time calculations) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end coordinate times for one-way Doppler observale for which proper time rate is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end Cartesian states for one-way Doppler observale for which proper time rate is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The state of the central body </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="375" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="375" bodyend="388"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a8c10fcca6f3924fc9d783bec92f263a3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::getGravitationalParameter</definition>
+        <argsstring>()</argsstring>
+        <name>getGravitationalParameter</name>
+        <briefdescription>
+<para>Function to retrieve central body gravitational parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve central body gravitational parameter <simplesect kind="return"><para>Central body gravitational parameter </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="395" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="395" bodyend="398"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1ad082e80b791c683704a295229855116b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface::getCentralBody</definition>
+        <argsstring>()</argsstring>
+        <name>getCentralBody</name>
+        <briefdescription>
+<para>Function to return the name of body generating the gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the name of body generating the gravity field <simplesect kind="return"><para>Name of body generating the gravity field </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="405" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="405" bodyend="408"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Function to compute first-order approximation of proper-time rate for one-way Doppler observable. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Function to compute first-order approximation of proper-time rate for one-way Doppler observable. Assumes a single static mass generating the gravity field (Schwarzschild metric) and a c^-2 expansion of proper time rate function. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</label>
+        <link refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::DopplerProperTimeRateInterface</label>
+        <link refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</label>
+        <link refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::DopplerProperTimeRateInterface</label>
+        <link refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" line="268" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDopplerObservationModel.h" bodystart="270" bodyend="429"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface_1a2bc0b74ec90237c6fb807f058f521e7b" prot="protected" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>computationPointLinkEndType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a2d34a05ec701ce74c61357aa7e717f68" prot="public" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>DirectFirstOrderDopplerProperTimeRateInterface</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface_1a044677416a7a21cebe39c7bbb869972c" prot="public" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>DopplerProperTimeRateInterface</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1ad082e80b791c683704a295229855116b" prot="public" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>getCentralBody</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface_1adda3656f35f80d02d8c4d56e29c3dafc" prot="public" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>getComputationPointLinkEndType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a9201e2c669c0e4452530e7a057be7291" prot="public" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>getComputationPointRelativeState</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a8c10fcca6f3924fc9d783bec92f263a3" prot="public" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>getGravitationalParameter</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a08c16e35f38500edb3e173865a8ca548" prot="public" virt="virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>getOberverProperTimeDeviation</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1af3bbe64a99adb404c31da888ec457482" prot="public" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>getReferencePointState</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1aa665ac869a78eb49e39d746bbedf1586" prot="private" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>gravitationalParameterFunction_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a901be46aaa362fca73417abde07e9784" prot="private" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>referenceBody_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a7b268a82012455f062901d519109a13a" prot="private" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>referencePointLinkEndType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1a68dbc7e047619c8ae12402963b4dc000" prot="private" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>referencePointStateFunction_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_1ac74680dbdce11d9f846384f37d253bd5" prot="public" virt="non-virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>~DirectFirstOrderDopplerProperTimeRateInterface</name></member>
+      <member refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface_1a6647e111dd6237fb6d8cc753fde58923" prot="public" virt="virtual"><scope>tudat::observation_models::DirectFirstOrderDopplerProperTimeRateInterface</scope><name>~DopplerProperTimeRateInterface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

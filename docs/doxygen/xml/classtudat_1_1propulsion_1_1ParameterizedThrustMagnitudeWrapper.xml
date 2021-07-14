@@ -1,0 +1,430 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</compoundname>
+    <basecompoundref refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" prot="public" virt="non-virtual">tudat::propulsion::ThrustMagnitudeWrapper</basecompoundref>
+    <includes refid="thrustMagnitudeWrapper_8h" local="no">thrustMagnitudeWrapper.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a9a0d9272db380d8d6e215f056ff81894" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const std::vector&lt; double &gt; &amp;) &gt;</type>
+        <definition>std::function&lt; double( const std::vector&lt; double &gt;&amp; ) &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::thrustMagnitudeFunction_</definition>
+        <argsstring></argsstring>
+        <name>thrustMagnitudeFunction_</name>
+        <briefdescription>
+<para>Function returning the current thrust as a function of its independent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="682" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="682" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a751564b92d2fc039a087a4a6f855dc8b" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const std::vector&lt; double &gt; &amp;) &gt;</type>
+        <definition>std::function&lt; double( const std::vector&lt; double &gt;&amp; ) &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::specificImpulseFunction_</definition>
+        <argsstring></argsstring>
+        <name>specificImpulseFunction_</name>
+        <briefdescription>
+<para>Function returning the current specific impulse as a function of its independent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="685" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="685" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a4be1645cafdeb2bba7671a5a1019bfac" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; double() &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; double( ) &gt; &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::thrustInputVariableFunctions_</definition>
+        <argsstring></argsstring>
+        <name>thrustInputVariableFunctions_</name>
+        <briefdescription>
+<para>List of functions returning input variables for thrustMagnitudeFunction_. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="688" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="688" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1af0c7e493c6401ba90e7975b308c769a4" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; double() &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; double( ) &gt; &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::specificImpulseInputVariableFunctions_</definition>
+        <argsstring></argsstring>
+        <name>specificImpulseInputVariableFunctions_</name>
+        <briefdescription>
+<para>List of functions returning input variables for specificImpulseFunction_. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="691" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="691" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1ad3cb0bfbe28163dbb2a733c569d2ff51" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; propulsion::ThrustIndependentVariables &gt;</type>
+        <definition>std::vector&lt; propulsion::ThrustIndependentVariables &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::thrustIndependentVariables_</definition>
+        <argsstring></argsstring>
+        <name>thrustIndependentVariables_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>List of identifiers for the physical meaning of each of the entries of the input to the thrustMagnitudeFunction function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="695" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="695" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a957f11adf03c8a9361f62f536010206b" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; propulsion::ThrustIndependentVariables &gt;</type>
+        <definition>std::vector&lt; propulsion::ThrustIndependentVariables &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::specificImpulseDependentVariables_</definition>
+        <argsstring></argsstring>
+        <name>specificImpulseDependentVariables_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>List of identifiers for the physical meaning of each of the entries of the input to the specificImpulseDependentVariables function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="699" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="699" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1abb5a79fa769f02c9130f4f115a4ca0a3" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::currentThrustInputVariables_</definition>
+        <argsstring></argsstring>
+        <name>currentThrustInputVariables_</name>
+        <briefdescription>
+<para>List of current input data to thrust function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="702" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="702" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a80f7dc776ba71beb1a0927ade948be9a" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::currentSpecificImpulseInputVariables_</definition>
+        <argsstring></argsstring>
+        <name>currentSpecificImpulseInputVariables_</name>
+        <briefdescription>
+<para>List of current input data to specific impulse function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="705" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="705" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1ac1ab984112ecd31b5b9c9c80dca18e00" prot="private" static="no" mutable="no">
+        <type>const std::function&lt; void(const double) &gt;</type>
+        <definition>const std::function&lt; void( const double) &gt; tudat::propulsion::ParameterizedThrustMagnitudeWrapper::inputUpdateFunction_</definition>
+        <argsstring></argsstring>
+        <name>inputUpdateFunction_</name>
+        <briefdescription>
+<para>Function that is called to update the user-defined guidance to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="709" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="709" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a55dad9257f8a27c02d6cc452f27c187c" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propulsion::ParameterizedThrustMagnitudeWrapper::currentThrustMagnitude_</definition>
+        <argsstring></argsstring>
+        <name>currentThrustMagnitude_</name>
+        <briefdescription>
+<para>Current thrust magnitude, as computed by last call to update member function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="712" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="712" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a707b7f36b7bc8da1f2f6b27696e39db2" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propulsion::ParameterizedThrustMagnitudeWrapper::currentSpecificImpulse_</definition>
+        <argsstring></argsstring>
+        <name>currentSpecificImpulse_</name>
+        <briefdescription>
+<para>Current specific impulse, as computed by last call to update member function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="715" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="715" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1afc7b9278c9fbded2187ad2f70fbabb38" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::ParameterizedThrustMagnitudeWrapper::ParameterizedThrustMagnitudeWrapper</definition>
+        <argsstring>(const std::function&lt; double(const std::vector&lt; double &gt; &amp;) &gt; thrustMagnitudeFunction, const std::function&lt; double(const std::vector&lt; double &gt; &amp;) &gt; specificImpulseFunction, const std::vector&lt; std::function&lt; double() &gt; &gt; thrustInputVariableFunctions, const std::vector&lt; std::function&lt; double() &gt; &gt; specificImpulseInputVariableFunctions, const std::vector&lt; propulsion::ThrustIndependentVariables &gt; thrustIndependentVariables, const std::vector&lt; propulsion::ThrustIndependentVariables &gt; specificImpulseDependentVariables, const std::function&lt; void(const double) &gt; inputUpdateFunction=std::function&lt; void(const double) &gt;())</argsstring>
+        <name>ParameterizedThrustMagnitudeWrapper</name>
+        <param>
+          <type>const std::function&lt; double(const std::vector&lt; double &gt; &amp;) &gt;</type>
+          <declname>thrustMagnitudeFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const std::vector&lt; double &gt; &amp;) &gt;</type>
+          <declname>specificImpulseFunction</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::function&lt; double() &gt; &gt;</type>
+          <declname>thrustInputVariableFunctions</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::function&lt; double() &gt; &gt;</type>
+          <declname>specificImpulseInputVariableFunctions</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; propulsion::ThrustIndependentVariables &gt;</type>
+          <declname>thrustIndependentVariables</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; propulsion::ThrustIndependentVariables &gt;</type>
+          <declname>specificImpulseDependentVariables</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; void(const double) &gt;</type>
+          <declname>inputUpdateFunction</declname>
+          <defval>std::function&lt; void(const double) &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for parameterized thrust and specific impulse. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, defines the functions for thrust and specific impulse, as well as the physical meaning of each of the independent variables. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustMagnitudeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current thrust as a function of the independent variables. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulseFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current specific impulse as a function of the independent variables. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thrustInputVariableFunctions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of functions returning input variables for the thrust The order of the functions in this vector is passed to the thrustMagnitudeFunction in the same order as entries of this vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulseInputVariableFunctions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of functions returning input variables for the specific impulse. The order of the functions in this vector is passed to the specificImpulseFunction in the same order as entries of this vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thrustIndependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of identifiers for the physical meaning of each of the entries of the input to the thrustMagnitudeFunction function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulseDependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of identifiers for the physical meaning of each of the entries of the input to the specificImpulseDependentVariables function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inputUpdateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that is called to update the user-defined guidance to the current time (empty by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="575" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="575" bodyend="606"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a578598427e7002773a448a398b822f0d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::ParameterizedThrustMagnitudeWrapper::~ParameterizedThrustMagnitudeWrapper</definition>
+        <argsstring>()</argsstring>
+        <name>~ParameterizedThrustMagnitudeWrapper</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="609" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="609" bodyend="609"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a9986324434fea86a4e9b54d86e0200b3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propulsion::ParameterizedThrustMagnitudeWrapper::update</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>update</name>
+        <reimplements refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a6a515296199563f2fcece10923d6dcca">update</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to update the thrust magnitude to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the thrust magnitude to the current time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which the model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="616" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="616" bodyend="642"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1aad77dd957a787846b3220792bc138fe6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::propulsion::ParameterizedThrustMagnitudeWrapper::resetDerivedClassCurrentTime</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>resetDerivedClassCurrentTime</name>
+        <reimplements refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1acece32d609bb4946504acc94ec86504b">resetDerivedClassCurrentTime</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function to reset the current time of the thrust model derived class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the current time of the thrust model derived class. Function is typically used to reset the time to NaN, signalling the need for a recomputation of all required quantities. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New current time to be set in model. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="650" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="650" bodyend="656"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1ae58d66ba89046b58507f1245f5184611" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::propulsion::ParameterizedThrustMagnitudeWrapper::getCurrentThrustMagnitude</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentThrustMagnitude</name>
+        <reimplements refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a303af8ecc94a8e0151a58711700dafe2">getCurrentThrustMagnitude</reimplements>
+        <briefdescription>
+<para>Function to return the current thrust magnitude. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current thrust magnitude, as computed by last call to update member function. <simplesect kind="return"><para>Current thrust magnitude </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="663" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="663" bodyend="666"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a20169ccccc57cba8106be96e0a9cc592" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::propulsion::ParameterizedThrustMagnitudeWrapper::getCurrentMassRate</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentMassRate</name>
+        <reimplements refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1abea551383a711c4fe3e04a77df3d3c0c">getCurrentMassRate</reimplements>
+        <briefdescription>
+<para>Function to return the current mass rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current mass rate, computed from quantities set by last call to update member function. <simplesect kind="return"><para>Current mass rate. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="673" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="673" bodyend="677"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent variables.</para>
+<para>Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent variables. The physical meaning of the variables must be defined here, selecting from the options in the ThrustIndependentVariables enum, and they are automatically retrieved from the relevant environment models during the propagation. Note that any number of user-specific functions may be included, as a guidance_input_dependent_thrust type or throttle_dependent_thrust. Note that a throttle_dependent_thrust may not be used as one of the independent variables of the thrust magnitude for this class. This setting is parsed through the ParameterizedThrustMagnitudeSettings class, which is the class that is typically used to create this class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::propulsion::ThrustMagnitudeWrapper</label>
+        <link refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper"/>
+      </node>
+      <node id="1">
+        <label>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</label>
+        <link refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propulsion::ThrustMagnitudeWrapper</label>
+        <link refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper"/>
+      </node>
+      <node id="1">
+        <label>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</label>
+        <link refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="551" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="552" bodyend="717"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a707b7f36b7bc8da1f2f6b27696e39db2" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>currentSpecificImpulse_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a80f7dc776ba71beb1a0927ade948be9a" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>currentSpecificImpulseInputVariables_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1abb5a79fa769f02c9130f4f115a4ca0a3" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>currentThrustInputVariables_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a55dad9257f8a27c02d6cc452f27c187c" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>currentThrustMagnitude_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a2f16a51428bd8612c2f2a6264aec8fcc" prot="protected" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a20169ccccc57cba8106be96e0a9cc592" prot="public" virt="virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>getCurrentMassRate</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1ae58d66ba89046b58507f1245f5184611" prot="public" virt="virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>getCurrentThrustMagnitude</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1ac1ab984112ecd31b5b9c9c80dca18e00" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>inputUpdateFunction_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1afc7b9278c9fbded2187ad2f70fbabb38" prot="public" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>ParameterizedThrustMagnitudeWrapper</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a53398012b76013f2d10b0471847a8f24" prot="public" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>resetCurrentTime</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1aad77dd957a787846b3220792bc138fe6" prot="public" virt="virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>resetDerivedClassCurrentTime</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a957f11adf03c8a9361f62f536010206b" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>specificImpulseDependentVariables_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a751564b92d2fc039a087a4a6f855dc8b" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>specificImpulseFunction_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1af0c7e493c6401ba90e7975b308c769a4" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>specificImpulseInputVariableFunctions_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1ad3cb0bfbe28163dbb2a733c569d2ff51" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>thrustIndependentVariables_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a4be1645cafdeb2bba7671a5a1019bfac" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>thrustInputVariableFunctions_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a9a0d9272db380d8d6e215f056ff81894" prot="private" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>thrustMagnitudeFunction_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a0126b90dd3bef583db2e9eef56039e23" prot="public" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>ThrustMagnitudeWrapper</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a9986324434fea86a4e9b54d86e0200b3" prot="public" virt="virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>update</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper_1a578598427e7002773a448a398b822f0d" prot="public" virt="non-virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>~ParameterizedThrustMagnitudeWrapper</name></member>
+      <member refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_1a971baaa499be4e44e1573a3eaf07fe07" prot="public" virt="virtual"><scope>tudat::propulsion::ParameterizedThrustMagnitudeWrapper</scope><name>~ThrustMagnitudeWrapper</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

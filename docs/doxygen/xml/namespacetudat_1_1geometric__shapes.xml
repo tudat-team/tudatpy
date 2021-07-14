@@ -1,0 +1,605 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1geometric__shapes" kind="namespace" language="C++">
+    <compoundname>tudat::geometric_shapes</compoundname>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1Capsule" prot="public">tudat::geometric_shapes::Capsule</innerclass>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry" prot="public">tudat::geometric_shapes::CompositeSurfaceGeometry</innerclass>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1ConicalFrustum" prot="public">tudat::geometric_shapes::ConicalFrustum</innerclass>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" prot="public">tudat::geometric_shapes::LawgsPartGeometry</innerclass>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry" prot="public">tudat::geometric_shapes::QuadrilateralMeshedSurfaceGeometry</innerclass>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" prot="public">tudat::geometric_shapes::SingleSurfaceGeometry</innerclass>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1SphereSegment" prot="public">tudat::geometric_shapes::SphereSegment</innerclass>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1Torus" prot="public">tudat::geometric_shapes::Torus</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="capsule_8h_1ac7d9cf28609ca48b45351d670a838c92" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1Capsule" kindref="compound">Capsule</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; Capsule &gt; tudat::geometric_shapes::CapsulePointer</definition>
+        <argsstring></argsstring>
+        <name>CapsulePointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1geometric__shapes_1_1Capsule" kindref="compound">Capsule</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/capsule.h" line="181" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/capsule.h" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="compositeSurfaceGeometry_8h_1accd8c974af0044afa176fdbca1f48488" prot="public" static="no">
+        <type><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ad03dc4c7325fb765024ef0f2117a6abe" kindref="member">CompositeSurfaceGeometry::CompositeSurfaceGeometryPointer</ref></type>
+        <definition>typedef CompositeSurfaceGeometry::CompositeSurfaceGeometryPointer tudat::geometric_shapes::CompositeSurfaceGeometryPointer</definition>
+        <argsstring></argsstring>
+        <name>CompositeSurfaceGeometryPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry" kindref="compound">CompositeSurfaceGeometry</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/compositeSurfaceGeometry.h" line="212" column="67" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/compositeSurfaceGeometry.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="conicalFrustum_8h_1a70ed57103257e3e42e1b50f9615cafd1" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1ConicalFrustum" kindref="compound">ConicalFrustum</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ConicalFrustum &gt; tudat::geometric_shapes::ConicalFrustumPointer</definition>
+        <argsstring></argsstring>
+        <name>ConicalFrustumPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1geometric__shapes_1_1ConicalFrustum" kindref="compound">ConicalFrustum</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/conicalFrustum.h" line="172" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/conicalFrustum.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="lawgsPartGeometry_8h_1ae93a4ce5a773f36c6602efdb8ff95690" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kindref="compound">LawgsPartGeometry</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; LawgsPartGeometry &gt; tudat::geometric_shapes::LawgsPartGeometryPointer</definition>
+        <argsstring></argsstring>
+        <name>LawgsPartGeometryPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kindref="compound">LawgsPartGeometry</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="154" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="quadrilateralMeshedSurfaceGeometry_8h_1ad03aced983be55e692f3e7e126e1c0c6" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry" kindref="compound">QuadrilateralMeshedSurfaceGeometry</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; QuadrilateralMeshedSurfaceGeometry &gt; tudat::geometric_shapes::QuadrilateralMeshedSurfaceGeometryPointer</definition>
+        <argsstring></argsstring>
+        <name>QuadrilateralMeshedSurfaceGeometryPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry" kindref="compound">QuadrilateralMeshedSurfaceGeometry</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/quadrilateralMeshedSurfaceGeometry.h" line="242" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/quadrilateralMeshedSurfaceGeometry.h" bodystart="242" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="singleSurfaceGeometry_8h_1ad035914a718bf8304bc568ed18961a62" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" kindref="compound">SingleSurfaceGeometry</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; SingleSurfaceGeometry &gt; tudat::geometric_shapes::SingleSurfaceGeometryPointer</definition>
+        <argsstring></argsstring>
+        <name>SingleSurfaceGeometryPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" kindref="compound">SingleSurfaceGeometry</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/singleSurfaceGeometry.h" line="280" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/singleSurfaceGeometry.h" bodystart="280" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="sphereSegment_8h_1a4961787fa3cc6f11aaaab2bc576a8c26" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1SphereSegment" kindref="compound">SphereSegment</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; SphereSegment &gt; tudat::geometric_shapes::SphereSegmentPointer</definition>
+        <argsstring></argsstring>
+        <name>SphereSegmentPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1geometric__shapes_1_1SphereSegment" kindref="compound">SphereSegment</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/sphereSegment.h" line="160" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/sphereSegment.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="torus_8h_1a33e69f6e358a202567fd49f22bcb395d" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1Torus" kindref="compound">Torus</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; Torus &gt; tudat::geometric_shapes::TorusPointer</definition>
+        <argsstring></argsstring>
+        <name>TorusPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1geometric__shapes_1_1Torus" kindref="compound">Torus</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="181" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="geometricShapesToFile_8h_1a0a2c4dbde3e530e51e9b346e6f4b5fae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::geometric_shapes::writeSingleSurfaceGeometryPointsToFile</definition>
+        <argsstring>(geometric_shapes::SingleSurfaceGeometryPointer singleSurfaceGeometry, const int numberOfLines, const int numberOfPoints, const std::string &amp;filename, const int writeType, const bool isIndependentVariableInverted)</argsstring>
+        <name>writeSingleSurfaceGeometryPointsToFile</name>
+        <param>
+          <type>geometric_shapes::SingleSurfaceGeometryPointer</type>
+          <declname>singleSurfaceGeometry</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfLines</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfPoints</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>writeType</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isIndependentVariableInverted</declname>
+        </param>
+        <briefdescription>
+<para>Write single surface geometry to a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Writes the points on a <ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" kindref="compound">SingleSurfaceGeometry</ref> object to a file. Each row contains the x, y and z coordinate of the point, each next row defines a single new point. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>singleSurfaceGeometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geometry which is to be written. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfLines</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Defines how many points are taken over the 1st independent variable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfPoints</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Defines how many points are taken over the 2nd independent variable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the file to which the points are written. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>writeType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Defines whether to append or write to the file given by filename, should be &quot;a&quot; for append and &quot;w&quot; for write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isIndependentVariableInverted</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean flag which if set to true inverts which independent variable is treated as 1st and which as 2nd. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/geometricShapesToFile.cpp" line="22" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/geometricShapesToFile.cpp" bodystart="22" bodyend="125" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/geometricShapesToFile.h" declline="42" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="geometricShapesToFile_8h_1a2dce02bac906fd46cf23d04d098e547d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::geometric_shapes::writeCompositeSurfaceGeometryPointsToFile</definition>
+        <argsstring>(geometric_shapes::CompositeSurfaceGeometryPointer compositeSurfaceGeometry, const std::vector&lt; int &gt; &amp;arrayOfNumberOfLines, const std::vector&lt; int &gt; &amp;arrayOfNumberOfPoints, const std::string &amp;filename, const int writeType, const std::vector&lt; bool &gt; &amp;isIndependentVariableInvertedArray)</argsstring>
+        <name>writeCompositeSurfaceGeometryPointsToFile</name>
+        <param>
+          <type>geometric_shapes::CompositeSurfaceGeometryPointer</type>
+          <declname>compositeSurfaceGeometry</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>arrayOfNumberOfLines</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>arrayOfNumberOfPoints</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>writeType</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; bool &gt; &amp;</type>
+          <declname>isIndependentVariableInvertedArray</declname>
+        </param>
+        <briefdescription>
+<para>Write composite surface geometry to a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Writes the single surface geometries in a composite surface geometry to a file. The writeSingleGeometryPointsToFile( ) function is called for each surface geometry. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>compositeSurfaceGeometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geometry from which there is to be written. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arrayOfNumberOfLines</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of how many points to take over the 1st independent variables of single surface geometries. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arrayOfNumberOfPoints</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of how many points to take over the 2nd independent variables of single surface geometries. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the file to which the points are written. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>writeType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Defines whether to append or write to the file given by filename, should be &quot;a&quot; for append and &quot;w&quot; for write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isIndependentVariableInvertedArray</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of booleans which if set to true invert which independent variable is treated as 1st and which as 2nd for each single surface geometry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/geometricShapesToFile.cpp" line="128" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/geometricShapesToFile.cpp" bodystart="128" bodyend="151" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/geometricShapesToFile.h" declline="66" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="capsule_8cpp_1a268eb275eeacaf3fe89716d63ee1d8ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; tudat::geometric_shapes::operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, Capsule &amp;capsule)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1Capsule" kindref="compound">Capsule</ref> &amp;</type>
+          <declname>capsule</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the class type, and number defining parameters. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream to which info is to be printed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capsule</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1geometric__shapes_1_1Capsule" kindref="compound">Capsule</ref> of which info is to be printed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream with printed info. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/capsule.cpp" line="187" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/capsule.cpp" bodystart="187" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="compositeSurfaceGeometry_8cpp_1a304eb1433cb99bb5bf6ceeb219aa23e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; tudat::geometric_shapes::operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, CompositeSurfaceGeometry &amp;compositeSurfaceGeometry)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry" kindref="compound">CompositeSurfaceGeometry</ref> &amp;</type>
+          <declname>compositeSurfaceGeometry</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the class type, and number of constituent <ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" kindref="compound">SingleSurfaceGeometry</ref> and compositeSurfaceGeometry objects. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>compositeSurfaceGeometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>compositeSurfaceGeometry object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/compositeSurfaceGeometry.cpp" line="40" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/compositeSurfaceGeometry.cpp" bodystart="40" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="conicalFrustum_8cpp_1af8e8936a33366dcb10ea799130f3d4cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; tudat::geometric_shapes::operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, ConicalFrustum &amp;conicalFrustum)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1ConicalFrustum" kindref="compound">ConicalFrustum</ref> &amp;</type>
+          <declname>conicalFrustum</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloaded ostream to print class information, prints the class type, the ranges for the azimuth angle, cone half angle, length and the start radius. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream to which info is to be printed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>conicalFrustum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Conical frustum of which info is to be printed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream with printed info. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/conicalFrustum.cpp" line="205" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/conicalFrustum.cpp" bodystart="205" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="lawgsPartGeometry_8cpp_1ae05195af9c466af6bbb02ae6557f5a1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; tudat::geometric_shapes::operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, LawgsPartGeometry &amp;lawgsPartGeometry)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kindref="compound">LawgsPartGeometry</ref> &amp;</type>
+          <declname>lawgsPartGeometry</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the number of lines and points, and the name of the part. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lawgsPartGeometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lawgs part geometry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" line="159" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" bodystart="159" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="quadrilateralMeshedSurfaceGeometry_8cpp_1af176259e41736351ddf2748fcffe4710" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; tudat::geometric_shapes::operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, QuadrilateralMeshedSurfaceGeometry &amp;quadrilateralMeshedSurfaceGeometry)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry" kindref="compound">QuadrilateralMeshedSurfaceGeometry</ref> &amp;</type>
+          <declname>quadrilateralMeshedSurfaceGeometry</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the number of lines and points, and the name of the part. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>quadrilateralMeshedSurfaceGeometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quadrilateral meshed surface geometry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/quadrilateralMeshedSurfaceGeometry.cpp" line="120" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/quadrilateralMeshedSurfaceGeometry.cpp" bodystart="120" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="sphereSegment_8cpp_1a05f13c9dfe1aa8f66d1829ef02a41fc3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; tudat::geometric_shapes::operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, SphereSegment &amp;sphereSegment)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1SphereSegment" kindref="compound">SphereSegment</ref> &amp;</type>
+          <declname>sphereSegment</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the class type, the ranges for the azimuth and zenith angles and the radius. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sphereSegment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sphere segment. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/sphereSegment.cpp" line="210" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/sphereSegment.cpp" bodystart="210" bodyend="228"/>
+      </memberdef>
+      <memberdef kind="function" id="torus_8cpp_1a8a62a2e82ca55697ffb63e2756d1b815" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; tudat::geometric_shapes::operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, Torus &amp;torus)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1Torus" kindref="compound">Torus</ref> &amp;</type>
+          <declname>torus</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the class type, the ranges for the minor and major circumferential angles, and the major and minor radii. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream to which info is to be printed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>torus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1geometric__shapes_1_1Torus" kindref="compound">Torus</ref> frustum of which info is to be printed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream with printed info. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/torus.cpp" line="222" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/torus.cpp" bodystart="222" bodyend="236"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/capsule.h" line="27" column="1"/>
+  </compounddef>
+</doxygen>

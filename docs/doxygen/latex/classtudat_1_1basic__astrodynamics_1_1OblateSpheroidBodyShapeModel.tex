@@ -1,0 +1,181 @@
+\hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel}{}\doxysection{tudat\+::basic\+\_\+astrodynamics\+::Oblate\+Spheroid\+Body\+Shape\+Model Class Reference}
+\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel}\index{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}}
+
+
+Body shape model for an oblate spheroid.  
+
+
+
+
+{\ttfamily \#include $<$oblate\+Spheroid\+Body\+Shape\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::basic\+\_\+astrodynamics\+::Oblate\+Spheroid\+Body\+Shape\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_aebf1990811f769576c13381ce78a015b}{Oblate\+Spheroid\+Body\+Shape\+Model}} (const double equatorial\+Radius, const double flattening)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a950481963aae3938aaf993c80f5aba79}\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a950481963aae3938aaf993c80f5aba79}} 
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a950481963aae3938aaf993c80f5aba79}{$\sim$\+Oblate\+Spheroid\+Body\+Shape\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a9a4e37d448cb35c1a34259a11832eeb0}{get\+Altitude}} (const Eigen\+::\+Vector3d \&body\+Fixed\+Position)
+\begin{DoxyCompactList}\small\item\em Calculates the altitude above the oblate spheroid. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_aded23b1755f1cc33dacaa0c4b9544bf6}{get\+Geodetic\+Position\+Wrt\+Shape}} (const Eigen\+::\+Vector3d \&body\+Fixed\+Position, const double tolerance=1.\+0E-\/4)
+\begin{DoxyCompactList}\small\item\em Calculates the geodetic position w.\+r.\+t. the oblate spheroid. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a3d69a2f5417e69eadac8e2ced7b2a131}{get\+Geodetic\+Latitude}} (const Eigen\+::\+Vector3d \&body\+Fixed\+Position, const double tolerance=1.\+0E-\/4)
+\begin{DoxyCompactList}\small\item\em Calculates the geodetic latitude w.\+r.\+t. the oblate spheroid. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_ad7f4f8bc028731164d1ae39a373e39a7}{get\+Average\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the mean radius of the oblate spheroid. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a25c7eeff7bb98a99860b71872b8365e0}{get\+Equatorial\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Function to obtain the equatorial radius. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a15a0caded02c3b00dd14dbf2e344995b}{get\+Flattening}} ()
+\begin{DoxyCompactList}\small\item\em Function to obtain the flattening of the oblate spheroid. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Body shape model for an oblate spheroid. 
+
+Body shape model for an oblate spheroid (flattened sphere), typically used as approximation for planets and large moons. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_aebf1990811f769576c13381ce78a015b}\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_aebf1990811f769576c13381ce78a015b}} 
+\index{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}!OblateSpheroidBodyShapeModel@{OblateSpheroidBodyShapeModel}}
+\index{OblateSpheroidBodyShapeModel@{OblateSpheroidBodyShapeModel}!tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{OblateSpheroidBodyShapeModel()}{OblateSpheroidBodyShapeModel()}}
+{\footnotesize\ttfamily tudat\+::basic\+\_\+astrodynamics\+::\+Oblate\+Spheroid\+Body\+Shape\+Model\+::\+Oblate\+Spheroid\+Body\+Shape\+Model (\begin{DoxyParamCaption}\item[{const double}]{equatorial\+Radius,  }\item[{const double}]{flattening }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor, sets the geomtric properties of the shape. 
+\begin{DoxyParams}{Parameters}
+{\em equatorial\+Radius} & Equatorial radius of the oblate spheroid \\
+\hline
+{\em flattening} & Flattening of the oblate spheroid \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a9a4e37d448cb35c1a34259a11832eeb0}\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a9a4e37d448cb35c1a34259a11832eeb0}} 
+\index{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}!getAltitude@{getAltitude}}
+\index{getAltitude@{getAltitude}!tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{getAltitude()}{getAltitude()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+astrodynamics\+::\+Oblate\+Spheroid\+Body\+Shape\+Model\+::get\+Altitude (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{body\+Fixed\+Position }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Calculates the altitude above the oblate spheroid. 
+
+Function to calculate the altitude above the oblate spheroid from a body fixed position. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Fixed\+Position} & Cartesian, body-\/fixed position of the point at which the altitude is to be determined. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Altitude above the oblate spheroid. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_a8439cdf3a6dd14875fb8892341bde3ee}{tudat\+::basic\+\_\+astrodynamics\+::\+Body\+Shape\+Model}}.
+
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_ad7f4f8bc028731164d1ae39a373e39a7}\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_ad7f4f8bc028731164d1ae39a373e39a7}} 
+\index{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}!getAverageRadius@{getAverageRadius}}
+\index{getAverageRadius@{getAverageRadius}!tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{getAverageRadius()}{getAverageRadius()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+astrodynamics\+::\+Oblate\+Spheroid\+Body\+Shape\+Model\+::get\+Average\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the mean radius of the oblate spheroid. 
+
+Function to return the mean radius of the oblate spheroid. \begin{DoxyReturn}{Returns}
+Average radius of oblate spheroid. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_a36f348a51efc73a5414d55438d4347eb}{tudat\+::basic\+\_\+astrodynamics\+::\+Body\+Shape\+Model}}.
+
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a25c7eeff7bb98a99860b71872b8365e0}\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a25c7eeff7bb98a99860b71872b8365e0}} 
+\index{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}!getEquatorialRadius@{getEquatorialRadius}}
+\index{getEquatorialRadius@{getEquatorialRadius}!tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{getEquatorialRadius()}{getEquatorialRadius()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+astrodynamics\+::\+Oblate\+Spheroid\+Body\+Shape\+Model\+::get\+Equatorial\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to obtain the equatorial radius. 
+
+Function to obtain the equatorial radius \begin{DoxyReturn}{Returns}
+Equatorial radius of the oblate spheroid 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a15a0caded02c3b00dd14dbf2e344995b}\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a15a0caded02c3b00dd14dbf2e344995b}} 
+\index{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}!getFlattening@{getFlattening}}
+\index{getFlattening@{getFlattening}!tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{getFlattening()}{getFlattening()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+astrodynamics\+::\+Oblate\+Spheroid\+Body\+Shape\+Model\+::get\+Flattening (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to obtain the flattening of the oblate spheroid. 
+
+Function to obtain the flattening of the oblate spheroid \begin{DoxyReturn}{Returns}
+Flattening radius of the oblate spheroid 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a3d69a2f5417e69eadac8e2ced7b2a131}\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_a3d69a2f5417e69eadac8e2ced7b2a131}} 
+\index{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}!getGeodeticLatitude@{getGeodeticLatitude}}
+\index{getGeodeticLatitude@{getGeodeticLatitude}!tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{getGeodeticLatitude()}{getGeodeticLatitude()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+astrodynamics\+::\+Oblate\+Spheroid\+Body\+Shape\+Model\+::get\+Geodetic\+Latitude (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{body\+Fixed\+Position,  }\item[{const double}]{tolerance = {\ttfamily 1.0E-\/4} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calculates the geodetic latitude w.\+r.\+t. the oblate spheroid. 
+
+Function to calculate the geodetic latitude w.\+r.\+t. the oblate spheroid. \begin{DoxySeeAlso}{See also}
+convert\+Cartesian\+To\+Geodetic\+Coordinates 
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+{\em body\+Fixed\+Position} & Cartesian, body-\/fixed position of the point at which the geodetic latitude is to be determined. \\
+\hline
+{\em tolerance} & Convergence criterion for iterative algorithm that is employed. Represents the required change of position (in m) between two iterations. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Geodetic latitude at requested point. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_aded23b1755f1cc33dacaa0c4b9544bf6}\label{classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_aded23b1755f1cc33dacaa0c4b9544bf6}} 
+\index{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}!getGeodeticPositionWrtShape@{getGeodeticPositionWrtShape}}
+\index{getGeodeticPositionWrtShape@{getGeodeticPositionWrtShape}!tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel@{tudat::basic\_astrodynamics::OblateSpheroidBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{getGeodeticPositionWrtShape()}{getGeodeticPositionWrtShape()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::basic\+\_\+astrodynamics\+::\+Oblate\+Spheroid\+Body\+Shape\+Model\+::get\+Geodetic\+Position\+Wrt\+Shape (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{body\+Fixed\+Position,  }\item[{const double}]{tolerance = {\ttfamily 1.0E-\/4} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calculates the geodetic position w.\+r.\+t. the oblate spheroid. 
+
+Function to calculate the geodetic position w.\+r.\+t. the oblate spheroid. \begin{DoxySeeAlso}{See also}
+convert\+Cartesian\+To\+Geodetic\+Coordinates 
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+{\em body\+Fixed\+Position} & Cartesian, body-\/fixed position of the point at which the geodetic position is to be determined. \\
+\hline
+{\em tolerance} & Convergence criterion for iterative algorithm that is employed. Represents the required change of position (in m) between two iterations. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Geodetic coordinates at requested point. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/basic\+\_\+astro/oblate\+Spheroid\+Body\+Shape\+Model.\+h\end{DoxyCompactItemize}

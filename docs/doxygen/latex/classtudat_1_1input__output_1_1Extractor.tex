@@ -1,0 +1,137 @@
+\hypertarget{classtudat_1_1input__output_1_1Extractor}{}\doxysection{tudat\+::input\+\_\+output\+::Extractor$<$ T $>$ Class Template Reference}
+\label{classtudat_1_1input__output_1_1Extractor}\index{tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}}
+
+
+\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor}{Extractor}} base class.  
+
+
+
+
+{\ttfamily \#include $<$extractor.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1Extractor_aff3c90a85713175523fcb917e7a2de8f}\label{classtudat_1_1input__output_1_1Extractor_aff3c90a85713175523fcb917e7a2de8f}} 
+virtual \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_aff3c90a85713175523fcb917e7a2de8f}{$\sim$\+Extractor}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+virtual std\+::shared\+\_\+ptr$<$ T $>$ \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_a345f9c779db2ad7aa9d7b453229b32d8}{extract}} (parsed\+\_\+data\+\_\+vector\+\_\+utilities\+::\+Parsed\+Data\+Line\+Map\+Ptr data)=0
+\begin{DoxyCompactList}\small\item\em Extract function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef parsed\+\_\+data\+\_\+vector\+\_\+utilities\+::\+Field\+Value\+Ptr \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_a50e09f32d40315fbc58b482561bf5317}{Field\+Value\+Ptr}}
+\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}\label{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}} 
+typedef parsed\+\_\+data\+\_\+vector\+\_\+utilities\+::\+Parsed\+Data\+Line\+Map\+Ptr \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}{Parsed\+Data\+Line\+Map\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Shortcut to parsed data line map shared-\/pointer. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1Extractor_a4ef13b59802f0a183cca98df67f01fed}\label{classtudat_1_1input__output_1_1Extractor_a4ef13b59802f0a183cca98df67f01fed}} 
+typedef parsed\+\_\+data\+\_\+vector\+\_\+utilities\+::\+Parsed\+Data\+Vector\+Ptr \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_a4ef13b59802f0a183cca98df67f01fed}{Parsed\+Data\+Vector\+Ptr}}
+\begin{DoxyCompactList}\small\item\em Shortcut to parsed data vector shared-\/pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_aa8b4479a4ea688d31ca0887a7ea8cacc}{check\+Optional\+Field\+Type}} (\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}{Parsed\+Data\+Line\+Map\+Ptr}} data\+Line\+Map, int number\+Of\+Fields,...)
+\begin{DoxyCompactList}\small\item\em Check if the given data map contains all the passed Field\+Types. Returns false on fail. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_aca0c1f90a927a7e4413cb06d24e12966}{check\+Required\+Field\+Type}} (\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}{Parsed\+Data\+Line\+Map\+Ptr}} data\+Line\+Map, int number\+Of\+Fields,...)
+\begin{DoxyCompactList}\small\item\em Check if the given data map contains all the passed Field\+Types. Throws an exception on fail. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$class T$>$\newline
+class tudat\+::input\+\_\+output\+::\+Extractor$<$ T $>$}
+
+\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor}{Extractor}} base class. 
+
+This abstract class belongs to the parser-\/extractor architecture implemented in Tudat. This base class can be used to derive specific extractors that take data in the form of a Parsed\+Data\+Line\+Map\+Ptr object and return extracted values. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Generic-\/type returned by \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_a345f9c779db2ad7aa9d7b453229b32d8}{extract()}} function. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}{Parsed\+Data\+Line\+Map\+Ptr}}, \mbox{\hyperlink{classtudat_1_1input__output_1_1Parser}{Parser}} 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1Extractor_a50e09f32d40315fbc58b482561bf5317}\label{classtudat_1_1input__output_1_1Extractor_a50e09f32d40315fbc58b482561bf5317}} 
+\index{tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}!FieldValuePtr@{FieldValuePtr}}
+\index{FieldValuePtr@{FieldValuePtr}!tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{FieldValuePtr}{FieldValuePtr}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+typedef parsed\+\_\+data\+\_\+vector\+\_\+utilities\+::\+Field\+Value\+Ptr \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor}{tudat\+::input\+\_\+output\+::\+Extractor}}$<$ T $>$\+::\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_a50e09f32d40315fbc58b482561bf5317}{Field\+Value\+Ptr}}\hspace{0.3cm}{\ttfamily [protected]}}
+
+Short-\/hand notations. Shortcut to field value shared-\/pointer. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1Extractor_aa8b4479a4ea688d31ca0887a7ea8cacc}\label{classtudat_1_1input__output_1_1Extractor_aa8b4479a4ea688d31ca0887a7ea8cacc}} 
+\index{tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}!checkOptionalFieldType@{checkOptionalFieldType}}
+\index{checkOptionalFieldType@{checkOptionalFieldType}!tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{checkOptionalFieldType()}{checkOptionalFieldType()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+bool \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor}{tudat\+::input\+\_\+output\+::\+Extractor}}$<$ T $>$\+::check\+Optional\+Field\+Type (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}{Parsed\+Data\+Line\+Map\+Ptr}}}]{data\+Line\+Map,  }\item[{int}]{number\+Of\+Fields,  }\item[{}]{... }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Check if the given data map contains all the passed Field\+Types. Returns false on fail. 
+
+When this method encounters a Field\+Type that is not present in the passed data map, it returns false otherwise true. 
+\begin{DoxyParams}{Parameters}
+{\em data\+Line\+Map} & Check this datamap for all the requested Field\+Types. \\
+\hline
+{\em number\+Of\+Fields} & Number of Field\+Types passed along to the function (after the number\+Of\+Fields field). \\
+\hline
+{\em ...} & Variable number of Fieldtypes to search for. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if all the passed Field\+Types are present in the passed datamap. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1Extractor_aca0c1f90a927a7e4413cb06d24e12966}\label{classtudat_1_1input__output_1_1Extractor_aca0c1f90a927a7e4413cb06d24e12966}} 
+\index{tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}!checkRequiredFieldType@{checkRequiredFieldType}}
+\index{checkRequiredFieldType@{checkRequiredFieldType}!tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{checkRequiredFieldType()}{checkRequiredFieldType()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor}{tudat\+::input\+\_\+output\+::\+Extractor}}$<$ T $>$\+::check\+Required\+Field\+Type (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor_abfff04b61512a08b822cbcecb6613253}{Parsed\+Data\+Line\+Map\+Ptr}}}]{data\+Line\+Map,  }\item[{int}]{number\+Of\+Fields,  }\item[{}]{... }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Check if the given data map contains all the passed Field\+Types. Throws an exception on fail. 
+
+When this method encounters a Field\+Type that is not present in the passed data map, it throws a boost\+::enable\+\_\+error\+\_\+info (std\+::runtime\+\_\+error). 
+\begin{DoxyParams}{Parameters}
+{\em data\+Line\+Map} & Check this datamap for all the requested Field\+Types. \\
+\hline
+{\em number\+Of\+Fields} & Number of Field\+Types passed along to the function (after the number\+Of\+Fields field). \\
+\hline
+{\em ...} & Variable number of Fieldtypes to search for. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1Extractor_a345f9c779db2ad7aa9d7b453229b32d8}\label{classtudat_1_1input__output_1_1Extractor_a345f9c779db2ad7aa9d7b453229b32d8}} 
+\index{tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}!extract@{extract}}
+\index{extract@{extract}!tudat::input\_output::Extractor$<$ T $>$@{tudat::input\_output::Extractor$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{extract()}{extract()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+virtual std\+::shared\+\_\+ptr$<$ T $>$ \mbox{\hyperlink{classtudat_1_1input__output_1_1Extractor}{tudat\+::input\+\_\+output\+::\+Extractor}}$<$ T $>$\+::extract (\begin{DoxyParamCaption}\item[{parsed\+\_\+data\+\_\+vector\+\_\+utilities\+::\+Parsed\+Data\+Line\+Map\+Ptr}]{data }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Extract function. 
+
+Extracts parsed data into a given data type and returns a shared pointer to it. 
+\begin{DoxyParams}{Parameters}
+{\em data} & Raw (parsed) data to extract values from. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Extracted value. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1input__output_1_1solar__activity_1_1ExtractSolarActivityData_ace3c02034a131b86d0758ec3f2e71d10}{tudat\+::input\+\_\+output\+::solar\+\_\+activity\+::\+Extract\+Solar\+Activity\+Data}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/io/extractor.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Termination" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Termination</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Termination_1a5a07bdbdb3dab2069e98786292b91012" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Termination::anyOf</definition>
+        <argsstring></argsstring>
+        <name>anyOf</name>
+        <initializer>= &quot;anyOf&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="444" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="444" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Termination_1ac87c8b0e1570eb2beb50f889ab5742fe" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Termination::allOf</definition>
+        <argsstring></argsstring>
+        <name>allOf</name>
+        <initializer>= &quot;allOf&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="445" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="445" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Termination_1a7c53afea0e51cb4d5f7cdd6e670ea303" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Termination::variable</definition>
+        <argsstring></argsstring>
+        <name>variable</name>
+        <initializer>= &quot;variable&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="446" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="446" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Termination_1ac6ba49cd643e7df322148abc411f42d1" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Termination::lowerLimit</definition>
+        <argsstring></argsstring>
+        <name>lowerLimit</name>
+        <initializer>= &quot;lowerLimit&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="447" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="447" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Termination_1a73396e1bb0a379d4a7911240b1053541" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Termination::upperLimit</definition>
+        <argsstring></argsstring>
+        <name>upperLimit</name>
+        <initializer>= &quot;upperLimit&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="448" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="448" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="442" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="443" bodyend="449"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Termination_1ac87c8b0e1570eb2beb50f889ab5742fe" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Termination</scope><name>allOf</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Termination_1a5a07bdbdb3dab2069e98786292b91012" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Termination</scope><name>anyOf</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Termination_1ac6ba49cd643e7df322148abc411f42d1" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Termination</scope><name>lowerLimit</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Termination_1a73396e1bb0a379d4a7911240b1053541" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Termination</scope><name>upperLimit</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Termination_1a7c53afea0e51cb4d5f7cdd6e670ea303" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Termination</scope><name>variable</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

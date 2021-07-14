@@ -1,0 +1,210 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1earth__orientation_1_1PolarMotionCalculator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::earth_orientation::PolarMotionCalculator</compoundname>
+    <includes refid="polarMotionCalculator_8h" local="no">polarMotionCalculator.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a61fa5d05cc918bf8d45b09330054e2bf" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector2d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator &lt; double, Eigen::Vector2d &gt; &gt; tudat::earth_orientation::PolarMotionCalculator::dailyIersValueInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>dailyIersValueInterpolator_</name>
+        <briefdescription>
+<para>Interpolator for daily IERS-measured pole offsets. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Interpolator, with time in UTC since J2000 as input and interpolated measured daily pole offset values as output. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" line="105" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a395fb2c9f3e3004ef95aa5c9d011af78" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator" kindref="compound">ShortPeriodEarthOrientationCorrectionCalculator</ref>&lt; Eigen::Vector2d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; ShortPeriodEarthOrientationCorrectionCalculator&lt; Eigen::Vector2d &gt; &gt; tudat::earth_orientation::PolarMotionCalculator::shortPeriodPolarMotionCalculator_</definition>
+        <argsstring></argsstring>
+        <name>shortPeriodPolarMotionCalculator_</name>
+        <briefdescription>
+<para>Object calculating short period polar motion variations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" line="108" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1ac903ebffbf11c684e6249544fa08abd4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::earth_orientation::PolarMotionCalculator::PolarMotionCalculator</definition>
+        <argsstring>(const std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, Eigen::Vector2d &gt; &gt; dailyIersValueInterpolator, const std::shared_ptr&lt; ShortPeriodEarthOrientationCorrectionCalculator&lt; Eigen::Vector2d &gt; &gt; shortPeriodPolarMotionCalculator)</argsstring>
+        <name>PolarMotionCalculator</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector2d &gt; &gt;</type>
+          <declname>dailyIersValueInterpolator</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator" kindref="compound">ShortPeriodEarthOrientationCorrectionCalculator</ref>&lt; Eigen::Vector2d &gt; &gt;</type>
+          <declname>shortPeriodPolarMotionCalculator</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dailyIersValueInterpolator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Interpolator, with time in UTC since J2000 as input and interpolated measured daily pole offset values as output. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>shortPeriodPolarMotionCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object calculating short period polar motion variations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" bodystart="45" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a343ca00adb68f5225af058597ee562ea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector2d</type>
+        <definition>Eigen::Vector2d tudat::earth_orientation::PolarMotionCalculator::getPositionOfCipInItrs</definition>
+        <argsstring>(const double ttSinceEpoch, const double utcSinceEpoch)</argsstring>
+        <name>getPositionOfCipInItrs</name>
+        <param>
+          <type>const double</type>
+          <declname>ttSinceEpoch</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>utcSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the position of the Celestial Intermediate Pole in the ITRS. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}. The fundamental arguments are calculated internally in this function. If these are available to the user from a more computationally efficient solution (such as an interpolator), the overloaded version of this function is adviced for use. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ttSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Terrestrial time since J2000 </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>utcSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UTC since the J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" line="63" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/polarMotionCalculator.cpp" bodystart="24" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a3948c87680d284bd8e9dd196c2832d32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector2d</type>
+        <definition>Eigen::Vector2d tudat::earth_orientation::PolarMotionCalculator::getPositionOfCipInItrs</definition>
+        <argsstring>(Eigen::Vector6d fundamentalArguments, const double utcSinceEpoch)</argsstring>
+        <name>getPositionOfCipInItrs</name>
+        <param>
+          <type>Eigen::Vector6d</type>
+          <declname>fundamentalArguments</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>utcSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the position of the Celestial Intermediate Pole in the ITRS. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}. The fundamental arguments are provided as input to this function for computation of short-period variations. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fundamentalArguments</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fundamental arguments used for short-period polar motion corrections </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>utcSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UTC since the J2000 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" line="74" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/polarMotionCalculator.cpp" bodystart="42" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a87d1517796d812a756c8f3e559f7cd80" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector2d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, Eigen::Vector2d &gt; &gt; tudat::earth_orientation::PolarMotionCalculator::getDailyIersValueInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>getDailyIersValueInterpolator</name>
+        <briefdescription>
+<para>Function to retrieve interpolator for daily IERS-measured pole offsets. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve interpolator for daily IERS-measured pole offsets <simplesect kind="return"><para>Interpolator for daily IERS-measured pole offsets </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" line="84" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" bodystart="84" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a429eb3aa64b29ed0aae399dee5f4394b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator" kindref="compound">ShortPeriodEarthOrientationCorrectionCalculator</ref>&lt; Eigen::Vector2d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; ShortPeriodEarthOrientationCorrectionCalculator&lt; Eigen::Vector2d &gt; &gt; tudat::earth_orientation::PolarMotionCalculator::getShortPeriodPolarMotionCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getShortPeriodPolarMotionCalculator</name>
+        <briefdescription>
+<para>Function to retrieve object calculating short period polar motion variations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve object calculating short period polar motion variations. <simplesect kind="return"><para>Object calculating short period polar motion variations. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" line="94" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" bodystart="94" bodyend="97"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Object to compute polar motion variables x_{p} and y_{p}. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Object to compute polar motion variables x_{p} and y_{p}, describing the motion of the Earth pole in ITRS. This class combines the measured daily data as published by the IERS with the short-period variation models due to libration and ocean tides as described in Sections 5.5.1 and 8.2 of IERS 2010 Conventions. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" line="35" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/polarMotionCalculator.h" bodystart="36" bodyend="109"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a61fa5d05cc918bf8d45b09330054e2bf" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::PolarMotionCalculator</scope><name>dailyIersValueInterpolator_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a87d1517796d812a756c8f3e559f7cd80" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PolarMotionCalculator</scope><name>getDailyIersValueInterpolator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a343ca00adb68f5225af058597ee562ea" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PolarMotionCalculator</scope><name>getPositionOfCipInItrs</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a3948c87680d284bd8e9dd196c2832d32" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PolarMotionCalculator</scope><name>getPositionOfCipInItrs</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a429eb3aa64b29ed0aae399dee5f4394b" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PolarMotionCalculator</scope><name>getShortPeriodPolarMotionCalculator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1ac903ebffbf11c684e6249544fa08abd4" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::PolarMotionCalculator</scope><name>PolarMotionCalculator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator_1a395fb2c9f3e3004ef95aa5c9d011af78" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::PolarMotionCalculator</scope><name>shortPeriodPolarMotionCalculator_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

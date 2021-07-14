@@ -1,0 +1,263 @@
+\hypertarget{classtudat_1_1geometric__shapes_1_1Torus}{}\doxysection{tudat\+::geometric\+\_\+shapes\+::Torus Class Reference}
+\label{classtudat_1_1geometric__shapes_1_1Torus}\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+
+
+\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus}{Torus}} class.  
+
+
+
+
+{\ttfamily \#include $<$torus.\+h$>$}
+
+Inheritance diagram for tudat\+::geometric\+\_\+shapes\+::Torus\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1geometric__shapes_1_1Torus}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a9ceb9b97d31907f567829a2cc11476e9}{Torus}} (const double major\+Radius, const double minor\+Radius, const double minimum\+Major\+Circumferential\+Angle=0.\+0, const double maximum\+Major\+Circumferential\+Angle=2.\+0 $\ast$mathematical\+\_\+constants\+::\+PI, const double minimum\+Minor\+Circumferential\+Angle=0.\+0, const double maximum\+Minor\+Circumferential\+Angle=2.\+0 $\ast$mathematical\+\_\+constants\+::\+PI)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a4d4945c2926a530d6bab05f503d849b3}{get\+Surface\+Point}} (const double major\+Circumferential\+Angle, const double minor\+Circumferential\+Angle)
+\begin{DoxyCompactList}\small\item\em Get surface point on torus. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_ab2eee5aafe47effb68b2c85d06ecf1dc}{get\+Surface\+Derivative}} (const double major\+Circumferential\+Angle, const double minor\+Circumferential\+Angle, const int power\+Of\+Major\+Circumferential\+Angle\+Derivative, const int power\+Of\+Minor\+Circumferential\+Angle\+Derivative)
+\begin{DoxyCompactList}\small\item\em Get surface derivative on torus. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a4a6878288913f56d7dbf97519a706f3b}{get\+Parameter}} (const int index)
+\begin{DoxyCompactList}\small\item\em Get parameter of torus. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a9d6097a83aa258379ff9100b3e0647f3}{get\+Major\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Get major radius. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a08122ea7df1c1c4abe180cc39def306f}{get\+Minor\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Get minor radius. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a3bcf4367a55dceb257e7b9a24939e8db}{get\+Maximum\+Major\+Circumferential\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get maximum of major circumferential angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_acd0484e5469ba29399f72a13590fbbf2}{get\+Maximum\+Minor\+Circumferential\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get maximum of minor circumferential angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a84a6e6987f489f56641050251fac6b01}{get\+Minimum\+Major\+Circumferential\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get minimum of major circumferential angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a7776ba439c6a70a8eee37723709bcb6e}{get\+Minimum\+Minor\+Circumferential\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get minimum of minor circumferential angle. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus_a984a8ce4547e36f6d9a1ce07df87e2d8}{operator$<$$<$}} (std\+::ostream \&stream, \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus}{Torus}} \&torus)
+\begin{DoxyCompactList}\small\item\em Overload ostream to print class information. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus}{Torus}} class. 
+
+Class that defines the torus shape. The parameters are the major\+Radius\+\_\+, denoting the distance from the center of the torus to the center of the tube and the tube\+Radius\+\_\+, denoting the radius of the tube. Independent variables are the major and minor circumferential angles, with the former denoting the angle by which the tube is \textquotesingle{}revolved\textquotesingle{} and the latter denoting the point on the circular cross-\/section of the tube. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a9ceb9b97d31907f567829a2cc11476e9}\label{classtudat_1_1geometric__shapes_1_1Torus_a9ceb9b97d31907f567829a2cc11476e9}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!Torus@{Torus}}
+\index{Torus@{Torus}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{Torus()}{Torus()}}
+{\footnotesize\ttfamily tudat\+::geometric\+\_\+shapes\+::\+Torus\+::\+Torus (\begin{DoxyParamCaption}\item[{const double}]{major\+Radius,  }\item[{const double}]{minor\+Radius,  }\item[{const double}]{minimum\+Major\+Circumferential\+Angle = {\ttfamily 0.0},  }\item[{const double}]{maximum\+Major\+Circumferential\+Angle = {\ttfamily 2.0~$\ast$~mathematical\+\_\+constants\+:\+:PI},  }\item[{const double}]{minimum\+Minor\+Circumferential\+Angle = {\ttfamily 0.0},  }\item[{const double}]{maximum\+Minor\+Circumferential\+Angle = {\ttfamily 2.0~$\ast$~mathematical\+\_\+constants\+:\+:PI} }\end{DoxyParamCaption})}
+
+
+
+Default constructor. 
+
+Default constructor. Default values set to full torus. 
+\begin{DoxyParams}{Parameters}
+{\em major\+Radius} & Major radius of torus (i.\+e. radius from center of torus to outside, of torus). \\
+\hline
+{\em minor\+Radius} & Minor radius of torus (i.\+e. radius of torus \textquotesingle{}tube\textquotesingle{}) \\
+\hline
+{\em minimum\+Major\+Circumferential\+Angle} & Minimum of circumferential angle \textquotesingle{}subtended by major radius\textquotesingle{}. \\
+\hline
+{\em maximum\+Major\+Circumferential\+Angle} & Maximum of circumferential angle \textquotesingle{}subtended by major radius\textquotesingle{}. \\
+\hline
+{\em minimum\+Minor\+Circumferential\+Angle} & Minimum of circumferential angle \textquotesingle{}subtended by minor radius\textquotesingle{}. \\
+\hline
+{\em maximum\+Minor\+Circumferential\+Angle} & Maximum of circumferential angle \textquotesingle{}subtended by minor radius\textquotesingle{}. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a9d6097a83aa258379ff9100b3e0647f3}\label{classtudat_1_1geometric__shapes_1_1Torus_a9d6097a83aa258379ff9100b3e0647f3}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getMajorRadius@{getMajorRadius}}
+\index{getMajorRadius@{getMajorRadius}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getMajorRadius()}{getMajorRadius()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Major\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get major radius. 
+
+Returns the major radius. \begin{DoxyReturn}{Returns}
+Major radius. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a3bcf4367a55dceb257e7b9a24939e8db}\label{classtudat_1_1geometric__shapes_1_1Torus_a3bcf4367a55dceb257e7b9a24939e8db}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getMaximumMajorCircumferentialAngle@{getMaximumMajorCircumferentialAngle}}
+\index{getMaximumMajorCircumferentialAngle@{getMaximumMajorCircumferentialAngle}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getMaximumMajorCircumferentialAngle()}{getMaximumMajorCircumferentialAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Maximum\+Major\+Circumferential\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get maximum of major circumferential angle. 
+
+Returns the maximum value of the major circumferential angle. \begin{DoxyReturn}{Returns}
+Maximum value of major circumferential angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_acd0484e5469ba29399f72a13590fbbf2}\label{classtudat_1_1geometric__shapes_1_1Torus_acd0484e5469ba29399f72a13590fbbf2}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getMaximumMinorCircumferentialAngle@{getMaximumMinorCircumferentialAngle}}
+\index{getMaximumMinorCircumferentialAngle@{getMaximumMinorCircumferentialAngle}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getMaximumMinorCircumferentialAngle()}{getMaximumMinorCircumferentialAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Maximum\+Minor\+Circumferential\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get maximum of minor circumferential angle. 
+
+Returns the maximum of the minor circumferential angle. \begin{DoxyReturn}{Returns}
+Maximum minor circumferential angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a84a6e6987f489f56641050251fac6b01}\label{classtudat_1_1geometric__shapes_1_1Torus_a84a6e6987f489f56641050251fac6b01}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getMinimumMajorCircumferentialAngle@{getMinimumMajorCircumferentialAngle}}
+\index{getMinimumMajorCircumferentialAngle@{getMinimumMajorCircumferentialAngle}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getMinimumMajorCircumferentialAngle()}{getMinimumMajorCircumferentialAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Minimum\+Major\+Circumferential\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get minimum of major circumferential angle. 
+
+Returns the minimum value of the major circumferential angle. \begin{DoxyReturn}{Returns}
+Minimum value of major circumferential angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a7776ba439c6a70a8eee37723709bcb6e}\label{classtudat_1_1geometric__shapes_1_1Torus_a7776ba439c6a70a8eee37723709bcb6e}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getMinimumMinorCircumferentialAngle@{getMinimumMinorCircumferentialAngle}}
+\index{getMinimumMinorCircumferentialAngle@{getMinimumMinorCircumferentialAngle}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getMinimumMinorCircumferentialAngle()}{getMinimumMinorCircumferentialAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Minimum\+Minor\+Circumferential\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get minimum of minor circumferential angle. 
+
+Returns the minimum value of the minor circumferential angle. \begin{DoxyReturn}{Returns}
+Minimum value of minor circumferential angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a08122ea7df1c1c4abe180cc39def306f}\label{classtudat_1_1geometric__shapes_1_1Torus_a08122ea7df1c1c4abe180cc39def306f}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getMinorRadius@{getMinorRadius}}
+\index{getMinorRadius@{getMinorRadius}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getMinorRadius()}{getMinorRadius()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Minor\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get minor radius. 
+
+Returns the minor radius. \begin{DoxyReturn}{Returns}
+Minor radius. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a4a6878288913f56d7dbf97519a706f3b}\label{classtudat_1_1geometric__shapes_1_1Torus_a4a6878288913f56d7dbf97519a706f3b}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getParameter@{getParameter}}
+\index{getParameter@{getParameter}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getParameter()}{getParameter()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Parameter (\begin{DoxyParamCaption}\item[{const int}]{index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get parameter of torus. 
+
+Retrieves a parameter of the torus. Function uses parameter\+\_\+ member variable to prevent multiple declarations. 
+\begin{DoxyParams}{Parameters}
+{\em index} & Index of parameter to return ( index = 0\+: returns major radius; index = 1\+: returns minor radius ). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Selected parameter. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_a17437a185d1bc67dd7dc3cdfb43d92a6}{tudat\+::geometric\+\_\+shapes\+::\+Single\+Surface\+Geometry}}.
+
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_ab2eee5aafe47effb68b2c85d06ecf1dc}\label{classtudat_1_1geometric__shapes_1_1Torus_ab2eee5aafe47effb68b2c85d06ecf1dc}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getSurfaceDerivative@{getSurfaceDerivative}}
+\index{getSurfaceDerivative@{getSurfaceDerivative}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getSurfaceDerivative()}{getSurfaceDerivative()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Surface\+Derivative (\begin{DoxyParamCaption}\item[{const double}]{major\+Circumferential\+Angle,  }\item[{const double}]{minor\+Circumferential\+Angle,  }\item[{const int}]{power\+Of\+Major\+Circumferential\+Angle\+Derivative,  }\item[{const int}]{power\+Of\+Minor\+Circumferential\+Angle\+Derivative }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get surface derivative on torus. 
+
+Retrieves the derivatives of the surface point with respect to the two independent variables. For power\+Of\+Major\+Circumferential\+Angle = 1 and power\+Of\+Minor\+Circumferential\+Angle = 2 the function returns\+: \[ \frac{ d^{ 3 } ( x, y, z ) } { du * dv^{ 2 } } \] (with u and v the major and minor angles). 
+\begin{DoxyParams}{Parameters}
+{\em major\+Circumferential\+Angle} & Major circumferential angle. \\
+\hline
+{\em minor\+Circumferential\+Angle} & Minor circumferential angle. \\
+\hline
+{\em power\+Of\+Major\+Circumferential\+Angle\+Derivative} & Power of derivative with respect to major circumferential angle. \\
+\hline
+{\em power\+Of\+Minor\+Circumferential\+Angle\+Derivative} & Power of the derivative with respect to the minor circumferential angle. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Surface derivative on torus. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_ad5d412eff63b46b71cc774d222131795}{tudat\+::geometric\+\_\+shapes\+::\+Single\+Surface\+Geometry}}.
+
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a4d4945c2926a530d6bab05f503d849b3}\label{classtudat_1_1geometric__shapes_1_1Torus_a4d4945c2926a530d6bab05f503d849b3}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!getSurfacePoint@{getSurfacePoint}}
+\index{getSurfacePoint@{getSurfacePoint}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{getSurfacePoint()}{getSurfacePoint()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::geometric\+\_\+shapes\+::\+Torus\+::get\+Surface\+Point (\begin{DoxyParamCaption}\item[{const double}]{major\+Circumferential\+Angle,  }\item[{const double}]{minor\+Circumferential\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get surface point on torus. 
+
+Retrieves a surface point in Cartesian coordinates on the torus from values of the two independent variables. Function uses cartesian\+Position\+Vector\+\_\+ member variable. Values of this vector set previous to function call are irrelevant. 
+\begin{DoxyParams}{Parameters}
+{\em major\+Circumferential\+Angle} & Major circumferential angle of the torus at which to retrieve the surface point. \\
+\hline
+{\em minor\+Circumferential\+Angle} & Minor circumferential angle of the torus at which to retrieve the surface point. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Point on torus in Cartesian coordinates. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_aec5c9957aa261662b34ddb0acf5eac40}{tudat\+::geometric\+\_\+shapes\+::\+Single\+Surface\+Geometry}}.
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Torus_a984a8ce4547e36f6d9a1ce07df87e2d8}\label{classtudat_1_1geometric__shapes_1_1Torus_a984a8ce4547e36f6d9a1ce07df87e2d8}} 
+\index{tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!tudat::geometric\_shapes::Torus@{tudat::geometric\_shapes::Torus}}
+\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{stream,  }\item[{\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus}{Torus}} \&}]{torus }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Overload ostream to print class information. 
+
+Overloads ostream to print class information, prints the class type, the ranges for the minor and major circumferential angles, and the major and minor radii. 
+\begin{DoxyParams}{Parameters}
+{\em stream} & Stream to which info is to be printed. \\
+\hline
+{\em torus} & \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus}{Torus}} frustum of which info is to be printed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Stream with printed info. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/geometric/torus.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/math/geometric/torus.\+cpp\end{DoxyCompactItemize}

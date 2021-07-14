@@ -1,0 +1,426 @@
+\hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager}{}\doxysection{tudat\+::json\+\_\+interface\+::Json\+Simulation\+Manager$<$ Time\+Type, State\+Scalar\+Type $>$ Class Template Reference}
+\label{classtudat_1_1json__interface_1_1JsonSimulationManager}\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+
+
+Class for managing JSON-\/based simulations.  
+
+
+
+
+{\ttfamily \#include $<$json\+Interface.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_aaa3ab5a9e7c7bd3f6bc3fbb4a07e9ccd}{Json\+Simulation\+Manager}} (const std\+::string \&input\+File\+Path, const std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point initial\+Clock\+Time=std\+::chrono\+::steady\+\_\+clock\+::now())
+\begin{DoxyCompactList}\small\item\em Constructor from JSON file. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a5cba88036054d7644f4a95759f4b4216}{Json\+Simulation\+Manager}} (const nlohmann\+::json \&json\+Object, const std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point initial\+Clock\+Time=std\+::chrono\+::steady\+\_\+clock\+::now())
+\begin{DoxyCompactList}\small\item\em Constructor from JSON object. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a5d2292cf7ae84cb40fc7b9d51b77de43}{reset\+Input\+File}} (const std\+::string \&input\+File\+Path)
+\begin{DoxyCompactList}\small\item\em Reset the root JSON input file. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a281c02cf1a04eb174f87789e92f5fc04}{reset\+Json\+Object}} (const nlohmann\+::json \&json\+Object)
+\begin{DoxyCompactList}\small\item\em Reset the {\ttfamily json} object. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_af62f160b434572efb4b9eb80fe325e2a}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_af62f160b434572efb4b9eb80fe325e2a}} 
+virtual void {\bfseries create\+Simulation\+Objects} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a970e5a645f532c39b254010d4b652652}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a970e5a645f532c39b254010d4b652652}} 
+virtual void {\bfseries update\+Settings} ()
+\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a661d898bdbf4feb2a9fbe9efa7a183c3}{run\+Propagation}} ()
+\begin{DoxyCompactList}\small\item\em Run the propagation. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a63cd3b474f6051471f3052b6ca193f4f}{export\+Results}} ()
+\begin{DoxyCompactList}\small\item\em Export the results of the dynamics simulation according to the export settings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a77d638e103b8bc398cf803dc395ac7ab}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a77d638e103b8bc398cf803dc395ac7ab}} 
+virtual void {\bfseries run\+Json\+Simulation} ()
+\item 
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ac60d3938659acae0939e19ecc25a2f0c}{get\+As\+Json}} ()
+\begin{DoxyCompactList}\small\item\em Export {\ttfamily this} as a {\ttfamily json} object. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ad5565e8a81e28da87e5a2ae934f933d4}{export\+As\+Json}} (const boost\+::filesystem\+::path \&export\+Path, const unsigned int tab\+Size=2)
+\begin{DoxyCompactList}\small\item\em Export {\ttfamily this} as a {\ttfamily json} object to the file {\ttfamily export\+Path}. \end{DoxyCompactList}\item 
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a8d75cd217f63b9b48cd6768507de17d7}{get\+Original\+Json\+Object}} () const
+\begin{DoxyCompactList}\small\item\em Get original JSON object (defined at construction or last time set\+Input\+File was called). \end{DoxyCompactList}\item 
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_abca703b1819354f019f7c96117313b34}{get\+Json\+Object}} () const
+\begin{DoxyCompactList}\small\item\em Get the JSON object. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_aa3863deb2dde3357355765a9aa2e904b}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_aa3863deb2dde3357355765a9aa2e904b}} 
+nlohmann\+::json {\bfseries at} (const std\+::string \&key) const
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ac8b008fc65cb41815f2f9a18988d18a2}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ac8b008fc65cb41815f2f9a18988d18a2}} 
+nlohmann\+::json \& {\bfseries operator\mbox{[}$\,$\mbox{]}} (const std\+::string \&key)
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a247b437aaa8996971ca65b56dd96d4e2}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a247b437aaa8996971ca65b56dd96d4e2}} 
+Time\+Type \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a247b437aaa8996971ca65b56dd96d4e2}{get\+Start\+Epoch}} () const
+\begin{DoxyCompactList}\small\item\em Get simulation start epoch. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ada89c9986c99874e63d9e324af27b9b6}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ada89c9986c99874e63d9e324af27b9b6}} 
+Time\+Type \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ada89c9986c99874e63d9e324af27b9b6}{get\+End\+Epoch}} () const
+\begin{DoxyCompactList}\small\item\em Get maximum simulation end epoch. Returns {\ttfamily TUDAT\+\_\+\+NAN} if there is no time termination condition. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_abf17e3a25598a6ffd85359b1ef71467e}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_abf17e3a25598a6ffd85359b1ef71467e}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_abf17e3a25598a6ffd85359b1ef71467e}{get\+Integrator\+Settings}} () const
+\begin{DoxyCompactList}\small\item\em Get integrator settings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_aa00f19d9da3543cae864db8e06f6768f}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_aa00f19d9da3543cae864db8e06f6768f}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1SpiceSettings}{Spice\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_aa00f19d9da3543cae864db8e06f6768f}{get\+Spice\+Settings}} () const
+\begin{DoxyCompactList}\small\item\em Get Spice settings (nullptr if Spice is not used). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a2886a3df6408004774343f6d009b2397}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a2886a3df6408004774343f6d009b2397}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a2886a3df6408004774343f6d009b2397}{get\+Global\+Frame\+Origin}} () const
+\begin{DoxyCompactList}\small\item\em Get global frame origin. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a9081fc6bae62f3e5841cb2600e143985}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a9081fc6bae62f3e5841cb2600e143985}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a9081fc6bae62f3e5841cb2600e143985}{get\+Global\+Frame\+Orientation}} () const
+\begin{DoxyCompactList}\small\item\em Get global frame orientation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a73fe63ebec999380ea0967ee0dea2da3}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a73fe63ebec999380ea0967ee0dea2da3}} 
+std\+::map$<$ std\+::string, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings}{simulation\+\_\+setup\+::\+Body\+Settings}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a73fe63ebec999380ea0967ee0dea2da3}{get\+Body\+Settings\+Map}} () const
+\begin{DoxyCompactList}\small\item\em Get map of body settings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a60cb755954988eb13a43e2cc1029613a}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a60cb755954988eb13a43e2cc1029613a}} 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a60cb755954988eb13a43e2cc1029613a}{get\+Body\+Map}} () const
+\begin{DoxyCompactList}\small\item\em Get system of bodies. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a2076af94e53866ea374d3c45d2180fd8}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a2076af94e53866ea374d3c45d2180fd8}} 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a2076af94e53866ea374d3c45d2180fd8}{add\+Body}} (const std\+::string \&body\+Name)
+\begin{DoxyCompactList}\small\item\em Add a body named {\ttfamily body\+Name}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a6e90dad51cce2e3627b34bf4d003172d}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a6e90dad51cce2e3627b34bf4d003172d}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{simulation\+\_\+setup\+::\+Body}} $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a6e90dad51cce2e3627b34bf4d003172d}{get\+Body}} (const std\+::string \&body\+Name) const
+\begin{DoxyCompactList}\small\item\em Get body named {\ttfamily body\+Name}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ac467bdf8baa1f17c60f31c3707b64379}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ac467bdf8baa1f17c60f31c3707b64379}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiTypePropagatorSettings}{propagators\+::\+Multi\+Type\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ac467bdf8baa1f17c60f31c3707b64379}{get\+Propagator\+Settings}} () const
+\begin{DoxyCompactList}\small\item\em Get propagator settings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a2a8b13c89cba7fe08d2d2686a6bd9dc9}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a2a8b13c89cba7fe08d2d2686a6bd9dc9}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings}{Export\+Settings}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a2a8b13c89cba7fe08d2d2686a6bd9dc9}{get\+Export\+Settings\+Vector}} () const
+\begin{DoxyCompactList}\small\item\em Get vector of export settings (each element corresponds to an output file). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_aa7cd8f9b330a927fb6bb48cafa61173f}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_aa7cd8f9b330a927fb6bb48cafa61173f}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings}{Export\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_aa7cd8f9b330a927fb6bb48cafa61173f}{get\+Export\+Settings}} (const unsigned int index) const
+\begin{DoxyCompactList}\small\item\em Get export settings at {\ttfamily index}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a5b899cf40c10dcd773d7a086c6d2280f}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a5b899cf40c10dcd773d7a086c6d2280f}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1ApplicationOptions}{Application\+Options}} $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a5b899cf40c10dcd773d7a086c6d2280f}{get\+Application\+Options}} () const
+\begin{DoxyCompactList}\small\item\em Get application options. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ad9476f9ac8a5fa370aadebf30f49fb1c}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ad9476f9ac8a5fa370aadebf30f49fb1c}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ad9476f9ac8a5fa370aadebf30f49fb1c}{get\+Dynamics\+Simulator}} () const
+\begin{DoxyCompactList}\small\item\em Get dynamics simulator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a163f8a87d4241e58b775da05d87be0b5}{reset\+Integrator\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Reset integrator\+Settings\+\_\+ from the current json\+Object\+\_\+. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a0e9930c3aad056de30c2a1d05be4a28d}{reset\+Spice}} ()
+\begin{DoxyCompactList}\small\item\em Reset spice\+Settings\+\_\+ from the current json\+Object\+\_\+. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a03a31189efab0e4fd39d13ced3d73659}{reset\+Bodies}} ()
+\begin{DoxyCompactList}\small\item\em Reset body\+Settings\+Map\+\_\+ and bodies\+\_\+ from the current json\+Object\+\_\+. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a7b07b80a1f378bc44eed66e2dc8e6655}{reset\+Export\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Reset export\+Settings\+Vector\+\_\+ from the current json\+Object\+\_\+. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a204fbcb54ad54ef74506b11c47da5d26}{reset\+Propagator\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Reset propagator\+Settings\+\_\+ from the current json\+Object\+\_\+. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ab299ed70fd800005901eda81d8590b3d}{reset\+Application\+Options}} ()
+\begin{DoxyCompactList}\small\item\em Reset application\+Options\+\_\+ from the current json\+Object\+\_\+. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_acda7166bac1eba247016d3bb78428f44}{reset\+Dynamics\+Simulator}} ()
+\begin{DoxyCompactList}\small\item\em Reset dynamics\+Simulator\+\_\+ for the current bodies\+\_\+, integrator\+Settings\+\_\+ and propagator\+Settings\+\_\+. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a3785b73e7861a050293138b888b9bfb4}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a3785b73e7861a050293138b888b9bfb4}} 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a3785b73e7861a050293138b888b9bfb4}{update\+Json\+Object\+From\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Update the JSON object with all the data from the current settings (objests). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_aa4d4680869e65fc0a06660d7bebd0d62}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_aa4d4680869e65fc0a06660d7bebd0d62}} 
+bool {\bfseries profiling} = false
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_af45ad2b3cc28ff62563d7982d6c1365f}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_af45ad2b3cc28ff62563d7982d6c1365f}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_af45ad2b3cc28ff62563d7982d6c1365f}{integrator\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Integrator settings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_aba881eb282ce81b0ce8469637c3db7ed}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_aba881eb282ce81b0ce8469637c3db7ed}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1SpiceSettings}{Spice\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_aba881eb282ce81b0ce8469637c3db7ed}{spice\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Spice settings (nullptr if Spice is not used). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a58805a79b4b0748d2532972aaf2b508f}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a58805a79b4b0748d2532972aaf2b508f}} 
+Json\+Simulation\+Types {\bfseries simulation\+Type\+\_\+}
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_affb032d8bfd37de19be31a604db7acea}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_affb032d8bfd37de19be31a604db7acea}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_affb032d8bfd37de19be31a604db7acea}{global\+Frame\+Origin\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Global frame origin. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ad79cd3dc59d6ded13e4da57e4d7537de}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ad79cd3dc59d6ded13e4da57e4d7537de}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ad79cd3dc59d6ded13e4da57e4d7537de}{global\+Frame\+Orientation\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Global frame orientation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a82b2ffafb62eef0693c73459f674c66e}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a82b2ffafb62eef0693c73459f674c66e}} 
+std\+::map$<$ std\+::string, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structtudat_1_1simulation__setup_1_1BodySettings}{simulation\+\_\+setup\+::\+Body\+Settings}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a82b2ffafb62eef0693c73459f674c66e}{body\+Settings\+Map\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of body settings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_af1abb89016aa6050d2d40fe379df8413}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_af1abb89016aa6050d2d40fe379df8413}} 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_af1abb89016aa6050d2d40fe379df8413}{bodies\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Body map. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a4c11c5b270dc0f112eea149f3174c56e}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a4c11c5b270dc0f112eea149f3174c56e}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiTypePropagatorSettings}{propagators\+::\+Multi\+Type\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a4c11c5b270dc0f112eea149f3174c56e}{propagator\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Propagation settings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ad674f6b860e8351a67b5df4df8837430}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ad674f6b860e8351a67b5df4df8837430}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1ExportSettings}{Export\+Settings}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ad674f6b860e8351a67b5df4df8837430}{export\+Settings\+Vector\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of export settings (each element corresponds to an output file). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_aabe4c5f89a693e9d861ff84bb0036929}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_aabe4c5f89a693e9d861ff84bb0036929}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1ApplicationOptions}{Application\+Options}} $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_aabe4c5f89a693e9d861ff84bb0036929}{application\+Options\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Application options. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ac20d6cd97d4f7a53a973616bf2c47a81}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ac20d6cd97d4f7a53a973616bf2c47a81}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_ac20d6cd97d4f7a53a973616bf2c47a81}{dynamics\+Simulator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Dynamics simulator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a55c1d7d507bc7d3a0d4718b97469642a}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a55c1d7d507bc7d3a0d4718b97469642a}} 
+std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a55c1d7d507bc7d3a0d4718b97469642a}{initial\+Clock\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Absolute path to the input file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a09ddfe469bd720f327bf9749b4c795e4}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a09ddfe469bd720f327bf9749b4c795e4}} 
+boost\+::filesystem\+::path \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a09ddfe469bd720f327bf9749b4c795e4}{input\+File\+Path\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Absolute path to the input file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a8bba8c525d7d7348c34a96967f7067b7}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a8bba8c525d7d7348c34a96967f7067b7}} 
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_a8bba8c525d7d7348c34a96967f7067b7}{original\+Json\+Object\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Original JSON object with all the settings read directly from the input file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_addaf6e2d7c26626ee5d5837756fa3eaf}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_addaf6e2d7c26626ee5d5837756fa3eaf}} 
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager_addaf6e2d7c26626ee5d5837756fa3eaf}{json\+Object\+\_\+}}
+\begin{DoxyCompactList}\small\item\em JSON object with the current settings. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Time\+Type = double, typename State\+Scalar\+Type = double$>$\newline
+class tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager$<$ Time\+Type, State\+Scalar\+Type $>$}
+
+Class for managing JSON-\/based simulations. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_aaa3ab5a9e7c7bd3f6bc3fbb4a07e9ccd}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_aaa3ab5a9e7c7bd3f6bc3fbb4a07e9ccd}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!JsonSimulationManager@{JsonSimulationManager}}
+\index{JsonSimulationManager@{JsonSimulationManager}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{JsonSimulationManager()}{JsonSimulationManager()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{Json\+Simulation\+Manager}} (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{input\+File\+Path,  }\item[{const std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point}]{initial\+Clock\+Time = {\ttfamily std\+:\+:chrono\+:\+:steady\+\_\+clock\+:\+:now(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor from JSON file. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em input\+File\+Path} & Path to the root JSON input file. Can be absolute or relative (to the working directory). \\
+\hline
+{\em initial\+Clock\+Time} & Initial clock time from which the cumulative CPU time during the propagation will be computed. Default is the moment at which the constructor was called. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a5cba88036054d7644f4a95759f4b4216}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a5cba88036054d7644f4a95759f4b4216}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!JsonSimulationManager@{JsonSimulationManager}}
+\index{JsonSimulationManager@{JsonSimulationManager}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{JsonSimulationManager()}{JsonSimulationManager()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{Json\+Simulation\+Manager}} (\begin{DoxyParamCaption}\item[{const nlohmann\+::json \&}]{json\+Object,  }\item[{const std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point}]{initial\+Clock\+Time = {\ttfamily std\+:\+:chrono\+:\+:steady\+\_\+clock\+:\+:now(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor from JSON object. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em json\+Object} & The root JSON object. \\
+\hline
+{\em initial\+Clock\+Time} & Initial clock time from which the cumulative CPU time during the propagation will be computed. Default is the moment at which the constructor was called. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ad5565e8a81e28da87e5a2ae934f933d4}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ad5565e8a81e28da87e5a2ae934f933d4}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!exportAsJson@{exportAsJson}}
+\index{exportAsJson@{exportAsJson}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{exportAsJson()}{exportAsJson()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::export\+As\+Json (\begin{DoxyParamCaption}\item[{const boost\+::filesystem\+::path \&}]{export\+Path,  }\item[{const unsigned int}]{tab\+Size = {\ttfamily 2} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Export {\ttfamily this} as a {\ttfamily json} object to the file {\ttfamily export\+Path}. 
+
+Export {\ttfamily this} as a {\ttfamily json} object to the file {\ttfamily export\+Path}. 
+\begin{DoxyParams}{Parameters}
+{\em export\+Path} & Path to which the contents of the JSON object are to be exported. \\
+\hline
+{\em tab\+Size} & Size of tabulations in the exported file (default = 2, i.\+e. 2 spaces). If set to 0, no indentantion or line breaks will be used, so the exported file will contain just one line. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a63cd3b474f6051471f3052b6ca193f4f}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a63cd3b474f6051471f3052b6ca193f4f}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!exportResults@{exportResults}}
+\index{exportResults@{exportResults}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{exportResults()}{exportResults()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::export\+Results (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Export the results of the dynamics simulation according to the export settings. 
+
+Export the results of the dynamics simulation according to the export settings. 
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_a6d056a66e71c3725bcb800069774470b}{tudat\+::json\+\_\+interface\+::\+Json\+Variational\+Equations\+Simulation\+Manager$<$ Time\+Type, State\+Scalar\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_a6d056a66e71c3725bcb800069774470b}{tudat\+::json\+\_\+interface\+::\+Json\+Variational\+Equations\+Simulation\+Manager$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ac60d3938659acae0939e19ecc25a2f0c}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ac60d3938659acae0939e19ecc25a2f0c}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!getAsJson@{getAsJson}}
+\index{getAsJson@{getAsJson}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getAsJson()}{getAsJson()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::get\+As\+Json (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Export {\ttfamily this} as a {\ttfamily json} object. 
+
+Export {\ttfamily this} as a {\ttfamily json} object. \begin{DoxyReturn}{Returns}
+JSON representation of {\ttfamily this}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_abca703b1819354f019f7c96117313b34}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_abca703b1819354f019f7c96117313b34}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!getJsonObject@{getJsonObject}}
+\index{getJsonObject@{getJsonObject}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getJsonObject()}{getJsonObject()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::get\+Json\+Object (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the JSON object. 
+
+Get the JSON object. \begin{DoxyRemark}{Remarks}
+The returned JSON object is the result of combining all the JSON files that may be included in the root JSON file into one single object containing all the settings. 
+\end{DoxyRemark}
+\begin{DoxyReturn}{Returns}
+The JSON object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a8d75cd217f63b9b48cd6768507de17d7}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a8d75cd217f63b9b48cd6768507de17d7}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!getOriginalJsonObject@{getOriginalJsonObject}}
+\index{getOriginalJsonObject@{getOriginalJsonObject}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getOriginalJsonObject()}{getOriginalJsonObject()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::get\+Original\+Json\+Object (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get original JSON object (defined at construction or last time set\+Input\+File was called). 
+
+Get original JSON object (defined at construction or last time set\+Input\+File was called). \begin{DoxyRemark}{Remarks}
+The returned JSON object is the result of combining all the JSON files that may be included in the root JSON file into one single object containing all the settings, but before default values have been loaded or unit conversions have been applied. 
+\end{DoxyRemark}
+\begin{DoxyReturn}{Returns}
+The original JSON object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_ab299ed70fd800005901eda81d8590b3d}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_ab299ed70fd800005901eda81d8590b3d}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetApplicationOptions@{resetApplicationOptions}}
+\index{resetApplicationOptions@{resetApplicationOptions}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetApplicationOptions()}{resetApplicationOptions()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Application\+Options (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reset application\+Options\+\_\+ from the current json\+Object\+\_\+. 
+
+Reset application\+Options\+\_\+ from the current json\+Object\+\_\+. \mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a03a31189efab0e4fd39d13ced3d73659}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a03a31189efab0e4fd39d13ced3d73659}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetBodies@{resetBodies}}
+\index{resetBodies@{resetBodies}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetBodies()}{resetBodies()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Bodies (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reset body\+Settings\+Map\+\_\+ and bodies\+\_\+ from the current json\+Object\+\_\+. 
+
+Reset body\+Settings\+Map\+\_\+ and bodies\+\_\+ from the current json\+Object\+\_\+. \mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_acda7166bac1eba247016d3bb78428f44}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_acda7166bac1eba247016d3bb78428f44}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetDynamicsSimulator@{resetDynamicsSimulator}}
+\index{resetDynamicsSimulator@{resetDynamicsSimulator}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetDynamicsSimulator()}{resetDynamicsSimulator()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Dynamics\+Simulator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reset dynamics\+Simulator\+\_\+ for the current bodies\+\_\+, integrator\+Settings\+\_\+ and propagator\+Settings\+\_\+. 
+
+Reset dynamics\+Simulator\+\_\+ for the current bodies\+\_\+, integrator\+Settings\+\_\+ and propagator\+Settings\+\_\+. 
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonEstimationManager_aae1bd0a8f8f8d498f5f5d2e71f972159}{tudat\+::json\+\_\+interface\+::\+Json\+Estimation\+Manager$<$ Time\+Type, State\+Scalar\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a7b07b80a1f378bc44eed66e2dc8e6655}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a7b07b80a1f378bc44eed66e2dc8e6655}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetExportSettings@{resetExportSettings}}
+\index{resetExportSettings@{resetExportSettings}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetExportSettings()}{resetExportSettings()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Export\+Settings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reset export\+Settings\+Vector\+\_\+ from the current json\+Object\+\_\+. 
+
+Reset export\+Settings\+Vector\+\_\+ from the current json\+Object\+\_\+. \mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a5d2292cf7ae84cb40fc7b9d51b77de43}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a5d2292cf7ae84cb40fc7b9d51b77de43}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetInputFile@{resetInputFile}}
+\index{resetInputFile@{resetInputFile}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetInputFile()}{resetInputFile()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Input\+File (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{input\+File\+Path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Reset the root JSON input file. 
+
+Reset the root JSON input file. 
+\begin{DoxyParams}{Parameters}
+{\em input\+File\+Path} & Path to the root JSON input file. Can be absolute or relative (to the working directory). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a163f8a87d4241e58b775da05d87be0b5}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a163f8a87d4241e58b775da05d87be0b5}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetIntegratorSettings@{resetIntegratorSettings}}
+\index{resetIntegratorSettings@{resetIntegratorSettings}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetIntegratorSettings()}{resetIntegratorSettings()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Integrator\+Settings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reset integrator\+Settings\+\_\+ from the current json\+Object\+\_\+. 
+
+Reset integrator\+Settings\+\_\+ from the current json\+Object\+\_\+. \mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a281c02cf1a04eb174f87789e92f5fc04}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a281c02cf1a04eb174f87789e92f5fc04}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetJsonObject@{resetJsonObject}}
+\index{resetJsonObject@{resetJsonObject}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetJsonObject()}{resetJsonObject()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Json\+Object (\begin{DoxyParamCaption}\item[{const nlohmann\+::json \&}]{json\+Object }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Reset the {\ttfamily json} object. 
+
+Reset the {\ttfamily json} object. 
+\begin{DoxyParams}{Parameters}
+{\em json\+Object} & The new {\ttfamily json} object to be used for creating the simulation settings. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a204fbcb54ad54ef74506b11c47da5d26}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a204fbcb54ad54ef74506b11c47da5d26}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetPropagatorSettings@{resetPropagatorSettings}}
+\index{resetPropagatorSettings@{resetPropagatorSettings}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetPropagatorSettings()}{resetPropagatorSettings()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Propagator\+Settings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reset propagator\+Settings\+\_\+ from the current json\+Object\+\_\+. 
+
+Reset propagator\+Settings\+\_\+ from the current json\+Object\+\_\+. Tries to infer the initial states from the body ephemeris if not provided. Creates the integrated state models using bodies\+\_\+ \mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a0e9930c3aad056de30c2a1d05be4a28d}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a0e9930c3aad056de30c2a1d05be4a28d}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!resetSpice@{resetSpice}}
+\index{resetSpice@{resetSpice}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetSpice()}{resetSpice()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::reset\+Spice (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reset spice\+Settings\+\_\+ from the current json\+Object\+\_\+. 
+
+Reset spice\+Settings\+\_\+ from the current json\+Object\+\_\+. Loads the requested kernels in Tudat (if any). \mbox{\Hypertarget{classtudat_1_1json__interface_1_1JsonSimulationManager_a661d898bdbf4feb2a9fbe9efa7a183c3}\label{classtudat_1_1json__interface_1_1JsonSimulationManager_a661d898bdbf4feb2a9fbe9efa7a183c3}} 
+\index{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}!runPropagation@{runPropagation}}
+\index{runPropagation@{runPropagation}!tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$@{tudat::json\_interface::JsonSimulationManager$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{runPropagation()}{runPropagation()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type  = double, typename State\+Scalar\+Type  = double$>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1json__interface_1_1JsonSimulationManager}{tudat\+::json\+\_\+interface\+::\+Json\+Simulation\+Manager}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::run\+Propagation (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Run the propagation. 
+
+Run the propagation. ~\newline
+ Before running the simulation, the JSON representation of {\ttfamily this} will be exported if requested in application\+Options\+\_\+, and a message will be printed if requested in application\+Options\+\_\+. ~\newline
+ If some of the keys in json\+Object\+\_\+ haven\textquotesingle{}t been used, a message may be printed or an error may be thrown depending on application\+Options\+\_\+. ~\newline
+ After running the simulation, a message will be printed if requested in application\+Options\+\_\+. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/interface/json/json\+Interface.\+h\end{DoxyCompactItemize}

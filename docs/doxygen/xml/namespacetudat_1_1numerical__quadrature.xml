@@ -1,0 +1,390 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1numerical__quadrature" kind="namespace" language="C++">
+    <compoundname>tudat::numerical_quadrature</compoundname>
+    <innerclass refid="classtudat_1_1numerical__quadrature_1_1QuadratureSettings" prot="public">tudat::numerical_quadrature::QuadratureSettings</innerclass>
+    <innerclass refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadratureSettings" prot="public">tudat::numerical_quadrature::GaussianQuadratureSettings</innerclass>
+    <innerclass refid="classtudat_1_1numerical__quadrature_1_1TrapezoidQuadratureSettings" prot="public">tudat::numerical_quadrature::TrapezoidQuadratureSettings</innerclass>
+    <innerclass refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" prot="public">tudat::numerical_quadrature::GaussQuadratureNodesAndWeights</innerclass>
+    <innerclass refid="classtudat_1_1numerical__quadrature_1_1GaussianQuadrature" prot="public">tudat::numerical_quadrature::GaussianQuadrature</innerclass>
+    <innerclass refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature" prot="public">tudat::numerical_quadrature::NumericalQuadrature</innerclass>
+    <innerclass refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature" prot="public">tudat::numerical_quadrature::TrapezoidNumericalQuadrature</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="createNumericalQuadrature_8h_1aca28e90e2d5c3d5b4243c8e0b74a812f" prot="public" static="no" strong="no">
+        <type></type>
+        <name>AvailableQuadratures</name>
+        <enumvalue id="createNumericalQuadrature_8h_1aca28e90e2d5c3d5b4243c8e0b74a812fa9720d70a073467135444b796b58ffc12" prot="public">
+          <name>trapezoidal</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="createNumericalQuadrature_8h_1aca28e90e2d5c3d5b4243c8e0b74a812faf5eac8d88f1122614ea666fe6ce9c00d" prot="public">
+          <name>gaussian</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum to define available numerical quadratures. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" line="29" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" bodystart="30" bodyend="33"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="trapezoidQuadrature_8h_1ae4409239111c8d6e789d2ff7bb52fd20" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__quadrature_1_1TrapezoidNumericalQuadrature" kindref="compound">TrapezoidNumericalQuadrature</ref>&lt; double, double &gt; &gt;</type>
+        <definition>typedef std::shared_ptr&lt; TrapezoidNumericalQuadrature&lt; double, double &gt; &gt; tudat::numerical_quadrature::TrapezoidNumericalIntegratorPointerd</definition>
+        <argsstring></argsstring>
+        <name>TrapezoidNumericalIntegratorPointerd</name>
+        <briefdescription>
+<para>Typede for trapezoidal quadrature with double (in)dependent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="188" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="gaussianQuadrature_8h_1a710a9a4ade6d88330238f6b2ca94c1b1" prot="public" static="yes" mutable="no">
+        <type>const std::shared_ptr&lt; <ref refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" kindref="compound">GaussQuadratureNodesAndWeights</ref>&lt; long double &gt; &gt;</type>
+        <definition>const std::shared_ptr&lt; GaussQuadratureNodesAndWeights&lt; long double &gt; &gt; tudat::numerical_quadrature::longDoubleGaussQuadratureNodesAndWeights</definition>
+        <argsstring></argsstring>
+        <name>longDoubleGaussQuadratureNodesAndWeights</name>
+        <initializer>=
+        std::make_shared&lt; <ref refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" kindref="compound">GaussQuadratureNodesAndWeights</ref>&lt; long double &gt; &gt;( )</initializer>
+        <briefdescription>
+<para>Object containing nodes/weights for long double Gauss quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" line="193" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="gaussianQuadrature_8h_1a20203d3f6d2961883560fe32b73711c0" prot="public" static="yes" mutable="no">
+        <type>const std::shared_ptr&lt; <ref refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" kindref="compound">GaussQuadratureNodesAndWeights</ref>&lt; double &gt; &gt;</type>
+        <definition>const std::shared_ptr&lt; GaussQuadratureNodesAndWeights&lt; double &gt; &gt; tudat::numerical_quadrature::doubleGaussQuadratureNodesAndWeights</definition>
+        <argsstring></argsstring>
+        <name>doubleGaussQuadratureNodesAndWeights</name>
+        <initializer>=
+        std::make_shared&lt; <ref refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" kindref="compound">GaussQuadratureNodesAndWeights</ref>&lt; double &gt; &gt;( )</initializer>
+        <briefdescription>
+<para>Object containing nodes/weights for double Gauss quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" line="197" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" bodystart="197" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="gaussianQuadrature_8h_1adeda565f8f80ba85be19eb911ffa657a" prot="public" static="yes" mutable="no">
+        <type>const std::shared_ptr&lt; <ref refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" kindref="compound">GaussQuadratureNodesAndWeights</ref>&lt; float &gt; &gt;</type>
+        <definition>const std::shared_ptr&lt; GaussQuadratureNodesAndWeights&lt; float &gt; &gt; tudat::numerical_quadrature::floatGaussQuadratureNodesAndWeights</definition>
+        <argsstring></argsstring>
+        <name>floatGaussQuadratureNodesAndWeights</name>
+        <initializer>=
+        std::make_shared&lt; <ref refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" kindref="compound">GaussQuadratureNodesAndWeights</ref>&lt; float &gt; &gt;( )</initializer>
+        <briefdescription>
+<para>Object containing nodes/weights for float Gauss quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" line="201" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" bodystart="201" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="createNumericalQuadrature_8h_1a6f97dbf37351b34c1b86a3cffbad209a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+          <param>
+            <type>typename DependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__quadrature_1_1NumericalQuadrature" kindref="compound">numerical_quadrature::NumericalQuadrature</ref>&lt; IndependentVariableType, DependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; numerical_quadrature::NumericalQuadrature&lt; IndependentVariableType, DependentVariableType &gt; &gt; tudat::numerical_quadrature::createQuadrature</definition>
+        <argsstring>(std::function&lt; DependentVariableType(const IndependentVariableType) &gt; derivativeFunction, std::shared_ptr&lt; QuadratureSettings&lt; IndependentVariableType &gt; &gt; quadratureSettings, IndependentVariableType finalIndependentVariable=TUDAT_NAN)</argsstring>
+        <name>createQuadrature</name>
+        <param>
+          <type>std::function&lt; DependentVariableType(const IndependentVariableType) &gt;</type>
+          <declname>derivativeFunction</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__quadrature_1_1QuadratureSettings" kindref="compound">QuadratureSettings</ref>&lt; IndependentVariableType &gt; &gt;</type>
+          <declname>quadratureSettings</declname>
+        </param>
+        <param>
+          <type>IndependentVariableType</type>
+          <declname>finalIndependentVariable</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function to create a numerical quadrature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a numerical quadrature from given quadrature settings, and derivative function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>derivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the derivative from current independent variable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>quadratureSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for numerical quadrature. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>finalIndependentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Final independent variable of numerical quadrature. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Numerical quadrature object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" line="151" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" bodystart="151" bodyend="207"/>
+      </memberdef>
+      <memberdef kind="function" id="gaussianQuadrature_8h_1a774d139df1d695ed69647f67eee3067b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::numerical_quadrature::readGaussianQuadratureNodes</definition>
+        <argsstring>(std::map&lt; unsigned int, Eigen::Array&lt; IndependentVariableType, Eigen::Dynamic, 1 &gt; &gt; &amp;gaussQuadratureNodes)</argsstring>
+        <name>readGaussianQuadratureNodes</name>
+        <param>
+          <type>std::map&lt; unsigned int, Eigen::Array&lt; IndependentVariableType, Eigen::Dynamic, 1 &gt; &gt; &amp;</type>
+          <declname>gaussQuadratureNodes</declname>
+        </param>
+        <briefdescription>
+<para>Read Gaussian nodes from text file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Read Gaussian nodes from text file, file name is hard-coded into this function, read nodes are returned by reference <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gaussQuadratureNodes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gauss quadrature nodes that are read from the file. Map key denotes the order, map value the list of nodes for that order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" line="42" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" bodystart="42" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="gaussianQuadrature_8h_1abadda21a215acd680d837a64dcf262e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::numerical_quadrature::readGaussianQuadratureWeights</definition>
+        <argsstring>(std::map&lt; unsigned int, Eigen::Array&lt; IndependentVariableType, Eigen::Dynamic, 1 &gt; &gt; &amp;gaussQuadratureWeights)</argsstring>
+        <name>readGaussianQuadratureWeights</name>
+        <param>
+          <type>std::map&lt; unsigned int, Eigen::Array&lt; IndependentVariableType, Eigen::Dynamic, 1 &gt; &gt; &amp;</type>
+          <declname>gaussQuadratureWeights</declname>
+        </param>
+        <briefdescription>
+<para>Read Gaussian weight factors from text file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Read Gaussian weight factors from text file, file name is hard-coded into this function, read nodes are returned by reference <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gaussQuadratureWeights</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gauss quadrature weights that are read from the file. Map key denotes the order, map value the list of weights for that order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" line="59" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" bodystart="59" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="gaussianQuadrature_8h_1a2ac3ee9298aaae85fb2cdeb47367e888" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" kindref="compound">GaussQuadratureNodesAndWeights</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; GaussQuadratureNodesAndWeights&lt; IndependentVariableType &gt; &gt; tudat::numerical_quadrature::getGaussQuadratureNodesAndWeights</definition>
+        <argsstring>()</argsstring>
+        <name>getGaussQuadratureNodesAndWeights</name>
+        <briefdescription>
+<para>Function to create Gauss quadrature node/weight container. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create Gauss quadrature node/weight container, templated by independent variable type <simplesect kind="return"><para>Gauss quadrature node/weight container </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/quadrature/gaussianQuadrature.cpp" line="12" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/quadrature/gaussianQuadrature.cpp" bodystart="12" bodyend="15" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" declline="211" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="gaussianQuadrature_8h_1ab78c259e5e542cf950f2ad2db1d438e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights" kindref="compound">GaussQuadratureNodesAndWeights</ref>&lt; long double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; GaussQuadratureNodesAndWeights&lt; float &gt; &gt; tudat::numerical_quadrature::getGaussQuadratureNodesAndWeights</definition>
+        <argsstring>()</argsstring>
+        <name>getGaussQuadratureNodesAndWeights</name>
+        <briefdescription>
+<para>Function to create Gauss quadrature node/weight container with long double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create Gauss quadrature node/weight container with float precision.</para>
+<para>Function to create Gauss quadrature node/weight container with double precision.</para>
+<para>Function to create Gauss quadrature node/weight container with long double precision. <simplesect kind="return"><para>Gauss quadrature node/weight container</para>
+</simplesect>
+Function to create Gauss quadrature node/weight container with double precision. <simplesect kind="return"><para>Gauss quadrature node/weight container</para>
+</simplesect>
+Function to create Gauss quadrature node/weight container with float precision. <simplesect kind="return"><para>Gauss quadrature node/weight container </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/quadrature/gaussianQuadrature.cpp" line="20" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/quadrature/gaussianQuadrature.cpp" bodystart="20" bodyend="23" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/gaussianQuadrature.h" declline="220" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="trapezoidQuadrature_8h_1af73325d0c1c16be72c8d3f13bcffbf83" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+          <param>
+            <type>typename DependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::numerical_quadrature::performTrapezoidalQuadrature</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentVariables, const std::vector&lt; DependentVariableType &gt; &amp;dependentVariables)</argsstring>
+        <name>performTrapezoidalQuadrature</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>dependentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Function to perform numerical quadrature using the trapezoidal method. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to perform numerical quadrature using the trapezoidal method. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of independent variables at which dependentVariables are given. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of function for which the numerical quadrature is to be computed, given at independentVariables. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Numerical quadrature (integral) of the data provided as input. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="42" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="42" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="trapezoidQuadrature_8h_1a612f41ee7b753e2482616f6c69b77199" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+          <param>
+            <type>typename DependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::numerical_quadrature::performExtendedSimpsonsQuadrature</definition>
+        <argsstring>(const IndependentVariableType constantIndependentVariableStep, const std::vector&lt; DependentVariableType &gt; &amp;dependentVariables)</argsstring>
+        <name>performExtendedSimpsonsQuadrature</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>constantIndependentVariableStep</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>dependentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Function to perform numerical quadrature using the extended Simpson&apos;s method. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to perform numerical quadrature using the extended Simpson&apos;s method (Press et al., 1992). Note that the spacing of the (in)dependent needs to be constant. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>constantIndependentVariableStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant independent variable step size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of function for which the numerical quadrature is to be computed, given at independentVariables. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Numerical quadrature (integral) of the data provided as input. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" line="66" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/trapezoidQuadrature.h" bodystart="66" bodyend="111"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/quadrature/createNumericalQuadrature.h" line="25" column="1"/>
+  </compounddef>
+</doxygen>

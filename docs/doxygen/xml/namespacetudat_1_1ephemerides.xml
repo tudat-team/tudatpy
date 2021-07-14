@@ -1,0 +1,1420 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1ephemerides" kind="namespace" language="C++">
+    <compoundname>tudat::ephemerides</compoundname>
+    <innerclass refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions" prot="public">tudat::ephemerides::ApproximatePlanetPositions</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase" prot="public">tudat::ephemerides::ApproximatePlanetPositionsBase</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsCircularCoplanar" prot="public">tudat::ephemerides::ApproximatePlanetPositionsCircularCoplanar</innerclass>
+    <innerclass refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer" prot="public">tudat::ephemerides::ApproximatePlanetPositionsDataContainer</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1CartesianStateExtractor" prot="public">tudat::ephemerides::CartesianStateExtractor</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1CompositeEphemeris" prot="public">tudat::ephemerides::CompositeEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1ConstantEphemeris" prot="public">tudat::ephemerides::ConstantEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1ConstantRotationalEphemeris" prot="public">tudat::ephemerides::ConstantRotationalEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1CustomEphemeris" prot="public">tudat::ephemerides::CustomEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1Ephemeris" prot="public">tudat::ephemerides::Ephemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1ScaledEphemeris" prot="public">tudat::ephemerides::ScaledEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager" prot="public">tudat::ephemerides::ReferenceFrameManager</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator" prot="public">tudat::ephemerides::PlanetaryOrientationAngleCalculator</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1PlanetaryRotationModel" prot="public">tudat::ephemerides::PlanetaryRotationModel</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1KeplerEphemeris" prot="public">tudat::ephemerides::KeplerEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1KeplerStateExtractor" prot="public">tudat::ephemerides::KeplerStateExtractor</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1MultiArcEphemeris" prot="public">tudat::ephemerides::MultiArcEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" prot="public">tudat::ephemerides::RotationalEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1SimpleRotationalEphemeris" prot="public">tudat::ephemerides::SimpleRotationalEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1SynchronousRotationalEphemeris" prot="public">tudat::ephemerides::SynchronousRotationalEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1TabulatedCartesianEphemeris" prot="public">tudat::ephemerides::TabulatedCartesianEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1TabulatedRotationalEphemeris" prot="public">tudat::ephemerides::TabulatedRotationalEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1Tle" prot="public">tudat::ephemerides::Tle</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1TleEphemeris" prot="public">tudat::ephemerides::TleEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1SpiceEphemeris" prot="public">tudat::ephemerides::SpiceEphemeris</innerclass>
+    <innerclass refid="classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris" prot="public">tudat::ephemerides::SpiceRotationalEphemeris</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="approximatePlanetPositions_8h_1a8e04eb67568a99cb254ab44ab167cde2" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions" kindref="compound">ApproximatePlanetPositions</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ApproximatePlanetPositions &gt; tudat::ephemerides::ApproximatePlanetPositionsPointer</definition>
+        <argsstring></argsstring>
+        <name>ApproximatePlanetPositionsPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions" kindref="compound">ApproximatePlanetPositions</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="125" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="approximatePlanetPositionsBase_8h_1abbc3d75bccd0edb3444f272e2acfbab6" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase" kindref="compound">ApproximatePlanetPositionsBase</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ApproximatePlanetPositionsBase &gt; tudat::ephemerides::ApproximatePlanetPositionsBasePointer</definition>
+        <argsstring></argsstring>
+        <name>ApproximatePlanetPositionsBasePointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase" kindref="compound">ApproximatePlanetPositionsBase</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsBase.h" line="220" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsBase.h" bodystart="220" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="approximatePlanetPositionsCircularCoplanar_8h_1a944bbd07b430fd3a5a770dae7b711e56" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsCircularCoplanar" kindref="compound">ApproximatePlanetPositionsCircularCoplanar</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ApproximatePlanetPositionsCircularCoplanar &gt; tudat::ephemerides::ApproximatePlanetPositionsCircularCoplanarPointer</definition>
+        <argsstring></argsstring>
+        <name>ApproximatePlanetPositionsCircularCoplanarPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsCircularCoplanar" kindref="compound">ApproximatePlanetPositionsCircularCoplanar</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsCircularCoplanar.h" line="92" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsCircularCoplanar.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="approximatePlanetPositionsDataContainer_8h_1a5dcd57e4fcca4ae812cd6aacfac80d73" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer" kindref="compound">ApproximatePlanetPositionsDataContainer</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ApproximatePlanetPositionsDataContainer &gt; tudat::ephemerides::ApproximatePlanetPositionsDataContainerPointer</definition>
+        <argsstring></argsstring>
+        <name>ApproximatePlanetPositionsDataContainerPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer" kindref="compound">ApproximatePlanetPositionsDataContainer</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsDataContainer.h" line="234" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsDataContainer.h" bodystart="234" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="cartesianStateExtractor_8h_1ab93e72c80b140c821986289686dac55f" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1CartesianStateExtractor" kindref="compound">CartesianStateExtractor</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; CartesianStateExtractor &gt; tudat::ephemerides::CartesianStateExtractorPointer</definition>
+        <argsstring></argsstring>
+        <name>CartesianStateExtractorPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1ephemerides_1_1CartesianStateExtractor" kindref="compound">CartesianStateExtractor</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/cartesianStateExtractor.h" line="52" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/cartesianStateExtractor.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="astro_2ephemerides_2ephemeris_8h_1ac040c26cae192226aba78b7a2c916be2" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; Ephemeris &gt; tudat::ephemerides::EphemerisPointer</definition>
+        <argsstring></argsstring>
+        <name>EphemerisPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/ephemeris.h" line="225" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/ephemeris.h" bodystart="225" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="keplerStateExtractor_8h_1a310e5d3c03a82a82479f1ae5de09eacb" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1KeplerStateExtractor" kindref="compound">KeplerStateExtractor</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; KeplerStateExtractor &gt; tudat::ephemerides::KeplerStateExtractorPointer</definition>
+        <argsstring></argsstring>
+        <name>KeplerStateExtractorPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1ephemerides_1_1KeplerStateExtractor" kindref="compound">KeplerStateExtractor</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerStateExtractor.h" line="56" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerStateExtractor.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="interface_2json_2environment_2ephemeris_8h_1a283cd83368687c981ff904b9bc6770be" prot="public" static="yes" mutable="no">
+        <type>std::map&lt; <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref>, std::string &gt;</type>
+        <definition>std::map&lt; ApproximatePlanetPositionsBase::BodiesWithEphemerisData, std::string &gt; tudat::ephemerides::bodiesWithEphemerisData</definition>
+        <argsstring></argsstring>
+        <name>bodiesWithEphemerisData</name>
+        <initializer>=
+{
+    { ApproximatePlanetPositionsBase::mercury, &quot;mercury&quot; },
+    { ApproximatePlanetPositionsBase::venus, &quot;venus&quot; },
+    { ApproximatePlanetPositionsBase::earthMoonBarycenter, &quot;earthMoonBarycenter&quot; },
+    { ApproximatePlanetPositionsBase::mars, &quot;mars&quot; },
+    { ApproximatePlanetPositionsBase::jupiter, &quot;jupiter&quot; },
+    { ApproximatePlanetPositionsBase::saturn, &quot;saturn&quot; },
+    { ApproximatePlanetPositionsBase::uranus, &quot;uranus&quot; },
+    { ApproximatePlanetPositionsBase::neptune, &quot;neptune&quot; },
+    { ApproximatePlanetPositionsBase::pluto, &quot;pluto&quot; }
+}</initializer>
+        <briefdescription>
+<para>Map of <computeroutput><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref></computeroutput>s string representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h" line="26" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="interface_2json_2environment_2ephemeris_8h_1a6213784954859611d6515df4c65ab48e" prot="public" static="yes" mutable="no">
+        <type>std::vector&lt; <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref> &gt;</type>
+        <definition>std::vector&lt; ApproximatePlanetPositionsBase::BodiesWithEphemerisData &gt; tudat::ephemerides::unsupportedBodiesWithEphemerisData</definition>
+        <argsstring></argsstring>
+        <name>unsupportedBodiesWithEphemerisData</name>
+        <initializer>= { }</initializer>
+        <briefdescription>
+<para><computeroutput><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref></computeroutput> not supported by <computeroutput>json_interface</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h" line="40" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="approximatePlanetPositionsBase_8h_1a1c1a4d4a89ded3499cda11d0a76ff931" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::getApproximatePlanetGravitationalParameter</definition>
+        <argsstring>(const ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyId)</argsstring>
+        <name>getApproximatePlanetGravitationalParameter</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref></type>
+          <declname>bodyId</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/approximatePlanetPositionsBase.cpp" line="198" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/approximatePlanetPositionsBase.cpp" bodystart="198" bodyend="201" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsBase.h" declline="222" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="approximatePlanetPositionsBase_8h_1a12a5b6fafcf02ba5fb432ecabb7502fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::getApproximatePlanetGravitationalParameter</definition>
+        <argsstring>(const std::string &amp;bodyName)</argsstring>
+        <name>getApproximatePlanetGravitationalParameter</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/approximatePlanetPositionsBase.cpp" line="203" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/approximatePlanetPositionsBase.cpp" bodystart="203" bodyend="206" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositionsBase.h" declline="224" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="compositeEphemeris_8h_1a89afad410565f71f361a4de5c9049dfa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename OldStateScalarType</type>
+          </param>
+          <param>
+            <type>typename NewStateScalarType</type>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+          <param>
+            <type>int</type>
+            <declname>StateSize</declname>
+            <defname>StateSize</defname>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; NewStateScalarType, StateSize, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; NewStateScalarType, StateSize, 1 &gt; tudat::ephemerides::convertStateFunctionStateScalarOutput</definition>
+        <argsstring>(const std::function&lt; Eigen::Matrix&lt; OldStateScalarType, StateSize, 1 &gt;(const double &amp;) &gt; originalStateFunction, const TimeType currentTime)</argsstring>
+        <name>convertStateFunctionStateScalarOutput</name>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; OldStateScalarType, StateSize, 1 &gt;(const double &amp;) &gt;</type>
+          <declname>originalStateFunction</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Interface function used to change the state scalar type of the output of a state function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Interface function used to change the state scalar type of the output of a state function <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originalStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State function with original scalar type </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state function is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State from originalStateFunction at currentTime, cast to NewStateScalarType. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="335" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="335" bodyend="341"/>
+      </memberdef>
+      <memberdef kind="function" id="compositeEphemeris_8h_1a42d1eb5339777077902bff3e11f01c02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; Ephemeris &gt; tudat::ephemerides::createReferencePointEphemeris</definition>
+        <argsstring>(std::shared_ptr&lt; Ephemeris &gt; bodyEphemeris, std::shared_ptr&lt; RotationalEphemeris &gt; bodyRotationModel, std::function&lt; Eigen::Vector6d(const double &amp;) &gt; referencePointRelativeStateFunction)</argsstring>
+        <name>createReferencePointEphemeris</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+          <declname>bodyEphemeris</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">RotationalEphemeris</ref> &gt;</type>
+          <declname>bodyRotationModel</declname>
+        </param>
+        <param>
+          <type>std::function&lt; Eigen::Vector6d(const double &amp;) &gt;</type>
+          <declname>referencePointRelativeStateFunction</declname>
+        </param>
+        <briefdescription>
+<para>Function to create the state function of a reference point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create the state function of a reference point, for instance the state of a ground station in a barycentric frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyEphemeris</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Global ephemeris of body on which reference point is located </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyRotationModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation model between global and body-fixed frame </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referencePointRelativeStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the body-fixed state of the reference point as a function of time </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> describbing the state of the local reference point in the global frame (expressed global frame&apos;s coordinates, i.e. same as bodyEphemeris). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" line="355" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/compositeEphemeris.h" bodystart="355" bodyend="385"/>
+      </memberdef>
+      <memberdef kind="function" id="astro_2ephemerides_2ephemeris_8h_1a8d6bc8cb242eb093edd0ef4707d9d818" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::ephemerides::getDifferenceBetweenStates</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector6d(const double) &gt; stateFunction, const std::function&lt; Eigen::Vector6d(const double) &gt; centralBodyStateFunction, const double time)</argsstring>
+        <name>getDifferenceBetweenStates</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d(const double) &gt;</type>
+          <declname>stateFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d(const double) &gt;</type>
+          <declname>centralBodyStateFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Get relative state from body state function and central body state function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get relative state from body state function and central body state function <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function retrieving state of body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function retrieving state of central body (in same frame as stateFunction) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state functions are to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Relative state of body w.r.t. central body at requested time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/ephemeris.cpp" line="21" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/ephemeris.cpp" bodystart="21" bodyend="27" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/ephemeris.h" declline="38" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="astro_2ephemerides_2ephemeris_8h_1a871a8edeb05563da5a38335ab2cdadfa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::ephemerides::getRelativeState</definition>
+        <argsstring>(Eigen::Vector6d &amp;relativeState, const std::function&lt; Eigen::Vector6d() &gt; stateFunctionOfBody, const std::function&lt; Eigen::Vector6d() &gt; stateFunctionOfCentralBody)</argsstring>
+        <name>getRelativeState</name>
+        <param>
+          <type>Eigen::Vector6d &amp;</type>
+          <declname>relativeState</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d() &gt;</type>
+          <declname>stateFunctionOfBody</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d() &gt;</type>
+          <declname>stateFunctionOfCentralBody</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the relative state from two state functions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the relative state from two state functions. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>relativeState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Relative state returned by stateFunctionOfBody w.r.t. state returned by stateFunctionOfCentralBody (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateFunctionOfBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning state of body for which relative state is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateFunctionOfCentralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning state of central body w.r.t. which the relative state is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/ephemeris.cpp" line="58" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/ephemeris.cpp" bodystart="58" bodyend="64" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/ephemeris.h" declline="237" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="frameManager_8h_1a9b6bacb4b0a291fe51750e1e6d0881be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::ephemerides::isFrameInertial</definition>
+        <argsstring>(const std::string &amp;frame)</argsstring>
+        <name>isFrameInertial</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Function to determine if a given frame is an inertial frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to determine if a given frame is an inertial frame. Currently a frame identified as &quot;SSB&quot; (solar system barycenter), &quot;inertial&quot; or &quot;&quot; (empty) is recognized as inertial. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of frame for which it is to be determined whether it is inertial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if inertial, false if not. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" line="25" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="25" bodyend="37" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" declline="39" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="frameManager_8h_1a7b600461899b416fbfcbacfe2591c593" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::ephemerides::getBaseFrameName</definition>
+        <argsstring>()</argsstring>
+        <name>getBaseFrameName</name>
+        <briefdescription>
+<para>Function to return base frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return base frame, i.e. in which the states of the bodies are defined during the integration. <simplesect kind="return"><para>Base frame for simulations. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" line="19" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/frameManager.cpp" bodystart="19" bodyend="22" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" declline="46" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="frameManager_8h_1ae410b2f94887588215151f029e324987" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::map&lt; std::string, std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; const TimeType) &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; const TimeType ) &gt; &gt; tudat::ephemerides::getTranslationFunctionsFromIntegrationFrameToEphemerisFrame</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; &amp;centralBodies, const std::vector&lt; std::string &gt; &amp;bodiesToIntegrate, const std::shared_ptr&lt; ephemerides::ReferenceFrameManager &gt; frameManager)</argsstring>
+        <name>getTranslationFunctionsFromIntegrationFrameToEphemerisFrame</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>centralBodies</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToIntegrate</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1ReferenceFrameManager" kindref="compound">ephemerides::ReferenceFrameManager</ref> &gt;</type>
+          <declname>frameManager</declname>
+        </param>
+        <briefdescription>
+<para>Function to get a list of translation functions from integration frames to ephemeris frames. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get a list of translation functions from integration frames to ephemeris frames. The output functions provide the state of the ephemeris origin in the integration origin. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>centralBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of integration origins. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToIntegrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the origins are considered. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameManager</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to retrieve translations between origins </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>List of translation functions from integration frames to ephemeris frames. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" line="253" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/frameManager.h" bodystart="253" bodyend="284"/>
+      </memberdef>
+      <memberdef kind="function" id="fullPlanetaryRotationModel_8h_1afa55632fec46757a66b6d8fe197c9388" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1CubicSplineInterpolator" kindref="compound">interpolators::CubicSplineInterpolator</ref>&lt; double, Eigen::Vector3d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::CubicSplineInterpolator&lt; double, Eigen::Vector3d &gt; &gt; tudat::ephemerides::createInterpolatorForPlanetaryRotationAngles</definition>
+        <argsstring>(double intervalStart, double intervalEnd, double timeStep, std::shared_ptr&lt; PlanetaryOrientationAngleCalculator &gt; planetaryOrientationCalculator)</argsstring>
+        <name>createInterpolatorForPlanetaryRotationAngles</name>
+        <param>
+          <type>double</type>
+          <declname>intervalStart</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>intervalEnd</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>timeStep</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator" kindref="compound">PlanetaryOrientationAngleCalculator</ref> &gt;</type>
+          <declname>planetaryOrientationCalculator</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/fullPlanetaryRotationModel.h" line="267" column="1" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/fullPlanetaryRotationModel.h" declline="267" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationalEphemeris_8h_1a1636c8bbafa4c996bd1bd8f490c13be7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::ephemerides::getRotationalVelocityVectorInBaseFrameFromMatrices</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;rotationToTargetFrame, const Eigen::Matrix3d &amp;rotationMatrixToGlobalFrameDerivative)</argsstring>
+        <name>getRotationalVelocityVectorInBaseFrameFromMatrices</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationToTargetFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationMatrixToGlobalFrameDerivative</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the rotational velocity vector of frame B w.r.t frame A. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the rotational velocity vector of frame B (local) w.r.t frame A (global) from the rotation matrix between the frames, as well as its time derivative. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationToTargetFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix from frame A to frame B. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationMatrixToGlobalFrameDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> derivative if rotation matrix from frame B to frame A. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Angular velocity vector of frame B, expressed in frame A. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/rotationalEphemeris.cpp" line="20" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/rotationalEphemeris.cpp" bodystart="20" bodyend="29" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" declline="45" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationalEphemeris_8h_1a45d838ad28269d8b839c4bf125f998e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::ephemerides::getDerivativeOfRotationMatrixToFrame</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;rotationToTargetFrame, const Eigen::Vector3d &amp;rotationalVelocityVectorInTargetFrame)</argsstring>
+        <name>getDerivativeOfRotationMatrixToFrame</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationToTargetFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>rotationalVelocityVectorInTargetFrame</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the time derivative of rotation matrix from frame A to frame B. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the time derivative of rotation matrix from frame A (global) to frame B (local) from the rotation matrix between the frames, as well as the angular velocity vector of frame B w.r.t. frame A. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationToTargetFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix from frame A to frame B. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationalVelocityVectorInTargetFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angular velocity vector of frame B, expressed in frame A. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> derivative if rotation matrix from frame A to frame B. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/rotationalEphemeris.cpp" line="32" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/rotationalEphemeris.cpp" bodystart="32" bodyend="39" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" declline="59" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationalEphemeris_8h_1ad920caed2bfc92524aa2c4c5b3c7a89c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; tudat::ephemerides::transformStateToFrameFromRotations</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;stateInBaseFrame, const Eigen::Quaterniond &amp;rotationToFrame, const Eigen::Matrix3d &amp;rotationMatrixToFrameDerivative)</argsstring>
+        <name>transformStateToFrameFromRotations</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;</type>
+          <declname>stateInBaseFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Quaterniond &amp;</type>
+          <declname>rotationToFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationMatrixToFrameDerivative</declname>
+        </param>
+        <briefdescription>
+<para>Transform a state (Cartesian position and velocity) from one frame to another. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Transform a state (Cartesian position and velocity) from one frame to another, taking into account both the instantaneous rotational state of the two frames, and the rotational rate of one frame w.r.t. the other. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateInBaseFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State that is to be transformed from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationToFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationMatrixToFrameDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> derivative of rotation matrix from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State (Cartesian position and velocity) in target frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" line="75" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" bodystart="75" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationalEphemeris_8h_1a657fe29e11e7bc38e8e5665848d1ae2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; tudat::ephemerides::transformStateToFrameFromRotationFunctions</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;stateInBaseFrame, const std::function&lt; Eigen::Quaterniond() &gt; rotationToFrameFunction, const std::function&lt; Eigen::Matrix3d() &gt; rotationMatrixToFrameDerivativeFunction)</argsstring>
+        <name>transformStateToFrameFromRotationFunctions</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;</type>
+          <declname>stateInBaseFrame</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond() &gt;</type>
+          <declname>rotationToFrameFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix3d() &gt;</type>
+          <declname>rotationMatrixToFrameDerivativeFunction</declname>
+        </param>
+        <briefdescription>
+<para>Transform a state (Cartesian position and velocity) from one frame to another. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Transform a state (Cartesian position and velocity) from one frame to another, taking into account both the instantaneous rotational state of the two frames, and the rotational rate of one frame w.r.t. the other. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateInBaseFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State that is to be transformed from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationToFrameFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning rotation from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationMatrixToFrameDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning time derivative of rotation matrix from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State (Cartesian position and velocity) in target frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" line="101" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" bodystart="101" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationalEphemeris_8h_1a05301feffc254c4cdf6d0fb2ac564ccf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; tudat::ephemerides::transformRelativeStateToFrame</definition>
+        <argsstring>(const std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;() &gt; stateInBaseFrame, const std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;() &gt; centralBodyStateInBaseFrame, const std::function&lt; Eigen::Quaterniond() &gt; rotationToFrameFunction, const std::function&lt; Eigen::Matrix3d() &gt; rotationMatrixToFrameDerivativeFunction)</argsstring>
+        <name>transformRelativeStateToFrame</name>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;() &gt;</type>
+          <declname>stateInBaseFrame</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;() &gt;</type>
+          <declname>centralBodyStateInBaseFrame</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond() &gt;</type>
+          <declname>rotationToFrameFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix3d() &gt;</type>
+          <declname>rotationMatrixToFrameDerivativeFunction</declname>
+        </param>
+        <briefdescription>
+<para>Transform a relative state (Cartesian position and velocity) from one frame to another. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Transform a relative state (Cartesian position and velocity) from one frame to another, taking into account both the instantaneous rotational state of the two frames, and the rotational rate of one frame w.r.t. the other. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateInBaseFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State that is to be transformed from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyStateInBaseFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State of central body w.r.t. which returned state is to be computed. State returned by this function must be in frame with same orientation as that returned by stateInBaseFrame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationToFrameFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning rotation from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationMatrixToFrameDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning time derivative of rotation matrix from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State (Cartesian position and velocity) in target frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" line="125" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" bodystart="125" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationalEphemeris_8h_1af609a241edb99d898b76d67341976274" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; tudat::ephemerides::transformStateToFrameFromRotationTimeFunctions</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;stateInBaseFrame, const double currentTime, const std::function&lt; Eigen::Quaterniond(const TimeType) &gt; rotationToFrameFunction, const std::function&lt; Eigen::Matrix3d(const TimeType) &gt; rotationMatrixToFrameDerivativeFunction)</argsstring>
+        <name>transformStateToFrameFromRotationTimeFunctions</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;</type>
+          <declname>stateInBaseFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond(const TimeType) &gt;</type>
+          <declname>rotationToFrameFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix3d(const TimeType) &gt;</type>
+          <declname>rotationMatrixToFrameDerivativeFunction</declname>
+        </param>
+        <briefdescription>
+<para>Transform a state (Cartesian position and velocity) from one frame to another. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Transform a state (Cartesian position and velocity) from one frame to another, taking into account both the instantaneous rotational state of the two frames, and the rotational rate of one frame w.r.t. the other. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateInBaseFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State that is to be transformed from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input time for rotationToFrameFunction and rotationMatrixToFrameDerivativeFunction </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationToFrameFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning rotation from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationMatrixToFrameDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning time derivative of rotation matrix from base to target frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State (Cartesian position and velocity) in target frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" line="153" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" bodystart="153" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationalEphemeris_8h_1af5481e64ce64407659377618f9ee551e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; tudat::ephemerides::transformStateToInertialOrientation</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;stateInLocalFrame, const TimeType currentTime, const std::shared_ptr&lt; RotationalEphemeris &gt; rotationalEphemeris)</argsstring>
+        <name>transformStateToInertialOrientation</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;</type>
+          <declname>stateInLocalFrame</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>currentTime</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">RotationalEphemeris</ref> &gt;</type>
+          <declname>rotationalEphemeris</declname>
+        </param>
+        <briefdescription>
+<para>Function to transform a state from the target to base frame of a rotational ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to transform a state from the target (body-fixed) to base (inertial) frame of a rotational ephemeris <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateInLocalFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State in body-fixed frame (target frame of rotational ephemeris) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which rotational ephemeris is to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationalEphemeris</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotational ephemeris object to compute the rotation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>stateInLocalFrame State in inertial frame (base frame of rotational ephemeris) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" line="496" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" bodystart="496" bodyend="505"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationalEphemeris_8h_1a5bac1995a87be59ae11f035fd870e67e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; tudat::ephemerides::transformStateToTargetFrame</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;stateInGlobalFrame, const TimeType currentTime, const std::shared_ptr&lt; RotationalEphemeris &gt; rotationalEphemeris)</argsstring>
+        <name>transformStateToTargetFrame</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, 6, 1 &gt; &amp;</type>
+          <declname>stateInGlobalFrame</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>currentTime</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">RotationalEphemeris</ref> &gt;</type>
+          <declname>rotationalEphemeris</declname>
+        </param>
+        <briefdescription>
+<para>Function to transform a state from the base to target frame of a rotational ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to transform a state from the base (inertial) to target (body-fixed) frame of a rotational ephemeris <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateInGlobalFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State in inertial frame (base frame of rotational ephemeris) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which rotational ephemeris is to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationalEphemeris</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotational ephemeris object to compute the rotation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State in body-fixed frame (target frame of rotational ephemeris) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" line="516" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/rotationalEphemeris.h" bodystart="516" bodyend="525"/>
+      </memberdef>
+      <memberdef kind="function" id="tabulatedEphemeris_8h_1aa75b1dbfb01e096c45da72121bfad5d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::ephemerides::isTabulatedEphemeris</definition>
+        <argsstring>(const std::shared_ptr&lt; Ephemeris &gt; ephemeris)</argsstring>
+        <name>isTabulatedEphemeris</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+          <declname>ephemeris</declname>
+        </param>
+        <briefdescription>
+<para>Function to check whether an ephemeris is a (type of) tabulated ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to check whether an ephemeris is a (type of) tabulated ephemeris, it checks all typical combinations of class template arguments are returns true if a dynamic cast is succesful <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemeris</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> pointer for which it is to be checked whether it is a tabulated ephemeris </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if ephemeris is a tabulated ephemeris </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/tabulatedEphemeris.cpp" line="219" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/tabulatedEphemeris.cpp" bodystart="219" bodyend="230" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tabulatedEphemeris.h" declline="201" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="tabulatedEphemeris_8h_1a626e980a2296449034347c578f1bac66" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; double, double &gt;</type>
+        <definition>std::pair&lt; double, double &gt; tudat::ephemerides::getTabulatedEphemerisSafeInterval</definition>
+        <argsstring>(const std::shared_ptr&lt; Ephemeris &gt; ephemeris)</argsstring>
+        <name>getTabulatedEphemerisSafeInterval</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+          <declname>ephemeris</declname>
+        </param>
+        <briefdescription>
+<para>Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated. The interval on which the interpolator inside this object is valid is checked and returned <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemeris</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> model for which the interval is to be determined. AN exception is thrown if this is not a tabulated ephemeris </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The time interval at which the tabulated ephemeris can be safely interrogated </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/tabulatedEphemeris.cpp" line="233" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/tabulatedEphemeris.cpp" bodystart="233" bodyend="265" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tabulatedEphemeris.h" declline="211" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="tabulatedEphemeris_8h_1a9f062303053c803b3466dc234024a777" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; Ephemeris &gt; tudat::ephemerides::createEmptyTabulatedEphemeris</definition>
+        <argsstring>(const std::string referenceFrameOrigin=&quot;SSB&quot;, const std::string referenceFrameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>createEmptyTabulatedEphemeris</name>
+        <param>
+          <type>const std::string</type>
+          <declname>referenceFrameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>referenceFrameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Function to create an empty (dummy) tabulated ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create an empty (dummy) tabulated ephemeris. This is used when for instance propagating a body for which the propagated result shopuld be saved in the epehemris, but no a priori ephemeris is available <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrigin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Origin of reference frame in which state is defined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of reference frame in which state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Empty tabulated ephemeris with given reference frame settings </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tabulatedEphemeris.h" line="222" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tabulatedEphemeris.h" bodystart="222" bodyend="231"/>
+      </memberdef>
+      <memberdef kind="function" id="tabulatedEphemeris_8h_1a61fd3a7e8b91b00e93ddd92d26815801" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; Ephemeris &gt; tudat::ephemerides::getTabulatedEphemeris</definition>
+        <argsstring>(const std::shared_ptr&lt; Ephemeris &gt; ephemerisToInterrogate, const TimeType startTime, const TimeType endTime, const TimeType timeStep, const std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; interpolatorSettings=std::make_shared&lt; interpolators::LagrangeInterpolatorSettings &gt;(8))</argsstring>
+        <name>getTabulatedEphemeris</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> &gt;</type>
+          <declname>ephemerisToInterrogate</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>startTime</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>endTime</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>timeStep</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+          <declname>interpolatorSettings</declname>
+          <defval>std::make_shared&lt; <ref refid="classtudat_1_1interpolators_1_1LagrangeInterpolatorSettings" kindref="compound">interpolators::LagrangeInterpolatorSettings</ref> &gt;(8)</defval>
+        </param>
+        <briefdescription>
+<para>Create a tabulated ephemeris from a given ephemeris model and interpolation settings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a tabulated ephemeris from a given ephemeris model and interpolation settings <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemerisToInterrogate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> model from which the tabulated model is tpo be synthesized </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start time for tabulated ephemeris </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>endTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End time for tabulated ephemeris </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant time step for tabulated ephemeris </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interpolatorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Interpolation settings for tabulated ephemeris </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Tabulated ephemeris, as synthesized from a given ephemeris model and interpolation settings </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tabulatedEphemeris.h" line="244" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tabulatedEphemeris.h" bodystart="244" bodyend="270"/>
+      </memberdef>
+      <memberdef kind="function" id="tabulatedRotationalEphemeris_8h_1adcdae9898309d6207e8f9dd44a909ddf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">RotationalEphemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; RotationalEphemeris &gt; tudat::ephemerides::getTabulatedRotationalEphemeris</definition>
+        <argsstring>(const std::shared_ptr&lt; RotationalEphemeris &gt; ephemerisToInterrogate, const TimeType startTime, const TimeType endTime, const TimeType timeStep, const std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; interpolatorSettings=std::make_shared&lt; interpolators::LagrangeInterpolatorSettings &gt;(8))</argsstring>
+        <name>getTabulatedRotationalEphemeris</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">RotationalEphemeris</ref> &gt;</type>
+          <declname>ephemerisToInterrogate</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>startTime</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>endTime</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>timeStep</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+          <declname>interpolatorSettings</declname>
+          <defval>std::make_shared&lt; <ref refid="classtudat_1_1interpolators_1_1LagrangeInterpolatorSettings" kindref="compound">interpolators::LagrangeInterpolatorSettings</ref> &gt;(8)</defval>
+        </param>
+        <briefdescription>
+<para>Create a tabulated rotation model from a given rotation model and interpolation settings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a tabulated rotation model from a given rotation model and interpolation settings <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemerisToInterrogate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation model from which the tabulated model is tpo be synthesized </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start time for tabulated model </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>endTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End time for tabulated model </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant time step for tabulated model </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interpolatorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Interpolation settings for tabulated model </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Tabulated rotation model, as synthesized from a given rotation model and interpolation settings </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tabulatedRotationalEphemeris.h" line="237" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tabulatedRotationalEphemeris.h" bodystart="237" bodyend="262"/>
+      </memberdef>
+      <memberdef kind="function" id="interface_2json_2environment_2ephemeris_8h_1a69cc115df8279d83d121e8997233ae2a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::ephemerides::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const ApproximatePlanetPositionsBase::BodiesWithEphemerisData &amp;bodyWithEphemerisData)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref> &amp;</type>
+          <declname>bodyWithEphemerisData</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref></computeroutput> to <computeroutput>json</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h" line="43" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h" bodystart="43" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="interface_2json_2environment_2ephemeris_8h_1ac93401e5b292513908d8d7173b00fa25" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::ephemerides::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, ApproximatePlanetPositionsBase::BodiesWithEphemerisData &amp;bodyWithEphemerisData)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref> &amp;</type>
+          <declname>bodyWithEphemerisData</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>json</computeroutput> to <computeroutput><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">ApproximatePlanetPositionsBase::BodiesWithEphemerisData</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h" line="50" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/ephemeris.h" bodystart="50" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="fullPlanetaryRotationModel_8cpp_1a175bf8655e230814387aae76f32bbb35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>boost::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1CubicSplineInterpolator" kindref="compound">interpolators::CubicSplineInterpolator</ref>&lt; double, Eigen::Vector3d &gt; &gt;</type>
+        <definition>boost::shared_ptr&lt; interpolators::CubicSplineInterpolator&lt; double, Eigen::Vector3d &gt; &gt; tudat::ephemerides::createInterpolatorForPlanetaryRotationAngles</definition>
+        <argsstring>(double intervalStart, double intervalEnd, double timeStep, boost::shared_ptr&lt; PlanetaryOrientationAngleCalculator &gt; planetaryOrientationCalculator)</argsstring>
+        <name>createInterpolatorForPlanetaryRotationAngles</name>
+        <param>
+          <type>double</type>
+          <declname>intervalStart</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>intervalEnd</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>timeStep</declname>
+        </param>
+        <param>
+          <type>boost::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator" kindref="compound">PlanetaryOrientationAngleCalculator</ref> &gt;</type>
+          <declname>planetaryOrientationCalculator</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/fullPlanetaryRotationModel.cpp" line="149" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/fullPlanetaryRotationModel.cpp" bodystart="149" bodyend="169"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="30" column="1"/>
+  </compounddef>
+</doxygen>

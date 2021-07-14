@@ -1,0 +1,547 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</basecompoundref>
+    <includes refid="observationBiasParameter_8h" local="no">observationBiasParameter.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a8836ecfb5e799d6636c24bd37b41c5f7" prot="private" static="no" mutable="no">
+        <type>const std::vector&lt; double &gt;</type>
+        <definition>const std::vector&lt; double &gt; tudat::estimatable_parameters::ArcWiseObservationBiasParameter::arcStartTimes_</definition>
+        <argsstring></argsstring>
+        <name>arcStartTimes_</name>
+        <briefdescription>
+<para>Start times for arcs in which biases are defined. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="356" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="356" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1aed32adeba0dbb41726a3f450f2d93b3b" prot="private" static="no" mutable="no">
+        <type>std::function&lt; std::vector&lt; Eigen::VectorXd &gt;) &gt;</type>
+        <definition>std::function&lt; std::vector&lt; Eigen::VectorXd &gt; ) &gt; tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getBiasList_</definition>
+        <argsstring></argsstring>
+        <name>getBiasList_</name>
+        <briefdescription>
+<para>Function to retrieve the current observation bias list. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="359" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="359" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a15acc7eda9cb353ee093e7c4c1677f2f" prot="private" static="no" mutable="no">
+        <type>std::function&lt; void(const std::vector&lt; Eigen::VectorXd &gt; &amp;) &gt;</type>
+        <definition>std::function&lt; void( const std::vector&lt; Eigen::VectorXd &gt;&amp; ) &gt; tudat::estimatable_parameters::ArcWiseObservationBiasParameter::resetBiasList_</definition>
+        <argsstring></argsstring>
+        <name>resetBiasList_</name>
+        <briefdescription>
+<para>Function to reset the current observation bias list. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="362" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="362" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a639753be9a760589323094276942e722" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::ArcWiseObservationBiasParameter::linkEndIndex_</definition>
+        <argsstring></argsstring>
+        <name>linkEndIndex_</name>
+        <briefdescription>
+<para>Link end index from which the &apos;current time&apos; is determined. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="365" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="365" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a7ca450cd4ed60058267ae46f189034b5" prot="private" static="no" mutable="no">
+        <type>observation_models::LinkEnds</type>
+        <definition>observation_models::LinkEnds tudat::estimatable_parameters::ArcWiseObservationBiasParameter::linkEnds_</definition>
+        <argsstring></argsstring>
+        <name>linkEnds_</name>
+        <briefdescription>
+<para>Observation link ends for which the bias is active. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="368" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="368" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a81424d23e6b69862a3f202fb70c0d94c" prot="private" static="no" mutable="no">
+        <type>observation_models::ObservableType</type>
+        <definition>observation_models::ObservableType tudat::estimatable_parameters::ArcWiseObservationBiasParameter::observableType_</definition>
+        <argsstring></argsstring>
+        <name>observableType_</name>
+        <briefdescription>
+<para>Observable type for which the bias is active. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="371" column="40" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="371" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1af4813222b9e2030bab3f33489e305547" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::ArcWiseObservationBiasParameter::observableSize_</definition>
+        <argsstring></argsstring>
+        <name>observableSize_</name>
+        <briefdescription>
+<para>Size of observable for which bias is considered. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="374" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="374" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a8b2b165a20f3486eca7306d5d5eeadcc" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::ArcWiseObservationBiasParameter::numberOfArcs_</definition>
+        <argsstring></argsstring>
+        <name>numberOfArcs_</name>
+        <briefdescription>
+<para>Number of arc for which biases are considered. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="377" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="377" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1ac0c374fa70645ff57ebdab66242d863f" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1LookUpScheme" kindref="compound">interpolators::LookUpScheme</ref>&lt; double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::LookUpScheme&lt; double &gt; &gt; tudat::estimatable_parameters::ArcWiseObservationBiasParameter::lookupScheme_</definition>
+        <argsstring></argsstring>
+        <name>lookupScheme_</name>
+        <briefdescription>
+<para>Object used to determine the current arc, based on the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="380" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="380" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a4bfffa7f38d84deab36a8052d43885a1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::ArcWiseObservationBiasParameter::ArcWiseObservationBiasParameter</definition>
+        <argsstring>(const std::vector&lt; double &gt; arcStartTimes, const std::function&lt; std::vector&lt; Eigen::VectorXd &gt;() &gt; getBiasList, const std::function&lt; void(const std::vector&lt; Eigen::VectorXd &gt; &amp;) &gt; resetBiasList, const int linkEndIndex, const observation_models::LinkEnds linkEnds, const observation_models::ObservableType observableType, const bool biasIsAbsolute)</argsstring>
+        <name>ArcWiseObservationBiasParameter</name>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; std::vector&lt; Eigen::VectorXd &gt;() &gt;</type>
+          <declname>getBiasList</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; void(const std::vector&lt; Eigen::VectorXd &gt; &amp;) &gt;</type>
+          <declname>resetBiasList</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>linkEndIndex</declname>
+        </param>
+        <param>
+          <type>const observation_models::LinkEnds</type>
+          <declname>linkEnds</declname>
+        </param>
+        <param>
+          <type>const observation_models::ObservableType</type>
+          <declname>observableType</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>biasIsAbsolute</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start times for arcs in which biases are defined </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>getBiasList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to retrieve the current observation bias list. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resetBiasList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to reset the current observation bias list </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end index from which the &apos;current time&apos; is determined </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEnds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observation link ends for which the bias is active. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observable type for which the bias is active. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biasIsAbsolute</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the bias is absolute or relative </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="191" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="191" bodyend="207"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a9298301f40c7cdefd4821573efc8b95a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::ArcWiseObservationBiasParameter::~ArcWiseObservationBiasParameter</definition>
+        <argsstring>()</argsstring>
+        <name>~ArcWiseObservationBiasParameter</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="210" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="210" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a361577529520f9a590f289c5e7282d1c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getParameterValue</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a63413b914f9e8b68705aba7048780200">getParameterValue</reimplements>
+        <briefdescription>
+<para>Function to get the current value of the arc-wise observation bias that is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the current value of the arc-wise observation bias that is to be estimated. <simplesect kind="return"><para>Current value of the arc-wise observation bias that is to be estimated. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="217" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="217" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a331a08debdeae06fbd6df6f9dccf7691" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::ArcWiseObservationBiasParameter::setParameterValue</definition>
+        <argsstring>(Eigen::VectorXd parameterValue)</argsstring>
+        <name>setParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5df35bde257a6db401ca3c3613056554">setParameterValue</reimplements>
+        <param>
+          <type>Eigen::VectorXd</type>
+          <declname>parameterValue</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the value of the arc-wise constant observation bias that is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the value of the arc-wise constant observation bias that is to be estimated. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New value of the arc-wise constant observation bias that is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="241" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="241" bodyend="251"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a1ab5c19cc04a0e3690180afcfbc57561" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getParameterSize</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterSize</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a989d54bab5c5e09ab6f1b709755b22e8">getParameterSize</reimplements>
+        <briefdescription>
+<para>Function to retrieve the size of the parameter (equal to the size of the observable). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the size of the parameter (equal to the size of the observable). <simplesect kind="return"><para>Size of parameter value (equal to the size of the observable). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="258" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="258" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a47ea62394c6dd3d3f5706ad10d8c9690" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::ArcWiseObservationBiasParameter::setObservationBiasFunctions</definition>
+        <argsstring>(const std::function&lt; std::vector&lt; Eigen::VectorXd &gt;() &gt; getBiasList, const std::function&lt; void(const std::vector&lt; Eigen::VectorXd &gt; &amp;) &gt; resetBiasList)</argsstring>
+        <name>setObservationBiasFunctions</name>
+        <param>
+          <type>const std::function&lt; std::vector&lt; Eigen::VectorXd &gt;() &gt;</type>
+          <declname>getBiasList</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; void(const std::vector&lt; Eigen::VectorXd &gt; &amp;) &gt;</type>
+          <declname>resetBiasList</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the get/set function of the observation bias list. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the get/set function of the observation bias list. This function is needed since te observation models/biases are typically created after the estimated parameter objects <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>getBiasList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New function to retrieve the current observation bias list. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resetBiasList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New function to reset the current observation bias list </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="270" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="270" bodyend="282"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1afe64e1f83e94d0d0bc0ae8755a96c75b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>observation_models::LinkEnds</type>
+        <definition>observation_models::LinkEnds tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getLinkEnds</definition>
+        <argsstring>()</argsstring>
+        <name>getLinkEnds</name>
+        <briefdescription>
+<para>Function to retrieve the observation link ends for which the bias is active. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the observation link ends for which the bias is active. <simplesect kind="return"><para>Observation link ends for which the bias is active. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="289" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="289" bodyend="292"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1af73adc48664329705ee6c095980951b1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>observation_models::ObservableType</type>
+        <definition>observation_models::ObservableType tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getObservableType</definition>
+        <argsstring>()</argsstring>
+        <name>getObservableType</name>
+        <briefdescription>
+<para>Function to retrieve the observable type for which the bias is active. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the observable type ends for which the bias is active. <simplesect kind="return"><para>Observable type for which the bias is active. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="299" column="40" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="299" bodyend="302"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1af03c58ff2b6466e2741008c7eebe5171" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getParameterDescription</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterDescription</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5c264285d7e3ce9ce1452928ad8e7425">getParameterDescription</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="304" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="304" bodyend="310"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1ada31a7b010bd640af3b9891c327ff724" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getArcStartTimes</definition>
+        <argsstring>()</argsstring>
+        <name>getArcStartTimes</name>
+        <briefdescription>
+<para>Function to retrieve start times for arcs in which biases are defined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve start times for arcs in which biases are defined <simplesect kind="return"><para>Start times for arcs in which biases are defined </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="316" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="316" bodyend="319"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a113f79bf485147cba725ae0ea9943260" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getLinkEndIndex</definition>
+        <argsstring>()</argsstring>
+        <name>getLinkEndIndex</name>
+        <briefdescription>
+<para>Function to retrieve link end index from which the &apos;current time&apos; is determined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve link end index from which the &apos;current time&apos; is determined <simplesect kind="return"><para>Link end index from which the &apos;current time&apos; is determined </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="326" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="326" bodyend="329"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1aea140297ef0ac2b5824df47261f74310" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1LookUpScheme" kindref="compound">interpolators::LookUpScheme</ref>&lt; double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::LookUpScheme&lt; double &gt; &gt; tudat::estimatable_parameters::ArcWiseObservationBiasParameter::getLookupScheme</definition>
+        <argsstring>()</argsstring>
+        <name>getLookupScheme</name>
+        <briefdescription>
+<para>Function to retrieve object used to determine the current arc, based on the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve object used to determine the current arc, based on the current time. <simplesect kind="return"><para>Object used to determine the current arc, based on the current time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="336" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="336" bodyend="339"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a484e949996ddc518a3ca32f2e65d0045" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::ArcWiseObservationBiasParameter::setLookupScheme</definition>
+        <argsstring>(const std::shared_ptr&lt; interpolators::LookUpScheme&lt; double &gt; &gt; lookupScheme)</argsstring>
+        <name>setLookupScheme</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1LookUpScheme" kindref="compound">interpolators::LookUpScheme</ref>&lt; double &gt; &gt;</type>
+          <declname>lookupScheme</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset object used to determine the current arc, based on the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset object used to determine the current arc, based on the current time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object used to determine the current arc, based on the current time. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="346" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="346" bodyend="349"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interface class for the estimation of an arc-wise constant absolute or relative observation bias. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Interface class for the estimation of aan arc-wise constant absolute or relative observation bias (at given link ends and observable type). Unlike most other <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">EstimatableParameter</ref> derived classes, this class does not have direct access to the class (ConstantArcWiseObservationBias/ ConstantRelativeArcWiseObservationBias) used in the simulations for the observation bias. This is due to the fact that the ConstantArcWiseObservationBias and ConstantRelativeArcWiseObservationBias class are templated by the observable size, while this class is not. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+      <node id="1">
+        <label>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+      <node id="1">
+        <label>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" line="175" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h" bodystart="176" bodyend="381"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a8836ecfb5e799d6636c24bd37b41c5f7" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>arcStartTimes_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a4bfffa7f38d84deab36a8052d43885a1" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>ArcWiseObservationBiasParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a4012bde7f5f26c5c590c0a149283dd4d" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1ada31a7b010bd640af3b9891c327ff724" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getArcStartTimes</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1aed32adeba0dbb41726a3f450f2d93b3b" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getBiasList_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1adc670898ad79d02d23cfcf82b5578ed0" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getConstraintRightHandSide</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1af7db7b4da27ca2787b0090c409087cd7" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getConstraintSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a9c6c6514f75b2efdbd30cc2292fa3d0f" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getConstraintStateMultipler</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a113f79bf485147cba725ae0ea9943260" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getLinkEndIndex</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1afe64e1f83e94d0d0bc0ae8755a96c75b" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getLinkEnds</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1aea140297ef0ac2b5824df47261f74310" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getLookupScheme</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1af73adc48664329705ee6c095980951b1" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getObservableType</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1af03c58ff2b6466e2741008c7eebe5171" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getParameterDescription</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a23de3d6116f1414d5bb905f1b523cfdc" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getParameterName</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a1ab5c19cc04a0e3690180afcfbc57561" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getParameterSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a361577529520f9a590f289c5e7282d1c" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1ae97f1a8ef867dcaf72ceeb5050e64629" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a639753be9a760589323094276942e722" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>linkEndIndex_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a7ca450cd4ed60058267ae46f189034b5" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>linkEnds_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1ac0c374fa70645ff57ebdab66242d863f" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>lookupScheme_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a8b2b165a20f3486eca7306d5d5eeadcc" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>numberOfArcs_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1af4813222b9e2030bab3f33489e305547" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>observableSize_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a81424d23e6b69862a3f202fb70c0d94c" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>observableType_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a3d43d2db730c707b789768dad4de5ae6" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>parameterName_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a15acc7eda9cb353ee093e7c4c1677f2f" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>resetBiasList_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a484e949996ddc518a3ca32f2e65d0045" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>setLookupScheme</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a47ea62394c6dd3d3f5706ad10d8c9690" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>setObservationBiasFunctions</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a331a08debdeae06fbd6df6f9dccf7691" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>setParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_1a9298301f40c7cdefd4821573efc8b95a" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>~ArcWiseObservationBiasParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a211a379e14476e36a7693f43be29cb11" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::ArcWiseObservationBiasParameter</scope><name>~EstimatableParameter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

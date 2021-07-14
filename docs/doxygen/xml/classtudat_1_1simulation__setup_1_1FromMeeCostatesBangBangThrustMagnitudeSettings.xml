@@ -1,0 +1,487 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings" prot="public" virt="non-virtual">tudat::simulation_setup::ThrustMagnitudeSettings</basecompoundref>
+    <includes refid="thrustSettings_8h" local="no">thrustSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a7a4f29369ab22b58ca7ead25f16f37ab" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::maximumThrustMagnitude_</definition>
+        <argsstring></argsstring>
+        <name>maximumThrustMagnitude_</name>
+        <briefdescription>
+<para>Maximum thrust magnitude. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="585" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="585" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a4ff42a8ac7e8967dbf5907a0ee3ece26" prot="public" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double) &gt; tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::specificImpulseFunction_</definition>
+        <argsstring></argsstring>
+        <name>specificImpulseFunction_</name>
+        <briefdescription>
+<para>Function returning specific impulse as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="588" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="588" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a3ae5ce372e0b67d12359cf53c7c1dc5b" prot="public" static="no" mutable="no">
+        <type>std::function&lt; Eigen::VectorXd(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::VectorXd( const double ) &gt; tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::costatesFunction_</definition>
+        <argsstring></argsstring>
+        <name>costatesFunction_</name>
+        <briefdescription>
+<para>Vector of Mee costates. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="591" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="591" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a9d821f6b62614106e3714b42c574bc86" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::vehicleName_</definition>
+        <argsstring></argsstring>
+        <name>vehicleName_</name>
+        <briefdescription>
+<para>Name of the body under thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="594" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="594" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1abd2b1a6f960c90d44415e63c1bbc884b" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::centralBodyName_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyName_</name>
+        <briefdescription>
+<para>Name of the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="597" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="597" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a69d2529a6bf36f8411e8a5521ac9b6ba" prot="public" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::bodyFixedThrustDirection_</definition>
+        <argsstring></argsstring>
+        <name>bodyFixedThrustDirection_</name>
+        <briefdescription>
+<para>Direction of thrust force in body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="600" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="600" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1afebb0ecdbc73142e3e0cbb5cecb51c67" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void(const double) &gt;</type>
+        <definition>std::function&lt; void( const double ) &gt; tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::customThrustResetFunction_</definition>
+        <argsstring></argsstring>
+        <name>customThrustResetFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="602" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="602" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1af755dd8bb37970e1504728399ab8c007" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::FromMeeCostatesBangBangThrustMagnitudeSettings</definition>
+        <argsstring>(const double thrustMagnitude, const std::function&lt; double(const double) &gt; specificImpulseFunction, const std::function&lt; Eigen::VectorXd(const double) &gt; costatesFunction, const std::string &amp;vehicleName, const std::string &amp;centralBodyName, const std::function&lt; Eigen::Vector3d() &gt; bodyFixedThrustDirection=[](){ return Eigen::Vector3d::UnitX();}, const std::function&lt; void(const double) &gt; customThrustResetFunction=std::function&lt; void(const double) &gt;())</argsstring>
+        <name>FromMeeCostatesBangBangThrustMagnitudeSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>thrustMagnitude</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>specificImpulseFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::VectorXd(const double) &gt;</type>
+          <declname>costatesFunction</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>vehicleName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBodyName</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>bodyFixedThrustDirection</declname>
+          <defval>[](){ return Eigen::Vector3d::UnitX();}</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; void(const double) &gt;</type>
+          <declname>customThrustResetFunction</declname>
+          <defval>std::function&lt; void(const double) &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor with costates function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor with costates function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustMagnitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum thrust magnitude (if engine is on). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulseFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning specific impulse as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>costateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the MEE 5 costates as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vehicleName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of vehicle under thrust. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of central body (w.r.t. which MEE are calculated). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyFixedThrustDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Direction of thrust force in body-fixed frame (along longitudinal axis by default). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>customThrustResetFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Custom function that is to be called when signalling that a new time step is being started (empty by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="513" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="513" bodyend="524"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a249c605d834e5351991c1e3664ae5106" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::FromMeeCostatesBangBangThrustMagnitudeSettings</definition>
+        <argsstring>(const double thrustMagnitude, const std::function&lt; double(const double) &gt; specificImpulseFunction, const std::string &amp;vehicleName, const std::string &amp;centralBodyName, const std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, Eigen::VectorXd &gt; &gt; costateInterpolator, const std::function&lt; Eigen::Vector3d() &gt; bodyFixedThrustDirection=[](){ return Eigen::Vector3d::UnitX();}, const std::function&lt; void(const double) &gt; customThrustResetFunction=std::function&lt; void(const double) &gt;())</argsstring>
+        <name>FromMeeCostatesBangBangThrustMagnitudeSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>thrustMagnitude</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>specificImpulseFunction</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>vehicleName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBodyName</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::VectorXd &gt; &gt;</type>
+          <declname>costateInterpolator</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>bodyFixedThrustDirection</declname>
+          <defval>[](){ return Eigen::Vector3d::UnitX();}</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; void(const double) &gt;</type>
+          <declname>customThrustResetFunction</declname>
+          <defval>std::function&lt; void(const double) &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor with costate function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor with costate function <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustMagnitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum thrust magnitude (if engine is on). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulseFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning specific impulse as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>costateInterpolator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Interpolator returning the 5 MEE costates as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vehicleName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of vehicle under thrust. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of central body (w.r.t. which MEE are calculated). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyFixedThrustDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Direction of thrust force in body-fixed frame (along longitudinal axis by default). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>customThrustResetFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Custom function that is to be called when signalling that a new time step is being started (empty by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="538" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="538" bodyend="552"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a1337d60df29dff357580f1f3ad1b534f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::FromMeeCostatesBangBangThrustMagnitudeSettings</definition>
+        <argsstring>(const double thrustMagnitude, const std::function&lt; double(const double) &gt; specificImpulseFunction, const std::string &amp;vehicleName, const std::string &amp;centralBodyName, const Eigen::VectorXd constantCostates, const std::function&lt; Eigen::Vector3d() &gt; bodyFixedThrustDirection=[](){ return Eigen::Vector3d::UnitX();}, const std::function&lt; void(const double) &gt; customThrustResetFunction=std::function&lt; void(const double) &gt;())</argsstring>
+        <name>FromMeeCostatesBangBangThrustMagnitudeSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>thrustMagnitude</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>specificImpulseFunction</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>vehicleName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBodyName</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>constantCostates</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>bodyFixedThrustDirection</declname>
+          <defval>[](){ return Eigen::Vector3d::UnitX();}</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; void(const double) &gt;</type>
+          <declname>customThrustResetFunction</declname>
+          <defval>std::function&lt; void(const double) &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor with costate function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor with costate function <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustMagnitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum thrust magnitude (if engine is on). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulseFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning specific impulse as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>costateInterpolator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The MEE 5 costates, which will be used as constants in time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vehicleName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of vehicle under thrust. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of central body (w.r.t. which MEE are calculated). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyFixedThrustDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Direction of thrust force in body-fixed frame (along longitudinal axis by default). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>customThrustResetFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Custom function that is to be called when signalling that a new time step is being started (empty by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="566" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="566" bodyend="578"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a8ca7e0a61a1ee0e1fc21a97f4a651a58" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings::~FromMeeCostatesBangBangThrustMagnitudeSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~FromMeeCostatesBangBangThrustMagnitudeSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="582" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="582" bodyend="582"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for defining settings for bang-bang MEE-costate based thrust magnitude. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for defining settings for bang-bang MEE-costate based thrust magnitude. Model details can be found in Kluever (2010) and Boudestijn (2014). The MEE-costates are provided for the five slow elements, as a function of time. Constructors for constant costates, and costates from an interpolator, are also provided. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::ThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>centralBodyName_</edgelabel>
+          <edgelabel>vehicleName_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::ThrustMagnitudeSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>thrustOriginId_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="496" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="497" bodyend="603"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a69d2529a6bf36f8411e8a5521ac9b6ba" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>bodyFixedThrustDirection_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1abd2b1a6f960c90d44415e63c1bbc884b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>centralBodyName_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a3ae5ce372e0b67d12359cf53c7c1dc5b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>costatesFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1afebb0ecdbc73142e3e0cbb5cecb51c67" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>customThrustResetFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1af755dd8bb37970e1504728399ab8c007" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>FromMeeCostatesBangBangThrustMagnitudeSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a249c605d834e5351991c1e3664ae5106" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>FromMeeCostatesBangBangThrustMagnitudeSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a1337d60df29dff357580f1f3ad1b534f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>FromMeeCostatesBangBangThrustMagnitudeSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a7a4f29369ab22b58ca7ead25f16f37ab" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>maximumThrustMagnitude_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a4ff42a8ac7e8967dbf5907a0ee3ece26" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>specificImpulseFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1a8574e339929d412745ebdc559b704ce0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>thrustMagnitudeGuidanceType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1ad2429ec4d0fb80fa4e1d65c52accffc7" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>ThrustMagnitudeSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1a3cf9eb28d99dfdcf64c81813389ca717" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>thrustOriginId_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a9d821f6b62614106e3714b42c574bc86" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>vehicleName_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1FromMeeCostatesBangBangThrustMagnitudeSettings_1a8ca7e0a61a1ee0e1fc21a97f4a651a58" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>~FromMeeCostatesBangBangThrustMagnitudeSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings_1ae23cfe129141b5b7157e42149763f553" prot="public" virt="virtual"><scope>tudat::simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings</scope><name>~ThrustMagnitudeSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

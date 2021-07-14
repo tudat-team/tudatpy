@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_de97b511b4a6ca7ac95584854e87325c" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/observation_models</compoundname>
+    <innerdir refid="dir_e4a75d9062e9a5d7f07076614c5faf20">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/observation_models/corrections</innerdir>
+    <innerfile refid="lightTimeSolution_8cpp">lightTimeSolution.cpp</innerfile>
+    <innerfile refid="linkTypeDefs_8cpp">linkTypeDefs.cpp</innerfile>
+    <innerfile refid="observableTypes_8cpp">observableTypes.cpp</innerfile>
+    <innerfile refid="observationManager_8cpp">observationManager.cpp</innerfile>
+    <innerfile refid="observationModel_8cpp">observationModel.cpp</innerfile>
+    <innerfile refid="observationSimulator_8cpp">observationSimulator.cpp</innerfile>
+    <innerfile refid="observationViabilityCalculator_8cpp">observationViabilityCalculator.cpp</innerfile>
+    <innerfile refid="simulateObservations_8cpp">simulateObservations.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/observation_models/"/>
+  </compounddef>
+</doxygen>

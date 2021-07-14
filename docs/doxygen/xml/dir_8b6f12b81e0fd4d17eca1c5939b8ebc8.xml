@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_8b6f12b81e0fd4d17eca1c5939b8ebc8" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro</compoundname>
+    <innerfile refid="accelerationModel_8h">accelerationModel.h</innerfile>
+    <innerfile refid="accelerationModelTypes_8h">accelerationModelTypes.h</innerfile>
+    <innerfile refid="astrodynamicsFunctions_8h">astrodynamicsFunctions.h</innerfile>
+    <innerfile refid="attitudeElementConversions_8h">attitudeElementConversions.h</innerfile>
+    <innerfile refid="bodyShapeModel_8h">bodyShapeModel.h</innerfile>
+    <innerfile refid="celestialBodyConstants_8h">celestialBodyConstants.h</innerfile>
+    <innerfile refid="clohessyWiltshirePropagator_8h">clohessyWiltshirePropagator.h</innerfile>
+    <innerfile refid="convertMeanToEccentricAnomalies_8h">convertMeanToEccentricAnomalies.h</innerfile>
+    <innerfile refid="customAccelerationModel_8h">customAccelerationModel.h</innerfile>
+    <innerfile refid="customTorque_8h">customTorque.h</innerfile>
+    <innerfile refid="dissipativeTorqueModel_8h">dissipativeTorqueModel.h</innerfile>
+    <innerfile refid="empiricalAcceleration_8h">empiricalAcceleration.h</innerfile>
+    <innerfile refid="geodeticCoordinateConversions_8h">geodeticCoordinateConversions.h</innerfile>
+    <innerfile refid="keplerPropagator_8h">keplerPropagator.h</innerfile>
+    <innerfile refid="astro_2basic__astro_2massRateModel_8h">massRateModel.h</innerfile>
+    <innerfile refid="missionGeometry_8h">missionGeometry.h</innerfile>
+    <innerfile refid="modifiedEquinoctialElementConversions_8h">modifiedEquinoctialElementConversions.h</innerfile>
+    <innerfile refid="oblateSpheroidBodyShapeModel_8h">oblateSpheroidBodyShapeModel.h</innerfile>
+    <innerfile refid="orbitalElementConversions_8h">orbitalElementConversions.h</innerfile>
+    <innerfile refid="physicalConstants_8h">physicalConstants.h</innerfile>
+    <innerfile refid="sphericalBodyShapeModel_8h">sphericalBodyShapeModel.h</innerfile>
+    <innerfile refid="sphericalStateConversions_8h">sphericalStateConversions.h</innerfile>
+    <innerfile refid="stateRepresentationConversions_8h">stateRepresentationConversions.h</innerfile>
+    <innerfile refid="stateVectorIndices_8h">stateVectorIndices.h</innerfile>
+    <innerfile refid="testAccelerationModels_8h">testAccelerationModels.h</innerfile>
+    <innerfile refid="timeConversions_8h">timeConversions.h</innerfile>
+    <innerfile refid="torqueModel_8h">torqueModel.h</innerfile>
+    <innerfile refid="torqueModelTypes_8h">torqueModelTypes.h</innerfile>
+    <innerfile refid="unifiedStateModelExponentialMapElementConversions_8h">unifiedStateModelExponentialMapElementConversions.h</innerfile>
+    <innerfile refid="unifiedStateModelModifiedRodriguesParameterElementConversions_8h">unifiedStateModelModifiedRodriguesParameterElementConversions.h</innerfile>
+    <innerfile refid="unifiedStateModelQuaternionElementConversions_8h">unifiedStateModelQuaternionElementConversions.h</innerfile>
+    <innerfile refid="unitConversions_8h">unitConversions.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/"/>
+  </compounddef>
+</doxygen>

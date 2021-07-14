@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Spice" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Spice</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a56da876805b3450ddf4ac673fd7897ff" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Spice::useStandardKernels</definition>
+        <argsstring></argsstring>
+        <name>useStandardKernels</name>
+        <initializer>= &quot;useStandardKernels&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="47" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a6438ab5b43f58e293d02661ba188848d" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Spice::alternativeKernels</definition>
+        <argsstring></argsstring>
+        <name>alternativeKernels</name>
+        <initializer>= &quot;alternativeKernels&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="48" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a94d4ab627a71c7821e155730bd27d909" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Spice::kernels</definition>
+        <argsstring></argsstring>
+        <name>kernels</name>
+        <initializer>= &quot;kernels&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="49" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a1eefd0145128ea6527cd933aba445a67" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Spice::preloadEphemeris</definition>
+        <argsstring></argsstring>
+        <name>preloadEphemeris</name>
+        <initializer>= &quot;preloadEphemeris&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="50" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Spice_1acccaded962edf96f5082f1722dbe375b" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Spice::interpolationOffsets</definition>
+        <argsstring></argsstring>
+        <name>interpolationOffsets</name>
+        <initializer>= &quot;interpolationOffsets&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="51" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a88f34d4e3a2ddcfb92d3c5d00bd56585" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Spice::interpolationStep</definition>
+        <argsstring></argsstring>
+        <name>interpolationStep</name>
+        <initializer>= &quot;interpolationStep&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="52" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="46" bodyend="53"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a6438ab5b43f58e293d02661ba188848d" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Spice</scope><name>alternativeKernels</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Spice_1acccaded962edf96f5082f1722dbe375b" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Spice</scope><name>interpolationOffsets</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a88f34d4e3a2ddcfb92d3c5d00bd56585" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Spice</scope><name>interpolationStep</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a94d4ab627a71c7821e155730bd27d909" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Spice</scope><name>kernels</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a1eefd0145128ea6527cd933aba445a67" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Spice</scope><name>preloadEphemeris</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Spice_1a56da876805b3450ddf4ac673fd7897ff" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Spice</scope><name>useStandardKernels</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

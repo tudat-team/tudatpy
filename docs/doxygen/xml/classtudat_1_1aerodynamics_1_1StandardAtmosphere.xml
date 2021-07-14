@@ -1,0 +1,364 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1StandardAtmosphere" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::aerodynamics::StandardAtmosphere</compoundname>
+    <basecompoundref refid="classtudat_1_1aerodynamics_1_1AtmosphereModel" prot="public" virt="non-virtual">tudat::aerodynamics::AtmosphereModel</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1aerodynamics_1_1CustomConstantTemperatureAtmosphere" prot="public" virt="non-virtual">tudat::aerodynamics::CustomConstantTemperatureAtmosphere</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1aerodynamics_1_1ExponentialAtmosphere" prot="public" virt="non-virtual">tudat::aerodynamics::ExponentialAtmosphere</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1aerodynamics_1_1TabulatedAtmosphere" prot="public" virt="non-virtual">tudat::aerodynamics::TabulatedAtmosphere</derivedcompoundref>
+    <includes refid="standardAtmosphere_8h" local="no">standardAtmosphere.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1StandardAtmosphere_1a85b7e8803277496e8f5abc9bb36d5bf6" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::aerodynamics::StandardAtmosphere::getDensity</definition>
+        <argsstring>(const double altitude, const double longitude=0.0, const double latitude=0.0, const double time=0.0)=0</argsstring>
+        <name>getDensity</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a167feb7925eb65a4ca59317d5fba22fb">getDensity</reimplements>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1CustomConstantTemperatureAtmosphere_1aec4c635662ac4326a258050198566bd2">getDensity</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_1ac6bc5f5fee5475f805e34461fa77b29d">getDensity</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1TabulatedAtmosphere_1a6185309cb023348803588eed3d80398b">getDensity</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Get local density. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local density parameter of the atmosphere in kg-per-meter^3. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Atmospheric density. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/standardAtmosphere.h" line="43" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1StandardAtmosphere_1aedd2b6b8824cebea8dea628bfec0e236" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::aerodynamics::StandardAtmosphere::getPressure</definition>
+        <argsstring>(const double altitude, const double longitude=0.0, const double latitude=0.0, const double time=0.0)=0</argsstring>
+        <name>getPressure</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a516553ea32c89f55a5ba7abe5a417ddc">getPressure</reimplements>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1CustomConstantTemperatureAtmosphere_1aa528e85b47ff5d2c79c4de81cc0600de">getPressure</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_1a5f9454b2cf717877723364ba3805e855">getPressure</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1TabulatedAtmosphere_1a10a02961cbbf78570db466eee69d3778">getPressure</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Get local pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local pressure of the atmosphere parameter in Newton-per-meter^2. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Atmospheric pressure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/standardAtmosphere.h" line="55" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1StandardAtmosphere_1ac5b9a16a96cbb496a4ee76b3dc495543" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::aerodynamics::StandardAtmosphere::getTemperature</definition>
+        <argsstring>(const double altitude, const double longitude=0.0, const double latitude=0.0, const double time=0.0)=0</argsstring>
+        <name>getTemperature</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a9b6be6472481354320e2869e586be5ca">getTemperature</reimplements>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1CustomConstantTemperatureAtmosphere_1afe9798b9b989e94972f321b70b0c1e78">getTemperature</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_1aa486d36c2fbe56026d7a4cc17f7d04a2">getTemperature</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1TabulatedAtmosphere_1afdf6a072bd4c4d876ba2323f5955b441">getTemperature</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Get local temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local temperature of the atmosphere parameter in Kelvin. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Atmospheric temperature. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/standardAtmosphere.h" line="67" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1StandardAtmosphere_1a9992c99f7994882307b05161e19fc298" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::aerodynamics::StandardAtmosphere::getSpeedOfSound</definition>
+        <argsstring>(const double altitude, const double longitude=0.0, const double latitude=0.0, const double time=0.0)=0</argsstring>
+        <name>getSpeedOfSound</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a815606ec0437866d6308679c6f078bce">getSpeedOfSound</reimplements>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1CustomConstantTemperatureAtmosphere_1afe035645c57295795ff76feb18993378">getSpeedOfSound</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_1a90283cd42dc4ee31892750b82bedf14c">getSpeedOfSound</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1TabulatedAtmosphere_1ae644bf870445c03d007984d946ceaee4">getSpeedOfSound</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>altitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Get local speed of sound. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the local speed of sound of the atmosphere in m/s. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>altitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Atmospheric speed of sound. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/standardAtmosphere.h" line="79" column="20"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Standard atmosphere model class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for all standard atmosphere models. These models are all independent of time and position, and therefore can return the density, pressure and temperature as a function of altitude only. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::aerodynamics::AtmosphereModel</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AtmosphereModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::aerodynamics::StandardAtmosphere</label>
+        <link refid="classtudat_1_1aerodynamics_1_1StandardAtmosphere"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::aerodynamics::TabulatedAtmosphere</label>
+        <link refid="classtudat_1_1aerodynamics_1_1TabulatedAtmosphere"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::aerodynamics::CustomConstantTemperatureAtmosphere</label>
+        <link refid="classtudat_1_1aerodynamics_1_1CustomConstantTemperatureAtmosphere"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::aerodynamics::ExponentialAtmosphere</label>
+        <link refid="classtudat_1_1aerodynamics_1_1ExponentialAtmosphere"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::aerodynamics::AtmosphereModel</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AtmosphereModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::aerodynamics::StandardAtmosphere</label>
+        <link refid="classtudat_1_1aerodynamics_1_1StandardAtmosphere"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/standardAtmosphere.h" line="30" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/standardAtmosphere.h" bodystart="31" bodyend="82"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1StandardAtmosphere_1a85b7e8803277496e8f5abc9bb36d5bf6" prot="public" virt="pure-virtual"><scope>tudat::aerodynamics::StandardAtmosphere</scope><name>getDensity</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1StandardAtmosphere_1aedd2b6b8824cebea8dea628bfec0e236" prot="public" virt="pure-virtual"><scope>tudat::aerodynamics::StandardAtmosphere</scope><name>getPressure</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1StandardAtmosphere_1a9992c99f7994882307b05161e19fc298" prot="public" virt="pure-virtual"><scope>tudat::aerodynamics::StandardAtmosphere</scope><name>getSpeedOfSound</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1StandardAtmosphere_1ac5b9a16a96cbb496a4ee76b3dc495543" prot="public" virt="pure-virtual"><scope>tudat::aerodynamics::StandardAtmosphere</scope><name>getTemperature</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1aa6948868e4d053536cdd97d70bea63e4" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::StandardAtmosphere</scope><name>getWindModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1abed0c184d0864d3f7f7860240f09fa22" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::StandardAtmosphere</scope><name>setWindModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a02355eaebd0b2c00f2f2fd1836ac9697" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::StandardAtmosphere</scope><name>windModel_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AtmosphereModel_1a1ceb7bfb8c497ca6b6a0ccbade902ed7" prot="public" virt="virtual"><scope>tudat::aerodynamics::StandardAtmosphere</scope><name>~AtmosphereModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,283 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1PositionObervationPartial" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_partials::PositionObervationPartial</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__partials_1_1ObservationPartial" prot="public" virt="non-virtual">tudat::observation_partials::ObservationPartial&lt; 3 &gt;</basecompoundref>
+    <includes refid="positionPartials_8h" local="no">positionPartials.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a9d6f9c2a7ecc905fd3d013b45dd6c7c1" prot="public" static="no">
+        <type>std::vector&lt; std::pair&lt; Eigen::Matrix&lt; double, 3, Eigen::Dynamic &gt;, double &gt; &gt;</type>
+        <definition>typedef std::vector&lt; std::pair&lt; Eigen::Matrix&lt; double, 3, Eigen::Dynamic &gt;, double &gt; &gt; tudat::observation_partials::PositionObervationPartial::PositionObservationPartialReturnType</definition>
+        <argsstring></argsstring>
+        <name>PositionObservationPartialReturnType</name>
+        <briefdescription>
+<para>Local typedef for return type (list of partial matrices and associated evaluation times). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="307" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="307" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1aba01f162baa6d4068b563e975ebc9ed5" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1PositionObservationScaling" kindref="compound">PositionObservationScaling</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; PositionObservationScaling &gt; tudat::observation_partials::PositionObervationPartial::positionObservationScaler_</definition>
+        <argsstring></argsstring>
+        <name>positionObservationScaler_</name>
+        <briefdescription>
+<para>Scaling object used for mapping partials of positions to partials of observable. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="379" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="379" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a48e78e0e7eacde132c7d809f1e7383a2" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; observation_models::LinkEndType, std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1CartesianStatePartial" kindref="compound">CartesianStatePartial</ref> &gt; &gt;</type>
+        <definition>std::map&lt; observation_models::LinkEndType, std::shared_ptr&lt; CartesianStatePartial &gt; &gt; tudat::observation_partials::PositionObervationPartial::positionPartialList_</definition>
+        <argsstring></argsstring>
+        <name>positionPartialList_</name>
+        <briefdescription>
+<para>List of position partial per link end. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="382" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="382" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1aa2b17ea9c2ff6b23c4b1cb8d438870b9" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; observation_models::LinkEndType, std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1CartesianStatePartial" kindref="compound">CartesianStatePartial</ref> &gt; &gt;::iterator</type>
+        <definition>std::map&lt; observation_models::LinkEndType, std::shared_ptr&lt; CartesianStatePartial &gt; &gt;::iterator tudat::observation_partials::PositionObervationPartial::positionPartialIterator_</definition>
+        <argsstring></argsstring>
+        <name>positionPartialIterator_</name>
+        <briefdescription>
+<para>Iterator over list of position partial per link end (predeclared for efficiency). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="385" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="385" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a860b97750fdf87d59379bd76728f3470" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::observation_partials::PositionObervationPartial::currentState_</definition>
+        <argsstring></argsstring>
+        <name>currentState_</name>
+        <briefdescription>
+<para>Pre-declared state variable to be used in calculatePartial function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="389" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="389" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a53ab41066f1430a49d768231157adddc" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::observation_partials::PositionObervationPartial::currentTime_</definition>
+        <argsstring></argsstring>
+        <name>currentTime_</name>
+        <briefdescription>
+<para>Pre-declared time variable to be used in calculatePartial function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="392" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="392" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a9ee3af25814b275c815b7261031966b2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::PositionObervationPartial::PositionObervationPartial</definition>
+        <argsstring>(const std::shared_ptr&lt; PositionObservationScaling &gt; positionObservationScaler, const std::map&lt; observation_models::LinkEndType, std::shared_ptr&lt; CartesianStatePartial &gt; &gt; &amp;positionPartialList, const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier)</argsstring>
+        <name>PositionObervationPartial</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1PositionObservationScaling" kindref="compound">PositionObservationScaling</ref> &gt;</type>
+          <declname>positionObservationScaler</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; observation_models::LinkEndType, std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1CartesianStatePartial" kindref="compound">CartesianStatePartial</ref> &gt; &gt; &amp;</type>
+          <declname>positionPartialList</declname>
+        </param>
+        <param>
+          <type>const estimatable_parameters::EstimatebleParameterIdentifier</type>
+          <declname>parameterIdentifier</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionObservationScaler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scaling object used for mapping partials of positions to partials of observable </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionPartialList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of position partial per link end. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterIdentifier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Id of parameter for which instance of class computes partial derivatives </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="316" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="316" bodyend="322"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1aa986ba72cb9b4a3148b377ae84e3e7c7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::PositionObervationPartial::~PositionObervationPartial</definition>
+        <argsstring>()</argsstring>
+        <name>~PositionObervationPartial</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="325" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="325" bodyend="325"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a6eaa12a24022868829c1d9e666761122" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type><ref refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a9d6f9c2a7ecc905fd3d013b45dd6c7c1" kindref="member">PositionObservationPartialReturnType</ref></type>
+        <definition>virtual PositionObservationPartialReturnType tudat::observation_partials::PositionObervationPartial::calculatePartial</definition>
+        <argsstring>(const std::vector&lt; Eigen::Vector6d &gt; &amp;states, const std::vector&lt; double &gt; &amp;times, const observation_models::LinkEndType linkEndOfFixedTime, const Eigen::Vector3d &amp;currentObservation=Eigen::Vector3d::Constant(TUDAT_NAN))</argsstring>
+        <name>calculatePartial</name>
+        <param>
+          <type>const std::vector&lt; Eigen::Vector6d &gt; &amp;</type>
+          <declname>states</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>times</declname>
+        </param>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>linkEndOfFixedTime</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>currentObservation</declname>
+          <defval>Eigen::Vector3d::Constant(TUDAT_NAN)</defval>
+        </param>
+        <briefdescription>
+<para>Fnuction to calculate the observation partial(s) at required time and state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the observation partial(s) at required time and state. State and time are typically obtained from evaluation of observation model. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>states</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end stats. Index maps to link end for a given ObsevableType through getLinkEndIndex function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>times</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndOfFixedTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end that is kept fixed when computing the observable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the observation for which the partial is to be computed (default NaN for compatibility purposes) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of pairs containing partial values and associated times. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="338" column="50" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="338" bodyend="374"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to compute the partial derivatives of a three-dimensional position observable. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_partials::ObservationPartial&lt; 3 &gt;</label>
+        <link refid="classtudat_1_1observation__partials_1_1ObservationPartial"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::PositionObervationPartial</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionObervationPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>iterator</label>
+      </node>
+      <node id="2">
+        <label>tudat::observation_partials::ObservationPartial&lt; 3 &gt;</label>
+        <link refid="classtudat_1_1observation__partials_1_1ObservationPartial"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::PositionObervationPartial</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionObervationPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>positionPartialIterator_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="300" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="301" bodyend="393"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a6eaa12a24022868829c1d9e666761122" prot="public" virt="virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>calculatePartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1a85e94e334ea8136b11eba24e10a85849" prot="public" virt="pure-virtual" ambiguityscope="ObservationPartial&lt; 3 &gt;::"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>calculatePartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a860b97750fdf87d59379bd76728f3470" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>currentState_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a53ab41066f1430a49d768231157adddc" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1a8778a20ad87def4f80c29483709b6884" prot="public" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>getParameterIdentifier</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1aadcaac556c98d652f2eb93e53c40ede9" prot="public" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>ObservationPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1a1bdd56be8dbca3458d8708eb7a2570e2" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>parameterIdentifier_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a9ee3af25814b275c815b7261031966b2" prot="public" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>PositionObervationPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a9d6f9c2a7ecc905fd3d013b45dd6c7c1" prot="public" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>PositionObservationPartialReturnType</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1aba01f162baa6d4068b563e975ebc9ed5" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>positionObservationScaler_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1aa2b17ea9c2ff6b23c4b1cb8d438870b9" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>positionPartialIterator_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1a48e78e0e7eacde132c7d809f1e7383a2" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>positionPartialList_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1a39c35e737e517437b96a5a8c867a7d55" prot="public" virt="virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>~ObservationPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionObervationPartial_1aa986ba72cb9b4a3148b377ae84e3e7c7" prot="public" virt="non-virtual"><scope>tudat::observation_partials::PositionObervationPartial</scope><name>~PositionObervationPartial</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

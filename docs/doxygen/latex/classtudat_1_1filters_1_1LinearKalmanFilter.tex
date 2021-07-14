@@ -1,0 +1,161 @@
+\hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter}{}\doxysection{tudat\+::filters\+::Linear\+Kalman\+Filter$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$ Class Template Reference}
+\label{classtudat_1_1filters_1_1LinearKalmanFilter}\index{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$}}
+
+
+Linear Kalman filter class.  
+
+
+
+
+{\ttfamily \#include $<$linear\+Kalman\+Filter.\+h$>$}
+
+Inheritance diagram for tudat\+::filters\+::Linear\+Kalman\+Filter$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1filters_1_1LinearKalmanFilter}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}\label{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1KalmanFilterBase}{Kalman\+Filter\+Base}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}{Dependent\+Vector}} \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}{Dependent\+Vector}}
+\begin{DoxyCompactList}\small\item\em Inherit typedefs from base class. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_aa14cf64107d2aa559792d5cb1cfee582}\label{classtudat_1_1filters_1_1LinearKalmanFilter_aa14cf64107d2aa559792d5cb1cfee582}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1KalmanFilterBase}{Kalman\+Filter\+Base}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::Dependent\+Matrix {\bfseries Dependent\+Matrix}
+\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_a8aca72f892ac0ca9a7d9f8a1bac2264b}\label{classtudat_1_1filters_1_1LinearKalmanFilter_a8aca72f892ac0ca9a7d9f8a1bac2264b}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1KalmanFilterBase}{Kalman\+Filter\+Base}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::Function {\bfseries Function}
+\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_affb8bb57b32b2d3ee553f2adf6be9663}\label{classtudat_1_1filters_1_1LinearKalmanFilter_affb8bb57b32b2d3ee553f2adf6be9663}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1KalmanFilterBase}{Kalman\+Filter\+Base}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::Matrix\+Function {\bfseries Matrix\+Function}
+\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_ae2eddd297d9ef72d42e56b9e21211327}\label{classtudat_1_1filters_1_1LinearKalmanFilter_ae2eddd297d9ef72d42e56b9e21211327}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1KalmanFilterBase}{Kalman\+Filter\+Base}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{Integrator\+Settings}} {\bfseries Integrator\+Settings}
+\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_a6ca09204df5a59d6590c874c42422a8a}\label{classtudat_1_1filters_1_1LinearKalmanFilter_a6ca09204df5a59d6590c874c42422a8a}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1KalmanFilterBase}{Kalman\+Filter\+Base}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator}{Integrator}} {\bfseries Integrator}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a3940eae8010acc24b9c1b2375b67854a}{Linear\+Kalman\+Filter}} (const Matrix\+Function \&state\+Transition\+Matrix\+Function, const Matrix\+Function \&control\+Matrix\+Function, const Matrix\+Function \&measurement\+Matrix\+Function, const Dependent\+Matrix \&system\+Uncertainty, const Dependent\+Matrix \&measurement\+Uncertainty, const Independent\+Variable\+Type filtering\+Step\+Size, const Independent\+Variable\+Type initial\+Time, const \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}{Dependent\+Vector}} \&initial\+State\+Vector, const Dependent\+Matrix \&initial\+Covariance\+Matrix, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{Integrator\+Settings}} $>$ integrator\+Settings=nullptr)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_aaa033c2c1c548667f65eb392849dadb4}{Linear\+Kalman\+Filter}} (const Dependent\+Matrix \&state\+Transition\+Matrix, const Dependent\+Matrix \&control\+Matrix, const Dependent\+Matrix \&measurement\+Matrix, const Dependent\+Matrix \&system\+Uncertainty, const Dependent\+Matrix \&measurement\+Uncertainty, const Independent\+Variable\+Type filtering\+Step\+Size, const Independent\+Variable\+Type initial\+Time, const \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}{Dependent\+Vector}} \&initial\+State\+Vector, const Dependent\+Matrix \&initial\+Covariance\+Matrix, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{Integrator\+Settings}} $>$ integrator\+Settings=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_acdb78319ad37fb056fcf0cc9eec4b688}\label{classtudat_1_1filters_1_1LinearKalmanFilter_acdb78319ad37fb056fcf0cc9eec4b688}} 
+\mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_acdb78319ad37fb056fcf0cc9eec4b688}{$\sim$\+Linear\+Kalman\+Filter}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a41e2ba52a14ba905e0a4aa3b48c9acb5}{update\+Filter}} (const \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}{Dependent\+Vector}} \&current\+Measurement\+Vector)
+\begin{DoxyCompactList}\small\item\em Function to update the filter with the new step data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type = double, typename Dependent\+Variable\+Type = double$>$\newline
+class tudat\+::filters\+::\+Linear\+Kalman\+Filter$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}
+
+Linear Kalman filter class. 
+
+Class for the set up and use of the linear Kalman filter. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Independent\+Variable\+Type} & Type of independent variable. Default is double. \\
+\hline
+{\em Dependent\+Variable\+Type} & Type of dependent variable. Default is double. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_a3940eae8010acc24b9c1b2375b67854a}\label{classtudat_1_1filters_1_1LinearKalmanFilter_a3940eae8010acc24b9c1b2375b67854a}} 
+\index{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$}!LinearKalmanFilter@{LinearKalmanFilter}}
+\index{LinearKalmanFilter@{LinearKalmanFilter}!tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{LinearKalmanFilter()}{LinearKalmanFilter()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename Dependent\+Variable\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter}{tudat\+::filters\+::\+Linear\+Kalman\+Filter}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter}{Linear\+Kalman\+Filter}} (\begin{DoxyParamCaption}\item[{const Matrix\+Function \&}]{state\+Transition\+Matrix\+Function,  }\item[{const Matrix\+Function \&}]{control\+Matrix\+Function,  }\item[{const Matrix\+Function \&}]{measurement\+Matrix\+Function,  }\item[{const Dependent\+Matrix \&}]{system\+Uncertainty,  }\item[{const Dependent\+Matrix \&}]{measurement\+Uncertainty,  }\item[{const Independent\+Variable\+Type}]{filtering\+Step\+Size,  }\item[{const Independent\+Variable\+Type}]{initial\+Time,  }\item[{const \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}{Dependent\+Vector}} \&}]{initial\+State\+Vector,  }\item[{const Dependent\+Matrix \&}]{initial\+Covariance\+Matrix,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{Integrator\+Settings}} $>$}]{integrator\+Settings = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor. This constructor takes state, control and measurement matrix functions as inputs. These functions can be a function of time, state and (for state and control matrices) control vector. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Transition\+Matrix\+Function} & Function returning the state transition matrix, as a function of time and state vector. \\
+\hline
+{\em control\+Matrix\+Function} & Function returning the control matrix, as a function of time and state vector. \\
+\hline
+{\em measurement\+Matrix\+Function} & Function returning the measurement matrix, as a function of time and state vector. \\
+\hline
+{\em system\+Uncertainty} & Matrix defining the uncertainty in modeling of the system. \\
+\hline
+{\em measurement\+Uncertainty} & Matrix defining the uncertainty in modeling of the measurements. \\
+\hline
+{\em filtering\+Step\+Size} & Scalar representing the value of the constant filtering time step. \\
+\hline
+{\em initial\+Time} & Scalar representing the value of the initial time. \\
+\hline
+{\em initial\+State\+Vector} & Vector representing the initial (estimated) state of the system. It is used as first a-\/priori estimate of the state vector. \\
+\hline
+{\em initial\+Covariance\+Matrix} & Matrix representing the initial (estimated) covariance of the system. It is used as first a-\/priori estimate of the covariance matrix. \\
+\hline
+{\em integrator\+Settings} & Settings for the numerical integrator to be used to propagate state. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_aaa033c2c1c548667f65eb392849dadb4}\label{classtudat_1_1filters_1_1LinearKalmanFilter_aaa033c2c1c548667f65eb392849dadb4}} 
+\index{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$}!LinearKalmanFilter@{LinearKalmanFilter}}
+\index{LinearKalmanFilter@{LinearKalmanFilter}!tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{LinearKalmanFilter()}{LinearKalmanFilter()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename Dependent\+Variable\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter}{tudat\+::filters\+::\+Linear\+Kalman\+Filter}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter}{Linear\+Kalman\+Filter}} (\begin{DoxyParamCaption}\item[{const Dependent\+Matrix \&}]{state\+Transition\+Matrix,  }\item[{const Dependent\+Matrix \&}]{control\+Matrix,  }\item[{const Dependent\+Matrix \&}]{measurement\+Matrix,  }\item[{const Dependent\+Matrix \&}]{system\+Uncertainty,  }\item[{const Dependent\+Matrix \&}]{measurement\+Uncertainty,  }\item[{const Independent\+Variable\+Type}]{filtering\+Step\+Size,  }\item[{const Independent\+Variable\+Type}]{initial\+Time,  }\item[{const \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}{Dependent\+Vector}} \&}]{initial\+State\+Vector,  }\item[{const Dependent\+Matrix \&}]{initial\+Covariance\+Matrix,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{Integrator\+Settings}} $>$}]{integrator\+Settings = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor taking constant state, control and measurement matrices as inputs. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Transition\+Matrix} & Constant matrix representing the state transition matrix. \\
+\hline
+{\em control\+Matrix} & Constant matrix representing the control matrix. \\
+\hline
+{\em measurement\+Matrix} & Constant matrix representing the measurement matrix. \\
+\hline
+{\em system\+Uncertainty} & Matrix defining the uncertainty in modeling of the system. \\
+\hline
+{\em measurement\+Uncertainty} & Matrix defining the uncertainty in modeling of the measurements. \\
+\hline
+{\em filtering\+Step\+Size} & Scalar representing the value of the constant filtering time step. \\
+\hline
+{\em initial\+Time} & Scalar representing the value of the initial time. \\
+\hline
+{\em initial\+State\+Vector} & Vector representing the initial (estimated) state of the system. It is used as first a-\/priori estimate of the state vector. \\
+\hline
+{\em initial\+Covariance\+Matrix} & Matrix representing the initial (estimated) covariance of the system. It is used as first a-\/priori estimate of the covariance matrix. \\
+\hline
+{\em integrator\+Settings} & Pointer to integration settings defining the integrator to be used to propagate the state. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1filters_1_1LinearKalmanFilter_a41e2ba52a14ba905e0a4aa3b48c9acb5}\label{classtudat_1_1filters_1_1LinearKalmanFilter_a41e2ba52a14ba905e0a4aa3b48c9acb5}} 
+\index{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$}!updateFilter@{updateFilter}}
+\index{updateFilter@{updateFilter}!tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::LinearKalmanFilter$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{updateFilter()}{updateFilter()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename Dependent\+Variable\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter}{tudat\+::filters\+::\+Linear\+Kalman\+Filter}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::update\+Filter (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1filters_1_1LinearKalmanFilter_a4e775f9381f5643169b26367242c2b7e}{Dependent\+Vector}} \&}]{current\+Measurement\+Vector }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to update the filter with the new step data. 
+
+Function to update the filter with the new step data. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Measurement\+Vector} & Vector representing current measurement. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/filters/linear\+Kalman\+Filter.\+h\end{DoxyCompactItemize}

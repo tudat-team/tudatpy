@@ -1,0 +1,482 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1ephemerides_1_1Tle" kind="class" language="C++" prot="public">
+    <compoundname>tudat::ephemerides::Tle</compoundname>
+    <includes refid="tleEphemeris_8h" local="no">tleEphemeris.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1a866406717ad1ab5c58072c557cd5fc21" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::epoch_</definition>
+        <argsstring></argsstring>
+        <name>epoch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="122" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1a144f771ad3d8983533db7b6572b4b8d8" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::bStar_</definition>
+        <argsstring></argsstring>
+        <name>bStar_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="123" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1a5722551bbbca2ffcb39c660913a186b6" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::inclination_</definition>
+        <argsstring></argsstring>
+        <name>inclination_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="124" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1a4dfe641c650666c689d281497b0bb91f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::rightAscension_</definition>
+        <argsstring></argsstring>
+        <name>rightAscension_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="125" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1add8cf97cce61ce72903ce5a8c7c65b49" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::eccentricity_</definition>
+        <argsstring></argsstring>
+        <name>eccentricity_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="126" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1adba19d71838f8764d701b2b079eff889" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::argOfPerigee_</definition>
+        <argsstring></argsstring>
+        <name>argOfPerigee_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="127" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1a9e95d1c3f75acb11176e17f4be1d2e6f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::meanAnomaly_</definition>
+        <argsstring></argsstring>
+        <name>meanAnomaly_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="128" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1a443f277f71259d50ea1e04e04413417f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::meanMotion_</definition>
+        <argsstring></argsstring>
+        <name>meanMotion_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="129" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1Tle_1afd59be510fd1cbbee63a19dc93950afb" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::spiceElements_[10]</definition>
+        <argsstring>[10]</argsstring>
+        <name>spiceElements_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="133" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1a43b228b0302960ca211e057df78671c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::Tle::Tle</definition>
+        <argsstring>()=default</argsstring>
+        <name>Tle</name>
+        <briefdescription>
+<para>Default (empty) constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="37" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1a24ea8cbb10e818ce997718133a70b732" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::Tle::Tle</definition>
+        <argsstring>(const std::string &amp;tleLines)</argsstring>
+        <name>Tle</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>tleLines</declname>
+        </param>
+        <briefdescription>
+<para>Constructor to create TLE object from a string containing the two lines for the relevant satellite. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Class constructor to generate a TLE object based on a string containing the two element lines for the relevant satellite. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tleLines</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String containing the TLE lines </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="44" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/tleEphemeris.cpp" bodystart="102" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1a28b17e39d8100c0712b49574bc7ea6b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::Tle::Tle</definition>
+        <argsstring>(const std::string &amp;tleLine1, const std::string &amp;tleLine2)</argsstring>
+        <name>Tle</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>tleLine1</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>tleLine2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Class constructor to generate a TLE object from two separate string objects, each containg a TLE line. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tleLine1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String containing the first TLE line. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tleLine2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String containing the second TLE line. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="51" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/tleEphemeris.cpp" bodystart="196" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1ae16286a694825c39c1de92aad9fd38a2" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::Tle::Tle</definition>
+        <argsstring>(const double *spiceElements)</argsstring>
+        <name>Tle</name>
+        <param>
+          <type>const double *</type>
+          <declname>spiceElements</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Class constructor to generate a TLE object directly from Spice-compatible elements, given as a pointer/array. Mostly intended for debugging purposes. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spiceElements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of doubles containing the Spice-compatible elements (see Spice documentation for more information). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="60" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/tleEphemeris.cpp" bodystart="201" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1a3d528e05957c6982014466be72fb895c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::Tle::Tle</definition>
+        <argsstring>(const double epoch, const double bStar, const double inclination, const double rightAscension, const double eccentricity, const double argOfPerigee, const double meanAnomaly, const double meanMotion)</argsstring>
+        <name>Tle</name>
+        <param>
+          <type>const double</type>
+          <declname>epoch</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bStar</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>inclination</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>rightAscension</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>eccentricity</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>argOfPerigee</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>meanAnomaly</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>meanMotion</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Class constructor to generate a TLE object directly from standard two-line elements. Intended for debugging purposes. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>epoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TLE set epoch in seconds from J2000. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bStar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>B-Star coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inclination</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Inclination of the orbit in radians. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rightAscension</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right ascension of the orbit in radians. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>eccentricity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Eccentricty of the orbit. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>argOfPerigee</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Argument of perigee of the orbit in radians. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>meanAnomaly</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mean anomaly in radians. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>meanMotion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mean motion in radians/minute (!). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="73" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="73" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1a5ed4e48b9c73735a0a299d21805fbdd9" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::getEpoch</definition>
+        <argsstring>() const</argsstring>
+        <name>getEpoch</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="80" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="80" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1aa21c19d813a2be8d187d9e80d66374d4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::getBStar</definition>
+        <argsstring>() const</argsstring>
+        <name>getBStar</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="85" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="85" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1abde9ec34003a51cf50669378f64e9be6" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::getInclination</definition>
+        <argsstring>() const</argsstring>
+        <name>getInclination</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="90" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="90" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1aad4e0e0eb5e4adf238d22ad7cf165a2f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::getRightAscension</definition>
+        <argsstring>() const</argsstring>
+        <name>getRightAscension</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="95" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="95" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1a83ea5b493c28260420a4305b3774a784" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::getEccentricity</definition>
+        <argsstring>() const</argsstring>
+        <name>getEccentricity</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="100" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1a1eaeeaed19e982004bd4caf3409e227c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::getArgOfPerigee</definition>
+        <argsstring>() const</argsstring>
+        <name>getArgOfPerigee</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="105" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="105" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1af5b20e222b16ef5b548dd71d099c52f0" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::getMeanAnomaly</definition>
+        <argsstring>() const</argsstring>
+        <name>getMeanAnomaly</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="110" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="110" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1Tle_1a0a9ce3e96d9449766b3524ad9c460aa3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::ephemerides::Tle::getMeanMotion</definition>
+        <argsstring>() const</argsstring>
+        <name>getMeanMotion</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="115" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="115" bodyend="118"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class holding data for one set of two-line elements (TLE) for a specific Earth-orbiting satellite. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class holding data for one set of two-line elements (TLE) for a specific Earth-orbiting satellite. It is valid at its epoch plus/minus approximately 1 week, depending on the required accuracy of the predictions. The class offers different options for construction: from one string holding both lines; from two strings, each holding one line; from an array of doubles containing Spice-compatible elements; and an explicit constructor from the elements themselves. This class is used in conjunction with the <ref refid="classtudat_1_1ephemerides_1_1TleEphemeris" kindref="compound">TleEphemeris</ref> class, which provides position and velocity predictions based on the SGP and SDP propagators which are used for TLE propagation. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" line="32" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/tleEphemeris.h" bodystart="33" bodyend="135"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1adba19d71838f8764d701b2b079eff889" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>argOfPerigee_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a144f771ad3d8983533db7b6572b4b8d8" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>bStar_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1add8cf97cce61ce72903ce5a8c7c65b49" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>eccentricity_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a866406717ad1ab5c58072c557cd5fc21" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>epoch_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a1eaeeaed19e982004bd4caf3409e227c" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>getArgOfPerigee</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1aa21c19d813a2be8d187d9e80d66374d4" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>getBStar</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a83ea5b493c28260420a4305b3774a784" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>getEccentricity</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a5ed4e48b9c73735a0a299d21805fbdd9" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>getEpoch</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1abde9ec34003a51cf50669378f64e9be6" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>getInclination</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1af5b20e222b16ef5b548dd71d099c52f0" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>getMeanAnomaly</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a0a9ce3e96d9449766b3524ad9c460aa3" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>getMeanMotion</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1aad4e0e0eb5e4adf238d22ad7cf165a2f" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>getRightAscension</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a5722551bbbca2ffcb39c660913a186b6" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>inclination_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a9e95d1c3f75acb11176e17f4be1d2e6f" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>meanAnomaly_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a443f277f71259d50ea1e04e04413417f" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>meanMotion_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a4dfe641c650666c689d281497b0bb91f" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>rightAscension_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1afd59be510fd1cbbee63a19dc93950afb" prot="private" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>spiceElements_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a43b228b0302960ca211e057df78671c6" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>Tle</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a24ea8cbb10e818ce997718133a70b732" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>Tle</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a28b17e39d8100c0712b49574bc7ea6b0" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>Tle</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1ae16286a694825c39c1de92aad9fd38a2" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>Tle</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Tle_1a3d528e05957c6982014466be72fb895c" prot="public" virt="non-virtual"><scope>tudat::ephemerides::Tle</scope><name>Tle</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

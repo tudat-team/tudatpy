@@ -1,0 +1,177 @@
+\hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings}{}\doxysection{tudat\+::interpolators\+::Interpolator\+Settings Class Reference}
+\label{classtudat_1_1interpolators_1_1InterpolatorSettings}\index{tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}}
+
+
+Base class for providing settings for creating an interpolator.  
+
+
+
+
+{\ttfamily \#include $<$create\+Interpolator.\+h$>$}
+
+Inheritance diagram for tudat\+::interpolators\+::Interpolator\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1interpolators_1_1InterpolatorSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a2a44d9c3b96641a8e1fcb3e0892fb6d5}{Interpolator\+Settings}} (const \mbox{\hyperlink{namespacetudat_1_1interpolators_a7013111713b2e86a6afc0653a000da66}{Interpolator\+Types}} interpolator\+Type, const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}} selected\+Lookup\+Scheme=hunting\+Algorithm, const bool use\+Long\+Double\+Time\+Step=false, const std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \&boundary\+Handling=std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$())
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a794fe66e3fe88abb7054f6212c4e4671}{Interpolator\+Settings}} (const \mbox{\hyperlink{namespacetudat_1_1interpolators_a7013111713b2e86a6afc0653a000da66}{Interpolator\+Types}} interpolator\+Type, const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}} selected\+Lookup\+Scheme, const bool use\+Long\+Double\+Time\+Step, const \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} boundary\+Handling)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_ae32f4577b9bb2256efe74b57d8d7bad7}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_ae32f4577b9bb2256efe74b57d8d7bad7}} 
+virtual \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_ae32f4577b9bb2256efe74b57d8d7bad7}{$\sim$\+Interpolator\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacetudat_1_1interpolators_a7013111713b2e86a6afc0653a000da66}{Interpolator\+Types}} \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a80155d1963bfc422d40119b6113233e8}{get\+Interpolator\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the selected type of interpolator. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}} \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a92883f0636896ae9a1a366bb81399556}{get\+Selected\+Lookup\+Scheme}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the selected type of lookup scheme for independent variables. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a859c8702309670b6d3aac2d58468764c}{reset\+Use\+Long\+Double\+Time\+Step}} (const bool use\+Long\+Double\+Time\+Step)
+\begin{DoxyCompactList}\small\item\em Function to reset the use of long double type for time step. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_adab7eabdb0659b3be137cf9eb44c0145}{get\+Use\+Long\+Double\+Time\+Step}} ()
+\begin{DoxyCompactList}\small\item\em Function to get a boolean denoting whether time step is to be a long double. \end{DoxyCompactList}\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a8c80f2846ce7ff2153945adc4765fd41}{get\+Boundary\+Handling}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve boundary handling method. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_ae3945b13a0270ceb474303137e388be7}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_ae3945b13a0270ceb474303137e388be7}} 
+\mbox{\hyperlink{namespacetudat_1_1interpolators_a7013111713b2e86a6afc0653a000da66}{Interpolator\+Types}} \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_ae3945b13a0270ceb474303137e388be7}{interpolator\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Selected type of interpolator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a4953b3e5ee75ec9af2fd2bc1544fb976}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a4953b3e5ee75ec9af2fd2bc1544fb976}} 
+\mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}} \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a4953b3e5ee75ec9af2fd2bc1544fb976}{selected\+Lookup\+Scheme\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Selected type of lookup scheme for independent variables. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a9828fe406d08ef1c0435f4b2dca5a047}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a9828fe406d08ef1c0435f4b2dca5a047}} 
+bool \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a9828fe406d08ef1c0435f4b2dca5a047}{use\+Long\+Double\+Time\+Step\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean denoting whether time step is to be a long double. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a6514533f7b8be03c488ee60a2d596a30}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a6514533f7b8be03c488ee60a2d596a30}} 
+std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings_a6514533f7b8be03c488ee60a2d596a30}{boundary\+Handling\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boundary handling method. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for providing settings for creating an interpolator. 
+
+Base class for providing settings for creating an interpolator using the create\+Interpolator function. This base class is not-\/functional, i.\+e. a derived class needs to be used. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a2a44d9c3b96641a8e1fcb3e0892fb6d5}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a2a44d9c3b96641a8e1fcb3e0892fb6d5}} 
+\index{tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}!InterpolatorSettings@{InterpolatorSettings}}
+\index{InterpolatorSettings@{InterpolatorSettings}!tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}}
+\doxysubsubsection{\texorpdfstring{InterpolatorSettings()}{InterpolatorSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::interpolators\+::\+Interpolator\+Settings\+::\+Interpolator\+Settings (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a7013111713b2e86a6afc0653a000da66}{Interpolator\+Types}}}]{interpolator\+Type,  }\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}}}]{selected\+Lookup\+Scheme = {\ttfamily huntingAlgorithm},  }\item[{const bool}]{use\+Long\+Double\+Time\+Step = {\ttfamily false},  }\item[{const std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \&}]{boundary\+Handling = {\ttfamily std\+:\+:vector$<$~\mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}}~$>$(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor. Constructor taking a vector of boundary handling methods. The vector length needs to be equal to the number of dimensions. 
+\begin{DoxyParams}{Parameters}
+{\em interpolator\+Type} & Selected type of interpolator. \\
+\hline
+{\em selected\+Lookup\+Scheme} & Selected type of lookup scheme for independent variables. \\
+\hline
+{\em use\+Long\+Double\+Time\+Step} & Boolean denoting whether time step is to be a long double, time step is a double if false. \\
+\hline
+{\em boundary\+Handling} & Vector of boundary handling methods, in case independent variable is outside the specified range. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a794fe66e3fe88abb7054f6212c4e4671}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a794fe66e3fe88abb7054f6212c4e4671}} 
+\index{tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}!InterpolatorSettings@{InterpolatorSettings}}
+\index{InterpolatorSettings@{InterpolatorSettings}!tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}}
+\doxysubsubsection{\texorpdfstring{InterpolatorSettings()}{InterpolatorSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::interpolators\+::\+Interpolator\+Settings\+::\+Interpolator\+Settings (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a7013111713b2e86a6afc0653a000da66}{Interpolator\+Types}}}]{interpolator\+Type,  }\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}}}]{selected\+Lookup\+Scheme,  }\item[{const bool}]{use\+Long\+Double\+Time\+Step,  }\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}}}]{boundary\+Handling }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. Constructor taking a single boundary handling method. 
+\begin{DoxyParams}{Parameters}
+{\em interpolator\+Type} & Selected type of interpolator. \\
+\hline
+{\em selected\+Lookup\+Scheme} & Selected type of lookup scheme for independent variables. \\
+\hline
+{\em use\+Long\+Double\+Time\+Step} & Boolean denoting whether time step is to be a long double, time step is a double if false. \\
+\hline
+{\em boundary\+Handling} & Boundary handling method, in case independent variable is outside the specified range. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a8c80f2846ce7ff2153945adc4765fd41}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a8c80f2846ce7ff2153945adc4765fd41}} 
+\index{tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}!getBoundaryHandling@{getBoundaryHandling}}
+\index{getBoundaryHandling@{getBoundaryHandling}!tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}}
+\doxysubsubsection{\texorpdfstring{getBoundaryHandling()}{getBoundaryHandling()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ tudat\+::interpolators\+::\+Interpolator\+Settings\+::get\+Boundary\+Handling (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve boundary handling method. 
+
+Function to retrieve boundary handling method. \begin{DoxyReturn}{Returns}
+Boundary handling method. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a80155d1963bfc422d40119b6113233e8}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a80155d1963bfc422d40119b6113233e8}} 
+\index{tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}!getInterpolatorType@{getInterpolatorType}}
+\index{getInterpolatorType@{getInterpolatorType}!tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}}
+\doxysubsubsection{\texorpdfstring{getInterpolatorType()}{getInterpolatorType()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespacetudat_1_1interpolators_a7013111713b2e86a6afc0653a000da66}{Interpolator\+Types}} tudat\+::interpolators\+::\+Interpolator\+Settings\+::get\+Interpolator\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the selected type of interpolator. 
+
+Function to get the selected type of interpolator. \begin{DoxyReturn}{Returns}
+Selected type of interpolator. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a92883f0636896ae9a1a366bb81399556}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a92883f0636896ae9a1a366bb81399556}} 
+\index{tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}!getSelectedLookupScheme@{getSelectedLookupScheme}}
+\index{getSelectedLookupScheme@{getSelectedLookupScheme}!tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}}
+\doxysubsubsection{\texorpdfstring{getSelectedLookupScheme()}{getSelectedLookupScheme()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}} tudat\+::interpolators\+::\+Interpolator\+Settings\+::get\+Selected\+Lookup\+Scheme (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the selected type of lookup scheme for independent variables. 
+
+Function to get the selected type of lookup scheme for independent variables. \begin{DoxyReturn}{Returns}
+Selected type of lookup scheme for independent variables. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_adab7eabdb0659b3be137cf9eb44c0145}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_adab7eabdb0659b3be137cf9eb44c0145}} 
+\index{tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}!getUseLongDoubleTimeStep@{getUseLongDoubleTimeStep}}
+\index{getUseLongDoubleTimeStep@{getUseLongDoubleTimeStep}!tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}}
+\doxysubsubsection{\texorpdfstring{getUseLongDoubleTimeStep()}{getUseLongDoubleTimeStep()}}
+{\footnotesize\ttfamily bool tudat\+::interpolators\+::\+Interpolator\+Settings\+::get\+Use\+Long\+Double\+Time\+Step (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get a boolean denoting whether time step is to be a long double. 
+
+Function to get a boolean denoting whether time step is to be a long double. \begin{DoxyReturn}{Returns}
+Boolean denoting whether time step is to be a long double. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1InterpolatorSettings_a859c8702309670b6d3aac2d58468764c}\label{classtudat_1_1interpolators_1_1InterpolatorSettings_a859c8702309670b6d3aac2d58468764c}} 
+\index{tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}!resetUseLongDoubleTimeStep@{resetUseLongDoubleTimeStep}}
+\index{resetUseLongDoubleTimeStep@{resetUseLongDoubleTimeStep}!tudat::interpolators::InterpolatorSettings@{tudat::interpolators::InterpolatorSettings}}
+\doxysubsubsection{\texorpdfstring{resetUseLongDoubleTimeStep()}{resetUseLongDoubleTimeStep()}}
+{\footnotesize\ttfamily void tudat\+::interpolators\+::\+Interpolator\+Settings\+::reset\+Use\+Long\+Double\+Time\+Step (\begin{DoxyParamCaption}\item[{const bool}]{use\+Long\+Double\+Time\+Step }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the use of long double type for time step. 
+
+Function to reset the use of long double type for time step. 
+\begin{DoxyParams}{Parameters}
+{\em use\+Long\+Double\+Time\+Step} & Boolean denoting whether time step is to be a long double. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/interpolators/create\+Interpolator.\+h\end{DoxyCompactItemize}

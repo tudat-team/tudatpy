@@ -1,0 +1,298 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall" kind="class" language="C++" prot="public">
+    <compoundname>tudat::mission_segments::ImprovedInversePolynomialWall</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__mathematics_1_1Function" prot="public" virt="non-virtual">tudat::basic_mathematics::Function&lt; &gt;</basecompoundref>
+    <includes refid="improvedInversePolynomialWall_8h" local="no">improvedInversePolynomialWall.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1a8faebcba38eb437aa715a2536a49f611" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::mission_segments::ImprovedInversePolynomialWall::timeDependentParameter_</definition>
+        <argsstring></argsstring>
+        <name>timeDependentParameter_</name>
+        <briefdescription>
+<para>The time-dependent parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The time-dependent parameter, which is used to satisfy a required time-of-flight. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" line="212" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1acf95d4a318b63f314071ddee41df6839" prot="private" static="no" mutable="no">
+        <type>std::function&lt; std::pair&lt; Eigen::Vector3d, Eigen::Vector3d &gt;) &gt;</type>
+        <definition>std::function&lt; std::pair&lt; Eigen::Vector3d , Eigen::Vector3d &gt; ) &gt; tudat::mission_segments::ImprovedInversePolynomialWall::boundaryParameters_</definition>
+        <argsstring></argsstring>
+        <name>boundaryParameters_</name>
+        <briefdescription>
+<para>The parameters of the function, related to the boundary conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The six time-independent parameters of the function. These parameters determine the shape of the trajectory and are dependent on the initial and final boundary conditions.</para>
+<para>The first three parameters are dependent on the initial boundary conditions and the last three parameters are dependent on the final boundary conditions plus the time-dependent parameter &apos;aTimeDependentParameter&apos;. The parameters correspond to Wall et al. [2010] in the following manner: the first three parameters are a, b and c; the last three parameters are e, f, and g.</para>
+<para>The order is important! boundaryParameters_.first( 0 ) = a boundaryParameters_.first( 1 ) = b boundaryParameters_.first( 2 ) = c boundaryParameters_.second( 0 ) = e boundaryParameters_.second( 1 ) = f boundaryParameters_.second( 2 ) = g </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" line="233" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1a4d9cd83d099860fd6376f18ff8bcbffb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::mission_segments::ImprovedInversePolynomialWall::ImprovedInversePolynomialWall</definition>
+        <argsstring>(const std::function&lt; double() &gt; aTimeDependentParameter, const std::function&lt; std::pair&lt; Eigen::Vector3d, Eigen::Vector3d &gt;() &gt; aSetOfBoundaryParameters)</argsstring>
+        <name>ImprovedInversePolynomialWall</name>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>aTimeDependentParameter</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; std::pair&lt; Eigen::Vector3d, Eigen::Vector3d &gt;() &gt;</type>
+          <declname>aSetOfBoundaryParameters</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor with immediate definition of parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor with immediate definition of parameters through std::functions. This setup allows for a flexible external manipulation of the values of the parameters.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aTimeDependentParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The parameter that is used to solve for the time-of-flight. This parameter is equivalent to parameter d from Wall et al. [2010]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aSetOfBoundaryParameters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A set of six parameters, related to the position boundary conditions. These parameters are equivalent to the parameters a, b, c, e, f, and g from Wall et al. [2010]. The order is important! aSetOfBoundaryParameters.first( 0 ) = a aSetOfBoundaryParameters.first( 1 ) = b aSetOfBoundaryParameters.first( 2 ) = c aSetOfBoundaryParameters.second( 0 ) = e aSetOfBoundaryParameters.second( 1 ) = f aSetOfBoundaryParameters.second( 2 ) = g </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" line="87" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" bodystart="87" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1aae77824552261821ddeb2a64aeaa5f0a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::mission_segments::ImprovedInversePolynomialWall::~ImprovedInversePolynomialWall</definition>
+        <argsstring>()</argsstring>
+        <name>~ImprovedInversePolynomialWall</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" line="97" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" bodystart="97" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1a9fe09f98e8bb360bba7b90d5462150ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::ImprovedInversePolynomialWall::evaluate</definition>
+        <argsstring>(const double anAzimuthalAngle)</argsstring>
+        <name>evaluate</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a69b59769da9784abaaa8a0a309d16de8">evaluate</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>anAzimuthalAngle</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate the function value for a given (in-plane) azimuthal angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Evaluates the inverse polynomial function for a given (in-plane) azimuthal angle <formula id="65">$ \theta $</formula>.</para>
+<para>The (improved version of the) inverse polynomial function is given by Wall et al. [2010] as:</para>
+<para><formula id="66">\[ r ( \theta ) = \frac{ 1 } { a + b \cos( \theta + c ) + d \theta^3 + e \theta^4 + f \theta^5 + g \theta^6 } \]</formula></para>
+<para>in which <formula id="67">$ r $</formula> is the radial position of the spacecraft, <formula id="65">$ \theta $</formula> is the (in-plane) azimuthal angle and <formula id="68">$ ( a, b, c, d, e, f, g ) $</formula> are parameters that define the shape of the trajectory. The parameter <formula id="69">$ d $</formula> is the time-dependent parameter which is used to solve for a required time-of-flight.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>anAzimuthalAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the (in-plane) azimuthal angle [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The radial position at <formula id="65">$ \theta $</formula> [m]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" line="119" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/improvedInversePolynomialWall.cpp" bodystart="42" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1aeac28ab0027cf43dbb2e443ddd133d67" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::ImprovedInversePolynomialWall::computeDerivative</definition>
+        <argsstring>(const unsigned int order, const double anAzimuthalAngle)</argsstring>
+        <name>computeDerivative</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a0929cfbeb90a6cbc85d50455fd01d75f">computeDerivative</reimplements>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>anAzimuthalAngle</declname>
+        </param>
+        <briefdescription>
+<para>Compute the derivative of the function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the derivative of a given order of the function, for a given (in-plane) azimuthal angle <formula id="65">$ \theta $</formula>. It only evaluates the first, second or third derivative, therefore the order should be 1, 2 or 3.</para>
+<para>The first derivative of the function is:</para>
+<para><formula id="70">\[ \frac{ dr }{ d\theta } ( \theta ) = -r^2 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f \theta^4 + 6 g \theta^5 \right) \]</formula></para>
+<para>The second derivative of the function is:</para>
+<para><formula id="71">\[ \frac{ d^2 r }{ d \theta^2 } ( \theta ) = 2 r^3 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f \theta^4 + 6 g \theta^5 \right)^2 - r^2 \left( -b \cos \left( \theta + c \right) + 6 d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right) \]</formula></para>
+<para>When substituting for the first derivative, the equation becomes:</para>
+<para><formula id="72">\[ \frac{ d^2 r }{ d \theta^2 } ( \theta ) = \frac{ 2 }{ r } r^{ \prime 2 } - r^2 \left( -b \cos \left( \theta + c \right) + 6 d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right) \]</formula></para>
+<para>The third derivative of the function is:</para>
+<para><formula id="73">\[ \frac{ d^3 r }{ d \theta^3 } ( \theta ) = -6 r^4 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f \theta^4 + 6 g \theta^5 \right)^3 + 6 r^3 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f \theta^4 + 6 g \theta^5 \right) \left( -b \cos \left( \theta + c \right) + d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right) - r^2 \left( b \sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2 + 120 g \theta^3 \right) \]</formula></para>
+<para>When substituting for the first and second derivative, the equation becomes:</para>
+<para><formula id="74">\[ \frac{ d^3 r }{ d \theta^3 } ( \theta ) = \frac{ 6 r^{ \prime 3 } }{ r^2 } - \frac{ 6 r^{ \prime } }{ r } \left( \frac{ 2 r^{ \prime 2 } }{ r } - r^{ \prime \prime } \right) - r^2 \left( b \sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2 + 120 g \theta^3 \right) \]</formula></para>
+<para>In these formulas <formula id="67">$ r $</formula> is the radial position of the spacecraft, <formula id="65">$ \theta $</formula> is the (in-plane) azimuthal angle, the prime indicates the derivative with respect to <formula id="65">$ \theta $</formula>, and <formula id="68">$ ( a, b, c, d, e, f, g ) $</formula> are parameters that define the shape of the trajectory. The parameter <formula id="69">$ d $</formula> is the time-dependent parameter which is used to solve for a required time-of-flight.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the derivative to evaluate. Can be either 1, 2 or 3. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>anAzimuthalAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the (in-plane) azimuthal angle [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of the derivative of order 1, 2 or 3 of the function [-, rad^-1, rad^-2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" line="186" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/improvedInversePolynomialWall.cpp" bodystart="62" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1aafcdb10c4212c31db81a955030719e01" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::ImprovedInversePolynomialWall::computeDefiniteIntegral</definition>
+        <argsstring>(const unsigned int order, const double lowerBound, const double upperBound)</argsstring>
+        <name>computeDefiniteIntegral</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a74c5639b8c6288471368e65312569e52">computeDefiniteIntegral</reimplements>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>lowerBound</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>upperBound</declname>
+        </param>
+        <briefdescription>
+<para>Compute the definite integral of the function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function throws a runtime error when it is called. The integral of the inverse polynomial function is not part of the shape-based method and has not been implemented.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the integral to evaluate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lowerBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integration lower bound (integrate from this point). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>upperBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integration upper bound (integrate to this point). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of the integral.</para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::runtime_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>when this function is used. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" line="200" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/improvedInversePolynomialWall.cpp" bodystart="160" bodyend="170"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Improved inverse polynomial function approximating the radial position of a thrusting spacecraft.</para>
+<para>This class contains an improved inverse polynomial function, and its exact first and second derivative w.r.t. the azimuthal angle <formula id="65">$ \theta $</formula>. It is a mathematical function, and can be used to approximate the radial position of a thrusting spacecraft. The function is documented by Wall et al. [2010] as the &quot;improved inverse polynomial method&quot;. The radial position of the spacecraft is parameterized in terms of an independent variable, the (in-plane) azimuthal angle <formula id="65">$ \theta $</formula>. The first and second derivative are taken with respect to this independent variable.</para>
+<para>The function is completely described by the independent variable <formula id="65">$ \theta $</formula> and a set of seven parameters. These parameters are related to the boundary conditions of the problem: three initial conditions, three final conditions and the total time-of-flight. One of the parameters is used to solve for the time-of-flight and is therefore a time-dependent parameter. These seven parameters are passed to this class as std::functions to facilitate the flexible external manipulation of their values. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::mission_segments::ImprovedInversePolynomialWall</label>
+        <link refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_mathematics::Function&lt; &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::mission_segments::ImprovedInversePolynomialWall</label>
+        <link refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_mathematics::Function&lt; &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" line="65" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/improvedInversePolynomialWall.h" bodystart="66" bodyend="234"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1acf95d4a318b63f314071ddee41df6839" prot="private" virt="non-virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>boundaryParameters_</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1aafcdb10c4212c31db81a955030719e01" prot="public" virt="virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>computeDefiniteIntegral</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1aeac28ab0027cf43dbb2e443ddd133d67" prot="public" virt="virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>computeDerivative</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1a9fe09f98e8bb360bba7b90d5462150ca" prot="public" virt="virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>evaluate</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1a4d9cd83d099860fd6376f18ff8bcbffb" prot="public" virt="non-virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>ImprovedInversePolynomialWall</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a4b135236b9531d0329c151afeef8a2d8" prot="public" virt="non-virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1a8faebcba38eb437aa715a2536a49f611" prot="private" virt="non-virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>timeDependentParameter_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1ae438d4c770503bfdf34c812e4f47cf09" prot="public" virt="virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>~Function</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1aae77824552261821ddeb2a64aeaa5f0a" prot="public" virt="non-virtual"><scope>tudat::mission_segments::ImprovedInversePolynomialWall</scope><name>~ImprovedInversePolynomialWall</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

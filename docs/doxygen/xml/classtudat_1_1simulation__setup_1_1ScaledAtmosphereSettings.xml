@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ScaledAtmosphereSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AtmosphereSettings</basecompoundref>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1a722791f2dc8bd05ea16c0f4de6d1d098" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AtmosphereSettings &gt; tudat::simulation_setup::ScaledAtmosphereSettings::baseSettings_</definition>
+        <argsstring></argsstring>
+        <name>baseSettings_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="874" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="874" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1ab132b8502898c9f39f7ff987115dae83" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::simulation_setup::ScaledAtmosphereSettings::scaling_</definition>
+        <argsstring></argsstring>
+        <name>scaling_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="876" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="876" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1a2621f8ea427fced9db466d166e403b89" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::ScaledAtmosphereSettings::isScalingAbsolute_</definition>
+        <argsstring></argsstring>
+        <name>isScalingAbsolute_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="878" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="878" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1ab39f3e4864d925718f5dc4ef4ac05fa7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ScaledAtmosphereSettings::ScaledAtmosphereSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; AtmosphereSettings &gt; baseSettings, const double scaling, const bool isScalingAbsolute)</argsstring>
+        <name>ScaledAtmosphereSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref> &gt;</type>
+          <declname>baseSettings</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>scaling</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isScalingAbsolute</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="843" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="843" bodyend="848"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1aef9310ebe870ffd4aea61ad8cbba1d2f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ScaledAtmosphereSettings::ScaledAtmosphereSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; AtmosphereSettings &gt; baseSettings, const std::function&lt; double(const double) &gt; scaling, const bool isScalingAbsolute)</argsstring>
+        <name>ScaledAtmosphereSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref> &gt;</type>
+          <declname>baseSettings</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>scaling</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isScalingAbsolute</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="850" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="850" bodyend="855"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1af4068d8c33c1a80e71de0f93910c6f4d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AtmosphereSettings &gt; tudat::simulation_setup::ScaledAtmosphereSettings::getBaseSettings</definition>
+        <argsstring>()</argsstring>
+        <name>getBaseSettings</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="857" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="857" bodyend="860"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1ab4f0f7fcdea20f7c4eba9a489fe0e7af" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::simulation_setup::ScaledAtmosphereSettings::getScaling</definition>
+        <argsstring>()</argsstring>
+        <name>getScaling</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="862" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="862" bodyend="865"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1a76c539762c256ae044c69ba567a510d1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::ScaledAtmosphereSettings::getIsScalingAbsolute</definition>
+        <argsstring>()</argsstring>
+        <name>getIsScalingAbsolute</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="867" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="867" bodyend="870"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::ScaledAtmosphereSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AtmosphereSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::ScaledAtmosphereSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AtmosphereSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="839" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="840" bodyend="879"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a82760111a1975705c2bd939836e8486a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>AtmosphereSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1a722791f2dc8bd05ea16c0f4de6d1d098" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>baseSettings_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1aec4287b357a3bb6abc189f7c27474531" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>getAtmosphereType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1af4068d8c33c1a80e71de0f93910c6f4d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>getBaseSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1a76c539762c256ae044c69ba567a510d1" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>getIsScalingAbsolute</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1ab4f0f7fcdea20f7c4eba9a489fe0e7af" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>getScaling</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a65fbe7e983518c965f99b9b8cb4891e0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>getWindSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1a2621f8ea427fced9db466d166e403b89" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>isScalingAbsolute_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1ab39f3e4864d925718f5dc4ef4ac05fa7" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>ScaledAtmosphereSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1aef9310ebe870ffd4aea61ad8cbba1d2f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>ScaledAtmosphereSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings_1ab132b8502898c9f39f7ff987115dae83" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>scaling_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1ab140972c4f4657425eff7e21ed8f0631" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>setWindSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a5d315b52924a7f82d4e269402c60a51c" prot="public" virt="virtual"><scope>tudat::simulation_setup::ScaledAtmosphereSettings</scope><name>~AtmosphereSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

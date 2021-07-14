@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1ephemerides_1_1KeplerStateExtractor" kind="class" language="C++" prot="public">
+    <compoundname>tudat::ephemerides::KeplerStateExtractor</compoundname>
+    <basecompoundref refid="classtudat_1_1input__output_1_1Extractor" prot="public" virt="non-virtual">tudat::input_output::Extractor&lt; Eigen::Vector6d &gt;</basecompoundref>
+    <includes refid="keplerStateExtractor_8h" local="no">keplerStateExtractor.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1KeplerStateExtractor_1a99148026478cace2c2c85f1d04afc5a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; Eigen::Vector6d &gt;</type>
+        <definition>std::shared_ptr&lt; Eigen::Vector6d &gt; tudat::ephemerides::KeplerStateExtractor::extract</definition>
+        <argsstring>(ParsedDataLineMapPtr dataLineMap)</argsstring>
+        <name>extract</name>
+        <param>
+          <type><ref refid="classtudat_1_1input__output_1_1Extractor_1abfff04b61512a08b822cbcecb6613253" kindref="member">ParsedDataLineMapPtr</ref></type>
+          <declname>dataLineMap</declname>
+        </param>
+        <briefdescription>
+<para>Extract the Keplerian Elements. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns a KeplerianElements object containing the orbital parameters found in the input data line map. If one of the elements is not present, the function throws an exception. If no true anomaly field type is found, the function searches for the mean anomaly field type and performs the necessary conversions. The if-statements can be easily extended to deal with other non-standard field types.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataLineMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data map corresponding to a parsed line. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A KeplerianElements object containing the orbital parameters found in the data map. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerStateExtractor.h" line="48" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/keplerStateExtractor.cpp" bodystart="37" bodyend="155"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Keplerian State extractor class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class contains the functionality of extracting the Keplerian elements from a parsed data line map. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::input_output::Extractor&lt; Eigen::Vector6d &gt;</label>
+        <link refid="classtudat_1_1input__output_1_1Extractor"/>
+      </node>
+      <node id="1">
+        <label>tudat::ephemerides::KeplerStateExtractor</label>
+        <link refid="classtudat_1_1ephemerides_1_1KeplerStateExtractor"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::input_output::Extractor&lt; Eigen::Vector6d &gt;</label>
+        <link refid="classtudat_1_1input__output_1_1Extractor"/>
+      </node>
+      <node id="1">
+        <label>tudat::ephemerides::KeplerStateExtractor</label>
+        <link refid="classtudat_1_1ephemerides_1_1KeplerStateExtractor"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerStateExtractor.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/keplerStateExtractor.h" bodystart="34" bodyend="53"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1Extractor_1aa8b4479a4ea688d31ca0887a7ea8cacc" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::KeplerStateExtractor</scope><name>checkOptionalFieldType</name></member>
+      <member refid="classtudat_1_1input__output_1_1Extractor_1aca0c1f90a927a7e4413cb06d24e12966" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::KeplerStateExtractor</scope><name>checkRequiredFieldType</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1KeplerStateExtractor_1a99148026478cace2c2c85f1d04afc5a9" prot="public" virt="non-virtual"><scope>tudat::ephemerides::KeplerStateExtractor</scope><name>extract</name></member>
+      <member refid="classtudat_1_1input__output_1_1Extractor_1a345f9c779db2ad7aa9d7b453229b32d8" prot="public" virt="pure-virtual" ambiguityscope="Extractor&lt; Eigen::Vector6d &gt;::"><scope>tudat::ephemerides::KeplerStateExtractor</scope><name>extract</name></member>
+      <member refid="classtudat_1_1input__output_1_1Extractor_1a50e09f32d40315fbc58b482561bf5317" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::KeplerStateExtractor</scope><name>FieldValuePtr</name></member>
+      <member refid="classtudat_1_1input__output_1_1Extractor_1abfff04b61512a08b822cbcecb6613253" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::KeplerStateExtractor</scope><name>ParsedDataLineMapPtr</name></member>
+      <member refid="classtudat_1_1input__output_1_1Extractor_1a4ef13b59802f0a183cca98df67f01fed" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::KeplerStateExtractor</scope><name>ParsedDataVectorPtr</name></member>
+      <member refid="classtudat_1_1input__output_1_1Extractor_1aff3c90a85713175523fcb917e7a2de8f" prot="public" virt="virtual"><scope>tudat::ephemerides::KeplerStateExtractor</scope><name>~Extractor</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

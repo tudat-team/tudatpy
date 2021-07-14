@@ -1,0 +1,422 @@
+\hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial}{}\doxysection{tudat\+::acceleration\+\_\+partials\+::Torque\+Partial Class Reference}
+\label{classtudat_1_1acceleration__partials_1_1TorquePartial}\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+
+
+Base class for objects calculating partial derivatives of torques w.\+r.\+t. states, model parameters.  
+
+
+
+
+{\ttfamily \#include $<$torque\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::acceleration\+\_\+partials\+::Torque\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.974478cm]{classtudat_1_1acceleration__partials_1_1TorquePartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a299c5f5462d73b955f0af51e5823c39f}{Torque\+Partial}} (const std\+::string \&body\+Undergoing\+Torque, const std\+::string \&body\+Exerting\+Torque, const basic\+\_\+astrodynamics\+::\+Available\+Torque torque\+Type)
+\begin{DoxyCompactList}\small\item\em Base class constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_aedbf70284739dca3507d31ae53f1866f}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_aedbf70284739dca3507d31ae53f1866f}} 
+virtual \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_aedbf70284739dca3507d31ae53f1866f}{$\sim$\+Torque\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_abd32c3a39bd48fe77a2223580d44ea57}{is\+State\+Derivative\+Dependent\+On\+Integrated\+Additional\+State\+Types}} (const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type)
+\begin{DoxyCompactList}\small\item\em Function for determining if the torque is dependent on a non-\/rotational integrated state. \end{DoxyCompactList}\item 
+std\+::pair$<$ std\+::function$<$ void(Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$) $>$, int $>$ \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a00abe63e3789cd2f42bc1b0c7d1fdb9e}{get\+Derivative\+Function\+Wrt\+State\+Of\+Integrated\+Body}} (const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a38831ab1542356953153d3893e60e9e2}{wrt\+Orientation\+Of\+Accelerated\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=0)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function for calculating the partial of the torque w.\+r.\+t. the orientation of the accelerated body. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a207df1139b3ca8b14bb48ab132d5dbc6}{wrt\+Rotational\+Velocity\+Of\+Accelerated\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=3)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the accelerated body. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a719cf5be0b45b2710009aa27988c56cb}{wrt\+Rotational\+State\+Of\+Accelerated\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the torque w.\+r.\+t. the rotational state of the body undergoing torque. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_acdbf61da830ff7b43d9bf10df22e98e8}{wrt\+Orientation\+Of\+Accelerating\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=0)
+\begin{DoxyCompactList}\small\item\em Pure virtual function for calculating the partial of the torque w.\+r.\+t. the orientation of the body exerting torque. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a473ff90b6fa28e4234a97a42bd3a4cb7}{wrt\+Rotational\+Velocity\+Of\+Accelerating\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=3)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the body exerting torque. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a611d8d213abeb99286dd519340c10995}{wrt\+Rotational\+State\+Of\+Accelerating\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the torque w.\+r.\+t. the Cartesian state of the body exerting torque. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a7e1f33a40cb2590d9e47297179f03fac}{wrt\+Orientation\+Of\+Additional\+Body}} (const std\+::string \&body\+Name, Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=0)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the torque w.\+r.\+t. the orientation of the third body. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a3fdff9e53798d90a4e6350a8b35e3df3}{wrt\+Rotational\+Velocity\+Of\+Additional\+Body}} (const std\+::string \&body\+Name, Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const bool add\+Contribution=1, const int start\+Row=0, const int start\+Column=3)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the third body. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a79b5b432d9d68b85a95deb43ba52a476}{wrt\+Rotational\+State\+Of\+Additional\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const std\+::string \&body\+Name)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the torque w.\+r.\+t. the Cartesian state of the third body. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a1c958e33def353759e8b37037b70b52b}{wrt\+Non\+Rotational\+State\+Of\+Additional\+Body}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix, const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type)
+\begin{DoxyCompactList}\small\item\em Function for calculating the partial of the torque w.\+r.\+t. a non-\/rotational integrated state. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a5e6b9ae0d2f7c1f35c19dbdca5832658}{is\+Torque\+Partial\+Wrt\+Additional\+Body\+Non\+Null}} (const std\+::string \&body\+Name)
+\begin{DoxyCompactList}\small\item\em Function to check whether the partial derivative w.\+r.\+t. the rotational state of a third body is non-\/zero. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a4565abdd57a8089e37072e7e2937d851}{get\+Body\+Undergoing\+Torque}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the name of the body undergoing torque. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a25563b04d9f774820b14cea830a180b3}{get\+Body\+Exerting\+Torque}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the name of the body exerting torque. \end{DoxyCompactList}\item 
+basic\+\_\+astrodynamics\+::\+Available\+Torque \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a8265a9582a46b95b9ece012142207f82}{get\+Torque\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the type of torque w.\+r.\+t. which partial is taken.. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a87154b3cdc955401b5dbd4c57df6a768}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a87154b3cdc955401b5dbd4c57df6a768}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a87154b3cdc955401b5dbd4c57df6a768}{body\+Undergoing\+Torque\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Name of the body undergoing torque. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_ad7fec53792cf06fd95b5d77249262aa3}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_ad7fec53792cf06fd95b5d77249262aa3}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_ad7fec53792cf06fd95b5d77249262aa3}{body\+Exerting\+Torque\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Name of the body exerting torque. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a3d4542f70bed87e5e15ef766e2a065e5}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a3d4542f70bed87e5e15ef766e2a065e5}} 
+basic\+\_\+astrodynamics\+::\+Available\+Torque \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a3d4542f70bed87e5e15ef766e2a065e5}{torque\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of torque w.\+r.\+t. which partial is taken.. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Base class for objects calculating partial derivatives of torques w.\+r.\+t. states, model parameters. 
+
+Base class for objects calculating partial derivatives of torques w.\+r.\+t. states, model parameters. Such calculations are used in orbit determination, for the computation of the state transition; sensitivity matrices. Derived classes implement derivative-\/calculating models for specific torque models, so that the calculation of all partials of a single type torque model is encompassed in a single derived class. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a299c5f5462d73b955f0af51e5823c39f}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a299c5f5462d73b955f0af51e5823c39f}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!TorquePartial@{TorquePartial}}
+\index{TorquePartial@{TorquePartial}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{TorquePartial()}{TorquePartial()}}
+{\footnotesize\ttfamily tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::\+Torque\+Partial (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Undergoing\+Torque,  }\item[{const std\+::string \&}]{body\+Exerting\+Torque,  }\item[{const basic\+\_\+astrodynamics\+::\+Available\+Torque}]{torque\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Base class constructor. 
+
+Constructor of base class, sets the base class member variables identifying the body undergoing and exerting the torque. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Undergoing\+Torque} & Body undergoing torque. \\
+\hline
+{\em body\+Exerting\+Torque} & Body exerting torque. \\
+\hline
+{\em torque\+Type} & Type of torque w.\+r.\+t. which partial is taken. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a25563b04d9f774820b14cea830a180b3}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a25563b04d9f774820b14cea830a180b3}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!getBodyExertingTorque@{getBodyExertingTorque}}
+\index{getBodyExertingTorque@{getBodyExertingTorque}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{getBodyExertingTorque()}{getBodyExertingTorque()}}
+{\footnotesize\ttfamily std\+::string tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::get\+Body\+Exerting\+Torque (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the name of the body exerting torque. 
+
+Function to retrieve the name of the body exerting torque. \begin{DoxyReturn}{Returns}
+Name of the body exerting torque. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a4565abdd57a8089e37072e7e2937d851}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a4565abdd57a8089e37072e7e2937d851}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!getBodyUndergoingTorque@{getBodyUndergoingTorque}}
+\index{getBodyUndergoingTorque@{getBodyUndergoingTorque}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{getBodyUndergoingTorque()}{getBodyUndergoingTorque()}}
+{\footnotesize\ttfamily std\+::string tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::get\+Body\+Undergoing\+Torque (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the name of the body undergoing torque. 
+
+Function to retrieve the name of the body undergoing torque. \begin{DoxyReturn}{Returns}
+Name of the body undergoing torque. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a00abe63e3789cd2f42bc1b0c7d1fdb9e}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a00abe63e3789cd2f42bc1b0c7d1fdb9e}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!getDerivativeFunctionWrtStateOfIntegratedBody@{getDerivativeFunctionWrtStateOfIntegratedBody}}
+\index{getDerivativeFunctionWrtStateOfIntegratedBody@{getDerivativeFunctionWrtStateOfIntegratedBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{getDerivativeFunctionWrtStateOfIntegratedBody()}{getDerivativeFunctionWrtStateOfIntegratedBody()}}
+{\footnotesize\ttfamily std\+::pair$<$ std\+::function$<$ void( Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ ) $>$, int $>$ tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::get\+Derivative\+Function\+Wrt\+State\+Of\+Integrated\+Body (\begin{DoxyParamCaption}\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. 
+
+Function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Reference\+Point} & Reference point (id) for propagated state (i.\+e. body name for rotational dynamics). \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pair with function, returning partial derivative, and number of columns in partial vector, 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ab4fa1fbffa888476633642ca3e1a1dd1}{tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a8265a9582a46b95b9ece012142207f82}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a8265a9582a46b95b9ece012142207f82}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!getTorqueType@{getTorqueType}}
+\index{getTorqueType@{getTorqueType}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{getTorqueType()}{getTorqueType()}}
+{\footnotesize\ttfamily basic\+\_\+astrodynamics\+::\+Available\+Torque tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::get\+Torque\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the type of torque w.\+r.\+t. which partial is taken.. 
+
+Function to retrieve the type of torque w.\+r.\+t. which partial is taken.. \begin{DoxyReturn}{Returns}
+Type of torque w.\+r.\+t. which partial is taken.. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_abd32c3a39bd48fe77a2223580d44ea57}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_abd32c3a39bd48fe77a2223580d44ea57}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!isStateDerivativeDependentOnIntegratedAdditionalStateTypes@{isStateDerivativeDependentOnIntegratedAdditionalStateTypes}}
+\index{isStateDerivativeDependentOnIntegratedAdditionalStateTypes@{isStateDerivativeDependentOnIntegratedAdditionalStateTypes}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{isStateDerivativeDependentOnIntegratedAdditionalStateTypes()}{isStateDerivativeDependentOnIntegratedAdditionalStateTypes()}}
+{\footnotesize\ttfamily virtual bool tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::is\+State\+Derivative\+Dependent\+On\+Integrated\+Additional\+State\+Types (\begin{DoxyParamCaption}\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for determining if the torque is dependent on a non-\/rotational integrated state. 
+
+Function for determining if the torque is dependent on a non-\/rotational integrated state. Default none, may be overridden by derived class 
+\begin{DoxyParams}{Parameters}
+{\em state\+Reference\+Point} & Reference point id of propagated state \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state for which dependency is to be determined. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if dependency exists (non-\/zero partial), false otherwise. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7d6dc0c6a70e33af5aefedf00dee1959}{tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial}}.
+
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_a6c7db8f8ebb688b9281316cc78012a17}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonic\+Gravitational\+Torque\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_aec785a36a4fab48930ca67263da3a469}{tudat\+::acceleration\+\_\+partials\+::\+Second\+Degree\+Gravitational\+Torque\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a5e6b9ae0d2f7c1f35c19dbdca5832658}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a5e6b9ae0d2f7c1f35c19dbdca5832658}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!isTorquePartialWrtAdditionalBodyNonNull@{isTorquePartialWrtAdditionalBodyNonNull}}
+\index{isTorquePartialWrtAdditionalBodyNonNull@{isTorquePartialWrtAdditionalBodyNonNull}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{isTorquePartialWrtAdditionalBodyNonNull()}{isTorquePartialWrtAdditionalBodyNonNull()}}
+{\footnotesize\ttfamily virtual bool tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::is\+Torque\+Partial\+Wrt\+Additional\+Body\+Non\+Null (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to check whether the partial derivative w.\+r.\+t. the rotational state of a third body is non-\/zero. 
+
+Function to check whether the partial derivative w.\+r.\+t. the rotational state of a third body is non-\/zero. This function returns false by default, should be redefined in derived class if any third-\/bodyd dependencies exist. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Name} & Name of third body. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if third body dependency exists, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a1c958e33def353759e8b37037b70b52b}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a1c958e33def353759e8b37037b70b52b}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtNonRotationalStateOfAdditionalBody@{wrtNonRotationalStateOfAdditionalBody}}
+\index{wrtNonRotationalStateOfAdditionalBody@{wrtNonRotationalStateOfAdditionalBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtNonRotationalStateOfAdditionalBody()}{wrtNonRotationalStateOfAdditionalBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Non\+Rotational\+State\+Of\+Additional\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the torque w.\+r.\+t. a non-\/rotational integrated state. 
+
+Function for calculating the partial of the torque w.\+r.\+t. a non-\/rotational integrated state and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of where current partial is to be added. \\
+\hline
+{\em state\+Reference\+Point} & Reference point id of propagated state \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state for which partial is to be computed. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_a05b6eede6226834d2da05f36c26e8b66}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonic\+Gravitational\+Torque\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_aa85530bcc0f7a71702ffa8b4cb7ef057}{tudat\+::acceleration\+\_\+partials\+::\+Second\+Degree\+Gravitational\+Torque\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a38831ab1542356953153d3893e60e9e2}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a38831ab1542356953153d3893e60e9e2}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtOrientationOfAcceleratedBody@{wrtOrientationOfAcceleratedBody}}
+\index{wrtOrientationOfAcceleratedBody@{wrtOrientationOfAcceleratedBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtOrientationOfAcceleratedBody()}{wrtOrientationOfAcceleratedBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Orientation\+Of\+Accelerated\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function for calculating the partial of the torque w.\+r.\+t. the orientation of the accelerated body. 
+
+Pure virtual function for calculating the partial of the torque w.\+r.\+t. the orientation of the accelerated body and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. Orientation of body undergoing torque where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_a6fa6e48742bf586ac5dca25da9b9ebb7}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonic\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_a2cf6f3ac27371a33d4b7cce436eb77c4}{tudat\+::acceleration\+\_\+partials\+::\+Second\+Degree\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1InertialTorquePartial_acd7c0ea26712a5441134b06a6d8ff363}{tudat\+::acceleration\+\_\+partials\+::\+Inertial\+Torque\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_a437a908242744ba6e9355b126ff92683}{tudat\+::acceleration\+\_\+partials\+::\+Constant\+Torque\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_acdbf61da830ff7b43d9bf10df22e98e8}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_acdbf61da830ff7b43d9bf10df22e98e8}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtOrientationOfAcceleratingBody@{wrtOrientationOfAcceleratingBody}}
+\index{wrtOrientationOfAcceleratingBody@{wrtOrientationOfAcceleratingBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtOrientationOfAcceleratingBody()}{wrtOrientationOfAcceleratingBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Orientation\+Of\+Accelerating\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Pure virtual function for calculating the partial of the torque w.\+r.\+t. the orientation of the body exerting torque. 
+
+Pure virtual function for calculating the partial of the torque w.\+r.\+t. the orientation of the body exerting torque and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. Orientation of body exerting torque where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a7e1f33a40cb2590d9e47297179f03fac}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a7e1f33a40cb2590d9e47297179f03fac}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtOrientationOfAdditionalBody@{wrtOrientationOfAdditionalBody}}
+\index{wrtOrientationOfAdditionalBody@{wrtOrientationOfAdditionalBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtOrientationOfAdditionalBody()}{wrtOrientationOfAdditionalBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Orientation\+Of\+Additional\+Body (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Name,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the torque w.\+r.\+t. the orientation of the third body. 
+
+Function for calculating the partial of the torque w.\+r.\+t. the orientation of the third body and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Name} & Name of third body. \\
+\hline
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. Orientation of third body where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a719cf5be0b45b2710009aa27988c56cb}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a719cf5be0b45b2710009aa27988c56cb}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtRotationalStateOfAcceleratedBody@{wrtRotationalStateOfAcceleratedBody}}
+\index{wrtRotationalStateOfAcceleratedBody@{wrtRotationalStateOfAcceleratedBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtRotationalStateOfAcceleratedBody()}{wrtRotationalStateOfAcceleratedBody()}}
+{\footnotesize\ttfamily void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Rotational\+State\+Of\+Accelerated\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function for calculating the partial of the torque w.\+r.\+t. the rotational state of the body undergoing torque. 
+
+Function for calculating the partial of the torque w.\+r.\+t. the rotational state of the body undergoing torque and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. Cartesian state of body undergoing torque where current partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a611d8d213abeb99286dd519340c10995}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a611d8d213abeb99286dd519340c10995}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtRotationalStateOfAcceleratingBody@{wrtRotationalStateOfAcceleratingBody}}
+\index{wrtRotationalStateOfAcceleratingBody@{wrtRotationalStateOfAcceleratingBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtRotationalStateOfAcceleratingBody()}{wrtRotationalStateOfAcceleratingBody()}}
+{\footnotesize\ttfamily void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Rotational\+State\+Of\+Accelerating\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function for calculating the partial of the torque w.\+r.\+t. the Cartesian state of the body exerting torque. 
+
+Function for calculating the partial of the torque w.\+r.\+t. the Cartesian state of the body exerting torque and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. Cartesian state of body exerting torque where current partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a79b5b432d9d68b85a95deb43ba52a476}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a79b5b432d9d68b85a95deb43ba52a476}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtRotationalStateOfAdditionalBody@{wrtRotationalStateOfAdditionalBody}}
+\index{wrtRotationalStateOfAdditionalBody@{wrtRotationalStateOfAdditionalBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtRotationalStateOfAdditionalBody()}{wrtRotationalStateOfAdditionalBody()}}
+{\footnotesize\ttfamily void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Rotational\+State\+Of\+Additional\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const std\+::string \&}]{body\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function for calculating the partial of the torque w.\+r.\+t. the Cartesian state of the third body. 
+
+Function for calculating the partial of the torque w.\+r.\+t. the Cartesian state of the third body and adding it to the existing partial block. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Name} & Name of third body. \\
+\hline
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. Cartesian state of third body where current partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a207df1139b3ca8b14bb48ab132d5dbc6}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a207df1139b3ca8b14bb48ab132d5dbc6}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtRotationalVelocityOfAcceleratedBody@{wrtRotationalVelocityOfAcceleratedBody}}
+\index{wrtRotationalVelocityOfAcceleratedBody@{wrtRotationalVelocityOfAcceleratedBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtRotationalVelocityOfAcceleratedBody()}{wrtRotationalVelocityOfAcceleratedBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Rotational\+Velocity\+Of\+Accelerated\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 3} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the accelerated body. 
+
+Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the accelerated body and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. angular velocity of body undergoing torque where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1InertialTorquePartial_a0f9de03a8f87e0a32cfb766a0be330cd}{tudat\+::acceleration\+\_\+partials\+::\+Inertial\+Torque\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_a8753136f31225c9f8cf42d78e23c6988}{tudat\+::acceleration\+\_\+partials\+::\+Constant\+Torque\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a473ff90b6fa28e4234a97a42bd3a4cb7}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a473ff90b6fa28e4234a97a42bd3a4cb7}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtRotationalVelocityOfAcceleratingBody@{wrtRotationalVelocityOfAcceleratingBody}}
+\index{wrtRotationalVelocityOfAcceleratingBody@{wrtRotationalVelocityOfAcceleratingBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtRotationalVelocityOfAcceleratingBody()}{wrtRotationalVelocityOfAcceleratingBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Rotational\+Velocity\+Of\+Accelerating\+Body (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 3} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the body exerting torque. 
+
+Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the body exerting a torque. . Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. angular velocity of body exerting torque where current partial is to be added. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1acceleration__partials_1_1TorquePartial_a3fdff9e53798d90a4e6350a8b35e3df3}\label{classtudat_1_1acceleration__partials_1_1TorquePartial_a3fdff9e53798d90a4e6350a8b35e3df3}} 
+\index{tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}!wrtRotationalVelocityOfAdditionalBody@{wrtRotationalVelocityOfAdditionalBody}}
+\index{wrtRotationalVelocityOfAdditionalBody@{wrtRotationalVelocityOfAdditionalBody}!tudat::acceleration\_partials::TorquePartial@{tudat::acceleration\_partials::TorquePartial}}
+\doxysubsubsection{\texorpdfstring{wrtRotationalVelocityOfAdditionalBody()}{wrtRotationalVelocityOfAdditionalBody()}}
+{\footnotesize\ttfamily virtual void tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial\+::wrt\+Rotational\+Velocity\+Of\+Additional\+Body (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Name,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix,  }\item[{const bool}]{add\+Contribution = {\ttfamily 1},  }\item[{const int}]{start\+Row = {\ttfamily 0},  }\item[{const int}]{start\+Column = {\ttfamily 3} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the third body. 
+
+Function for calculating the partial of the torque w.\+r.\+t. the angular velocity of the third body and adding it to the existing partial block. . Function may be overridden in derived class, default dependency is none. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Name} & Name of third body. \\
+\hline
+{\em partial\+Matrix} & Block of partial derivatives of torque w.\+r.\+t. angular velocity of third body where current partial is to be added. \\
+\hline
+{\em add\+Contribution} & Variable denoting whether to return the partial itself (true) or the negative partial (false). \\
+\hline
+{\em start\+Row} & First row in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+{\em start\+Column} & First column in partial\+Matrix block where the computed partial is to be added. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/rotational\+\_\+dynamics\+\_\+partials/torque\+Partial.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,1228 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</compoundname>
+    <basecompoundref refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" prot="public" virt="non-virtual">tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</basecompoundref>
+    <includes refid="rungeKuttaVariableStepSizeIntegrator_8h" local="no">rungeKuttaVariableStepSizeIntegrator.h</includes>
+    <innerclass refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError" prot="public">tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator::MinimumStepSizeExceededError</innerclass>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename StateType</type>
+        <defval>Eigen::VectorXd</defval>
+      </param>
+      <param>
+        <type>typename StateDerivativeType</type>
+        <defval>StateType</defval>
+      </param>
+      <param>
+        <type>typename TimeStepType</type>
+        <defval>IndependentVariableType</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ad7d933c5f4d6c5dc9bad88b1ee9ca78d" prot="public" static="no">
+        <type>std::function&lt; std::pair&lt; TimeStepType, bool &gt; const TimeStepType, const std::pair&lt; TimeStepType, TimeStepType &gt; &amp;, const TimeStepType, const std::pair&lt; TimeStepType, TimeStepType &gt; &amp;, const StateType &amp;, const StateType &amp;, const StateType &amp;, const StateType &amp;) &gt;</type>
+        <definition>typedef std::function&lt; std::pair&lt; TimeStepType, bool &gt; const TimeStepType, const std::pair&lt; TimeStepType, TimeStepType &gt;&amp;, const TimeStepType, const std::pair&lt; TimeStepType, TimeStepType &gt;&amp;, const StateType&amp;, const StateType&amp;, const StateType&amp;, const StateType&amp; ) &gt; tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::NewStepSizeFunction</definition>
+        <argsstring></argsstring>
+        <name>NewStepSizeFunction</name>
+        <briefdescription>
+<para>Typedef to the function used to compute the new step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef to the function used to compute the new step size. This should be a pointer to a function or a boost function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="64" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a0ea5ab73d75b211e5f040d11f3a79fcb" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" kindref="compound">numerical_integrators::ReinitializableNumericalIntegrator</ref>&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</type>
+        <definition>typedef numerical_integrators::ReinitializableNumericalIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt; tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::ReinitializableNumericalIntegratorBase</definition>
+        <argsstring></argsstring>
+        <name>ReinitializableNumericalIntegratorBase</name>
+        <briefdescription>
+<para>Typedef of the base class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of the base class with all template parameters filled in. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="72" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1af14688890a16e581771f63f0e2909b46" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::StateDerivativeFunction</ref></type>
+        <definition>typedef ReinitializableNumericalIntegratorBase::NumericalIntegratorBase:: StateDerivativeFunction tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::StateDerivativeFunction</definition>
+        <argsstring></argsstring>
+        <name>StateDerivativeFunction</name>
+        <briefdescription>
+<para>Typedef to the state derivative function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef to the state derivative function inherited from the base class. <simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">NumericalIntegrator::StateDerivativeFunction</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="80" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a43038f69dbf2e852b547dec2085e5a45" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::stepSize_</definition>
+        <argsstring></argsstring>
+        <name>stepSize_</name>
+        <briefdescription>
+<para>Last used step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last used step size, passed to either <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" kindref="member">integrateTo( )</ref> or <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a34e884253297c9bfb17d756c36510cc4" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="402" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="402" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ac89db3054b7e21a3b7ff4dc700d71cfb" prot="protected" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::currentIndependentVariable_</definition>
+        <argsstring></argsstring>
+        <name>currentIndependentVariable_</name>
+        <briefdescription>
+<para>Current independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current independent variable as computed by <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a34e884253297c9bfb17d756c36510cc4" kindref="member">performIntegrationStep()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="408" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="408" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a17dc1f0cc72f56c31931142f8d8b87eb" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::currentState_</definition>
+        <argsstring></argsstring>
+        <name>currentState_</name>
+        <briefdescription>
+<para>Current state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current state as computed by <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a34e884253297c9bfb17d756c36510cc4" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="414" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="414" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a338e09348505c5e33dd5fa3ab4903d43" prot="protected" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::lastIndependentVariable_</definition>
+        <argsstring></argsstring>
+        <name>lastIndependentVariable_</name>
+        <briefdescription>
+<para>Last independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last independent variable value as computed by <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a34e884253297c9bfb17d756c36510cc4" kindref="member">performIntegrationStep()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="420" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="420" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a745206698dbef0aa6f9b8ac959be2d03" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::lastState_</definition>
+        <argsstring></argsstring>
+        <name>lastState_</name>
+        <briefdescription>
+<para>Last state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last state as computed by <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a34e884253297c9bfb17d756c36510cc4" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="426" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="426" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1afa92d7f9d7befc0d9586040ad848c70c" prot="protected" static="no" mutable="no">
+        <type><ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref></type>
+        <definition>RungeKuttaCoefficients tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::coefficients_</definition>
+        <argsstring></argsstring>
+        <name>coefficients_</name>
+        <briefdescription>
+<para>Coefficients for the integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Coefficients for the integrator, as defined by the Butcher tableau. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="432" column="28" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="432" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a7055fda3b282fa93820597e2e7ee1f81" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::minimumStepSize_</definition>
+        <argsstring></argsstring>
+        <name>minimumStepSize_</name>
+        <briefdescription>
+<para>Minimum step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Minimum step size. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="438" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="438" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ac8bdeabe449addaf3dd481396dc71481" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::maximumStepSize_</definition>
+        <argsstring></argsstring>
+        <name>maximumStepSize_</name>
+        <briefdescription>
+<para>Maximum step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum step size. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="444" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="444" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ab5106397b1ac1265bbff90dd61d5fa6d" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::relativeErrorTolerance_</definition>
+        <argsstring></argsstring>
+        <name>relativeErrorTolerance_</name>
+        <briefdescription>
+<para>Relative error tolerance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Relative error tolerance per element in the state. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="450" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="450" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aac2980ff2ed5a6a44333cf7843b7fa39" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::absoluteErrorTolerance_</definition>
+        <argsstring></argsstring>
+        <name>absoluteErrorTolerance_</name>
+        <briefdescription>
+<para>Absolute error tolerance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Absolute error tolerance per element in the state. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="456" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="456" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aaf907ca159430a0419af1303d308679a" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::safetyFactorForNextStepSize_</definition>
+        <argsstring></argsstring>
+        <name>safetyFactorForNextStepSize_</name>
+        <briefdescription>
+<para>Safety factor for next step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Safety factor used to scale prediction of next step size. This is usually picked between 0.8 and 0.9 (Burden and Faires, 2001). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="463" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="463" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ab8745acd627400550b7e00c1ba6c12dd" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::maximumFactorIncreaseForNextStepSize_</definition>
+        <argsstring></argsstring>
+        <name>maximumFactorIncreaseForNextStepSize_</name>
+        <briefdescription>
+<para>Maximum factor increase for next step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The maximum factor by which the next step size can increase compared to the current value. The need for this maximum stems from a need to ensure that the step size changes do not alias with the dynamics of the model being integrated. This is typically set at 4.0, based on numerical experiments (Burden and Faires, 2001). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="472" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="472" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ae478abe53ab327c5a8e4f8ca978123f6" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::minimumFactorDecreaseForNextStepSize_</definition>
+        <argsstring></argsstring>
+        <name>minimumFactorDecreaseForNextStepSize_</name>
+        <briefdescription>
+<para>Minimum factor decrease for next step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The minimum factor by which the next step size can decrease compared to the current value. The need for this minimum stems from a need to ensure that the step size changes do not alias with the dynamics of the model being integrated. This is typically set at 0.1, based on numerical experiments (Burden and Faires, 2001). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="481" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="481" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ace984339dfb58e1ced57ab260d9992c2" prot="protected" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ad7d933c5f4d6c5dc9bad88b1ee9ca78d" kindref="member">NewStepSizeFunction</ref></type>
+        <definition>NewStepSizeFunction tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::newStepSizeFunction_</definition>
+        <argsstring></argsstring>
+        <name>newStepSizeFunction_</name>
+        <briefdescription>
+<para>Function that returns the new step size computed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that returns the new step size computed, as passed to the constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="487" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="487" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a3c76b8be3eea0bd6c4d31a8aae391030" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; StateDerivativeType &gt;</type>
+        <definition>std::vector&lt; StateDerivativeType &gt; tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::currentStateDerivatives_</definition>
+        <argsstring></argsstring>
+        <name>currentStateDerivatives_</name>
+        <briefdescription>
+<para>Vector of state derivatives. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of state derivatives, i.e. values of k_{i} in Runge-Kutta scheme. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="493" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="493" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a1f29b885ce7bcda247d979bd8a5077b6" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::useStepSizeControl_</definition>
+        <argsstring></argsstring>
+        <name>useStepSizeControl_</name>
+        <briefdescription>
+<para>Boolean denoting whether step size control is to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="496" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="496" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ac50cd2ef741a2efb8803cff8b5d0283d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::RungeKuttaVariableStepSizeIntegrator</definition>
+        <argsstring>(const RungeKuttaCoefficients &amp;coefficients, const StateDerivativeFunction &amp;stateDerivativeFunction, const IndependentVariableType intervalStart, const StateType &amp;initialState, const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize, const StateType &amp;relativeErrorTolerance, const StateType &amp;absoluteErrorTolerance, const TimeStepType safetyFactorForNextStepSize=0.8, const TimeStepType maximumFactorIncreaseForNextStepSize=4.0, const TimeStepType minimumFactorDecreaseForNextStepSize=0.1, const NewStepSizeFunction &amp;newStepSizeFunction=0)</argsstring>
+        <name>RungeKuttaVariableStepSizeIntegrator</name>
+        <param>
+          <type>const <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> &amp;</type>
+          <declname>coefficients</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1af14688890a16e581771f63f0e2909b46" kindref="member">StateDerivativeFunction</ref> &amp;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>intervalStart</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>relativeErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>absoluteErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>safetyFactorForNextStepSize</declname>
+          <defval>0.8</defval>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>maximumFactorIncreaseForNextStepSize</declname>
+          <defval>4.0</defval>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>minimumFactorDecreaseForNextStepSize</declname>
+          <defval>0.1</defval>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ad7d933c5f4d6c5dc9bad88b1ee9ca78d" kindref="member">NewStepSizeFunction</ref> &amp;</type>
+          <declname>newStepSizeFunction</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor, taking coefficients, a state derivative function, initial conditions, minimum &amp; maximum step size and relative &amp; absolute error tolerance per item in the state vector as argument. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficients to use with this integrator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State derivative function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>intervalStart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The start of the integration interval. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The initial state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The minimum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the minimum value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The maximum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the maximum value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The relative error tolerance, for each individual state vector element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The absolute error tolerance, for each individual state vector element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>safetyFactorForNextStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Safety factor used to scale prediction of next step size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumFactorIncreaseForNextStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum factor increase for next step size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumFactorDecreaseForNextStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum factor decrease for next step size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>newStepSizeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns the new step size computed, default: <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aee5769dc33ea0be10f5e3bf7db9db720" kindref="member">RungeKuttaVariableStepSizeIntegrator::computeNewStepSize</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" kindref="member">NumericalIntegrator::NumericalIntegrator</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="113" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="113" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1afce25655a78ccac5a2909749351f8ccb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::RungeKuttaVariableStepSizeIntegrator</definition>
+        <argsstring>(const RungeKuttaCoefficients &amp;coefficients, const StateDerivativeFunction &amp;stateDerivativeFunction, const IndependentVariableType intervalStart, const StateType &amp;initialState, const TimeStepType minimumStepSize, const TimeStepType maximumStepSize, const typename StateType::Scalar relativeErrorTolerance, const typename StateType::Scalar absoluteErrorTolerance, const TimeStepType safetyFactorForNextStepSize=0.8, const TimeStepType maximumFactorIncreaseForNextStepSize=4.0, const TimeStepType minimumFactorDecreaseForNextStepSize=0.1, const NewStepSizeFunction &amp;newStepSizeFunction=0)</argsstring>
+        <name>RungeKuttaVariableStepSizeIntegrator</name>
+        <param>
+          <type>const <ref refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients" kindref="compound">RungeKuttaCoefficients</ref> &amp;</type>
+          <declname>coefficients</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1af14688890a16e581771f63f0e2909b46" kindref="member">StateDerivativeFunction</ref> &amp;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>intervalStart</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const typename StateType::Scalar</type>
+          <declname>relativeErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const typename StateType::Scalar</type>
+          <declname>absoluteErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>safetyFactorForNextStepSize</declname>
+          <defval>0.8</defval>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>maximumFactorIncreaseForNextStepSize</declname>
+          <defval>4.0</defval>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>minimumFactorDecreaseForNextStepSize</declname>
+          <defval>0.1</defval>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ad7d933c5f4d6c5dc9bad88b1ee9ca78d" kindref="member">NewStepSizeFunction</ref> &amp;</type>
+          <declname>newStepSizeFunction</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor, taking coefficients a state derivative function, initial conditions, minimum &amp; maximum step size and relative &amp; absolute error tolerance for all items in the state vector as argument. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficients to use with this integrator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State derivative function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>intervalStart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The start of the integration interval. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The initial state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The minimum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the minimum value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The maximum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the maximum value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The relative error tolerance, equal for all individual state vector elements. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The absolute error tolerance, equal for all individual state vector elements. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>safetyFactorForNextStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Safety factor used to scale prediction of next step size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumFactorIncreaseForNextStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum factor increase for next step size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumFactorDecreaseForNextStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum factor decrease for next step size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>newStepSizeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns the new step size computed, default: <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aee5769dc33ea0be10f5e3bf7db9db720" kindref="member">RungeKuttaVariableStepSizeIntegrator::computeNewStepSize</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" kindref="member">NumericalIntegrator::NumericalIntegrator</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="186" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="186" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a807a5c85cf8731c2b46849ec5775f04e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>TimeStepType</type>
+        <definition>virtual TimeStepType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getNextStepSize</definition>
+        <argsstring>() const</argsstring>
+        <name>getNextStepSize</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ab8b38ad002b10d53adf7b2c2282a86cc">getNextStepSize</reimplements>
+        <briefdescription>
+<para>Get step size of the next step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the step size of the next step. <simplesect kind="return"><para>Step size to be used for the next step. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="230" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="230" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a6d28551c418dc40ebb9706ab0c006109" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>StateType</type>
+        <definition>virtual StateType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getCurrentState</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a90b09d8d6a9b07d495bfabe9122748a1">getCurrentState</reimplements>
+        <briefdescription>
+<para>Get current state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current state of the integrator. <simplesect kind="return"><para>Current integrated state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="237" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="237" bodyend="237"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ace2c1ae855737053ffcc331009daa550" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>IndependentVariableType</type>
+        <definition>virtual IndependentVariableType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getCurrentIndependentVariable</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentIndependentVariable</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a8ca318a39081842472ccd1a165ec06a4">getCurrentIndependentVariable</reimplements>
+        <briefdescription>
+<para>Get current independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current value of the independent variable of the integrator. <simplesect kind="return"><para>Current independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="244" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="244" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ae12f7cb2247bb43af9f24d303e6a30c5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; StateDerivativeType &gt;</type>
+        <definition>std::vector&lt; StateDerivativeType &gt; tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getCurrentStateDerivatives</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentStateDerivatives</name>
+        <briefdescription>
+<para>Get current state derivatives. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current state derivatives, i.e., the values of k_{i} (stage evaluations) in Runge-Kutta scheme. <simplesect kind="return"><para>Current state derivatives evaluated according to stages of Runge-Kutta scheme. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="255" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="255" bodyend="258"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a34e884253297c9bfb17d756c36510cc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::performIntegrationStep</definition>
+        <argsstring>(const TimeStepType stepSize)</argsstring>
+        <name>performIntegrationStep</name>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>stepSize</declname>
+        </param>
+        <briefdescription>
+<para>Perform a single integration step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Perform a single integration step and compute a new step size. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The step size to take. If the time step is too large to satisfy the error constraints, the step is redone until the error constraint is satisfied. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The state at the end of the interval. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="267" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="509" bodyend="585"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a71350bc154120adfd9cf9871618eaf22" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::rollbackToPreviousState</definition>
+        <argsstring>()</argsstring>
+        <name>rollbackToPreviousState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a87d34e8535b55d430a511fb7e345dc2b">rollbackToPreviousState</reimplements>
+        <briefdescription>
+<para>Rollback internal state to the last state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Performs rollback of the internal state to the last state. This function can only be called once after calling <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" kindref="member">integrateTo( )</ref> or <ref refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a34e884253297c9bfb17d756c36510cc4" kindref="member">performIntegrationStep( )</ref> unless specified otherwise by implementations, and can not be called before any of these functions have been called. Will return true if the rollback was successful, and false otherwise. <simplesect kind="return"><para>True if the rollback was successful. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="277" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="277" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1af51b8f64fd8e7ecf55c1f4861aebcb93" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getPreviousIndependentVariable</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousIndependentVariable</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a5a1c2e20cb6ca8ddcb51bab3b1c5bc39">getPreviousIndependentVariable</reimplements>
+        <briefdescription>
+<para>Get previous independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the previoius value of the independent variable of the integrator. <simplesect kind="return"><para>Previous independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="294" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="294" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a36e63198b45f138a068ecc4a65c7337a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getPreviousState</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a83ea0ccadf61e7d630ea692b4f8454a8">getPreviousState</reimplements>
+        <briefdescription>
+<para>Get previous state value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the previous value of the state. <simplesect kind="return"><para>Previous state </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="304" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="304" bodyend="307"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ab610879fd4a6138ba05ef37876c0a463" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::modifyCurrentState</definition>
+        <argsstring>(const StateType &amp;newState, const bool allowRollback=false)</argsstring>
+        <name>modifyCurrentState</name>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>newState</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>allowRollback</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Replace the state with a new value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Replace the state with a new value. This allows for discrete jumps in the state, often used in simulations of discrete events. In astro, this relates to simulations of rocket staging, impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either set the flag to true, or store the state before calling this function the first time, and call it again with the initial state as parameter to revert to the state before the discrete change. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The value of the new state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>allowRollback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether roll-back should be allowed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="319" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="319" bodyend="326"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a0e42f15afa66b758df942359a9c542d3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::modifyCurrentIntegrationVariables</definition>
+        <argsstring>(const StateType &amp;newState, const IndependentVariableType newTime, const bool allowRollback=false)</argsstring>
+        <name>modifyCurrentIntegrationVariables</name>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>newState</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>newTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>allowRollback</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Modify the state and time for the current step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Modify the state and time for the current step. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The new state to set the current state to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>newTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The time to set the current time to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>allowRollback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether roll-back should be allowed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="335" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="335" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aa0d952cb990ed2b968323410d34724be" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setStepSizeControl</definition>
+        <argsstring>(const bool useStepSizeControl)</argsstring>
+        <name>setStepSizeControl</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aeb76143b70710fa15543fc3df7d5e132">setStepSizeControl</reimplements>
+        <param>
+          <type>const bool</type>
+          <declname>useStepSizeControl</declname>
+        </param>
+        <briefdescription>
+<para>Function to toggle the use of step-size control. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to toggle the use of step-size control <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>useStepSizeControl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether step size control is to be used </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="351" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="351" bodyend="354"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a2074aa4b30e623e505c990f12161a388" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::computeNextStepSizeAndValidateResult</definition>
+        <argsstring>(const StateType &amp;lowerOrderEstimate, const StateType &amp;higherOrderEstimate, const TimeStepType stepSize)</argsstring>
+        <name>computeNextStepSizeAndValidateResult</name>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>lowerOrderEstimate</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>higherOrderEstimate</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>stepSize</declname>
+        </param>
+        <briefdescription>
+<para>Computes the next step size and validates the result. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute the next step size and validate the result.</para>
+<para>Computes the next step size based on a higher and lower order estimate, determines if the error is within bounds and returns a new step size. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lowerOrderEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The integrated result with the lower order coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>higherOrderEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The integrated result with the higher order coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The step size used to obtain these results. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if the error was within bounds, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="367" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="591" bodyend="651"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aee5769dc33ea0be10f5e3bf7db9db720" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::pair&lt; TimeStepType, bool &gt;</type>
+        <definition>std::pair&lt; TimeStepType, bool &gt; tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::computeNewStepSize</definition>
+        <argsstring>(const TimeStepType stepSize, const std::pair&lt; TimeStepType, TimeStepType &gt; &amp;orders, const TimeStepType safetyFactorForNextStepSize, const std::pair&lt; TimeStepType, TimeStepType &gt; &amp;minimumAndMaximumFactorsForNextStepSize, const StateType &amp;relativeErrorTolerance, const StateType &amp;absoluteErrorTolerance, const StateType &amp;lowerOrderEstimate, const StateType &amp;higherOrderEstimate)</argsstring>
+        <name>computeNewStepSize</name>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>stepSize</declname>
+        </param>
+        <param>
+          <type>const std::pair&lt; TimeStepType, TimeStepType &gt; &amp;</type>
+          <declname>orders</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>safetyFactorForNextStepSize</declname>
+        </param>
+        <param>
+          <type>const std::pair&lt; TimeStepType, TimeStepType &gt; &amp;</type>
+          <declname>minimumAndMaximumFactorsForNextStepSize</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>relativeErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>absoluteErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>lowerOrderEstimate</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>higherOrderEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Compute new step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the new step size based on a generic definition of the local truncation error. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integration step size of current step. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>orders</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of lower and higher orders of the two schemes used in variable step size integration. Note that the order is important (lower first, higher second). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>safetyFactorForNextStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Safety factor used to scale prediction of next step size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumAndMaximumFactorsForNextStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of minimum and maximum safety factor decrease and increase for computing the next step size. Note that the order is important (minimum first, maximum second). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allowable relative error between integrations using two schemes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allowable relative error between integrations using two schemes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lowerOrderEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Numerical integration result using lower order scheme. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>higherOrderEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Numerical integration result using higher order scheme. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair with new step size and a boolean denoting whether the step size computation was succesfull, i.e. whether tolerances etc. are met.</para>
+</simplesect>
+Computes the new step size based on a generic definition of the local truncation error. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="390" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="660" bodyend="703"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class that implements the Runge-Kutta variable stepsize integrator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class that implements the Runge-Kutta variable step size integrator. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>StateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the state. This type should be an Eigen::Matrix derived type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>StateDerivativeType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the state derivative. This type should be an Eigen::Matrix derived type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the independent variable. This type should be either a float or double. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator</ref>. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::numerical_integrators::NumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator"/>
+      </node>
+      <node id="1">
+        <label>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::numerical_integrators::RungeKuttaCoefficients</label>
+        <link refid="structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients"/>
+      </node>
+      <node id="3">
+        <label>tudat::numerical_integrators::NumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator"/>
+      </node>
+      <node id="1">
+        <label>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>coefficients_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" line="50" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h" bodystart="53" bodyend="498"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aac2980ff2ed5a6a44333cf7843b7fa39" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>absoluteErrorTolerance_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1afa92d7f9d7befc0d9586040ad848c70c" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>coefficients_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aee5769dc33ea0be10f5e3bf7db9db720" prot="protected" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>computeNewStepSize</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a2074aa4b30e623e505c990f12161a388" prot="protected" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>computeNextStepSizeAndValidateResult</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ac89db3054b7e21a3b7ff4dc700d71cfb" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>currentIndependentVariable_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a17dc1f0cc72f56c31931142f8d8b87eb" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>currentState_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a3c76b8be3eea0bd6c4d31a8aae391030" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>currentStateDerivatives_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ace2c1ae855737053ffcc331009daa550" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>getCurrentIndependentVariable</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a6d28551c418dc40ebb9706ab0c006109" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>getCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ae12f7cb2247bb43af9f24d303e6a30c5" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>getCurrentStateDerivatives</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a807a5c85cf8731c2b46849ec5775f04e" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>getNextStepSize</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1af51b8f64fd8e7ecf55c1f4861aebcb93" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>getPreviousIndependentVariable</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a36e63198b45f138a068ecc4a65c7337a" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>getPreviousState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a04532c99a84b6a68247c7134fbdb43ed" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>getPropagationTerminationConditionReached</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abe7509347b34000520da61da0e090c47" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>getStateDerivativeFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>integrateTo</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a338e09348505c5e33dd5fa3ab4903d43" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>lastIndependentVariable_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a745206698dbef0aa6f9b8ac959be2d03" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>lastState_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ab8745acd627400550b7e00c1ba6c12dd" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>maximumFactorIncreaseForNextStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ac8bdeabe449addaf3dd481396dc71481" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>maximumStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ae478abe53ab327c5a8e4f8ca978123f6" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>minimumFactorDecreaseForNextStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a7055fda3b282fa93820597e2e7ee1f81" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>minimumStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a0e42f15afa66b758df942359a9c542d3" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>modifyCurrentIntegrationVariables</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a1730c343a1fdb730ff4e576c1144657e" prot="public" virt="virtual" ambiguityscope="ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;::"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>modifyCurrentIntegrationVariables</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ab610879fd4a6138ba05ef37876c0a463" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>modifyCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a64080c154d27dc673784b289deb1eb57" prot="public" virt="virtual" ambiguityscope="ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;::"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>modifyCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ad7d933c5f4d6c5dc9bad88b1ee9ca78d" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>NewStepSizeFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ace984339dfb58e1ced57ab260d9992c2" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>newStepSizeFunction_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>NumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1a156664f177b4a65af665415ed5b7f9e2" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>NumericalIntegratorBase</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a34e884253297c9bfb17d756c36510cc4" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>performIntegrationStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a125da80be4a16cd933707212caefe8a5" prot="public" virt="pure-virtual" ambiguityscope="ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;::"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>performIntegrationStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a3ca1dd274c2cafb901624c5e5600082a" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>propagationTerminationConditionReachedDuringStep_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1acda867c5c181bc9f00c8cab0d8b31a8b" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>propagationTerminationFunction_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1ac48067b658e3213d8cd7c4145dca9338" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>ReinitializableNumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a0ea5ab73d75b211e5f040d11f3a79fcb" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>ReinitializableNumericalIntegratorBase</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ab5106397b1ac1265bbff90dd61d5fa6d" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>relativeErrorTolerance_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a71350bc154120adfd9cf9871618eaf22" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>rollbackToPreviousState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1ac50cd2ef741a2efb8803cff8b5d0283d" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>RungeKuttaVariableStepSizeIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1afce25655a78ccac5a2909749351f8ccb" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>RungeKuttaVariableStepSizeIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aaf907ca159430a0419af1303d308679a" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>safetyFactorForNextStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aa1fa7e7a16150c2fd79e6daba5765644" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>setPropagationTerminationFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1aa0d952cb990ed2b968323410d34724be" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>setStepSizeControl</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1af14688890a16e581771f63f0e2909b46" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>StateDerivativeFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a9da0d5b84797f0f84783447c6b6cffcf" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>stateDerivativeFunction_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a43038f69dbf2e852b547dec2085e5a45" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>stepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1a1f29b885ce7bcda247d979bd8a5077b6" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>useStepSizeControl_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abaa3ce86883c7bc620b6473500557ccb" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>~NumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1ae5c26328c8f3017f136bb5c4bdb72eef" prot="public" virt="virtual"><scope>tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator</scope><name>~ReinitializableNumericalIntegrator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

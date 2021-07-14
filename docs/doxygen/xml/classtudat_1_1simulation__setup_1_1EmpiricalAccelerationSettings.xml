@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::EmpiricalAccelerationSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1AccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AccelerationSettings</basecompoundref>
+    <includes refid="accelerationSettings_8h" local="no">accelerationSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings_1ac3bbd55158af545c5aceada857e4fec9" prot="public" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::EmpiricalAccelerationSettings::constantAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>constantAcceleration_</name>
+        <briefdescription>
+<para>Acceleration (in RSW frame) that is constant. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="286" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="286" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings_1a1e21914e4a57dff22bababfc2d39257d" prot="public" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::EmpiricalAccelerationSettings::sineAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>sineAcceleration_</name>
+        <briefdescription>
+<para>Acceleration (in RSW frame) that scales with sine of true anomaly. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="289" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="289" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings_1ad3ce72686a210c62809693035cb7c1aa" prot="public" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::EmpiricalAccelerationSettings::cosineAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>cosineAcceleration_</name>
+        <briefdescription>
+<para>Acceleration (in RSW frame) that scales with cosine of true anomaly. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="292" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="292" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings_1aa56359b7edcd6e44917d98d793b56710" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::EmpiricalAccelerationSettings::EmpiricalAccelerationSettings</definition>
+        <argsstring>(const Eigen::Vector3d &amp;constantAcceleration=Eigen::Vector3d::Zero(), const Eigen::Vector3d &amp;sineAcceleration=Eigen::Vector3d::Zero(), const Eigen::Vector3d &amp;cosineAcceleration=Eigen::Vector3d::Zero())</argsstring>
+        <name>EmpiricalAccelerationSettings</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>constantAcceleration</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>sineAcceleration</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>cosineAcceleration</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>constantAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Acceleration (in RSW frame) that is constant </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Acceleration (in RSW frame) that scales with sine of true anomaly </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Acceleration (in RSW frame) that scales with cosine of true anomaly </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="276" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="276" bodyend="283"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for empirical accelerations. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::EmpiricalAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::EmpiricalAccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="265" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="266" bodyend="294"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a61a6c91bf73a293adb523ebe2b71f379" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::EmpiricalAccelerationSettings</scope><name>AccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1aaf1f7742077003cf7055c96ec934e4d8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::EmpiricalAccelerationSettings</scope><name>accelerationType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings_1ac3bbd55158af545c5aceada857e4fec9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::EmpiricalAccelerationSettings</scope><name>constantAcceleration_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings_1ad3ce72686a210c62809693035cb7c1aa" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::EmpiricalAccelerationSettings</scope><name>cosineAcceleration_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings_1aa56359b7edcd6e44917d98d793b56710" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::EmpiricalAccelerationSettings</scope><name>EmpiricalAccelerationSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EmpiricalAccelerationSettings_1a1e21914e4a57dff22bababfc2d39257d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::EmpiricalAccelerationSettings</scope><name>sineAcceleration_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AccelerationSettings_1a66bf9df8526ebaf6ed16a1100811a3ef" prot="public" virt="virtual"><scope>tudat::simulation_setup::EmpiricalAccelerationSettings</scope><name>~AccelerationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

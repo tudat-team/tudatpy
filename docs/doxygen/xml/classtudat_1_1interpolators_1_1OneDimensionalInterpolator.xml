@@ -1,0 +1,581 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::interpolators::OneDimensionalInterpolator</compoundname>
+    <basecompoundref refid="classtudat_1_1interpolators_1_1Interpolator" prot="public" virt="non-virtual">tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1interpolators_1_1CubicSplineInterpolator" prot="public" virt="non-virtual">tudat::interpolators::CubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator" prot="public" virt="non-virtual">tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator" prot="public" virt="non-virtual">tudat::interpolators::JumpDataLinearInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1interpolators_1_1LagrangeInterpolator" prot="public" virt="non-virtual">tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1interpolators_1_1LinearInterpolator" prot="public" virt="non-virtual">tudat::interpolators::LinearInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator" prot="public" virt="non-virtual">tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</derivedcompoundref>
+    <includes refid="oneDimensionalInterpolator_8h" local="no">oneDimensionalInterpolator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+      <param>
+        <type>typename DependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1f1471fffc3f6f0b33f8ca44108e9dec" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1LookUpScheme" kindref="compound">LookUpScheme</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; LookUpScheme&lt; IndependentVariableType &gt; &gt; tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::lookUpScheme_</definition>
+        <argsstring></argsstring>
+        <name>lookUpScheme_</name>
+        <briefdescription>
+<para>Pointer to look up scheme. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to the lookup scheme that is used to determine in which interval the requested independent variable value falls. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="339" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="339" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; IndependentVariableType &gt;</type>
+        <definition>std::vector&lt; IndependentVariableType &gt; tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::independentValues_</definition>
+        <argsstring></argsstring>
+        <name>independentValues_</name>
+        <briefdescription>
+<para>Vector with independent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector with independent variables. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="345" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="345" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; DependentVariableType &gt;</type>
+        <definition>std::vector&lt; DependentVariableType &gt; tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::dependentValues_</definition>
+        <argsstring></argsstring>
+        <name>dependentValues_</name>
+        <briefdescription>
+<para>Vector with dependent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector with dependent variables. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="351" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="351" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a5667535e45f5768ae46dd3b7d8895434" prot="protected" static="no" mutable="no">
+        <type><ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+        <definition>BoundaryInterpolationType tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::boundaryHandling_</definition>
+        <argsstring></argsstring>
+        <name>boundaryHandling_</name>
+        <briefdescription>
+<para>Behavior of interpolator when independent variable is outside range. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Behavior of interpolator when independent variable is outside range. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="357" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="357" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a0cf25b829669d7e1bede2ea4f0677bcd" prot="protected" static="no" mutable="no">
+        <type>std::pair&lt; DependentVariableType, DependentVariableType &gt;</type>
+        <definition>std::pair&lt; DependentVariableType, DependentVariableType &gt; tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::defaultExtrapolationValue_</definition>
+        <argsstring></argsstring>
+        <name>defaultExtrapolationValue_</name>
+        <briefdescription>
+<para>Default value to be used for extrapolation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default value to be used for extrapolation. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="363" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="363" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a49ff8a3d4870f4651d576abe48654ed2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::OneDimensionalInterpolator</definition>
+        <argsstring>(const BoundaryInterpolationType boundaryHandling=extrapolate_at_boundary, const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;defaultExtrapolationValue=std::make_pair(IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;(), IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;()))</argsstring>
+        <name>OneDimensionalInterpolator</name>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+          <defval>extrapolate_at_boundary</defval>
+        </param>
+        <param>
+          <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval>std::make_pair(<ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;(), <ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;())</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method, in case the independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of default values to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="55" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="55" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a83cc44f27902300df59e43ad9bb04e37" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::OneDimensionalInterpolator</definition>
+        <argsstring>(const BoundaryInterpolationType boundaryHandling, const DependentVariableType &amp;defaultExtrapolationValue)</argsstring>
+        <name>OneDimensionalInterpolator</name>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+        </param>
+        <param>
+          <type>const DependentVariableType &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method in case independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Default value to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="71" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="71" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad359d0d7a6f229fb9f65260cb3bd2779" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::~OneDimensionalInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>~OneDimensionalInterpolator</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="81" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="81" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aaf340e39d13f8b31cab6887b48427918" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>DependentVariableType</type>
+        <definition>virtual DependentVariableType tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::interpolate</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentVariableValues)</argsstring>
+        <name>interpolate</name>
+        <reimplements refid="classtudat_1_1interpolators_1_1Interpolator_1a0b8c3f199c7a2297928936f00790f190">interpolate</reimplements>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentVariableValues</declname>
+        </param>
+        <briefdescription>
+<para>Function to perform interpolation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function performs the interpolation. It calls the function that takes a single independent variable value, which is to be implemented in derived classes. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of values of independent variables at which the value of the dependent variable is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value of dependent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="92" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="92" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1756cce160465357493e18221aa49dee" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>DependentVariableType</type>
+        <definition>virtual DependentVariableType tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::interpolate</definition>
+        <argsstring>(const IndependentVariableType independentVariableValue)=0</argsstring>
+        <name>interpolate</name>
+        <reimplementedby refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator_1a87cb2aad07cd8cf61643f4fc070fa793">interpolate</reimplementedby>
+        <reimplementedby refid="classtudat_1_1interpolators_1_1LinearInterpolator_1af693119bb532933f08f1c4a813072040">interpolate</reimplementedby>
+        <reimplementedby refid="classtudat_1_1interpolators_1_1CubicSplineInterpolator_1a81ec99d79a07248afe3523dcf668e00b">interpolate</reimplementedby>
+        <reimplementedby refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a3f82bb48c7218d7c7ed53ea86ad4e679">interpolate</reimplementedby>
+        <reimplementedby refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1ada90e5c75857ef9246d582d24c74fc85">interpolate</reimplementedby>
+        <reimplementedby refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_1a74b0575d1afe7c135a834c80bd23043d">interpolate</reimplementedby>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>independentVariableValue</declname>
+        </param>
+        <briefdescription>
+<para>Function to perform interpolation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function performs the interpolation <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variable value at which the value of the dependent variable is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value of dependent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="112" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1c2938974e40dd7b48bc6fd42cc7a1cb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::interpolateNonConst</definition>
+        <argsstring>(IndependentVariableType independentVariableValue)</argsstring>
+        <name>interpolateNonConst</name>
+        <param>
+          <type>IndependentVariableType</type>
+          <declname>independentVariableValue</declname>
+        </param>
+        <briefdescription>
+<para>Function to perform interpolation, with non-const input argument. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function performs the interpolation, with non-const input argument. Function calls the interpolate function and is included for compatibility with some function pointer binding interfaces. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variable value at which the value of the dependent variable is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value of dependent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="123" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="123" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a149d4201dc4869276bd2961d17e5acdd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::getNumberOfDimensions</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfDimensions</name>
+        <reimplements refid="classtudat_1_1interpolators_1_1Interpolator_1a2fec09b3d811b2399d9abce5c8917b5a">getNumberOfDimensions</reimplements>
+        <briefdescription>
+<para>Function to return the number of independent variables of the interpolation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the number of independent variables of the interpolation, which is always equal to 1 for this class and its derived class. <simplesect kind="return"><para>Number of independent variables of the interpolation (1). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="134" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="134" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae2f2a3c4a9838b33add5dac14f69f86f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1LookUpScheme" kindref="compound">LookUpScheme</ref>&lt; IndependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; LookUpScheme&lt; IndependentVariableType &gt; &gt; tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::getLookUpScheme</definition>
+        <argsstring>()</argsstring>
+        <name>getLookUpScheme</name>
+        <briefdescription>
+<para>Function to return the lookup scheme used by the interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the lookup scheme used by the interpolator. <simplesect kind="return"><para>The lookup scheme used by the interpolator. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="144" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="144" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ab6b15e16220ddf2f5896c37afb1d1e05" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; IndependentVariableType &gt;</type>
+        <definition>std::vector&lt; IndependentVariableType &gt; tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::getIndependentValues</definition>
+        <argsstring>()</argsstring>
+        <name>getIndependentValues</name>
+        <briefdescription>
+<para>Function to return the ector with independent variables used by the interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the ector with independent variables used by the interpolator. <simplesect kind="return"><para>Independent variables used by the interpolator. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="154" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="154" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad0b73292c984422f5dd2164d3dbda3ff" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; DependentVariableType &gt;</type>
+        <definition>std::vector&lt; DependentVariableType &gt; tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::getDependentValues</definition>
+        <argsstring>()</argsstring>
+        <name>getDependentValues</name>
+        <briefdescription>
+<para>Function to return the ector with dependent variables used by the interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the ector with dependent variables used by the interpolator. <simplesect kind="return"><para>Dependent variables used by the interpolator. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="164" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="164" bodyend="167"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad81400f48dbbc749680975d4ba4ae0de" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::checkInterpolationBoundary</definition>
+        <argsstring>(const IndependentVariableType &amp;targetIndependentVariable)</argsstring>
+        <name>checkInterpolationBoundary</name>
+        <param>
+          <type>const IndependentVariableType &amp;</type>
+          <declname>targetIndependentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to return the condition of the current independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the condition of the current independent variable, i.e. whether the variable is within, above or below its defined range range. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>targetIndependentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable (i.e., the one that is to be checked for boundary handling). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Condition with respect to boundary. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="178" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="178" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae6db7b6475e9c91eeaa00a0d3e546977" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::checkBoundaryCase</definition>
+        <argsstring>(DependentVariableType &amp;dependentVariable, bool &amp;useValue, const IndependentVariableType &amp;targetIndependentVariable)</argsstring>
+        <name>checkBoundaryCase</name>
+        <param>
+          <type>DependentVariableType &amp;</type>
+          <declname>dependentVariable</declname>
+        </param>
+        <param>
+          <type>bool &amp;</type>
+          <declname>useValue</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType &amp;</type>
+          <declname>targetIndependentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to check whether boundary handling needs to be applied, depending on method chosen. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to check whether boundary handling needs to be applied, depending on method chosen. If independent variable is beyond its range definition, boundary handling will be applied, depending on the method specified in boundaryHandling_. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dependentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of dependent variable at boundary (only used in case of use_boundary_value setting). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean that specifies whether the boundary value (i.e., dependentVariable) is to be used, instead of interpolating. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetIndependentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable (i.e., the one that is to be checked for boundary handling). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="201" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="201" bodyend="298"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1abc218f1803c7f54fad3e0e71d625c764" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::makeLookupScheme</definition>
+        <argsstring>(const AvailableLookupScheme selectedScheme)</argsstring>
+        <name>makeLookupScheme</name>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedScheme</declname>
+        </param>
+        <briefdescription>
+<para>Make look-up scheme that is to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function creates the look-up scheme that is to be used in determining the interval of the independent variable grid where the interpolation is to be performed. It takes the type of lookup scheme as an enum and constructs the look-up scheme from the independentValues_ that have been set previously. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>selectedScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of look-up scheme that is to be used </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="308" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="308" bodyend="332"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for interpolator with one independent variable. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for the interpolators in one independent variable included in Tudat. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of independent variable(s) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of dependent variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5">
+        <label>tudat::interpolators::JumpDataLinearInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1JumpDataLinearInterpolator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="8">
+        <label>tudat::interpolators::PiecewiseConstantInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1LagrangeInterpolator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::interpolators::CubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1CubicSplineInterpolator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat::interpolators::LinearInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1LinearInterpolator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="1">
+        <label>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" line="40" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/oneDimensionalInterpolator.h" bodystart="41" bodyend="365"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a5667535e45f5768ae46dd3b7d8895434" prot="protected" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>boundaryHandling_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae6db7b6475e9c91eeaa00a0d3e546977" prot="protected" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>checkBoundaryCase</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad81400f48dbbc749680975d4ba4ae0de" prot="protected" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>checkInterpolationBoundary</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a0cf25b829669d7e1bede2ea4f0677bcd" prot="protected" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>defaultExtrapolationValue_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" prot="protected" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>dependentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad0b73292c984422f5dd2164d3dbda3ff" prot="public" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>getDependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ab6b15e16220ddf2f5896c37afb1d1e05" prot="public" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>getIndependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae2f2a3c4a9838b33add5dac14f69f86f" prot="public" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>getLookUpScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a149d4201dc4869276bd2961d17e5acdd" prot="public" virt="virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>getNumberOfDimensions</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" prot="protected" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>independentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aaf340e39d13f8b31cab6887b48427918" prot="public" virt="virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1756cce160465357493e18221aa49dee" prot="public" virt="pure-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1c2938974e40dd7b48bc6fd42cc7a1cb" prot="public" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>interpolateNonConst</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1f1471fffc3f6f0b33f8ca44108e9dec" prot="protected" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>lookUpScheme_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1abc218f1803c7f54fad3e0e71d625c764" prot="protected" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>makeLookupScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a49ff8a3d4870f4651d576abe48654ed2" prot="public" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a83cc44f27902300df59e43ad9bb04e37" prot="public" virt="non-virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1Interpolator_1ac6359fc3104b07fb6cac0b3b3221cc3d" prot="public" virt="virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>~Interpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad359d0d7a6f229fb9f65260cb3bd2779" prot="public" virt="virtual"><scope>tudat::interpolators::OneDimensionalInterpolator</scope><name>~OneDimensionalInterpolator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,195 @@
+\hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling}{}\doxysection{tudat\+::observation\+\_\+partials\+::One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling Class Reference}
+\label{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling}\index{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+
+
+Class to compute the state partial scaling factors for first-\/order proper time component of one-\/way Doppler observables.  
+
+
+
+
+{\ttfamily \#include $<$one\+Way\+Doppler\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a0c9dddbc99a060665f034aa186deb2d1}{One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface}{observation\+\_\+models\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface}} $>$ proper\+Time\+Rate\+Model, const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+With\+Partial, const bool compute\+State\+Partials)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a7e6136a4f6630f93be0362656ab17041}{update}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&link\+End\+States, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type fixed\+Link\+End, const Eigen\+::\+Vector\+Xd current\+Observation)
+\begin{DoxyCompactList}\small\item\em Update the scaling object to the current times and states. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, 1, 3 $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a6fdda3c2332f8b7e4a0a668ca726d1bd}{get\+Position\+Scaling\+Factor}} (const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Type)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the scaling factor for the derivative w.\+r.\+t. the position of a given link end. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, 1, 3 $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a130ca846ef0f04e4b1cb943acb7c2a56}{get\+Velocity\+Scaling\+Factor}} (const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Type)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the scaling factor for the derivative w.\+r.\+t. the velocity of a given link end. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_ad3686d13493280e0f3e916b394d0fc57}{get\+Equivalence\+Principle\+Violation\+Parameter\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Function to compute partial of proper time rate w.\+r.\+t. equivalence principle violation parameter. \end{DoxyCompactList}\item 
+std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 1, Eigen\+::\+Dynamic $>$, double $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a315ebe7e441c6adc9104ce5726c75078}{get\+Proper\+Time\+Parameter\+Partial}} (const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier parameter\+Type)
+\begin{DoxyCompactList}\small\item\em Function to get the direct partial derivative, and associated time, of proper time. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a4b9763d0a513b7e2151e44c59bbf37c4}{get\+Parameter\+Dependency\+Size}} (const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier parameter\+Type)
+\begin{DoxyCompactList}\small\item\em Function to get the size of the direct dependency of proper time rate on parameter. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the state partial scaling factors for first-\/order proper time component of one-\/way Doppler observables. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a0c9dddbc99a060665f034aa186deb2d1}\label{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a0c9dddbc99a060665f034aa186deb2d1}} 
+\index{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}!OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+\index{OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{OneWayDopplerDirectFirstOrderProperTimeComponentScaling}!tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+\doxysubsubsection{\texorpdfstring{OneWayDopplerDirectFirstOrderProperTimeComponentScaling()}{OneWayDopplerDirectFirstOrderProperTimeComponentScaling()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface}{observation\+\_\+models\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface}} $>$}]{proper\+Time\+Rate\+Model,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+With\+Partial,  }\item[{const bool}]{compute\+State\+Partials }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em proper\+Time\+Rate\+Model} & Object used to compute proper time rate \\
+\hline
+{\em link\+End\+With\+Partial} & Link end for which this partial is created \\
+\hline
+{\em compute\+State\+Partials} & Boolean to denote whether state partials are to be computed. It is false if the link end for which this object computes the proper time partials is fixed to the perturbing body. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_ad3686d13493280e0f3e916b394d0fc57}\label{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_ad3686d13493280e0f3e916b394d0fc57}} 
+\index{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}!getEquivalencePrincipleViolationParameterPartial@{getEquivalencePrincipleViolationParameterPartial}}
+\index{getEquivalencePrincipleViolationParameterPartial@{getEquivalencePrincipleViolationParameterPartial}!tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+\doxysubsubsection{\texorpdfstring{getEquivalencePrincipleViolationParameterPartial()}{getEquivalencePrincipleViolationParameterPartial()}}
+{\footnotesize\ttfamily double tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling\+::get\+Equivalence\+Principle\+Violation\+Parameter\+Partial (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute partial of proper time rate w.\+r.\+t. equivalence principle violation parameter. 
+
+Function to compute partial of proper time rate w.\+r.\+t. equivalence principle violation parameter \begin{DoxyReturn}{Returns}
+Partial of proper time rate w.\+r.\+t. equivalence principle violation parameter 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a4b9763d0a513b7e2151e44c59bbf37c4}\label{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a4b9763d0a513b7e2151e44c59bbf37c4}} 
+\index{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}!getParameterDependencySize@{getParameterDependencySize}}
+\index{getParameterDependencySize@{getParameterDependencySize}!tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+\doxysubsubsection{\texorpdfstring{getParameterDependencySize()}{getParameterDependencySize()}}
+{\footnotesize\ttfamily int tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling\+::get\+Parameter\+Dependency\+Size (\begin{DoxyParamCaption}\item[{const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier}]{parameter\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to get the size of the direct dependency of proper time rate on parameter. 
+
+Function to get the size of the direct dependency (e.\+g. independent of state dependency) of proper time rate on parameter. Returns zero for no dependency. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Type} & Parameter for which dependency is to be checked. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of columns in direct partial derivative of proper time rates w.\+r.\+t. parameter\+Type 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling_a52edb943368b1dd98bf7a8b4761249df}{tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Proper\+Time\+Component\+Scaling}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a6fdda3c2332f8b7e4a0a668ca726d1bd}\label{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a6fdda3c2332f8b7e4a0a668ca726d1bd}} 
+\index{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}!getPositionScalingFactor@{getPositionScalingFactor}}
+\index{getPositionScalingFactor@{getPositionScalingFactor}!tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+\doxysubsubsection{\texorpdfstring{getPositionScalingFactor()}{getPositionScalingFactor()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix$<$ double, 1, 3 $>$ tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling\+::get\+Position\+Scaling\+Factor (\begin{DoxyParamCaption}\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to retrieve the scaling factor for the derivative w.\+r.\+t. the position of a given link end. 
+
+Function to retrieve the scaling factor for the derivative w.\+r.\+t. the position of a given link end 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+Type} & Link end position for which partial scaling is to be retrieved. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The scaling factor for the derivative w.\+r.\+t. the position of a given link end 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling_a00eb6bdd7aea72642d0f1a722cf0b8c6}{tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Proper\+Time\+Component\+Scaling}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a315ebe7e441c6adc9104ce5726c75078}\label{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a315ebe7e441c6adc9104ce5726c75078}} 
+\index{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}!getProperTimeParameterPartial@{getProperTimeParameterPartial}}
+\index{getProperTimeParameterPartial@{getProperTimeParameterPartial}!tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+\doxysubsubsection{\texorpdfstring{getProperTimeParameterPartial()}{getProperTimeParameterPartial()}}
+{\footnotesize\ttfamily std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 1, Eigen\+::\+Dynamic $>$, double $>$ tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling\+::get\+Proper\+Time\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier}]{parameter\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to get the direct partial derivative, and associated time, of proper time. 
+
+Function to get the direct partial derivative (e.\+g. independent of state partials), and associated time, of proper time, w.\+r.\+t. parameter defined by parameter\+Type. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Type} & Parameter for which partial is to be checked \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Direct partial derivative, and associated time, of proper time rate 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling_ab23bca0c2a44fd6a5456d6e810638f66}{tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Proper\+Time\+Component\+Scaling}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a130ca846ef0f04e4b1cb943acb7c2a56}\label{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a130ca846ef0f04e4b1cb943acb7c2a56}} 
+\index{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}!getVelocityScalingFactor@{getVelocityScalingFactor}}
+\index{getVelocityScalingFactor@{getVelocityScalingFactor}!tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+\doxysubsubsection{\texorpdfstring{getVelocityScalingFactor()}{getVelocityScalingFactor()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix$<$ double, 1, 3 $>$ tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling\+::get\+Velocity\+Scaling\+Factor (\begin{DoxyParamCaption}\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to retrieve the scaling factor for the derivative w.\+r.\+t. the velocity of a given link end. 
+
+Function to retrieve the scaling factor for the derivative w.\+r.\+t. the velocity of a given link end 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+Type} & Link end velocity for which partial scaling is to be retrieved. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The scaling factor for the derivative w.\+r.\+t. the velocity of a given link end 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling_a38aec56dc1c491a845a5b457163d0d0c}{tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Proper\+Time\+Component\+Scaling}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a7e6136a4f6630f93be0362656ab17041}\label{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a7e6136a4f6630f93be0362656ab17041}} 
+\index{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}!update@{update}}
+\index{update@{update}!tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling@{tudat::observation\_partials::OneWayDopplerDirectFirstOrderProperTimeComponentScaling}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling\+::update (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{link\+End\+States,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{fixed\+Link\+End,  }\item[{const Eigen\+::\+Vector\+Xd}]{current\+Observation }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Update the scaling object to the current times and states. 
+
+Update the scaling object to the current times and states 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+States} & List of states at each link end during observation. \\
+\hline
+{\em times} & List of times at each link end during observation. \\
+\hline
+{\em fixed\+Link\+End} & Link end at which observation time is defined, i.\+e. link end for which associated time is kept constant when computing observable. \\
+\hline
+{\em current\+Observation} & Value of observation (proper time rate) for which partial scaling is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling_a7bf12506127c4527eacae23c6a9cf469}{tudat\+::observation\+\_\+partials\+::\+Position\+Partial\+Scaling}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/one\+Way\+Doppler\+Partial.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/observation\+\_\+partials/one\+Way\+Doppler\+Partial.\+cpp\end{DoxyCompactItemize}

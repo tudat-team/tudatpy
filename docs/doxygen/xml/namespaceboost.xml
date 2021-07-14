@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespaceboost" kind="namespace" language="C++">
+    <compoundname>boost</compoundname>
+    <innernamespace refid="namespaceboost_1_1filesystem">boost::filesystem</innernamespace>
+    <innernamespace refid="namespaceboost_1_1iostreams">boost::iostreams</innernamespace>
+    <innernamespace refid="namespaceboost_1_1math">boost::math</innernamespace>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceboost_1aa147589a771b3bcf4e69b4ea50af6e7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>tudat::observation_models::ObservableType</type>
+        <definition>tudat::basic_astrodynamics::EmpiricalAccelerationComponents boost::lexical_cast</definition>
+        <argsstring>(const std::string &amp;s)</argsstring>
+        <name>lexical_cast</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation/observation.cpp" line="528" column="43" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation/observation.cpp" bodystart="528" bodyend="531" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/estimation/observation.h" declline="219" declcolumn="43"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1ae292d4152226c8645b605083d51cb295" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>std::string</type>
+        <definition>std::string boost::lexical_cast</definition>
+        <argsstring>(const tudat::observation_models::ObservableType &amp;component)</argsstring>
+        <name>lexical_cast</name>
+        <param>
+          <type>const tudat::observation_models::ObservableType &amp;</type>
+          <declname>component</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation/observation.cpp" line="534" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation/observation.cpp" bodystart="534" bodyend="537" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/estimation/observation.h" declline="223" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1a55608adbcba0eecba7d9e16b041b0007" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>std::string</type>
+        <definition>std::string boost::lexical_cast</definition>
+        <argsstring>(const tudat::observation_models::LinkEndType &amp;component)</argsstring>
+        <name>lexical_cast</name>
+        <param>
+          <type>const tudat::observation_models::LinkEndType &amp;</type>
+          <declname>component</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation/observation.cpp" line="547" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation/observation.cpp" bodystart="547" bodyend="550" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/estimation/observation.h" declline="231" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1a663c19903ef9510b63deb77b0e1e9670" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>std::string</type>
+        <definition>std::string boost::lexical_cast</definition>
+        <argsstring>(const tudat::observation_models::LinkEnds &amp;component)</argsstring>
+        <name>lexical_cast</name>
+        <param>
+          <type>const tudat::observation_models::LinkEnds &amp;</type>
+          <declname>component</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation/observation.cpp" line="579" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/estimation/observation.cpp" bodystart="579" bodyend="593" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/estimation/observation.h" declline="238" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="namespaceboost_1abc9272e3e0a0670e905dbc9469bbea0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>std::string</type>
+        <definition>std::string boost::lexical_cast</definition>
+        <argsstring>(const tudat::basic_astrodynamics::EmpiricalAccelerationComponents &amp;component)</argsstring>
+        <name>lexical_cast</name>
+        <param>
+          <type>const tudat::basic_astrodynamics::EmpiricalAccelerationComponents &amp;</type>
+          <declname>component</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/propagation/acceleration.cpp" line="213" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/propagation/acceleration.cpp" bodystart="213" bodyend="216" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/acceleration.h" declline="144" declcolumn="13"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This macro imports the correct boost namespace for percent_tolerance. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This macro imports the namespace where the boost function percent_tolerance resides. Because this function has been moved around, it imports multiple locations. Since some don&apos;t exist in older boost versions, some must be created first. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/testMacros.h" line="52" column="1"/>
+  </compounddef>
+</doxygen>

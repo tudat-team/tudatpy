@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_c184e51c84f2c3f0345bbc8a0d75d3e1" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io</compoundname>
+    <innerfile refid="aerodynamicCoefficientReader_8cpp">aerodynamicCoefficientReader.cpp</innerfile>
+    <innerfile refid="basicInputOutput_8cpp">basicInputOutput.cpp</innerfile>
+    <innerfile refid="dictionaryComparer_8cpp">dictionaryComparer.cpp</innerfile>
+    <innerfile refid="dictionaryTools_8cpp">dictionaryTools.cpp</innerfile>
+    <innerfile refid="extractSolarActivityData_8cpp">extractSolarActivityData.cpp</innerfile>
+    <innerfile refid="fieldValue_8cpp">fieldValue.cpp</innerfile>
+    <innerfile refid="fixedWidthParser_8cpp">fixedWidthParser.cpp</innerfile>
+    <innerfile refid="linearFieldTransform_8cpp">linearFieldTransform.cpp</innerfile>
+    <innerfile refid="matrixTextFileReader_8cpp">matrixTextFileReader.cpp</innerfile>
+    <innerfile refid="missileDatcomData_8cpp">missileDatcomData.cpp</innerfile>
+    <innerfile refid="missileDatcomReader_8cpp">missileDatcomReader.cpp</innerfile>
+    <innerfile refid="multiDimensionalArrayReader_8cpp">multiDimensionalArrayReader.cpp</innerfile>
+    <innerfile refid="parsedDataVectorUtilities_8cpp">parsedDataVectorUtilities.cpp</innerfile>
+    <innerfile refid="parseSolarActivityData_8cpp">parseSolarActivityData.cpp</innerfile>
+    <innerfile refid="separatedParser_8cpp">separatedParser.cpp</innerfile>
+    <innerfile refid="solarActivityData_8cpp">solarActivityData.cpp</innerfile>
+    <innerfile refid="streamFilters_8cpp">streamFilters.cpp</innerfile>
+    <innerfile refid="tabulatedAtmosphereReader_8cpp">tabulatedAtmosphereReader.cpp</innerfile>
+    <innerfile refid="textParser_8cpp">textParser.cpp</innerfile>
+    <innerfile refid="twoLineElementData_8cpp">twoLineElementData.cpp</innerfile>
+    <innerfile refid="twoLineElementsTextFileReader_8cpp">twoLineElementsTextFileReader.cpp</innerfile>
+    <innerfile refid="util_8cpp">util.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,221 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Estimatable\+Parameter$<$ Parameter\+Type $>$ Class Template Reference}
+\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+
+
+Base class for a parameter that is to be estimated.  
+
+
+
+
+{\ttfamily \#include $<$estimatable\+Parameter.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a4012bde7f5f26c5c590c0a149283dd4d}{Estimatable\+Parameter}} (const Estimateble\+Parameters\+Enum parameter\+Name, const std\+::string \&associated\+Body, const std\+::string \&point\+On\+Body\+Id=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a211a379e14476e36a7693f43be29cb11}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a211a379e14476e36a7693f43be29cb11}} 
+virtual \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a211a379e14476e36a7693f43be29cb11}{$\sim$\+Estimatable\+Parameter}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual Parameter\+Type \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{get\+Parameter\+Value}} ()=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function to retrieve the value of the parameter. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{set\+Parameter\+Value}} (const Parameter\+Type parameter\+Value)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function to (re)set the value of the parameter. \end{DoxyCompactList}\item 
+Estimateble\+Parameter\+Identifier \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a23de3d6116f1414d5bb905f1b523cfdc}{get\+Parameter\+Name}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the type and associated body of the parameter. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5c264285d7e3ce9ce1452928ad8e7425}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5c264285d7e3ce9ce1452928ad8e7425}} 
+virtual std\+::string {\bfseries get\+Parameter\+Description} ()
+\item 
+virtual int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{get\+Parameter\+Size}} ()=0
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter. \end{DoxyCompactList}\item 
+virtual std\+::string \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_ae97f1a8ef867dcaf72ceeb5050e64629}{get\+Secondary\+Identifier}} ()
+\begin{DoxyCompactList}\small\item\em Function to return additional identifier for parameter. \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_af7db7b4da27ca2787b0090c409087cd7}{get\+Constraint\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve size of constraint to be applied on parameter. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a9c6c6514f75b2efdbd30cc2292fa3d0f}{get\+Constraint\+State\+Multipler}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve multiplier for parameter linear constraint. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_adc670898ad79d02d23cfcf82b5578ed0}{get\+Constraint\+Right\+Hand\+Side}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve right-\/hand side for parameter linear constraint. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a3d43d2db730c707b789768dad4de5ae6}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a3d43d2db730c707b789768dad4de5ae6}} 
+Estimateble\+Parameter\+Identifier \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a3d43d2db730c707b789768dad4de5ae6}{parameter\+Name\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Identifier of parameter. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Parameter\+Type$>$\newline
+class tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Parameter\+Type $>$}
+
+Base class for a parameter that is to be estimated. 
+
+Base class for a parameter that is to be estimated. A separate derived class is to be made for each type of parameter (i.\+e. gravitational parameter, initial translational state, etc. ). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a4012bde7f5f26c5c590c0a149283dd4d}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a4012bde7f5f26c5c590c0a149283dd4d}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!EstimatableParameter@{EstimatableParameter}}
+\index{EstimatableParameter@{EstimatableParameter}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{EstimatableParameter()}{EstimatableParameter()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{Estimatable\+Parameter}} (\begin{DoxyParamCaption}\item[{const Estimateble\+Parameters\+Enum}]{parameter\+Name,  }\item[{const std\+::string \&}]{associated\+Body,  }\item[{const std\+::string \&}]{point\+On\+Body\+Id = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor taking parameter name and associated body. All parameters are identified by a these two variables. Any additional information that may be required for uniquely defining a parameter is to be defined in the derived class. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Name} & Enum value defining the type of the parameter. \\
+\hline
+{\em associated\+Body} & Name of body associated with patameters \\
+\hline
+{\em point\+On\+Body\+Id} & Reference point on body associated with parameter (empty by default). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_adc670898ad79d02d23cfcf82b5578ed0}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_adc670898ad79d02d23cfcf82b5578ed0}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!getConstraintRightHandSide@{getConstraintRightHandSide}}
+\index{getConstraintRightHandSide@{getConstraintRightHandSide}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getConstraintRightHandSide()}{getConstraintRightHandSide()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+virtual Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::get\+Constraint\+Right\+Hand\+Side (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve right-\/hand side for parameter linear constraint. 
+
+Function to retrieve right-\/hand side for parameter linear constraint, empty by default. Can be overridden in derived class \begin{DoxyReturn}{Returns}
+Right-\/hand side for parameter linear constraint 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_a1978f76e0f82687a1eafdd3e591dfaea}{tudat\+::estimatable\+\_\+parameters\+::\+Initial\+Rotational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_af7db7b4da27ca2787b0090c409087cd7}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_af7db7b4da27ca2787b0090c409087cd7}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!getConstraintSize@{getConstraintSize}}
+\index{getConstraintSize@{getConstraintSize}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getConstraintSize()}{getConstraintSize()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+virtual int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::get\+Constraint\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve size of constraint to be applied on parameter. 
+
+Function to retrieve size of constraint to be applied on parameter, zero by default. Can be overridden in derived class \begin{DoxyReturn}{Returns}
+Size of constraint to be applied on parameter 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_a0f14d7d78dd018757312b7a9fa698cd2}{tudat\+::estimatable\+\_\+parameters\+::\+Initial\+Rotational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a9c6c6514f75b2efdbd30cc2292fa3d0f}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a9c6c6514f75b2efdbd30cc2292fa3d0f}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!getConstraintStateMultipler@{getConstraintStateMultipler}}
+\index{getConstraintStateMultipler@{getConstraintStateMultipler}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getConstraintStateMultipler()}{getConstraintStateMultipler()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+virtual Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::get\+Constraint\+State\+Multipler (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve multiplier for parameter linear constraint. 
+
+Function to retrieve multiplier for parameter linear constraint, empty by default. Can be overridden in derived class \begin{DoxyReturn}{Returns}
+Multiplier for parameter linear constraint 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_a634a0384110a8bc0de021c4c47de286f}{tudat\+::estimatable\+\_\+parameters\+::\+Initial\+Rotational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a23de3d6116f1414d5bb905f1b523cfdc}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a23de3d6116f1414d5bb905f1b523cfdc}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!getParameterName@{getParameterName}}
+\index{getParameterName@{getParameterName}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getParameterName()}{getParameterName()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+Estimateble\+Parameter\+Identifier \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::get\+Parameter\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the type and associated body of the parameter. 
+
+Function to retrieve the type and associated body of the parameter. \begin{DoxyReturn}{Returns}
+Identifier of parameter as a pair of parameter type and body of which parameter is a property. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+virtual int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function to retrieve the size of the parameter. 
+
+Pure virtual function to retrieve the size of the parameter (i.\+e. 1 for double parameters) \begin{DoxyReturn}{Returns}
+Size of parameter value. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_a2759cf3ed2b33dffd603dc7db24f5419}{tudat\+::estimatable\+\_\+parameters\+::\+Tidal\+Love\+Number$<$ Parameter\+Scalar $>$}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_a2759cf3ed2b33dffd603dc7db24f5419}{tudat\+::estimatable\+\_\+parameters\+::\+Tidal\+Love\+Number$<$ Eigen\+::\+Vector\+Xd $>$}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a6bc279795f8d3018b578a0bc519607d9}{tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a321eb698efe3468fd266620fa426b042}{tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_a2f465736205161cca2bb70245a0ade3d}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Radiation\+Pressure\+Coefficient}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_ae7282eeffa763137a4d633d7dec4e10f}{tudat\+::estimatable\+\_\+parameters\+::\+Radiation\+Pressure\+Coefficient}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PPNParameterBeta_a28f469182f443f50c31965ce9bc78849}{tudat\+::estimatable\+\_\+parameters\+::\+PPNParameter\+Beta}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PPNParameterGamma_a9507783ac9f0d3706ea51011ba6307eb}{tudat\+::estimatable\+\_\+parameters\+::\+PPNParameter\+Gamma}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PolarMotionAmplitude_a9f37fab18ee2c49c17d4ee7e27e98b5c}{tudat\+::estimatable\+\_\+parameters\+::\+Polar\+Motion\+Amplitude}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PeriodicSpinVariation_ae53c7e05fb873d624339ed6eaf31b68b}{tudat\+::estimatable\+\_\+parameters\+::\+Periodic\+Spin\+Variation}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a1ab5c19cc04a0e3690180afcfbc57561}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasParameter_a3125e461b2a6c89232ee9835a6f185d3}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Observation\+Bias\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1MeanMomentOfInertiaParameter_a86e83b46ecc9b9e7ca1cd96da706a5e1}{tudat\+::estimatable\+\_\+parameters\+::\+Mean\+Moment\+Of\+Inertia\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a5aff78af8fdeee8022a692fab7464ab4}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_af5ed822fe6786c76b9d522ad37230fb1}{tudat\+::estimatable\+\_\+parameters\+::\+Initial\+Translational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_a5dc2bfb0044b84f5e6f0871d51fda7e9}{tudat\+::estimatable\+\_\+parameters\+::\+Initial\+Rotational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_ab7f862c3bed081deb13c6f70f7aa80ba}{tudat\+::estimatable\+\_\+parameters\+::\+Ground\+Station\+Position}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a2ba9a012c83544ca802ff58044c6bb78}{tudat\+::estimatable\+\_\+parameters\+::\+Gravitational\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a9d43e919537ea6967336933c385ded03}{tudat\+::estimatable\+\_\+parameters\+::\+Free\+Core\+Nutation\+Rate}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EquivalencePrincipleLpiViolationParameter_a988df59f9d629b91dffc247e73d51978}{tudat\+::estimatable\+\_\+parameters\+::\+Equivalence\+Principle\+Lpi\+Violation\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseEmpiricalAccelerationCoefficientsParameter_a0e5c61bee2b306624c33843714a3a60c}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Empirical\+Acceleration\+Coefficients\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_aaf2dd846801e345b6999bcbe00ca8394}{tudat\+::estimatable\+\_\+parameters\+::\+Empirical\+Acceleration\+Coefficients\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a25a7399c3ff4d7f09b4bf0cdf2f514f5}{tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DesaturationDeltaV_ad3946ff60f8d48a984670ab41479ff07}{tudat\+::estimatable\+\_\+parameters\+::\+Desaturation\+DeltaV}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1CoreFactor_ad5beffa0ec6fd08528b6835ede619c92}{tudat\+::estimatable\+\_\+parameters\+::\+Core\+Factor}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RotationRate_a9d0c87adc47873d0b8ec3fc59408fa03}{tudat\+::estimatable\+\_\+parameters\+::\+Rotation\+Rate}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantRotationalOrientation_a4222aa85e840c929eda9b6185c35d519}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Rotational\+Orientation}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseConstantDragCoefficient_a4efa86e69922a912fbe79b286fa79aa5}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Constant\+Drag\+Coefficient}}, and \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantDragCoefficient_a3ac3bccfcfa4a1a68cfc00fd1badf7d2}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Drag\+Coefficient}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+virtual Parameter\+Type \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function to retrieve the value of the parameter. 
+
+Pure virtual function to retrieve the value of the parameter \begin{DoxyReturn}{Returns}
+Current value of parameter. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a9bb507095f70908d1991a9073384f932}{tudat\+::estimatable\+\_\+parameters\+::\+Single\+Degree\+Variable\+Tidal\+Love\+Number}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_a2e8a0ea3fb367c4d2c8811fbf9527a32}{tudat\+::estimatable\+\_\+parameters\+::\+Full\+Degree\+Tidal\+Love\+Number}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_a7f35c3406fdf98248ae2093dc10293e0}{tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_af6d41ec450351355acfc0926a1f48c45}{tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_a2c03c0e1056504f84bc431fef5754619}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Radiation\+Pressure\+Coefficient}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_a1ff0890df59c45352030750744f9d121}{tudat\+::estimatable\+\_\+parameters\+::\+Radiation\+Pressure\+Coefficient}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PPNParameterBeta_a6f6301aa850874f613e8e6e6929ed7e0}{tudat\+::estimatable\+\_\+parameters\+::\+PPNParameter\+Beta}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PPNParameterGamma_abbd64a6c7f0fed881d477ff7c100a1a3}{tudat\+::estimatable\+\_\+parameters\+::\+PPNParameter\+Gamma}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PolarMotionAmplitude_aab997f7733d77a74df762e014f941825}{tudat\+::estimatable\+\_\+parameters\+::\+Polar\+Motion\+Amplitude}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PeriodicSpinVariation_a613dfe93987cb6ce8cc319db418be79b}{tudat\+::estimatable\+\_\+parameters\+::\+Periodic\+Spin\+Variation}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a361577529520f9a590f289c5e7282d1c}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasParameter_a8faafedfd68991cf3521eeb5183f9cd6}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Observation\+Bias\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1MeanMomentOfInertiaParameter_abf4f7bcf4784692df61eec31bb9575bd}{tudat\+::estimatable\+\_\+parameters\+::\+Mean\+Moment\+Of\+Inertia\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a877e0d957a05682f144360e0c56f83e0}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_a127b7255f01047b7e25b44ffa8a15870}{tudat\+::estimatable\+\_\+parameters\+::\+Initial\+Translational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1InitialRotationalStateParameter_aa14db93f1f9ec8116a0d509d8187c317}{tudat\+::estimatable\+\_\+parameters\+::\+Initial\+Rotational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a3b972d18c791d4da8009d8a76e69b39c}{tudat\+::estimatable\+\_\+parameters\+::\+Ground\+Station\+Position}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a86a5d5c5cbc0c898525a0cc8385d931e}{tudat\+::estimatable\+\_\+parameters\+::\+Gravitational\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_aa70f3314110c8e9e47e23c25facb26e1}{tudat\+::estimatable\+\_\+parameters\+::\+Free\+Core\+Nutation\+Rate}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EquivalencePrincipleLpiViolationParameter_a6c8af1876306e86ca559902bc80e1ccc}{tudat\+::estimatable\+\_\+parameters\+::\+Equivalence\+Principle\+Lpi\+Violation\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseEmpiricalAccelerationCoefficientsParameter_a7f0068498d268837e48f3e34e73b5597}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Empirical\+Acceleration\+Coefficients\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_a54e901322c00dff181a2a941d6d7b1a3}{tudat\+::estimatable\+\_\+parameters\+::\+Empirical\+Acceleration\+Coefficients\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a3d8c1778af68733e619c2d48fe60878d}{tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DesaturationDeltaV_a380ca625bad2879125b441e993933f09}{tudat\+::estimatable\+\_\+parameters\+::\+Desaturation\+DeltaV}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1CoreFactor_abfafa6d00e45db9577779f8016dddebf}{tudat\+::estimatable\+\_\+parameters\+::\+Core\+Factor}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RotationRate_ac024f33645b293e73cb610f402e7a7ee}{tudat\+::estimatable\+\_\+parameters\+::\+Rotation\+Rate}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantRotationalOrientation_ae5d7a223838d362632d8e1ac95833a88}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Rotational\+Orientation}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseConstantDragCoefficient_a93a38883ed7577213d90f5d561ccf9b4}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Constant\+Drag\+Coefficient}}, and \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantDragCoefficient_a49bed98aad7116b0629ecacc5325209f}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Drag\+Coefficient}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_ae97f1a8ef867dcaf72ceeb5050e64629}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_ae97f1a8ef867dcaf72ceeb5050e64629}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!getSecondaryIdentifier@{getSecondaryIdentifier}}
+\index{getSecondaryIdentifier@{getSecondaryIdentifier}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getSecondaryIdentifier()}{getSecondaryIdentifier()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+virtual std\+::string \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::get\+Secondary\+Identifier (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return additional identifier for parameter. 
+
+Function to return additional identifier for parameter, beyond information stored in parameter\+Name\+\_\+, default none. \begin{DoxyReturn}{Returns}
+Additional identifier for parameter (default empty string). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}\label{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}} 
+\index{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$@{tudat::estimatable\_parameters::EstimatableParameter$<$ ParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Parameter\+Type $>$\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{const Parameter\+Type}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function to (re)set the value of the parameter. 
+
+Pure virtual function to (re)set the value of the parameter. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & to which the parameter is to be set. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a85b751090ced3f376ec5692c2513b8d8}{tudat\+::estimatable\+\_\+parameters\+::\+Single\+Degree\+Variable\+Tidal\+Love\+Number}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_afbc1e32c0ba9c2a096ed5e4d599484cf}{tudat\+::estimatable\+\_\+parameters\+::\+Full\+Degree\+Tidal\+Love\+Number}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseRadiationPressureCoefficient_a32501e76464402fd47786bab8d82cdb1}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Radiation\+Pressure\+Coefficient}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a331a08debdeae06fbd6df6f9dccf7691}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantObservationBiasParameter_a64f0883c15afa97929581b1906d4fc15}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Observation\+Bias\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a02250330b056d7d1767eb4a2234fe4c3}{tudat\+::estimatable\+\_\+parameters\+::\+Ground\+Station\+Position}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseEmpiricalAccelerationCoefficientsParameter_a730907137b8392f54d4aa4c34d900e48}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Empirical\+Acceleration\+Coefficients\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationCoefficientsParameter_af3c2e8a279c112d4d85e6bf1331bb618}{tudat\+::estimatable\+\_\+parameters\+::\+Empirical\+Acceleration\+Coefficients\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DesaturationDeltaV_ae83dbc1b42cf37a92c1968d33f0d6450}{tudat\+::estimatable\+\_\+parameters\+::\+Desaturation\+DeltaV}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseConstantDragCoefficient_af1717bf91a891dfbaa23c076f1a5c56a}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Constant\+Drag\+Coefficient}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_afa6dd3600b17a9d92c64c804e3596319}{tudat\+::estimatable\+\_\+parameters\+::\+Radiation\+Pressure\+Coefficient}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PPNParameterBeta_a8a56cc897b6724bcd36bdcfa3f090513}{tudat\+::estimatable\+\_\+parameters\+::\+PPNParameter\+Beta}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PPNParameterGamma_a2d4852df13fee38dd2145d28ca7838de}{tudat\+::estimatable\+\_\+parameters\+::\+PPNParameter\+Gamma}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1MeanMomentOfInertiaParameter_aafa402f3075e04733c3ee3e54db341d2}{tudat\+::estimatable\+\_\+parameters\+::\+Mean\+Moment\+Of\+Inertia\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_ab1610caa2f08b3b4988d56f60ab9ac89}{tudat\+::estimatable\+\_\+parameters\+::\+Gravitational\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EquivalencePrincipleLpiViolationParameter_a5020fc6739c3f3946afc0daa740b984a}{tudat\+::estimatable\+\_\+parameters\+::\+Equivalence\+Principle\+Lpi\+Violation\+Parameter}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a0ae0156463bb15faa2fbec0297d03ca6}{tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RotationRate_afad73852fa105de2616b9be5c607f489}{tudat\+::estimatable\+\_\+parameters\+::\+Rotation\+Rate}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantDragCoefficient_a8be6a8cd0423f7ff7c1d054ee9b9d70c}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Drag\+Coefficient}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsSineCoefficients_addf046d353ecbacb2564945ef44e7a42}{tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Sine\+Coefficients}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a83b148618a4198a251bf8c651c19427b}{tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PolarMotionAmplitude_afd89453f79b2034936875b238d314e69}{tudat\+::estimatable\+\_\+parameters\+::\+Polar\+Motion\+Amplitude}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1PeriodicSpinVariation_a43cb27332c16453de26bcc45a449a8d2}{tudat\+::estimatable\+\_\+parameters\+::\+Periodic\+Spin\+Variation}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ConstantRotationalOrientation_a7bd1cbe847e0d1db60c8cd8e3f6c5943}{tudat\+::estimatable\+\_\+parameters\+::\+Constant\+Rotational\+Orientation}}, \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1FreeCoreNutationRate_a77780ab05404b6d8e7d74976835c7dc1}{tudat\+::estimatable\+\_\+parameters\+::\+Free\+Core\+Nutation\+Rate}}, and \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1CoreFactor_ae72c6b3531073f8090372f39c1ec6210}{tudat\+::estimatable\+\_\+parameters\+::\+Core\+Factor}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/estimatable\+Parameter.\+h\end{DoxyCompactItemize}

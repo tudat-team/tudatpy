@@ -1,0 +1,777 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1shape__based__methods" kind="namespace" language="C++">
+    <compoundname>tudat::shape_based_methods</compoundname>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" prot="public">tudat::shape_based_methods::BaseFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ConstantFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1SineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::SineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1CosineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::CosineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ExponentialFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ScaledExponentialFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ExponentialSineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ExponentialSineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialSineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ScaledExponentialSineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ExponentialCosineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ExponentialCosineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ScaledExponentialCosineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ScaledExponentialCosineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShaping" prot="public">tudat::shape_based_methods::PowerFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ScaledPowerFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ScaledPowerFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::PowerSineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ScaledPowerSineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ScaledPowerSineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerCosineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::PowerCosineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ScaledPowerCosineFunctionHodographicShaping" prot="public">tudat::shape_based_methods::ScaledPowerCosineFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping" prot="public">tudat::shape_based_methods::BaseFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping" prot="public">tudat::shape_based_methods::ConstantFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1LinearFunctionSphericalShaping" prot="public">tudat::shape_based_methods::LinearFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1SquaredFunctionSphericalShaping" prot="public">tudat::shape_based_methods::SquaredFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1CosineFunctionSphericalShaping" prot="public">tudat::shape_based_methods::CosineFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerCosineFunctionSphericalShaping" prot="public">tudat::shape_based_methods::PowerCosineFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1SineFunctionSphericalShaping" prot="public">tudat::shape_based_methods::SineFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerSineFunctionSphericalShaping" prot="public">tudat::shape_based_methods::PowerSineFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionHodographicShaping" prot="public">tudat::shape_based_methods::CompositeFunctionHodographicShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1CompositeFunctionSphericalShaping" prot="public">tudat::shape_based_methods::CompositeFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1CompositeRadialFunctionSphericalShaping" prot="public">tudat::shape_based_methods::CompositeRadialFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1CompositeElevationFunctionSphericalShaping" prot="public">tudat::shape_based_methods::CompositeElevationFunctionSphericalShaping</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::PowerFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::PowerTimesTrigonometricFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1HodographicShaping" prot="public">tudat::shape_based_methods::HodographicShaping</innerclass>
+    <innerclass refid="structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem" prot="public">tudat::shape_based_methods::FixedTimeHodographicShapingOptimisationProblem</innerclass>
+    <innerclass refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem" prot="public">tudat::shape_based_methods::HodographicShapingOptimisationProblem</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ShapeBasedMethod" prot="public">tudat::shape_based_methods::ShapeBasedMethod</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1SphericalShaping" prot="public">tudat::shape_based_methods::SphericalShaping</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667" prot="public" static="no" strong="no">
+        <type></type>
+        <name>baseFunctionHodographicShapingType</name>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667ae902d7767c6d39203d2684b8ab9dd069" prot="public">
+          <name>constant</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667af68c1b74abc3f881b1dd51d09a1963f6" prot="public">
+          <name>sine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667af8b68d1d6582ecbaf43b95ebd1a2cc49" prot="public">
+          <name>cosine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667ad8d390396a0e07064d7a2395a516da4f" prot="public">
+          <name>exponential</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667a752dd3646fa977827cbf4d8db02b5a49" prot="public">
+          <name>scaledExponential</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667ad75b054725f6a28373b7c00a43972219" prot="public">
+          <name>exponentialSine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667aff4b85950845ed58461b5aa31423176b" prot="public">
+          <name>scaledExponentialSine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667a07cb4159031adc877d19835a141b2a41" prot="public">
+          <name>exponentialCosine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667ae987ddcf0ee3633a07c20e9514d237db" prot="public">
+          <name>scaledExponentialCosine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667ad74042d77e967f6fa9ebc9bb802025ab" prot="public">
+          <name>power</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667ac486063bb868f3ef20b07d91fbc2c4b5" prot="public">
+          <name>scaledPower</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667a150823ddc66dcd08d732f97f73828720" prot="public">
+          <name>powerCosine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667ada76b1e0a0edf16a1185c5586916a53d" prot="public">
+          <name>scaledPowerCosine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667acdf10b44b8601dfa34906e3504b2cb9e" prot="public">
+          <name>powerSine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsHodographicShaping_8h_1a579dd82b8b4f136aa575a39b6773d667ad05492fdcb5ea0c70a90035bfcd96ccb" prot="public">
+          <name>scaledPowerSine</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="23" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="24" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="enum" id="baseFunctionsSphericalShaping_8h_1a7d960ae1ad75f95cb0569117c56b2f20" prot="public" static="no" strong="no">
+        <type></type>
+        <name>baseFunctionSphericalShapingType</name>
+        <enumvalue id="baseFunctionsSphericalShaping_8h_1a7d960ae1ad75f95cb0569117c56b2f20a48b857e776d9ddf1e78a52876414a3ef" prot="public">
+          <name>constantSphericalShaping</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsSphericalShaping_8h_1a7d960ae1ad75f95cb0569117c56b2f20a91a1ce6eff97c673a656187574907ef3" prot="public">
+          <name>linearSphericalShaping</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsSphericalShaping_8h_1a7d960ae1ad75f95cb0569117c56b2f20a86d4e16654e72a8422b3b6b1469efc16" prot="public">
+          <name>squaredSphericalShaping</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsSphericalShaping_8h_1a7d960ae1ad75f95cb0569117c56b2f20a8de1f347a57cf2729e16e50f9c7cf65e" prot="public">
+          <name>cosineSphericalShaping</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsSphericalShaping_8h_1a7d960ae1ad75f95cb0569117c56b2f20a7856052f071f8d17e90cab40ff121810" prot="public">
+          <name>powerCosineSphericalShaping</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsSphericalShaping_8h_1a7d960ae1ad75f95cb0569117c56b2f20a16780e56501f2dfcb593d320aa32e02a" prot="public">
+          <name>sineSphericalShaping</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="baseFunctionsSphericalShaping_8h_1a7d960ae1ad75f95cb0569117c56b2f20a65c16c87792e2e2f487e9beaec1b8ba1" prot="public">
+          <name>powerSineSphericalShaping</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="23" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="24" bodyend="32"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a9f724604affff59b79f45bbbf6dc9afe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographConstant</definition>
+        <argsstring>()</argsstring>
+        <name>hodographConstant</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="525" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="525" bodyend="528"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1ad08679d3b8ba50d675a672bea3802663" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographSine</definition>
+        <argsstring>(double frequency)</argsstring>
+        <name>hodographSine</name>
+        <param>
+          <type>double</type>
+          <declname>frequency</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="530" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="530" bodyend="533"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a1cb6d273225c9f41086f1c53156694da" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographCosine</definition>
+        <argsstring>(double frequency)</argsstring>
+        <name>hodographCosine</name>
+        <param>
+          <type>double</type>
+          <declname>frequency</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="535" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="535" bodyend="538"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a6e117cfc0606722b7f464b6bd9565438" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographExponential</definition>
+        <argsstring>(double exponent)</argsstring>
+        <name>hodographExponential</name>
+        <param>
+          <type>double</type>
+          <declname>exponent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="540" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="540" bodyend="543"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a055c299c766c1f9b2b42bd02440cb684" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographScaledExponential</definition>
+        <argsstring>(double exponent, double scaleFactor)</argsstring>
+        <name>hodographScaledExponential</name>
+        <param>
+          <type>double</type>
+          <declname>exponent</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>scaleFactor</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="545" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="545" bodyend="548"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a8be8e2840fae7c5450141bfdbee8bdc6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographExponentialSine</definition>
+        <argsstring>(double exponentExponentialFunction, double frequencySineFunction)</argsstring>
+        <name>hodographExponentialSine</name>
+        <param>
+          <type>double</type>
+          <declname>exponentExponentialFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>frequencySineFunction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="550" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="550" bodyend="553"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a6c88a7dab6aacd96921ddb63258dabd7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographScaledExponentialSine</definition>
+        <argsstring>(double exponentExponentialFunction, double frequencySineFunction, double scaleFactor)</argsstring>
+        <name>hodographScaledExponentialSine</name>
+        <param>
+          <type>double</type>
+          <declname>exponentExponentialFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>frequencySineFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>scaleFactor</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="555" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="555" bodyend="558"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1afa7faaa244b4f382e3e2fc9153478484" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographExponentialCosine</definition>
+        <argsstring>(double exponentExponentialFunction, double frequencySineFunction)</argsstring>
+        <name>hodographExponentialCosine</name>
+        <param>
+          <type>double</type>
+          <declname>exponentExponentialFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>frequencySineFunction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="560" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="560" bodyend="563"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a89f02ecbccc06bdb9ba4ad82de24cd1d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographScaledExponentialCosine</definition>
+        <argsstring>(double exponentExponentialFunction, double frequencyCosineFunction, double scaleFactor)</argsstring>
+        <name>hodographScaledExponentialCosine</name>
+        <param>
+          <type>double</type>
+          <declname>exponentExponentialFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>frequencyCosineFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>scaleFactor</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="565" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="565" bodyend="568"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a58a7ca173755b3890ed3bb7d2881535f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographPower</definition>
+        <argsstring>(double exponent)</argsstring>
+        <name>hodographPower</name>
+        <param>
+          <type>double</type>
+          <declname>exponent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="570" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="570" bodyend="573"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a995f242498d5dbf11d060614bdfff34a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographScaledPower</definition>
+        <argsstring>(double exponent, double scaleFactor)</argsstring>
+        <name>hodographScaledPower</name>
+        <param>
+          <type>double</type>
+          <declname>exponent</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>scaleFactor</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="575" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="575" bodyend="578"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1aab33d023f6199605d9e4bb85ebca90cc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographPowerSine</definition>
+        <argsstring>(double exponentPowerFunction, double frequencySineFunction)</argsstring>
+        <name>hodographPowerSine</name>
+        <param>
+          <type>double</type>
+          <declname>exponentPowerFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>frequencySineFunction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="580" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="580" bodyend="584"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1af77e423f12225a489b40e267ebd84b7f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographScaledPowerSine</definition>
+        <argsstring>(double exponentPowerFunction, double frequencySineFunction, double scaleFactor)</argsstring>
+        <name>hodographScaledPowerSine</name>
+        <param>
+          <type>double</type>
+          <declname>exponentPowerFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>frequencySineFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>scaleFactor</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="586" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="586" bodyend="590"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1abb8e2d57ec5625e619fae91cd7279cd9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographPowerCosine</definition>
+        <argsstring>(double exponentPowerFunction, double frequencyCosineFunction)</argsstring>
+        <name>hodographPowerCosine</name>
+        <param>
+          <type>double</type>
+          <declname>exponentPowerFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>frequencyCosineFunction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="592" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="592" bodyend="596"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsHodographicShaping_8h_1a9827eb774978f12ce5cb195b1783e58d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::hodographScaledPowerCosine</definition>
+        <argsstring>(double exponentPowerFunction, double frequencyCosineFunction, double scaleFactor)</argsstring>
+        <name>hodographScaledPowerCosine</name>
+        <param>
+          <type>double</type>
+          <declname>exponentPowerFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>frequencyCosineFunction</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>scaleFactor</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="598" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" bodystart="598" bodyend="602"/>
+      </memberdef>
+      <memberdef kind="function" id="baseFunctionsSphericalShaping_8h_1aebbb6966e9690917ed7db18d50a27031" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping" kindref="compound">BaseFunctionSphericalShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionSphericalShaping &gt; tudat::shape_based_methods::createBaseFunctionSphericalShaping</definition>
+        <argsstring>(const baseFunctionSphericalShapingType baseFunctionType)</argsstring>
+        <name>createBaseFunctionSphericalShaping</name>
+        <param>
+          <type>const baseFunctionSphericalShapingType</type>
+          <declname>baseFunctionType</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.cpp" line="22" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.cpp" bodystart="22" bodyend="74" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" declline="369" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="createBaseFunctionHodographicShaping_8h_1a9588d6fbd6a760599a60c75f922a4824" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::createBaseFunctionHodographicShaping</definition>
+        <argsstring>(const shape_based_methods::baseFunctionHodographicShapingType baseFunctionType, const std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShapingSettings &gt; baseFunctionSettings)</argsstring>
+        <name>createBaseFunctionHodographicShaping</name>
+        <param>
+          <type>const shape_based_methods::baseFunctionHodographicShapingType</type>
+          <declname>baseFunctionType</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" kindref="compound">shape_based_methods::BaseFunctionHodographicShapingSettings</ref> &gt;</type>
+          <declname>baseFunctionSettings</declname>
+        </param>
+        <briefdescription>
+<para>Function to create a base function for hodographic shaping. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="159" column="17" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" declline="159" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="getRecommendedBaseFunctionsHodographicShaping_8h_1ae7ac4bcc024cec03185dd963f4c92697" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::shape_based_methods::getRecommendedBaseFunctions</definition>
+        <argsstring>(std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;radialVelocityFunctionComponents, std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;normalVelocityFunctionComponents, std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;axialVelocityFunctionComponents, Eigen::VectorXd &amp;freeCoefficientsRadialVelocityFunction, Eigen::VectorXd &amp;freeCoefficientsNormalVelocityFunction, Eigen::VectorXd &amp;freeCoefficientsAxialVelocityFunction, const double timeOfFlight, const int numberOfRevolutions)</argsstring>
+        <name>getRecommendedBaseFunctions</name>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>radialVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>normalVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>axialVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>Eigen::VectorXd &amp;</type>
+          <declname>freeCoefficientsRadialVelocityFunction</declname>
+        </param>
+        <param>
+          <type>Eigen::VectorXd &amp;</type>
+          <declname>freeCoefficientsNormalVelocityFunction</declname>
+        </param>
+        <param>
+          <type>Eigen::VectorXd &amp;</type>
+          <declname>freeCoefficientsAxialVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfRevolutions</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" line="8" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" bodystart="8" bodyend="84" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h" declline="30" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="getRecommendedBaseFunctionsHodographicShaping_8h_1a6b3f3fcde0b512f67cc9911101285c2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::shape_based_methods::getRecommendedRadialVelocityBaseFunctions</definition>
+        <argsstring>(std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;radialVelocityFunctionComponents, Eigen::VectorXd &amp;freeCoefficientsRadialVelocityFunction, const double timeOfFlight)</argsstring>
+        <name>getRecommendedRadialVelocityBaseFunctions</name>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>radialVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>Eigen::VectorXd &amp;</type>
+          <declname>freeCoefficientsRadialVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" line="87" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" bodystart="87" bodyend="114" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h" declline="41" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="getRecommendedBaseFunctionsHodographicShaping_8h_1afa3e2648a57978270cb47a6e71701b5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::shape_based_methods::getRecommendedNormalBaseFunctions</definition>
+        <argsstring>(std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;normalVelocityFunctionComponents, Eigen::VectorXd &amp;freeCoefficientsNormalVelocityFunction, const double timeOfFlight)</argsstring>
+        <name>getRecommendedNormalBaseFunctions</name>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>normalVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>Eigen::VectorXd &amp;</type>
+          <declname>freeCoefficientsNormalVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" line="117" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" bodystart="117" bodyend="145" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h" declline="46" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="getRecommendedBaseFunctionsHodographicShaping_8h_1ac00e87ecf144e5ff12f9263b484be52a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::shape_based_methods::getRecommendedAxialVelocityBaseFunctions</definition>
+        <argsstring>(std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; &amp;axialVelocityFunctionComponents, Eigen::VectorXd &amp;freeCoefficientsAxialVelocityFunction, const double timeOfFlight, const int numberOfRevolutions)</argsstring>
+        <name>getRecommendedAxialVelocityBaseFunctions</name>
+        <param>
+          <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt; &amp;</type>
+          <declname>axialVelocityFunctionComponents</declname>
+        </param>
+        <param>
+          <type>Eigen::VectorXd &amp;</type>
+          <declname>freeCoefficientsAxialVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfRevolutions</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" line="147" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" bodystart="147" bodyend="178" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h" declline="51" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="getRecommendedBaseFunctionsHodographicShaping_8h_1a1252c209d57dd4cecae12a24b82ca644" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; tudat::shape_based_methods::getRecommendedRadialVelocityBaseFunctions</definition>
+        <argsstring>(const double timeOfFlight)</argsstring>
+        <name>getRecommendedRadialVelocityBaseFunctions</name>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" line="180" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" bodystart="180" bodyend="188" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h" declline="58" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="getRecommendedBaseFunctionsHodographicShaping_8h_1a9fc479ababacc129b762eedf9bd706a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; tudat::shape_based_methods::getRecommendedNormalBaseFunctions</definition>
+        <argsstring>(const double timeOfFlight)</argsstring>
+        <name>getRecommendedNormalBaseFunctions</name>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" line="190" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" bodystart="190" bodyend="198" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h" declline="61" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="getRecommendedBaseFunctionsHodographicShaping_8h_1a2e60670e13322fcbb8bd4afdb91ec78c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; tudat::shape_based_methods::getRecommendedAxialVelocityBaseFunctions</definition>
+        <argsstring>(const double timeOfFlight, const int numberOfRevolutions)</argsstring>
+        <name>getRecommendedAxialVelocityBaseFunctions</name>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfRevolutions</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" line="200" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.cpp" bodystart="200" bodyend="209" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h" declline="64" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="createBaseFunctionHodographicShaping_8cpp_1a51a7f242c8696ffb9cfad2219f3af831" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">BaseFunctionHodographicShaping</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; BaseFunctionHodographicShaping &gt; tudat::shape_based_methods::createBaseFunctionHodographicShaping</definition>
+        <argsstring>(const baseFunctionHodographicShapingType baseFunctionType, const std::shared_ptr&lt; BaseFunctionHodographicShapingSettings &gt; baseFunctionSettings)</argsstring>
+        <name>createBaseFunctionHodographicShaping</name>
+        <param>
+          <type>const baseFunctionHodographicShapingType</type>
+          <declname>baseFunctionType</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" kindref="compound">BaseFunctionHodographicShapingSettings</ref> &gt;</type>
+          <declname>baseFunctionSettings</declname>
+        </param>
+        <briefdescription>
+<para>Function to create a base function for hodographic shaping. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.cpp" line="23" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.cpp" bodystart="23" bodyend="296"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h" line="20" column="1"/>
+  </compounddef>
+</doxygen>

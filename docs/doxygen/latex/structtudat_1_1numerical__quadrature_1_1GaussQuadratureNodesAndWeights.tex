@@ -1,0 +1,133 @@
+\hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights}{}\doxysection{tudat\+::numerical\+\_\+quadrature\+::Gauss\+Quadrature\+Nodes\+And\+Weights$<$ Independent\+Variable\+Type $>$ Struct Template Reference}
+\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights}\index{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}}
+
+
+Container object for Gauss quadrature nodes and weights (templated by data variable type, e.\+g. float, double, long double)  
+
+
+
+
+{\ttfamily \#include $<$gaussian\+Quadrature.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}} 
+typedef Eigen\+::\+Array$<$ Independent\+Variable\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}}
+\begin{DoxyCompactList}\small\item\em Typedef for vector of Independent\+Variable\+Type scalar type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a84f8b9d2a9fba2c01a3c9c20bcaf0a2d}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a84f8b9d2a9fba2c01a3c9c20bcaf0a2d}} 
+\mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a84f8b9d2a9fba2c01a3c9c20bcaf0a2d}{Gauss\+Quadrature\+Nodes\+And\+Weights}} ()
+\begin{DoxyCompactList}\small\item\em COnstructor, reads nodes and weights from file. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a30b3e95e0840668fc732c1194a692b9c}{get\+Unique\+Nodes}} (const unsigned int number\+Of\+Nodes)
+\begin{DoxyCompactList}\small\item\em Get the unique nodes for a specified order {\ttfamily n}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a5c65869232fbd9b43f7499b049ee46b1}{get\+Unique\+Weights}} (const unsigned int order)
+\begin{DoxyCompactList}\small\item\em Get the unique weight factors for a specified order. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_aee3543c764e8363697f9a4d9e54ea32b}{get\+Nodes}} (const unsigned int order)
+\begin{DoxyCompactList}\small\item\em Get all the nodes at given order from unique\+Nodes\+\_\+. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a33686bf8c69ba660d39cecd8bb8b48ef}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a33686bf8c69ba660d39cecd8bb8b48ef}} 
+\mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a33686bf8c69ba660d39cecd8bb8b48ef}{get\+Weights}} (const unsigned int n)
+\begin{DoxyCompactList}\small\item\em Get all the weight factors (i.\+e. n weight factors for nth order) from unique\+Weights\+\_\+. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::map$<$ unsigned int, \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} $>$ \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a6510286c9bee76947961078310990eda}{unique\+Nodes\+\_\+}}
+\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a4ff56a1bf3da6ad54b4e7791898872e7}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a4ff56a1bf3da6ad54b4e7791898872e7}} 
+std\+::map$<$ unsigned int, \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} $>$ {\bfseries nodes\+\_\+}
+\item 
+std\+::map$<$ unsigned int, \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} $>$ \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a4b880c468b461825e3d0ac7a82f4cbe0}{unique\+Weights\+\_\+}}
+\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_abd8953f27b7106b0c025635a71b81e79}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_abd8953f27b7106b0c025635a71b81e79}} 
+std\+::map$<$ unsigned int, \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} $>$ {\bfseries weights\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type$>$\newline
+struct tudat\+::numerical\+\_\+quadrature\+::\+Gauss\+Quadrature\+Nodes\+And\+Weights$<$ Independent\+Variable\+Type $>$}
+
+Container object for Gauss quadrature nodes and weights (templated by data variable type, e.\+g. float, double, long double) 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_aee3543c764e8363697f9a4d9e54ea32b}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_aee3543c764e8363697f9a4d9e54ea32b}} 
+\index{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}!getNodes@{getNodes}}
+\index{getNodes@{getNodes}!tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{getNodes()}{getNodes()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+\mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights}{tudat\+::numerical\+\_\+quadrature\+::\+Gauss\+Quadrature\+Nodes\+And\+Weights}}$<$ Independent\+Variable\+Type $>$\+::get\+Nodes (\begin{DoxyParamCaption}\item[{const unsigned int}]{order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get all the nodes at given order from unique\+Nodes\+\_\+. 
+
+Get all the nodes at given order from unique\+Nodes\+\_\+ 
+\begin{DoxyParams}{Parameters}
+{\em order} & The number of nodes or weight factors. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\ttfamily unique\+Weights\+\_\+ at entry order}, after reading the text file with the tabulated nodes if necessary. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a30b3e95e0840668fc732c1194a692b9c}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a30b3e95e0840668fc732c1194a692b9c}} 
+\index{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}!getUniqueNodes@{getUniqueNodes}}
+\index{getUniqueNodes@{getUniqueNodes}!tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{getUniqueNodes()}{getUniqueNodes()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+\mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights}{tudat\+::numerical\+\_\+quadrature\+::\+Gauss\+Quadrature\+Nodes\+And\+Weights}}$<$ Independent\+Variable\+Type $>$\+::get\+Unique\+Nodes (\begin{DoxyParamCaption}\item[{const unsigned int}]{number\+Of\+Nodes }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the unique nodes for a specified order {\ttfamily n}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em number\+Of\+Nodes} & The number of nodes or weight factors. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\ttfamily unique\+Nodes\+\_\+\mbox{[}n\mbox{]}}, after reading the text file with the tabulated nodes if necessary. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a5c65869232fbd9b43f7499b049ee46b1}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a5c65869232fbd9b43f7499b049ee46b1}} 
+\index{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}!getUniqueWeights@{getUniqueWeights}}
+\index{getUniqueWeights@{getUniqueWeights}!tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{getUniqueWeights()}{getUniqueWeights()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+\mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights}{tudat\+::numerical\+\_\+quadrature\+::\+Gauss\+Quadrature\+Nodes\+And\+Weights}}$<$ Independent\+Variable\+Type $>$\+::get\+Unique\+Weights (\begin{DoxyParamCaption}\item[{const unsigned int}]{order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the unique weight factors for a specified order. 
+
+Get the unique weight factors for a specified order. 
+\begin{DoxyParams}{Parameters}
+{\em order} & The number of nodes or weight factors. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\ttfamily unique\+Weights\+\_\+ at entry order}, after reading the text file with the tabulated nodes if necessary. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a6510286c9bee76947961078310990eda}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a6510286c9bee76947961078310990eda}} 
+\index{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}!uniqueNodes\_@{uniqueNodes\_}}
+\index{uniqueNodes\_@{uniqueNodes\_}!tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{uniqueNodes\_}{uniqueNodes\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+std\+::map$<$ unsigned int, \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} $>$ \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights}{tudat\+::numerical\+\_\+quadrature\+::\+Gauss\+Quadrature\+Nodes\+And\+Weights}}$<$ Independent\+Variable\+Type $>$\+::unique\+Nodes\+\_\+}
+
+Map containing the nodes read from the text file (currently up to {\ttfamily n = 64}). The following relation holds\+: {\ttfamily size( unique\+Nodes\+\_\+\mbox{[}n\mbox{]} ) = floor( n / 2 )} For the actual nodes, the following must hold\+: {\ttfamily size( nodes\mbox{[}n\mbox{]} ) = n} The actual nodes are generated from {\ttfamily unique\+Nodes\+\_\+} by {\ttfamily \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_aee3543c764e8363697f9a4d9e54ea32b}{get\+Nodes()}}} \mbox{\Hypertarget{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a4b880c468b461825e3d0ac7a82f4cbe0}\label{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a4b880c468b461825e3d0ac7a82f4cbe0}} 
+\index{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}!uniqueWeights\_@{uniqueWeights\_}}
+\index{uniqueWeights\_@{uniqueWeights\_}!tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$@{tudat::numerical\_quadrature::GaussQuadratureNodesAndWeights$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{uniqueWeights\_}{uniqueWeights\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+std\+::map$<$ unsigned int, \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_afa7f6763c33c5aa008af55f4ecd25927}{Independent\+Variable\+Array}} $>$ \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights}{tudat\+::numerical\+\_\+quadrature\+::\+Gauss\+Quadrature\+Nodes\+And\+Weights}}$<$ Independent\+Variable\+Type $>$\+::unique\+Weights\+\_\+}
+
+Map containing the weight factors read from the text file (currently up to {\ttfamily n = 64}). The following relation holds\+: {\ttfamily size( unique\+Weights\+\_\+\mbox{[}n\mbox{]} ) = ceil( n / 2 )} For the actual weight factors, the following must hold\+: {\ttfamily size( unique\+Weights\+\_\+\mbox{[}n\mbox{]} ) = n} The actual weight factors are generated from {\ttfamily unique\+Weights\+\_\+} by {\ttfamily \mbox{\hyperlink{structtudat_1_1numerical__quadrature_1_1GaussQuadratureNodesAndWeights_a33686bf8c69ba660d39cecd8bb8b48ef}{get\+Weights()}}} 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/quadrature/gaussian\+Quadrature.\+h\end{DoxyCompactItemize}

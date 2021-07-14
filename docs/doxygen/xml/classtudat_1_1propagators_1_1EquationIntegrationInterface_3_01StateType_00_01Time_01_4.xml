@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1EquationIntegrationInterface_3_01StateType_00_01Time_01_4" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::EquationIntegrationInterface&lt; StateType, Time &gt;</compoundname>
+    <includes refid="integrateEquations_8h" local="no">integrateEquations.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1EquationIntegrationInterface_3_01StateType_00_01Time_01_4_1aa5c7774d23747a96c391fe3fd0fbb868" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagationTerminationDetails" kindref="compound">PropagationTerminationDetails</ref> &gt;</type>
+        <definition>static std::shared_ptr&lt; PropagationTerminationDetails &gt; tudat::propagators::EquationIntegrationInterface&lt; StateType, Time &gt;::integrateEquations</definition>
+        <argsstring>(std::function&lt; StateType(const Time, const StateType &amp;) &gt; stateDerivativeFunction, std::map&lt; Time, StateType &gt; &amp;solutionHistory, const StateType initialState, const std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; Time &gt; &gt; integratorSettings, const std::shared_ptr&lt; PropagationTerminationCondition &gt; propagationTerminationCondition, std::map&lt; Time, Eigen::VectorXd &gt; &amp;dependentVariableHistory, std::map&lt; Time, double &gt; &amp;cumulativeComputationTimeHistory, const std::function&lt; Eigen::VectorXd() &gt; dependentVariableFunction=std::function&lt; Eigen::VectorXd() &gt;(), const std::function&lt; void(StateType &amp;) &gt; statePostProcessingFunction=std::function&lt; void(StateType &amp;) &gt;(), const Time printInterval=TUDAT_NAN, const std::chrono::steady_clock::time_point initialClockTime=std::chrono::steady_clock::now())</argsstring>
+        <name>integrateEquations</name>
+        <param>
+          <type>std::function&lt; StateType(const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, const StateType &amp;) &gt;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>std::map&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, StateType &gt; &amp;</type>
+          <declname>solutionHistory</declname>
+        </param>
+        <param>
+          <type>const StateType</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagationTerminationCondition" kindref="compound">PropagationTerminationCondition</ref> &gt;</type>
+          <declname>propagationTerminationCondition</declname>
+        </param>
+        <param>
+          <type>std::map&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, Eigen::VectorXd &gt; &amp;</type>
+          <declname>dependentVariableHistory</declname>
+        </param>
+        <param>
+          <type>std::map&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref>, double &gt; &amp;</type>
+          <declname>cumulativeComputationTimeHistory</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::VectorXd() &gt;</type>
+          <declname>dependentVariableFunction</declname>
+          <defval>std::function&lt; Eigen::VectorXd() &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; void(StateType &amp;) &gt;</type>
+          <declname>statePostProcessingFunction</declname>
+          <defval>std::function&lt; void(StateType &amp;) &gt;()</defval>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1Time" kindref="compound">Time</ref></type>
+          <declname>printInterval</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <param>
+          <type>const std::chrono::steady_clock::time_point</type>
+          <declname>initialClockTime</declname>
+          <defval>std::chrono::steady_clock::now()</defval>
+        </param>
+        <briefdescription>
+<para>Function to numerically integrate a given first order differential equation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to numerically integrate a given first order differential equation, with the state derivative a function of a single independent variable and the current state <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the state derivative from current time and state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>solutionHistory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>History of numerical states given as map (time as key; returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for numerical integrator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagationTerminationCondition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to determine when/how the propagation is to be stopped at the current time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariableHistory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>History of dependent variables that are to be saved given as map (time as key; returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cumulativeComputationTimeHistory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>History of cumulative computation times that are to be saved given as map (time as key; returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariableFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning dependent variables (obtained from environment and state derivative model). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>statePostProcessingFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to post-process state after numerical integration (obtained from state derivative model). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printInterval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frequency with which to print progress to console (nan = never). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialClockTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial clock time from which to determine cumulative computation time. By default now(), i.e. the moment at which this function is called. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Event that triggered the termination of the propagation </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h" line="812" column="28" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h" bodystart="812" bodyend="847"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interface class for integrating some state derivative function. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h" line="787" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h" bodystart="788" bodyend="849"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1EquationIntegrationInterface_3_01StateType_00_01Time_01_4_1aa5c7774d23747a96c391fe3fd0fbb868" prot="public" virt="non-virtual"><scope>tudat::propagators::EquationIntegrationInterface&lt; StateType, Time &gt;</scope><name>integrateEquations</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

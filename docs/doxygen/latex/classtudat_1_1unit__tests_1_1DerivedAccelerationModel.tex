@@ -1,0 +1,111 @@
+\hypertarget{classtudat_1_1unit__tests_1_1DerivedAccelerationModel}{}\doxysection{tudat\+::unit\+\_\+tests\+::Derived\+Acceleration\+Model$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Time\+Data\+Type $>$ Class Template Reference}
+\label{classtudat_1_1unit__tests_1_1DerivedAccelerationModel}\index{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$@{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$}}
+
+
+Acceleration model derived class.  
+
+
+
+
+{\ttfamily \#include $<$test\+Acceleration\+Models.\+h$>$}
+
+Inheritance diagram for tudat\+::unit\+\_\+tests\+::Derived\+Acceleration\+Model$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Time\+Data\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.839080cm]{classtudat_1_1unit__tests_1_1DerivedAccelerationModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_a3166b0d93f5259915d997f7ebed3c4c8}{Derived\+Acceleration\+Model}} (const Position\+Returning\+Function a\+Position\+Function, const Time\+Returning\+Function a\+Time\+Function)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+Acceleration\+Data\+Type \mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_a18a9f073e9f83d021d94b9df8144d253}{get\+Acceleration}} ()
+\begin{DoxyCompactList}\small\item\em Get acceleration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_ae0f1908a1c80dfafc01e4c11e69e1373}{update\+Members}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Update member variables used by the acceleration model. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Acceleration\+Data\+Type = Eigen\+::\+Vector3d, typename Position\+Data\+Type = Eigen\+::\+Vector3d, typename Time\+Data\+Type = double$>$\newline
+class tudat\+::unit\+\_\+tests\+::\+Derived\+Acceleration\+Model$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Time\+Data\+Type $>$}
+
+Acceleration model derived class. 
+
+This class serves as an example of a derived class from the Acceleration\+Model base class. This class contains an implementation that computes acceleration based on a given position and time. The context of this class is somewhat specific to make it more understandable, though derived classes of the Acceleration\+Model base class can be completely general. It should be noted that this class should NOT be used as is in the rest of the library, and is only used in conjunction with unit tests. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Acceleration\+Data\+Type} & Data type used to represent accelerations (default=Eigen\+::\+Vector3d). \\
+\hline
+{\em Position\+Data\+Type} & Data type used to represent positions (default=Eigen\+::\+Vector3d). \\
+\hline
+{\em Time\+Data\+Type} & Data type used to represent time (default=double). \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_a3166b0d93f5259915d997f7ebed3c4c8}\label{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_a3166b0d93f5259915d997f7ebed3c4c8}} 
+\index{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$@{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$}!DerivedAccelerationModel@{DerivedAccelerationModel}}
+\index{DerivedAccelerationModel@{DerivedAccelerationModel}!tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$@{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$}}
+\doxysubsubsection{\texorpdfstring{DerivedAccelerationModel()}{DerivedAccelerationModel()}}
+{\footnotesize\ttfamily template$<$typename Acceleration\+Data\+Type  = Eigen\+::\+Vector3d, typename Position\+Data\+Type  = Eigen\+::\+Vector3d, typename Time\+Data\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel}{tudat\+::unit\+\_\+tests\+::\+Derived\+Acceleration\+Model}}$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Time\+Data\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel}{Derived\+Acceleration\+Model}} (\begin{DoxyParamCaption}\item[{const Position\+Returning\+Function}]{a\+Position\+Function,  }\item[{const Time\+Returning\+Function}]{a\+Time\+Function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor that takes function-\/pointers as input. These function-\/pointers point to functions that return a position and a time. Internally, the \mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_ae0f1908a1c80dfafc01e4c11e69e1373}{update\+Members()}} function also gets called to ensure that all members are up-\/to-\/date after construction. 
+\begin{DoxyParams}{Parameters}
+{\em a\+Position\+Function} & A function-\/pointer that points to a function returning a position. \\
+\hline
+{\em a\+Time\+Function} & A function-\/pointer that points to a function returning a time. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_a18a9f073e9f83d021d94b9df8144d253}\label{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_a18a9f073e9f83d021d94b9df8144d253}} 
+\index{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$@{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$}!getAcceleration@{getAcceleration}}
+\index{getAcceleration@{getAcceleration}!tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$@{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$}}
+\doxysubsubsection{\texorpdfstring{getAcceleration()}{getAcceleration()}}
+{\footnotesize\ttfamily template$<$typename Acceleration\+Data\+Type  = Eigen\+::\+Vector3d, typename Position\+Data\+Type  = Eigen\+::\+Vector3d, typename Time\+Data\+Type  = double$>$ \\
+Acceleration\+Data\+Type \mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel}{tudat\+::unit\+\_\+tests\+::\+Derived\+Acceleration\+Model}}$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Time\+Data\+Type $>$\+::get\+Acceleration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get acceleration. 
+
+Returns acceleration. In this case, this functions returns an acceleration that is dependent on the internally stored position and time members. This function merely serves as an example, rather than representing real dynamics. \begin{DoxyReturn}{Returns}
+Computed acceleration. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_ae0f1908a1c80dfafc01e4c11e69e1373}\label{classtudat_1_1unit__tests_1_1DerivedAccelerationModel_ae0f1908a1c80dfafc01e4c11e69e1373}} 
+\index{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$@{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$@{tudat::unit\_tests::DerivedAccelerationModel$<$ AccelerationDataType, PositionDataType, TimeDataType $>$}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily template$<$typename Acceleration\+Data\+Type  = Eigen\+::\+Vector3d, typename Position\+Data\+Type  = Eigen\+::\+Vector3d, typename Time\+Data\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1unit__tests_1_1DerivedAccelerationModel}{tudat\+::unit\+\_\+tests\+::\+Derived\+Acceleration\+Model}}$<$ Acceleration\+Data\+Type, Position\+Data\+Type, Time\+Data\+Type $>$\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Update member variables used by the acceleration model. 
+
+Updates member variables used by the acceleration model. In this case, the internally stored position and time are updated by calling the function-\/pointers passed to the constructor. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which acceleration model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/basic\+\_\+astro/test\+Acceleration\+Models.\+h\end{DoxyCompactItemize}

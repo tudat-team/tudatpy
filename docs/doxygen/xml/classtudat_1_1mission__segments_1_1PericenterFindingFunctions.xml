@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1mission__segments_1_1PericenterFindingFunctions" kind="class" language="C++" prot="public">
+    <compoundname>tudat::mission_segments::PericenterFindingFunctions</compoundname>
+    <includes refid="gravityAssist_8h" local="no">gravityAssist.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1ae4cc9c7d238db9cbaeb14a404db4e0d4" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::mission_segments::PericenterFindingFunctions::absoluteIncomingSemiMajorAxis_</definition>
+        <argsstring></argsstring>
+        <name>absoluteIncomingSemiMajorAxis_</name>
+        <briefdescription>
+<para>The absolute semi-major axis of the incoming hyperbolic leg. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The absolute semi-major axis of the incoming hyperbolic leg. The absolute value is required because otherwisely the first derivative of the pericenter radius finding function will compute the root of a negative value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" line="165" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a9249d0e13e75372621567f6b9660e8d5" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::mission_segments::PericenterFindingFunctions::absoluteOutgoingSemiMajorAxis_</definition>
+        <argsstring></argsstring>
+        <name>absoluteOutgoingSemiMajorAxis_</name>
+        <briefdescription>
+<para>The absolute semi-major axis of the outgoing hyperbolic leg. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The absolute semi-major axis of the outgoing hyperbolic leg. The absolute value is required because otherwisely the first derivative of the pericenter radius finding function will compute the root of a negative value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" line="173" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a9255a2474a84bf75a6b71869eb11da92" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::mission_segments::PericenterFindingFunctions::bendingAngle_</definition>
+        <argsstring></argsstring>
+        <name>bendingAngle_</name>
+        <briefdescription>
+<para>Bending angle between the excess velocities. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Bending angle between the excess velocities. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" line="179" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a97fb47b1920e4dc1809b760928552bf0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::mission_segments::PericenterFindingFunctions::PericenterFindingFunctions</definition>
+        <argsstring>(const double absoluteIncomingSemiMajorAxis, const double absoluteOutgoingSemiMajorAxis, const double bendingAngle)</argsstring>
+        <name>PericenterFindingFunctions</name>
+        <param>
+          <type>const double</type>
+          <declname>absoluteIncomingSemiMajorAxis</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>absoluteOutgoingSemiMajorAxis</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bendingAngle</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with immediate definition of parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor that sets all the parameters in the pericenter finding functions for use in the Newton Raphson rootfinder. Note that absolute values of the semi-major axis are required due to the rootfinding process.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>absoluteIncomingSemiMajorAxis</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The absolute semi-major axis of the incoming hyperbolic leg. [m] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteOutgoingSemiMajorAxis</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The absolute semi-major axis of the outgoing hyperbolic leg. [m] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bendingAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The bending angle between the excess velocities. [rad] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" line="126" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" bodystart="126" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a59165e752c9250d1e9fa7c2c29699094" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::PericenterFindingFunctions::computePericenterRadiusFunction</definition>
+        <argsstring>(const double pericenterRadius)</argsstring>
+        <name>computePericenterRadiusFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>pericenterRadius</declname>
+        </param>
+        <briefdescription>
+<para>Compute pericenter radius function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes pericenter radius function. This function is used by the Newton-Raphson root-finder to find the pericenter radius that matches the bending angle required in the gravity assist. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pericenterRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pericenter radius. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pericenter radius root finding function value. </para>
+</simplesect>
+<simplesect kind="see"><para>NewtonRaphson(). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" line="142" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/gravityAssist.cpp" bodystart="385" bodyend="391"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a76c0e8b16c404037209233edc85a4e64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction</definition>
+        <argsstring>(const double pericenterRadius)</argsstring>
+        <name>computeFirstDerivativePericenterRadiusFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>pericenterRadius</declname>
+        </param>
+        <briefdescription>
+<para>Compute first-derivative of the pericenter radius function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the first-derivative of the pericenter radius function. This function is used by the Newton-Raphson root-finder to find the pericenter radius that matches the bending angle required in the gravity assist. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pericenterRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pericenter radius. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pericenter radius root finding function first-derivative value. </para>
+</simplesect>
+<simplesect kind="see"><para>NewtonRapshon(). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" line="153" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/gravityAssist.cpp" bodystart="394" bodyend="403"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Pericenter finding functions class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class contains the functions required by the root-finders to find the pericenter radius in the gravity assist function to find the deltaV. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" line="110" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/gravityAssist.h" bodystart="111" bodyend="180"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1ae4cc9c7d238db9cbaeb14a404db4e0d4" prot="private" virt="non-virtual"><scope>tudat::mission_segments::PericenterFindingFunctions</scope><name>absoluteIncomingSemiMajorAxis_</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a9249d0e13e75372621567f6b9660e8d5" prot="private" virt="non-virtual"><scope>tudat::mission_segments::PericenterFindingFunctions</scope><name>absoluteOutgoingSemiMajorAxis_</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a9255a2474a84bf75a6b71869eb11da92" prot="private" virt="non-virtual"><scope>tudat::mission_segments::PericenterFindingFunctions</scope><name>bendingAngle_</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a76c0e8b16c404037209233edc85a4e64" prot="public" virt="non-virtual"><scope>tudat::mission_segments::PericenterFindingFunctions</scope><name>computeFirstDerivativePericenterRadiusFunction</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a59165e752c9250d1e9fa7c2c29699094" prot="public" virt="non-virtual"><scope>tudat::mission_segments::PericenterFindingFunctions</scope><name>computePericenterRadiusFunction</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1PericenterFindingFunctions_1a97fb47b1920e4dc1809b760928552bf0" prot="public" virt="non-virtual"><scope>tudat::mission_segments::PericenterFindingFunctions</scope><name>PericenterFindingFunctions</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

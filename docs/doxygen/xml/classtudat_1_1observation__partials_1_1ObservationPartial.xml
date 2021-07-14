@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1ObservationPartial" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::observation_partials::ObservationPartial</compoundname>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtArcWiseAbsoluteBias" prot="public" virt="non-virtual">tudat::observation_partials::ObservationPartialWrtArcWiseAbsoluteBias&lt; ObservationSize &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtArcWiseRelativeBias" prot="public" virt="non-virtual">tudat::observation_partials::ObservationPartialWrtArcWiseRelativeBias&lt; ObservationSize &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias" prot="public" virt="non-virtual">tudat::observation_partials::ObservationPartialWrtConstantAbsoluteBias&lt; ObservationSize &gt;</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantRelativeBias" prot="public" virt="non-virtual">tudat::observation_partials::ObservationPartialWrtConstantRelativeBias&lt; ObservationSize &gt;</derivedcompoundref>
+    <includes refid="observationPartial_8h" local="no">observationPartial.h</includes>
+    <templateparamlist>
+      <param>
+        <type>int</type>
+        <declname>ObservationSize</declname>
+        <defname>ObservationSize</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1ObservationPartial_1a1bdd56be8dbca3458d8708eb7a2570e2" prot="protected" static="no" mutable="no">
+        <type>estimatable_parameters::EstimatebleParameterIdentifier</type>
+        <definition>estimatable_parameters::EstimatebleParameterIdentifier tudat::observation_partials::ObservationPartial&lt; ObservationSize &gt;::parameterIdentifier_</definition>
+        <argsstring></argsstring>
+        <name>parameterIdentifier_</name>
+        <briefdescription>
+<para>Parameter id of for specifc parameter of which partial is computed by object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="121" column="60" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1ObservationPartial_1aadcaac556c98d652f2eb93e53c40ede9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::ObservationPartial&lt; ObservationSize &gt;::ObservationPartial</definition>
+        <argsstring>(const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier)</argsstring>
+        <name>ObservationPartial</name>
+        <param>
+          <type>const estimatable_parameters::EstimatebleParameterIdentifier</type>
+          <declname>parameterIdentifier</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterIdentifier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter id of for specifc parameter of which partial is computed by object. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="79" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" bodystart="79" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1ObservationPartial_1a39c35e737e517437b96a5a8c867a7d55" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::observation_partials::ObservationPartial&lt; ObservationSize &gt;::~ObservationPartial</definition>
+        <argsstring>()</argsstring>
+        <name>~ObservationPartial</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual destrcutor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="86" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" bodystart="86" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1ObservationPartial_1a85e94e334ea8136b11eba24e10a85849" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::vector&lt; std::pair&lt; Eigen::Matrix&lt; double, ObservationSize, Eigen::Dynamic &gt;, double &gt; &gt;</type>
+        <definition>virtual std::vector&lt; std::pair&lt; Eigen::Matrix&lt; double, ObservationSize, Eigen::Dynamic &gt;, double &gt; &gt; tudat::observation_partials::ObservationPartial&lt; ObservationSize &gt;::calculatePartial</definition>
+        <argsstring>(const std::vector&lt; Eigen::Vector6d &gt; &amp;states, const std::vector&lt; double &gt; &amp;times, const observation_models::LinkEndType linkEndOfFixedTime=observation_models::receiver, const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;currentObservation=Eigen::Matrix&lt; double, ObservationSize, 1 &gt;::Constant(TUDAT_NAN))=0</argsstring>
+        <name>calculatePartial</name>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantRelativeBias_1a6d2eb84b7fdec67f14554d6bcbef5b91">calculatePartial</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias_1ab9fd21b903e220210e42e7e3f2a2ad18">calculatePartial</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtArcWiseAbsoluteBias_1a9ef97af1fcb0f7c6770a9e00d48351a0">calculatePartial</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtArcWiseRelativeBias_1a8cbe2d52a9abddfb1c270448f7ce9f59">calculatePartial</reimplementedby>
+        <param>
+          <type>const std::vector&lt; Eigen::Vector6d &gt; &amp;</type>
+          <declname>states</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>times</declname>
+        </param>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>linkEndOfFixedTime</declname>
+          <defval>observation_models::receiver</defval>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;</type>
+          <declname>currentObservation</declname>
+          <defval>Eigen::Matrix&lt; double, ObservationSize, 1 &gt;::Constant(TUDAT_NAN)</defval>
+        </param>
+        <briefdescription>
+<para>Pure virtual function to calculate the observation partial(s) at required time(s) and state(s) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to calculate the observation partial(s) at required time(s) and state(s). States and times are typically obtained from evaluation of associated observation model. Derived class functions implement this for a specific observable. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>states</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>times</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end times. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndOfFixedTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end that is kept fixed when computing the observable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the observation for which the partial is to be computed (default NaN for compatibility purposes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of pairs containing partial values and associated times. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="100" column="25"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1ObservationPartial_1a8778a20ad87def4f80c29483709b6884" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>estimatable_parameters::EstimatebleParameterIdentifier</type>
+        <definition>estimatable_parameters::EstimatebleParameterIdentifier tudat::observation_partials::ObservationPartial&lt; ObservationSize &gt;::getParameterIdentifier</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterIdentifier</name>
+        <briefdescription>
+<para>Function to get parameter id of for specifc parameter of which partial is computed by object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get parameter id of for specifc parameter of which partial is computed by object. <simplesect kind="return"><para>Parameter id of for specifc parameter of which partial is computed by object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="112" column="60" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" bodystart="112" bodyend="115"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class of partial derivative of an observable w.r.t. an estimated parameter. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class of partial derivative of an observable w.r.t. an estimated parameter. Calculated partial function must be defined in each derived class for calculation of specific derivative. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5">
+        <label>tudat::observation_partials::ObservationPartialWrtConstantRelativeBias&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantRelativeBias"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::observation_partials::ObservationPartialWrtArcWiseRelativeBias&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtArcWiseRelativeBias"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::ObservationPartial&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__partials_1_1ObservationPartial"/>
+      </node>
+      <node id="2">
+        <label>tudat::observation_partials::ObservationPartialWrtArcWiseAbsoluteBias&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtArcWiseAbsoluteBias"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::observation_partials::ObservationPartialWrtConstantAbsoluteBias&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__partials_1_1ObservationPartialWrtConstantAbsoluteBias"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" line="70" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/observationPartial.h" bodystart="71" bodyend="124"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1a85e94e334ea8136b11eba24e10a85849" prot="public" virt="pure-virtual"><scope>tudat::observation_partials::ObservationPartial</scope><name>calculatePartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1a8778a20ad87def4f80c29483709b6884" prot="public" virt="non-virtual"><scope>tudat::observation_partials::ObservationPartial</scope><name>getParameterIdentifier</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1aadcaac556c98d652f2eb93e53c40ede9" prot="public" virt="non-virtual"><scope>tudat::observation_partials::ObservationPartial</scope><name>ObservationPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1a1bdd56be8dbca3458d8708eb7a2570e2" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::ObservationPartial</scope><name>parameterIdentifier_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1ObservationPartial_1a39c35e737e517437b96a5a8c867a7d55" prot="public" virt="virtual"><scope>tudat::observation_partials::ObservationPartial</scope><name>~ObservationPartial</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

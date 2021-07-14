@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1CustomWindModelSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::CustomWindModelSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1WindModelSettings" prot="public" virt="non-virtual">tudat::simulation_setup::WindModelSettings</basecompoundref>
+    <includes refid="createAtmosphereModel_8h" local="no">createAtmosphereModel.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1ae52c1048cd95b1d8e8bb218f39fc5e24" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double, const double, const double, const double ) &gt; tudat::simulation_setup::CustomWindModelSettings::windFunction_</definition>
+        <argsstring></argsstring>
+        <name>windFunction_</name>
+        <briefdescription>
+<para>Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="159" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1a94c38205405f29160b5e9384587816cd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::CustomWindModelSettings::CustomWindModelSettings</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt; windFunction, const reference_frames::AerodynamicsReferenceFrames associatedFrame=reference_frames::vertical_frame)</argsstring>
+        <name>CustomWindModelSettings</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt;</type>
+          <declname>windFunction</declname>
+        </param>
+        <param>
+          <type>const reference_frames::AerodynamicsReferenceFrames</type>
+          <declname>associatedFrame</declname>
+          <defval>reference_frames::vertical_frame</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>windFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="126" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="126" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1ae944f84200df2e658cca71fc4747fb56" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::CustomWindModelSettings::~CustomWindModelSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~CustomWindModelSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="133" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="133" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1adf05f2f63f27b8e65c7b4c593a02d40d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double, const double, const double, const double ) &gt; tudat::simulation_setup::CustomWindModelSettings::getWindFunction</definition>
+        <argsstring>()</argsstring>
+        <name>getWindFunction</name>
+        <briefdescription>
+<para>Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time <simplesect kind="return"><para>Function that returns wind vector as a function of altitude, longitude, latitude and time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="140" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="140" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1a78cb89c3559a1ac27b2c5956104bed1a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::CustomWindModelSettings::setWindFunction</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt; windFunction)</argsstring>
+        <name>setWindFunction</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt;</type>
+          <declname>windFunction</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset function that returns wind vector as a function of altitude, longitude, latitude and time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset function that returns wind vector as a function of altitude, longitude, latitude and time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>windFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New function that returns wind vector as a function of altitude, longitude, latitude and time </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="150" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="150" bodyend="154"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for a custom, user-defined, wind model. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::WindModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1WindModelSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::CustomWindModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::WindModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1WindModelSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::CustomWindModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="116" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="117" bodyend="160"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a341089072bbcf1086d628515efe099a8" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>associatedFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1a94c38205405f29160b5e9384587816cd" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>CustomWindModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a5d75cc484c3cc00433e9385abd1415a4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>getAssociatedFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1adf05f2f63f27b8e65c7b4c593a02d40d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>getWindFunction</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a1b98ab565b7a0a02dd018dcdd7bca511" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>getWindModelType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1a78cb89c3559a1ac27b2c5956104bed1a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>setWindFunction</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1ae52c1048cd95b1d8e8bb218f39fc5e24" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>windFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a61856d5bd8d10d726afdd36814971c13" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>WindModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1af91c5f7dc6d8950cf591ef9ad86c8466" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>windModelType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1ae944f84200df2e658cca71fc4747fb56" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>~CustomWindModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a21f3cb2bf2147286afc1662df50da1af" prot="public" virt="virtual"><scope>tudat::simulation_setup::CustomWindModelSettings</scope><name>~WindModelSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

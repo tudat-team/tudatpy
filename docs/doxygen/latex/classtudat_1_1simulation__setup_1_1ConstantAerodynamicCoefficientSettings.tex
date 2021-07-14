@@ -1,0 +1,120 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Constant\+Aerodynamic\+Coefficient\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings}\index{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}}
+
+
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings}{Aerodynamic\+Coefficient\+Settings}} for defining a constant aerodynamic coefficients.  
+
+
+
+
+{\ttfamily \#include $<$create\+Aerodynamic\+Coefficient\+Interface.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Constant\+Aerodynamic\+Coefficient\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a6ca3874eaac800b4bd90d737752b3a34}{Constant\+Aerodynamic\+Coefficient\+Settings}} (const double reference\+Length, const double reference\+Area, const double lateral\+Reference\+Length, const Eigen\+::\+Vector3d \&moment\+Reference\+Point, const Eigen\+::\+Vector3d \&constant\+Force\+Coefficient, const Eigen\+::\+Vector3d \&constant\+Moment\+Coefficient=Eigen\+::\+Vector3d\+::\+Zero(), const bool are\+Coefficients\+In\+Aerodynamic\+Frame=true, const bool are\+Coefficients\+In\+Negative\+Axis\+Direction=true, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings}{interpolators\+::\+Interpolator\+Settings}} $>$ interpolator\+Settings=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a0e341c3135c2418c14433c113e59564d}{Constant\+Aerodynamic\+Coefficient\+Settings}} (const double reference\+Area, const Eigen\+::\+Vector3d \&constant\+Force\+Coefficient, const bool are\+Coefficients\+In\+Aerodynamic\+Frame=true, const bool are\+Coefficients\+In\+Negative\+Axis\+Direction=true)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a547a9b0db4a387a8c294ed894019c243}{get\+Constant\+Force\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Function to return constant force coefficients. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_afd82801686ddc02865fa757b35341315}{get\+Constant\+Moment\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Function to return constant moment coefficients. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings}{Aerodynamic\+Coefficient\+Settings}} for defining a constant aerodynamic coefficients. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a6ca3874eaac800b4bd90d737752b3a34}\label{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a6ca3874eaac800b4bd90d737752b3a34}} 
+\index{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}!ConstantAerodynamicCoefficientSettings@{ConstantAerodynamicCoefficientSettings}}
+\index{ConstantAerodynamicCoefficientSettings@{ConstantAerodynamicCoefficientSettings}!tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}}
+\doxysubsubsection{\texorpdfstring{ConstantAerodynamicCoefficientSettings()}{ConstantAerodynamicCoefficientSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Constant\+Aerodynamic\+Coefficient\+Settings\+::\+Constant\+Aerodynamic\+Coefficient\+Settings (\begin{DoxyParamCaption}\item[{const double}]{reference\+Length,  }\item[{const double}]{reference\+Area,  }\item[{const double}]{lateral\+Reference\+Length,  }\item[{const Eigen\+::\+Vector3d \&}]{moment\+Reference\+Point,  }\item[{const Eigen\+::\+Vector3d \&}]{constant\+Force\+Coefficient,  }\item[{const Eigen\+::\+Vector3d \&}]{constant\+Moment\+Coefficient = {\ttfamily Eigen\+:\+:Vector3d\+:\+:Zero(~)},  }\item[{const bool}]{are\+Coefficients\+In\+Aerodynamic\+Frame = {\ttfamily true},  }\item[{const bool}]{are\+Coefficients\+In\+Negative\+Axis\+Direction = {\ttfamily true},  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1InterpolatorSettings}{interpolators\+::\+Interpolator\+Settings}} $>$}]{interpolator\+Settings = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em constant\+Force\+Coefficient} & Constant force coefficients. \\
+\hline
+{\em constant\+Moment\+Coefficient} & Constant moment coefficients. \\
+\hline
+{\em reference\+Length} & Reference length with which aerodynamic moments (about x-\/ and z-\/ axes) are non-\/dimensionalized. \\
+\hline
+{\em reference\+Area} & Reference area with which aerodynamic forces and moments are non-\/dimensionalized. \\
+\hline
+{\em lateral\+Reference\+Length} & Reference length with which aerodynamic moments (about y-\/axis) is non-\/dimensionalized. \\
+\hline
+{\em moment\+Reference\+Point} & Point w.\+r.\+t. aerodynamic moment is calculated \\
+\hline
+{\em are\+Coefficients\+In\+Aerodynamic\+Frame} & Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz). \\
+\hline
+{\em are\+Coefficients\+In\+Negative\+Axis\+Direction} & Boolean to define whether the aerodynamic coefficients are positiver along tyhe positive axes of the body or aerodynamic frame (see are\+Coefficients\+In\+Aerodynamic\+Frame). Note that for (drag, side, lift force), the coefficients are typically defined in negative direction. \\
+\hline
+{\em interpolator\+Settings} & Pointer to an interpolator settings object, where the conditions for interpolation are saved. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a0e341c3135c2418c14433c113e59564d}\label{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a0e341c3135c2418c14433c113e59564d}} 
+\index{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}!ConstantAerodynamicCoefficientSettings@{ConstantAerodynamicCoefficientSettings}}
+\index{ConstantAerodynamicCoefficientSettings@{ConstantAerodynamicCoefficientSettings}!tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}}
+\doxysubsubsection{\texorpdfstring{ConstantAerodynamicCoefficientSettings()}{ConstantAerodynamicCoefficientSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Constant\+Aerodynamic\+Coefficient\+Settings\+::\+Constant\+Aerodynamic\+Coefficient\+Settings (\begin{DoxyParamCaption}\item[{const double}]{reference\+Area,  }\item[{const Eigen\+::\+Vector3d \&}]{constant\+Force\+Coefficient,  }\item[{const bool}]{are\+Coefficients\+In\+Aerodynamic\+Frame = {\ttfamily true},  }\item[{const bool}]{are\+Coefficients\+In\+Negative\+Axis\+Direction = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor, omitting all moment coefficient data. 
+\begin{DoxyParams}{Parameters}
+{\em constant\+Force\+Coefficient} & Constant force coefficients. \\
+\hline
+{\em reference\+Area} & Reference area with which aerodynamic forces and moments are non-\/dimensionalized. \\
+\hline
+{\em are\+Coefficients\+In\+Aerodynamic\+Frame} & Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz). \\
+\hline
+{\em are\+Coefficients\+In\+Negative\+Axis\+Direction} & Boolean to define whether the aerodynamic coefficients are positiver along tyhe positive axes of the body or aerodynamic frame (see are\+Coefficients\+In\+Aerodynamic\+Frame). Note that for (drag, side, lift force), the coefficients are typically defined in negative direction. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a547a9b0db4a387a8c294ed894019c243}\label{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_a547a9b0db4a387a8c294ed894019c243}} 
+\index{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}!getConstantForceCoefficient@{getConstantForceCoefficient}}
+\index{getConstantForceCoefficient@{getConstantForceCoefficient}!tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}}
+\doxysubsubsection{\texorpdfstring{getConstantForceCoefficient()}{getConstantForceCoefficient()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::simulation\+\_\+setup\+::\+Constant\+Aerodynamic\+Coefficient\+Settings\+::get\+Constant\+Force\+Coefficient (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return constant force coefficients. 
+
+Function to return constant force coefficients. \begin{DoxyReturn}{Returns}
+Cnstant force coefficients. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_afd82801686ddc02865fa757b35341315}\label{classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_afd82801686ddc02865fa757b35341315}} 
+\index{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}!getConstantMomentCoefficient@{getConstantMomentCoefficient}}
+\index{getConstantMomentCoefficient@{getConstantMomentCoefficient}!tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings@{tudat::simulation\_setup::ConstantAerodynamicCoefficientSettings}}
+\doxysubsubsection{\texorpdfstring{getConstantMomentCoefficient()}{getConstantMomentCoefficient()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::simulation\+\_\+setup\+::\+Constant\+Aerodynamic\+Coefficient\+Settings\+::get\+Constant\+Moment\+Coefficient (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return constant moment coefficients. 
+
+Function to return constant moment coefficients. \begin{DoxyReturn}{Returns}
+Cnstant force coefficients. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Aerodynamic\+Coefficient\+Interface.\+h\end{DoxyCompactItemize}

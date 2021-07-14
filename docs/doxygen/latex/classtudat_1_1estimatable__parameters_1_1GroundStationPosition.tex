@@ -1,0 +1,121 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1GroundStationPosition}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Ground\+Station\+Position Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1GroundStationPosition}\index{tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}}
+
+
+Class for estimating constant position of a ground station.  
+
+
+
+
+{\ttfamily \#include $<$ground\+Station\+Position.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Ground\+Station\+Position\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1GroundStationPosition}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_aff2bd51ce957231279226822e1842ac2}{Ground\+Station\+Position}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStationState}{ground\+\_\+stations\+::\+Ground\+Station\+State}} $>$ ground\+Station\+State, const std\+::string \&associated\+Body, const std\+::string \&associated\+Station)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a8330e5eaef901f6aa35cb9a7e698d3ad}\label{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a8330e5eaef901f6aa35cb9a7e698d3ad}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a8330e5eaef901f6aa35cb9a7e698d3ad}{$\sim$\+Ground\+Station\+Position}} ()
+\begin{DoxyCompactList}\small\item\em Destructor ~\newline
+ \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a3b972d18c791d4da8009d8a76e69b39c}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Get values (Cartesian x,y,z position) of ground station position. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a02250330b056d7d1767eb4a2234fe4c3}{set\+Parameter\+Value}} (Eigen\+::\+Vector\+Xd parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Reset values (Cartesian x,y,z position) of ground station position. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_ab7f862c3bed081deb13c6f70f7aa80ba}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for estimating constant position of a ground station. 
+
+Class for estimating constant position of a ground station. Specific parameter is Cartesian x,y and z component of station in body-\/fixed frame. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_aff2bd51ce957231279226822e1842ac2}\label{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_aff2bd51ce957231279226822e1842ac2}} 
+\index{tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}!GroundStationPosition@{GroundStationPosition}}
+\index{GroundStationPosition@{GroundStationPosition}!tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}}
+\doxysubsubsection{\texorpdfstring{GroundStationPosition()}{GroundStationPosition()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Ground\+Station\+Position\+::\+Ground\+Station\+Position (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStationState}{ground\+\_\+stations\+::\+Ground\+Station\+State}} $>$}]{ground\+Station\+State,  }\item[{const std\+::string \&}]{associated\+Body,  }\item[{const std\+::string \&}]{associated\+Station }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em ground\+Station\+State} & Object that represents state of ground station \\
+\hline
+{\em associated\+Body} & Body on which station is located \\
+\hline
+{\em associated\+Station} & Name of station \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_ab7f862c3bed081deb13c6f70f7aa80ba}\label{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_ab7f862c3bed081deb13c6f70f7aa80ba}} 
+\index{tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Ground\+Station\+Position\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter. 
+
+Function to retrieve the size of the parameter \begin{DoxyReturn}{Returns}
+Size of parameter value, 3 for this parameter 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a3b972d18c791d4da8009d8a76e69b39c}\label{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a3b972d18c791d4da8009d8a76e69b39c}} 
+\index{tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::estimatable\+\_\+parameters\+::\+Ground\+Station\+Position\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get values (Cartesian x,y,z position) of ground station position. 
+
+Get values (Cartesian x,y,z position) of ground station position \begin{DoxyReturn}{Returns}
+Values (Cartesian x,y,z position) of ground station position 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a02250330b056d7d1767eb4a2234fe4c3}\label{classtudat_1_1estimatable__parameters_1_1GroundStationPosition_a02250330b056d7d1767eb4a2234fe4c3}} 
+\index{tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::GroundStationPosition@{tudat::estimatable\_parameters::GroundStationPosition}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Ground\+Station\+Position\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{Eigen\+::\+Vector\+Xd}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reset values (Cartesian x,y,z position) of ground station position. 
+
+Reset values (Cartesian x,y,z position) of ground station position 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New values (Cartesian x,y,z position) of ground station position \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/ground\+Station\+Position.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::TabulatedEphemerisSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" prot="public" virt="non-virtual">tudat::simulation_setup::EphemerisSettings</basecompoundref>
+    <includes refid="createEphemeris_8h" local="no">createEphemeris.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a0dd55c3cc866d89bc3eb547f33c49b31" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, Eigen::Vector6d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector6d &gt; tudat::simulation_setup::TabulatedEphemerisSettings::bodyStateHistory_</definition>
+        <argsstring></argsstring>
+        <name>bodyStateHistory_</name>
+        <briefdescription>
+<para>Data map defining discrete data from which an ephemeris is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Data map (time as key, Cartesian state as values) defining data from which an interpolated ephemeris is to be created. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="736" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="736" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1ab7b137d597030a76e229312d544da752" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::TabulatedEphemerisSettings::useLongDoubleStates_</definition>
+        <argsstring></argsstring>
+        <name>useLongDoubleStates_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="738" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="738" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a1f3fbe7fd3d4b73a5044c9f35ef671ec" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::TabulatedEphemerisSettings::TabulatedEphemerisSettings</definition>
+        <argsstring>(const std::map&lt; double, Eigen::Vector6d &gt; &amp;bodyStateHistory, std::string frameOrigin=&quot;SSB&quot;, std::string frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>TabulatedEphemerisSettings</name>
+        <param>
+          <type>const std::map&lt; double, Eigen::Vector6d &gt; &amp;</type>
+          <declname>bodyStateHistory</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>frameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyStateHistory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data map (time as key, Cartesian state as values) defining data from which an interpolated ephemeris is to be created. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrigin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body relative to which the ephemeris is to be calculated (optional &quot;SSB&quot; by default). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientatioan of the reference frame in which the epehemeris is to be calculated (optional, &quot;ECLIPJ2000&quot; by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="703" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="703" bodyend="708"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a3520d3144676b27dc2d3d59a7c3dfc87" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::Vector6d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector6d &gt; tudat::simulation_setup::TabulatedEphemerisSettings::getBodyStateHistory</definition>
+        <argsstring>()</argsstring>
+        <name>getBodyStateHistory</name>
+        <briefdescription>
+<para>Function returning data map defining discrete data from which an ephemeris is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function returning data map defining discrete data from which an ephemeris is to be created. <simplesect kind="return"><para>Data map defining discrete data from which an ephemeris is to be created. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="715" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="715" bodyend="716"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a4a76cb8afce8ed3179d0b179b11a319d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::TabulatedEphemerisSettings::getUseLongDoubleStates</definition>
+        <argsstring>()</argsstring>
+        <name>getUseLongDoubleStates</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="719" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="719" bodyend="722"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a4b8c6d55e61196d6004c34c05503309a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::TabulatedEphemerisSettings::setUseLongDoubleStates</definition>
+        <argsstring>(const bool useLongDoubleStates)</argsstring>
+        <name>setUseLongDoubleStates</name>
+        <param>
+          <type>const bool</type>
+          <declname>useLongDoubleStates</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="724" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="724" bodyend="727"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>@get_docstring(TabulatedEphemerisSettings.__docstring__) </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" kindref="compound">EphemerisSettings</ref> derived class for defining settings of an ephemeris created from tabulated data.</para>
+<para><ref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" kindref="compound">EphemerisSettings</ref> derived class for defining settings of an ephemeris created from tabulated data. Currently the use of an 6th order Lagrange interpolator is hardcoded, which is created from the data that is provided. Note that at the edges of the interpolation interval, a Cubic spline interpolator is used to suppres the influence of Runge&apos;s phenomenon. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::EphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EphemerisSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::TabulatedEphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::EphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EphemerisSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>frameOrientation_</edgelabel>
+          <edgelabel>frameOrigin_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::TabulatedEphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="689" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="690" bodyend="739"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a0dd55c3cc866d89bc3eb547f33c49b31" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>bodyStateHistory_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a7a92d768f7e34e35eb6be96f55dddd1b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>EphemerisSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ac988aa57dc2068b67fcc3515489577e6" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>ephemerisType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ad492ff71210dd4d1b84275c7864cae6c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>frameOrientation_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a2a15cbc42f0a7fd548e71b05cad51ce7" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>frameOrigin_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a3520d3144676b27dc2d3d59a7c3dfc87" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>getBodyStateHistory</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a3256a2c33076cf34e070d269effa660a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>getEphemerisType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a02f84b6df414e81a4f72d6a5b2aceb33" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>getFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ad944818e2e49e527b955b39e3d09f608" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>getFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a56eef76275cf2922ec2bb45161228fc9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>getMakeMultiArcEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a4a76cb8afce8ed3179d0b179b11a319d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>getUseLongDoubleStates</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1af3964a8b9569c0d20b0c241fe40b924c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>makeMultiArcEphemeris_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1adad130efb8ba76972cb24f5787835e45" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>resetFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a2dbcb55a4542b28610c2a389b89c4447" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>resetFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a7c999329ffe7bbe7467bb293114c9305" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>resetMakeMultiArcEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a4b8c6d55e61196d6004c34c05503309a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>setUseLongDoubleStates</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1a1f3fbe7fd3d4b73a5044c9f35ef671ec" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>TabulatedEphemerisSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_1ab7b137d597030a76e229312d544da752" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>useLongDoubleStates_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a5b9ede78f5a09f7abbefe2631bc6f4bc" prot="public" virt="virtual"><scope>tudat::simulation_setup::TabulatedEphemerisSettings</scope><name>~EphemerisSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,72 @@
+\hypertarget{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings}{}\doxysection{tudat\+::propagators\+::Propagation\+Hybrid\+Termination\+Settings Class Reference}
+\label{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings}\index{tudat::propagators::PropagationHybridTerminationSettings@{tudat::propagators::PropagationHybridTerminationSettings}}
+
+
+Class for propagation stopping conditions settings\+: combination of other stopping conditions.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Termination\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Propagation\+Hybrid\+Termination\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_ad976b63473d0feaed39a5787d0ae56aa}{Propagation\+Hybrid\+Termination\+Settings}} (const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ $>$ termination\+Settings, const bool fulfill\+Single\+Condition=false)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_adab6222cca632f7a5f453a6fcdc23c24}\label{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_adab6222cca632f7a5f453a6fcdc23c24}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_adab6222cca632f7a5f453a6fcdc23c24}{$\sim$\+Propagation\+Hybrid\+Termination\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_a8a552ccd463f45f93537ef4161d12781}\label{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_a8a552ccd463f45f93537ef4161d12781}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_a8a552ccd463f45f93537ef4161d12781}{termination\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of termination settings for which stopping conditions are created. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_ad7840e9e9811a2d20ca0f0289a3204fa}{fulfill\+Single\+Condition\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for propagation stopping conditions settings\+: combination of other stopping conditions. 
+
+Class for propagation stopping conditions settings\+: combination of other stopping conditions. This class can be used to define that all of any number of conditions must be met, or that a single of these settings must be met to stop the propagation. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_ad976b63473d0feaed39a5787d0ae56aa}\label{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_ad976b63473d0feaed39a5787d0ae56aa}} 
+\index{tudat::propagators::PropagationHybridTerminationSettings@{tudat::propagators::PropagationHybridTerminationSettings}!PropagationHybridTerminationSettings@{PropagationHybridTerminationSettings}}
+\index{PropagationHybridTerminationSettings@{PropagationHybridTerminationSettings}!tudat::propagators::PropagationHybridTerminationSettings@{tudat::propagators::PropagationHybridTerminationSettings}}
+\doxysubsubsection{\texorpdfstring{PropagationHybridTerminationSettings()}{PropagationHybridTerminationSettings()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Propagation\+Hybrid\+Termination\+Settings\+::\+Propagation\+Hybrid\+Termination\+Settings (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ $>$}]{termination\+Settings,  }\item[{const bool}]{fulfill\+Single\+Condition = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings}{Propagation\+Hybrid\+Termination\+Settings}} 
+\begin{DoxyParams}{Parameters}
+{\em termination\+Settings} & List of termination settings for which stopping conditions are created. \\
+\hline
+{\em fulfill\+Single\+Condition} & Boolean denoting whether a single (if true) or all (if false) of the conditions defined by the entries in the termination\+Settings list should be met. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_ad7840e9e9811a2d20ca0f0289a3204fa}\label{classtudat_1_1propagators_1_1PropagationHybridTerminationSettings_ad7840e9e9811a2d20ca0f0289a3204fa}} 
+\index{tudat::propagators::PropagationHybridTerminationSettings@{tudat::propagators::PropagationHybridTerminationSettings}!fulfillSingleCondition\_@{fulfillSingleCondition\_}}
+\index{fulfillSingleCondition\_@{fulfillSingleCondition\_}!tudat::propagators::PropagationHybridTerminationSettings@{tudat::propagators::PropagationHybridTerminationSettings}}
+\doxysubsubsection{\texorpdfstring{fulfillSingleCondition\_}{fulfillSingleCondition\_}}
+{\footnotesize\ttfamily bool tudat\+::propagators\+::\+Propagation\+Hybrid\+Termination\+Settings\+::fulfill\+Single\+Condition\+\_\+}
+
+Boolean denoting whether a single (if true) or all (if false) of the conditions defined by the entries in the termination\+Settings list should be met. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Termination\+Settings.\+h\end{DoxyCompactItemize}

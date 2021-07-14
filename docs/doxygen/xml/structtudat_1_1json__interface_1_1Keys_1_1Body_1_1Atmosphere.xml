@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Body::Atmosphere</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a035003202f68b84ebbb070bf0237f690" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <initializer>= &quot;type&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="132" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a76e50994d7e0ca2a91c325f9d4c8bb9e" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::densityScaleHeight</definition>
+        <argsstring></argsstring>
+        <name>densityScaleHeight</name>
+        <initializer>= &quot;densityScaleHeight&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="133" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a0a8e47039055cdcd96ea8450d82175c5" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::constantTemperature</definition>
+        <argsstring></argsstring>
+        <name>constantTemperature</name>
+        <initializer>= &quot;constantTemperature&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="134" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a8d8aec9bae81d1a60a7abf11ad6c210c" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::densityAtZeroAltitude</definition>
+        <argsstring></argsstring>
+        <name>densityAtZeroAltitude</name>
+        <initializer>= &quot;densityAtZeroAltitude&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="135" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1ae103863ba12a030eb5746ff4743ef088" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::specificGasConstant</definition>
+        <argsstring></argsstring>
+        <name>specificGasConstant</name>
+        <initializer>= &quot;specificGasConstant&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="136" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a383151b5e22b3ac03f2672ac19d581bb" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::ratioOfSpecificHeats</definition>
+        <argsstring></argsstring>
+        <name>ratioOfSpecificHeats</name>
+        <initializer>= &quot;ratioOfSpecificHeats&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="137" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a562c787af04ab259664e392aeed6f1b3" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::file</definition>
+        <argsstring></argsstring>
+        <name>file</name>
+        <initializer>= &quot;file&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="138" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a538c7345ae6bc0f7b6b0dab7c210a11c" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::independentVariablesNames</definition>
+        <argsstring></argsstring>
+        <name>independentVariablesNames</name>
+        <initializer>= &quot;independentVariablesNames&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="139" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a9143bc120f2964b5e1d82fd7eb05a987" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::dependentVariablesNames</definition>
+        <argsstring></argsstring>
+        <name>dependentVariablesNames</name>
+        <initializer>= &quot;dependentVariablesNames&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="140" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1ac1c839d9a097ab9dd0dd30b8365194a6" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::boundaryHandling</definition>
+        <argsstring></argsstring>
+        <name>boundaryHandling</name>
+        <initializer>= &quot;boundaryHandling&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="141" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1afe1e8d67f8092d0ca4a47970accaeb71" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::Atmosphere::spaceWeatherFile</definition>
+        <argsstring></argsstring>
+        <name>spaceWeatherFile</name>
+        <initializer>= &quot;spaceWeatherFile&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="142" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="130" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="131" bodyend="143"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1ac1c839d9a097ab9dd0dd30b8365194a6" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>boundaryHandling</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a0a8e47039055cdcd96ea8450d82175c5" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>constantTemperature</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a8d8aec9bae81d1a60a7abf11ad6c210c" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>densityAtZeroAltitude</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a76e50994d7e0ca2a91c325f9d4c8bb9e" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>densityScaleHeight</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a9143bc120f2964b5e1d82fd7eb05a987" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>dependentVariablesNames</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a562c787af04ab259664e392aeed6f1b3" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>file</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a538c7345ae6bc0f7b6b0dab7c210a11c" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>independentVariablesNames</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a383151b5e22b3ac03f2672ac19d581bb" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>ratioOfSpecificHeats</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1afe1e8d67f8092d0ca4a47970accaeb71" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>spaceWeatherFile</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1ae103863ba12a030eb5746ff4743ef088" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>specificGasConstant</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere_1a035003202f68b84ebbb070bf0237f690" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body::Atmosphere</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

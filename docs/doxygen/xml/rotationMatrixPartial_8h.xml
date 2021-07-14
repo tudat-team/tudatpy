@@ -1,0 +1,1530 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="rotationMatrixPartial_8h" kind="file" language="C++">
+    <compoundname>rotationMatrixPartial.h</compoundname>
+    <includes local="no">vector</includes>
+    <includes local="no">functional</includes>
+    <includes local="no">memory</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes refid="simpleRotationalEphemeris_8h" local="yes">tudat/astro/ephemerides/simpleRotationalEphemeris.h</includes>
+    <includes refid="synchronousRotationalEphemeris_8h" local="yes">tudat/astro/ephemerides/synchronousRotationalEphemeris.h</includes>
+    <includes refid="fullPlanetaryRotationModel_8h" local="yes">tudat/astro/ephemerides/fullPlanetaryRotationModel.h</includes>
+    <includes refid="estimatableParameter_8h" local="yes">tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h</includes>
+    <includes refid="linearAlgebra_8h" local="yes">tudat/math/basic/linearAlgebra.h</includes>
+    <includedby refid="sphericalHarmonicAccelerationPartial_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h</includedby>
+    <includedby refid="eulerAngleObservablePartials_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/eulerAngleObservablePartials.h</includedby>
+    <includedby refid="positionPartials_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h</includedby>
+    <includedby refid="orbit__determination_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination.h</includedby>
+    <includedby refid="createAccelerationPartials_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createAccelerationPartials.h</includedby>
+    <includedby refid="createCartesianStatePartials_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createCartesianStatePartials.h</includedby>
+    <includedby refid="createEulerAngleObservationPartials_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h</includedby>
+    <includedby refid="createTorquePartials_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createTorquePartials.h</includedby>
+    <includedby refid="rotationMatrixPartial_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/rotationMatrixPartial.cpp</includedby>
+    <incdepgraph>
+      <node id="51">
+        <label>tudat/math/interpolators/oneDimensionalInterpolator.h</label>
+        <link refid="oneDimensionalInterpolator_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>tudat/config.hpp</label>
+      </node>
+      <node id="35">
+        <label>tudat/io/streamFilters.h</label>
+        <link refid="streamFilters_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>system_error</label>
+      </node>
+      <node id="32">
+        <label>iomanip</label>
+      </node>
+      <node id="3">
+        <label>functional</label>
+      </node>
+      <node id="65">
+        <label>boost/shared_ptr.hpp</label>
+      </node>
+      <node id="16">
+        <label>limits</label>
+      </node>
+      <node id="60">
+        <label>tudat/math/interpolators/linearInterpolator.h</label>
+        <link refid="linearInterpolator_8h_source"/>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="66">
+        <label>tudat/astro/propagators/singleStateTypeDerivative.h</label>
+        <link refid="singleStateTypeDerivative_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>tudat/interface/spice/spiceInterface.h</label>
+        <link refid="spiceInterface_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>boost/iostreams/device/back_inserter.hpp</label>
+      </node>
+      <node id="52">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="41">
+        <label>stdlib.h</label>
+      </node>
+      <node id="11">
+        <label>boost/date_time/gregorian/gregorian.hpp</label>
+      </node>
+      <node id="9">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="59">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>tudat/astro/ephemerides/tleEphemeris.h</label>
+        <link refid="tleEphemeris_8h_source"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>cmath</label>
+      </node>
+      <node id="55">
+        <label>stdexcept</label>
+      </node>
+      <node id="5">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="7">
+        <label>tudat/astro/ephemerides/rotationalEphemeris.h</label>
+        <link refid="rotationalEphemeris_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>string</label>
+      </node>
+      <node id="30">
+        <label>tudat/io/basicInputOutput.h</label>
+        <link refid="basicInputOutput_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>map</label>
+      </node>
+      <node id="38">
+        <label>boost/iostreams/stream_buffer.hpp</label>
+      </node>
+      <node id="25">
+        <label>tudat/astro/reference_frames/referenceFrameTransformations.h</label>
+        <link refid="referenceFrameTransformations_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>fstream</label>
+      </node>
+      <node id="23">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>boost/function.hpp</label>
+      </node>
+      <node id="24">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="43">
+        <label>tudat/resource/resource.h</label>
+      </node>
+      <node id="17">
+        <label>tudat/math/basic/linearAlgebra.h</label>
+        <link refid="linearAlgebra_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>tudat/astro/ephemerides/ephemeris.h</label>
+        <link refid="astro_2ephemerides_2ephemeris_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h</label>
+        <link refid="rotationMatrixPartial_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat/astro/basic_astro/timeConversions.h</label>
+        <link refid="timeConversions_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>tudat/math/basic/nearestNeighbourSearch.h</label>
+        <link refid="nearestNeighbourSearch_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>vector</label>
+      </node>
+      <node id="36">
+        <label>boost/iostreams/filter/line.hpp</label>
+      </node>
+      <node id="45">
+        <label>cspice/SpiceUsr.h</label>
+      </node>
+      <node id="64">
+        <label>tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h</label>
+        <link refid="estimatableParameter_8h_source"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>tudat/paths.hpp</label>
+        <link refid="paths_8hpp_source"/>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>boost/filesystem.hpp</label>
+      </node>
+      <node id="67">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="46">
+        <label>cspice/SpiceZfc.h</label>
+      </node>
+      <node id="21">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>iostream</label>
+      </node>
+      <node id="6">
+        <label>tudat/astro/ephemerides/simpleRotationalEphemeris.h</label>
+        <link refid="simpleRotationalEphemeris_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>tudat/astro/ephemerides/fullPlanetaryRotationModel.h</label>
+        <link refid="fullPlanetaryRotationModel_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/astro/ephemerides/synchronousRotationalEphemeris.h</label>
+        <link refid="synchronousRotationalEphemeris_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>boost/regex.hpp</label>
+      </node>
+      <node id="19">
+        <label>Eigen/SVD</label>
+      </node>
+      <node id="62">
+        <label>boost/array.hpp</label>
+      </node>
+      <node id="63">
+        <label>tudat/math/interpolators/cubicSplineInterpolator.h</label>
+        <link refid="cubicSplineInterpolator_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>type_traits</label>
+      </node>
+      <node id="50">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="61">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="15">
+        <label>complex</label>
+      </node>
+      <node id="22">
+        <label>algorithm</label>
+      </node>
+      <node id="49">
+        <label>tudat/math/interpolators/lagrangeInterpolator.h</label>
+        <link refid="lagrangeInterpolator_8h_source"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+      <node id="53">
+        <label>tudat/math/interpolators/lookupScheme.h</label>
+        <link refid="lookupScheme_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/eulerAngleObservablePartials.h</label>
+        <link refid="eulerAngleObservablePartials_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/twoWayDopplerPartial.h</label>
+        <link refid="twoWayDopplerPartial_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h</label>
+        <link refid="sphericalHarmonicGravitationalTorquePartial_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="50">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createCartesianStatePartials.h</label>
+        <link refid="createCartesianStatePartials_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h</label>
+        <link refid="oneWayDopplerPartial_8h_source"/>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createOneWayRangePartials.h</label>
+        <link refid="createOneWayRangePartials_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createTorquePartials.h</label>
+        <link refid="createTorquePartials_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h</label>
+        <link refid="thirdBodyGravityPartial_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination.h</label>
+        <link refid="orbit__determination_8h_source"/>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNumericalSimulator.h</label>
+        <link refid="createNumericalSimulator_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/export.h</label>
+        <link refid="export_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createAccelerationPartials.h</label>
+        <link refid="createAccelerationPartials_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h</label>
+        <link refid="nWayRangePartial_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="46">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h</label>
+        <link refid="createDifferencedOneWayRangeRatePartials_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationManager.h</label>
+        <link refid="createObservationManager_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h</label>
+        <link refid="positionPartials_8h_source"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h</label>
+        <link refid="rotationMatrixPartial_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="31">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h</label>
+        <link refid="variationalEquationsSolver_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createDopplerPartials.h</label>
+        <link refid="createDopplerPartials_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createStateDerivativePartials.h</label>
+        <link refid="createStateDerivativePartials_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h</label>
+        <link refid="createEulerAngleObservationPartials_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createAngularPositionPartials.h</label>
+        <link refid="createAngularPositionPartials_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h</label>
+        <link refid="sphericalHarmonicAccelerationPartial_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h</label>
+        <link refid="mutualSphericalHarmonicGravityPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+      <node id="37">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h</label>
+        <link refid="angularPositionPartial_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h</label>
+        <link refid="oneWayRangePartial_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNWayRangePartials.h</label>
+        <link refid="createNWayRangePartials_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h</label>
+        <link refid="differencedOneWayRangeRatePartial_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationPartials.h</label>
+        <link refid="createObservationPartials_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" prot="public">tudat::observation_partials::RotationMatrixPartial</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate" prot="public">tudat::observation_partials::RotationMatrixPartialWrtConstantRotationRate</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation" prot="public">tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations" prot="public">tudat::observation_partials::RotationMatrixPartialWrtPeriodicSpinVariations</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude" prot="public">tudat::observation_partials::RotationMatrixPartialWrtPolarMotionAmplitude</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor" prot="public">tudat::observation_partials::RotationMatrixPartialWrtCoreFactor</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate" prot="public">tudat::observation_partials::RotationMatrixPartialWrtFreeCoreNutationRate</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion" prot="public">tudat::observation_partials::RotationMatrixPartialWrtQuaternion</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState" prot="public">tudat::observation_partials::RotationMatrixPartialWrtRotationalState</innerclass>
+    <innerclass refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState" prot="public">tudat::observation_partials::SynchronousRotationMatrixPartialWrtTranslationalState</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1observation__partials">tudat::observation_partials</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_ROTATIONMATRIXPARTIAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_ROTATIONMATRIXPARTIAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;functional&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/ephemerides/simpleRotationalEphemeris.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/ephemerides/synchronousRotationalEphemeris.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/ephemerides/fullPlanetaryRotationModel.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/basic/linearAlgebra.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">observation_partials</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">Eigen::Matrix3d<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotationRate(</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond<sp/>inertialBodyFixedToIntegrationFrame,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>rotationRate,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeSinceEpoch<sp/>);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal">Eigen::Matrix3d<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Matrix3d<sp/>currentRotationFromLocalToGlobalFrame,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>rotationRate,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeSinceEpoch<sp/>);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal">std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtPoleOrientation(</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>initialOrientationAngles,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>rotationRate,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeSinceEpoch<sp/>);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPoleOrientation(</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>initialOrientationAngles,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>rotationRate,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeSinceEpoch<sp/>);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtPeriodicSpinVariations(</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryOrientationAngleCalculator<sp/>&gt;<sp/>planetaryOrientationCalculator,</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond<sp/>&amp;rotationFromMeanOrbitToIcrf,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond&amp;<sp/>polarMotionRotation,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ephemerisTime<sp/>);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPeriodicSpinVariations(</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryOrientationAngleCalculator<sp/>&gt;<sp/>planetaryOrientationCalculator,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond<sp/>&amp;rotationFromMeanOrbitToIcrf,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond&amp;<sp/>polarMotionRotation,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ephemerisTime<sp/>);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal">std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtPolarMotionAmplitude(</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryOrientationAngleCalculator<sp/>&gt;<sp/>planetaryOrientationCalculator,</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond&amp;<sp/>rotationFromMeanOrbitToIcrf,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond&amp;<sp/>rotationFromBodyFixedToIntermediateInertialFrame,</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ephemerisTime<sp/>);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal">std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPolarMotionAmplitude(</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryOrientationAngleCalculator<sp/>&gt;<sp/>planetaryOrientationCalculator<sp/>,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond<sp/>&amp;rotationFromMeanOrbitToIcrf,</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ephemerisTime);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal">Eigen::Matrix3d<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryOrientationAngleCalculator<sp/>&gt;<sp/>planetaryOrientationCalculator,</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond<sp/>&amp;rotationFromMeanOrbitToIcrf,</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond&amp;<sp/>polarMotionRotation,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ephemerisTime<sp/>);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal">Eigen::Matrix3d<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreFactor(</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryOrientationAngleCalculator<sp/>&gt;<sp/>planetaryOrientationCalculator,</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond<sp/>&amp;rotationFromMeanOrbitToIcrf,</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond&amp;<sp/>polarMotionRotation,</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ephemerisTime<sp/>);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">Eigen::Matrix3d<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutationRate(</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryOrientationAngleCalculator<sp/>&gt;<sp/>planetaryOrientationCalculator,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond<sp/>&amp;rotationFromMeanOrbitToIcrf,</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond&amp;<sp/>polarMotionRotation,</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ephemerisTime<sp/>);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal">Eigen::Matrix3d<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeCoreNutationRate(</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryOrientationAngleCalculator<sp/>&gt;<sp/>planetaryOrientationCalculator,</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond<sp/>&amp;rotationFromMeanOrbitToIcrf,</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Quaterniond&amp;<sp/>polarMotionRotation,</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ephemerisTime<sp/>);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="236"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::RotationalEphemeris<sp/>&gt;<sp/>rotationModel<sp/>):</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rotationModel_(<sp/>rotationModel<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a74a1aafeff8ba51c4020aef18ec4d42b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a74a1aafeff8ba51c4020aef18ec4d42b" kindref="member">~RotationMatrixPartial</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a758db711ec18f3efbaa759488e45daf1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a758db711ec18f3efbaa759488e45daf1" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a21af519e8a78ffd2978586549f3569c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a21af519e8a78ffd2978586549f3569c4" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Matrix&lt;<sp/>double,<sp/>3,<sp/>Eigen::Dynamic<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1ac71e83a0bce8b3b19b687d050eabb1a9" kindref="member">calculatePartialOfInertialPositionWrtParameter</ref>(</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time,</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>vectorInLocalFrame<sp/>);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Matrix&lt;<sp/>double,<sp/>3,<sp/>Eigen::Dynamic<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a3cda8d4ab37d7bab0a8d20a9dd67a298" kindref="member">calculatePartialOfInertialVelocityWrtParameter</ref>(</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time,</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>vectorInLocalFrame<sp/>);</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a0e55c2d7ab65b053705dcfa3e37048b5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::string<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a0e55c2d7ab65b053705dcfa3e37048b5" kindref="member">getSecondaryIdentifier</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ephemerides::RotationalEphemeris<sp/>&gt;<sp/>rotationModel_;</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate" kindref="compound">RotationMatrixPartialWrtConstantRotationRate</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="328"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="336" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_1ad70b5c43ad5d53e6b97da71c1d5bff29" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_1ad70b5c43ad5d53e6b97da71c1d5bff29" kindref="member">RotationMatrixPartialWrtConstantRotationRate</ref>(</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::SimpleRotationalEphemeris<sp/>&gt;<sp/>bodyRotationModel<sp/>):</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>bodyRotationModel<sp/>),</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_(<sp/>bodyRotationModel<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_1ab726f050920eed1aac62134722b337c5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_1ab726f050920eed1aac62134722b337c5" kindref="member">~RotationMatrixPartialWrtConstantRotationRate</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight></codeline>
+<codeline lineno="352" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_1af7cfb6213d9fd66a0db3851082ac57e9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_1af7cfb6213d9fd66a0db3851082ac57e9" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotationRate(</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_-&gt;getInitialRotationToTargetFrame(<sp/>).inverse(<sp/>),</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_-&gt;getRotationRate(<sp/>),</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>-<sp/>bodyRotationModel_-&gt;getInitialSecondsSinceEpoch(<sp/>)<sp/>)<sp/>};</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal"></highlight></codeline>
+<codeline lineno="369" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_1a39fef0df8a611b437c64b20dbcda715c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_1a39fef0df8a611b437c64b20dbcda715c" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_-&gt;getRotationToBaseFrame(<sp/>time<sp/>).toRotationMatrix(<sp/>),</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_-&gt;getRotationRate(<sp/>),</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>-<sp/>bodyRotationModel_-&gt;getInitialSecondsSinceEpoch(<sp/>)<sp/>)<sp/>};</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"></highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ephemerides::SimpleRotationalEphemeris<sp/>&gt;<sp/>bodyRotationModel_;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight></codeline>
+<codeline lineno="386"><highlight class="normal"></highlight></codeline>
+<codeline lineno="390" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation" kindref="compound">RotationMatrixPartialWrtPoleOrientation</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="391"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"></highlight></codeline>
+<codeline lineno="395"><highlight class="normal"></highlight></codeline>
+<codeline lineno="399" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1af659d2be43f373595bbda6b7ac230efa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1af659d2be43f373595bbda6b7ac230efa" kindref="member">RotationMatrixPartialWrtPoleOrientation</ref>(</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::SimpleRotationalEphemeris<sp/>&gt;<sp/>bodyRotationModel<sp/>):</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>bodyRotationModel<sp/>),</highlight></codeline>
+<codeline lineno="402"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_(<sp/>bodyRotationModel<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight></codeline>
+<codeline lineno="405" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a7dd9bedf18040b689fc2deb444497701" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a7dd9bedf18040b689fc2deb444497701" kindref="member">~RotationMatrixPartialWrtPoleOrientation</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal"></highlight></codeline>
+<codeline lineno="416" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a71d9dc1d5b75f3ca59621a680d494d54" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a71d9dc1d5b75f3ca59621a680d494d54" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtPoleOrientation(</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_-&gt;getInitialEulerAngles(<sp/>),</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_-&gt;getRotationRate(<sp/>),<sp/>time<sp/>-<sp/>bodyRotationModel_-&gt;getInitialSecondsSinceEpoch(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"></highlight></codeline>
+<codeline lineno="426"><highlight class="normal"></highlight></codeline>
+<codeline lineno="433" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a23a552c424979c94778e71eb9dc6b3c6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a23a552c424979c94778e71eb9dc6b3c6" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="434"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPoleOrientation(</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_-&gt;getInitialEulerAngles(<sp/>),</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_-&gt;getRotationRate(<sp/>),<sp/>time<sp/>-<sp/>bodyRotationModel_-&gt;getInitialSecondsSinceEpoch(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="440"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="441"><highlight class="normal"></highlight></codeline>
+<codeline lineno="442"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="443"><highlight class="normal"></highlight></codeline>
+<codeline lineno="445"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ephemerides::SimpleRotationalEphemeris<sp/>&gt;<sp/>bodyRotationModel_;</highlight></codeline>
+<codeline lineno="446"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"></highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight></codeline>
+<codeline lineno="453" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations" kindref="compound">RotationMatrixPartialWrtPeriodicSpinVariations</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="454"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="455"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="456"><highlight class="normal"></highlight></codeline>
+<codeline lineno="458" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations_1a2e4cdf8be44685fac2478ddb156d53f0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations_1a2e4cdf8be44685fac2478ddb156d53f0" kindref="member">RotationMatrixPartialWrtPeriodicSpinVariations</ref>(</highlight></codeline>
+<codeline lineno="459"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryRotationModel<sp/>&gt;<sp/>bodyRotationModel<sp/>):</highlight></codeline>
+<codeline lineno="460"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>bodyRotationModel<sp/>),</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_(<sp/>bodyRotationModel<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="462"><highlight class="normal"></highlight></codeline>
+<codeline lineno="464" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations_1a03bd7be6ffdd9ba37ed936cbaa55cbba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations_1a03bd7be6ffdd9ba37ed936cbaa55cbba" kindref="member">~RotationMatrixPartialWrtPeriodicSpinVariations</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"></highlight></codeline>
+<codeline lineno="468"><highlight class="normal"></highlight></codeline>
+<codeline lineno="475" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations_1ae99f6d16402909e27a6bd82d8f857014" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations_1ae99f6d16402909e27a6bd82d8f857014" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtPeriodicSpinVariations(</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPlanetaryOrientationAngleCalculator(),</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromMeanOrbitToIcrf(),</highlight></codeline>
+<codeline lineno="481"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPolarMotionRotation(<sp/>time<sp/>),</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="483"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"></highlight></codeline>
+<codeline lineno="487"><highlight class="normal"></highlight></codeline>
+<codeline lineno="494" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations_1aa1eafb4c8bee8135d18ceddcaf5578b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPeriodicSpinVariations_1aa1eafb4c8bee8135d18ceddcaf5578b7" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="497"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPeriodicSpinVariations(</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPlanetaryOrientationAngleCalculator(),</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromMeanOrbitToIcrf(),</highlight></codeline>
+<codeline lineno="500"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPolarMotionRotation(<sp/>time<sp/>),</highlight></codeline>
+<codeline lineno="501"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="502"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="503"><highlight class="normal"></highlight></codeline>
+<codeline lineno="504"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="505"><highlight class="normal"></highlight></codeline>
+<codeline lineno="507"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryRotationModel<sp/>&gt;<sp/>bodyRotationModel_;</highlight></codeline>
+<codeline lineno="508"><highlight class="normal"></highlight></codeline>
+<codeline lineno="509"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="510"><highlight class="normal"></highlight></codeline>
+<codeline lineno="512"><highlight class="normal"></highlight></codeline>
+<codeline lineno="516" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude" kindref="compound">RotationMatrixPartialWrtPolarMotionAmplitude</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="517"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="518"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="519"><highlight class="normal"></highlight></codeline>
+<codeline lineno="521" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude_1a2d39afd74e9afa8bf92cba2e7d0a1852" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude_1a2d39afd74e9afa8bf92cba2e7d0a1852" kindref="member">RotationMatrixPartialWrtPolarMotionAmplitude</ref>(</highlight></codeline>
+<codeline lineno="522"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryRotationModel<sp/>&gt;<sp/>bodyRotationModel<sp/>):</highlight></codeline>
+<codeline lineno="523"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>bodyRotationModel<sp/>),</highlight></codeline>
+<codeline lineno="524"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_(<sp/>bodyRotationModel<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"></highlight></codeline>
+<codeline lineno="527" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude_1a9731eb201a0979e6f5ce966e3a7bb1ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude_1a9731eb201a0979e6f5ce966e3a7bb1ca" kindref="member">~RotationMatrixPartialWrtPolarMotionAmplitude</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="528"><highlight class="normal"></highlight></codeline>
+<codeline lineno="531"><highlight class="normal"></highlight></codeline>
+<codeline lineno="538" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude_1a2c14e28200313ee7c8804f343bb67f76" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude_1a2c14e28200313ee7c8804f343bb67f76" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="539"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="540"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="541"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtPolarMotionAmplitude(</highlight></codeline>
+<codeline lineno="542"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPlanetaryOrientationAngleCalculator(),</highlight></codeline>
+<codeline lineno="543"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromMeanOrbitToIcrf(),</highlight></codeline>
+<codeline lineno="544"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromBodyFixedToIntermediateInertialFrame(<sp/>time<sp/>),</highlight></codeline>
+<codeline lineno="545"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="546"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="547"><highlight class="normal"></highlight></codeline>
+<codeline lineno="550"><highlight class="normal"></highlight></codeline>
+<codeline lineno="557" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude_1ad4f89ff8f1d6fea2a7a2b142fac9e206" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPolarMotionAmplitude_1ad4f89ff8f1d6fea2a7a2b142fac9e206" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="558"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPolarMotionAmplitude(</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPlanetaryOrientationAngleCalculator(<sp/>),</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromMeanOrbitToIcrf(),</highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"></highlight></codeline>
+<codeline lineno="566"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="567"><highlight class="normal"></highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryRotationModel<sp/>&gt;<sp/>bodyRotationModel_;</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"></highlight></codeline>
+<codeline lineno="571"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"></highlight></codeline>
+<codeline lineno="574"><highlight class="normal"></highlight></codeline>
+<codeline lineno="578" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor" kindref="compound">RotationMatrixPartialWrtCoreFactor</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="579"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="580"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="581"><highlight class="normal"></highlight></codeline>
+<codeline lineno="583" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_1a4fb6a2a68cfe3f88eb1f0d38b3831762" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_1a4fb6a2a68cfe3f88eb1f0d38b3831762" kindref="member">RotationMatrixPartialWrtCoreFactor</ref>(</highlight></codeline>
+<codeline lineno="584"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryRotationModel<sp/>&gt;<sp/>bodyRotationModel<sp/>):</highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>bodyRotationModel<sp/>),</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_(<sp/>bodyRotationModel<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"></highlight></codeline>
+<codeline lineno="589" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_1a0cfef880c840fe74438741bddf8ebcb2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_1a0cfef880c840fe74438741bddf8ebcb2" kindref="member">~RotationMatrixPartialWrtCoreFactor</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="590"><highlight class="normal"></highlight></codeline>
+<codeline lineno="593"><highlight class="normal"></highlight></codeline>
+<codeline lineno="600" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_1a1672e6625458823106efdda5aa971638" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_1a1672e6625458823106efdda5aa971638" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="601"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="602"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="603"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><sp/>{<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(</highlight></codeline>
+<codeline lineno="604"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPlanetaryOrientationAngleCalculator(),</highlight></codeline>
+<codeline lineno="605"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromMeanOrbitToIcrf(),</highlight></codeline>
+<codeline lineno="606"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPolarMotionRotation(<sp/>time<sp/>),</highlight></codeline>
+<codeline lineno="607"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>)<sp/>};</highlight></codeline>
+<codeline lineno="608"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="609"><highlight class="normal"></highlight></codeline>
+<codeline lineno="612"><highlight class="normal"></highlight></codeline>
+<codeline lineno="619" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_1ae8cd99aee95903df6baf85aac67ac809" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtCoreFactor_1ae8cd99aee95903df6baf85aac67ac809" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="620"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="621"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreFactor(</highlight></codeline>
+<codeline lineno="623"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPlanetaryOrientationAngleCalculator(),</highlight></codeline>
+<codeline lineno="624"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromMeanOrbitToIcrf(),</highlight></codeline>
+<codeline lineno="625"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPolarMotionRotation(<sp/>time<sp/>),</highlight></codeline>
+<codeline lineno="626"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>)<sp/>};</highlight></codeline>
+<codeline lineno="627"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="628"><highlight class="normal"></highlight></codeline>
+<codeline lineno="629"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="630"><highlight class="normal"></highlight></codeline>
+<codeline lineno="632"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryRotationModel<sp/>&gt;<sp/>bodyRotationModel_;</highlight></codeline>
+<codeline lineno="633"><highlight class="normal"></highlight></codeline>
+<codeline lineno="634"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="635"><highlight class="normal"></highlight></codeline>
+<codeline lineno="637"><highlight class="normal"></highlight></codeline>
+<codeline lineno="641" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate" kindref="compound">RotationMatrixPartialWrtFreeCoreNutationRate</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="642"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="643"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="644"><highlight class="normal"></highlight></codeline>
+<codeline lineno="646" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1ae6247787f209f35953f4ed9d41ef299e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1ae6247787f209f35953f4ed9d41ef299e" kindref="member">RotationMatrixPartialWrtFreeCoreNutationRate</ref>(</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryRotationModel<sp/>&gt;<sp/>bodyRotationModel<sp/>):</highlight></codeline>
+<codeline lineno="648"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>bodyRotationModel<sp/>),</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_(<sp/>bodyRotationModel<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="650"><highlight class="normal"></highlight></codeline>
+<codeline lineno="652" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1ad795651bfeeba16665d828710669c85d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1ad795651bfeeba16665d828710669c85d" kindref="member">~RotationMatrixPartialWrtFreeCoreNutationRate</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="653"><highlight class="normal"></highlight></codeline>
+<codeline lineno="656"><highlight class="normal"></highlight></codeline>
+<codeline lineno="663" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a270851ffbfe70aff5c088ef7270cf47b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a270851ffbfe70aff5c088ef7270cf47b" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="664"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="665"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="666"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><sp/>{<sp/>calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutationRate(</highlight></codeline>
+<codeline lineno="667"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPlanetaryOrientationAngleCalculator(),</highlight></codeline>
+<codeline lineno="668"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromMeanOrbitToIcrf(),</highlight></codeline>
+<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPolarMotionRotation(<sp/>time<sp/>),</highlight></codeline>
+<codeline lineno="670"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>)<sp/>};</highlight></codeline>
+<codeline lineno="671"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="672"><highlight class="normal"></highlight></codeline>
+<codeline lineno="675"><highlight class="normal"></highlight></codeline>
+<codeline lineno="682" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a53bb490f7227271865c3b3dc0069e237" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtFreeCoreNutationRate_1a53bb490f7227271865c3b3dc0069e237" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="683"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="684"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="685"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeCoreNutationRate(</highlight></codeline>
+<codeline lineno="686"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPlanetaryOrientationAngleCalculator(),</highlight></codeline>
+<codeline lineno="687"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getRotationFromMeanOrbitToIcrf(),</highlight></codeline>
+<codeline lineno="688"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyRotationModel_<sp/>-&gt;getPolarMotionRotation(<sp/>time<sp/>),</highlight></codeline>
+<codeline lineno="689"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>time<sp/>)<sp/>};</highlight></codeline>
+<codeline lineno="690"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="691"><highlight class="normal"></highlight></codeline>
+<codeline lineno="692"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="693"><highlight class="normal"></highlight></codeline>
+<codeline lineno="695"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ephemerides::PlanetaryRotationModel<sp/>&gt;<sp/>bodyRotationModel_;</highlight></codeline>
+<codeline lineno="696"><highlight class="normal"></highlight></codeline>
+<codeline lineno="697"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="698"><highlight class="normal"></highlight></codeline>
+<codeline lineno="700" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion" kindref="compound">RotationMatrixPartialWrtQuaternion</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="701"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="702"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="703"><highlight class="normal"></highlight></codeline>
+<codeline lineno="705"><highlight class="normal"></highlight></codeline>
+<codeline lineno="709" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion_1ad4bbe92efd6b4d8b07201ad6342dea4c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion_1ad4bbe92efd6b4d8b07201ad6342dea4c" kindref="member">RotationMatrixPartialWrtQuaternion</ref>(</highlight></codeline>
+<codeline lineno="710"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>Eigen::Quaterniond(<sp/>)<sp/>&gt;<sp/>currentRotationToInertialFrameFunction<sp/>):</highlight></codeline>
+<codeline lineno="711"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>nullptr<sp/>),</highlight></codeline>
+<codeline lineno="712"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentRotationToInertialFrameFunction_(<sp/>currentRotationToInertialFrameFunction<sp/>)</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="714"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentQuaternionPartials_.resize(<sp/>4<sp/>);</highlight></codeline>
+<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="716"><highlight class="normal"></highlight></codeline>
+<codeline lineno="718" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion_1a421ddf696b893fcf3c585c16f8efdc57" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion_1a421ddf696b893fcf3c585c16f8efdc57" kindref="member">~RotationMatrixPartialWrtQuaternion</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="719"><highlight class="normal"></highlight></codeline>
+<codeline lineno="721"><highlight class="normal"></highlight></codeline>
+<codeline lineno="728" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion_1abc6253b011179a9b28881431ee0c59ec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion_1abc6253b011179a9b28881431ee0c59ec" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="729"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="730"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="731"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(</highlight></codeline>
+<codeline lineno="732"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>linear_algebra::convertQuaternionToVectorFormat(<sp/>currentRotationToInertialFrameFunction_(<sp/>)<sp/>),</highlight></codeline>
+<codeline lineno="733"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentQuaternionPartials_<sp/>);</highlight></codeline>
+<codeline lineno="734"><highlight class="normal"></highlight></codeline>
+<codeline lineno="735"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>currentQuaternionPartials_;</highlight></codeline>
+<codeline lineno="736"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="737"><highlight class="normal"></highlight></codeline>
+<codeline lineno="739"><highlight class="normal"></highlight></codeline>
+<codeline lineno="746" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion_1a6ff59a77fec35df46c395da9cbe81d03" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtQuaternion_1a6ff59a77fec35df46c395da9cbe81d03" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="747"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="748"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="749"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>calling<sp/>RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter,<sp/>function<sp/>not<sp/>yet<sp/>implemented.&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="750"><highlight class="normal"></highlight></codeline>
+<codeline lineno="751"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="752"><highlight class="normal"></highlight></codeline>
+<codeline lineno="753"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="754"><highlight class="normal"></highlight></codeline>
+<codeline lineno="756"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>Eigen::Quaterniond(<sp/>)<sp/>&gt;<sp/>currentRotationToInertialFrameFunction_;</highlight></codeline>
+<codeline lineno="757"><highlight class="normal"></highlight></codeline>
+<codeline lineno="759"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>currentQuaternionPartials_;</highlight></codeline>
+<codeline lineno="760"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="761"><highlight class="normal"></highlight></codeline>
+<codeline lineno="763"><highlight class="normal"></highlight></codeline>
+<codeline lineno="767" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState" kindref="compound">RotationMatrixPartialWrtRotationalState</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="768"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="769"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="770"><highlight class="normal"></highlight></codeline>
+<codeline lineno="772"><highlight class="normal"></highlight></codeline>
+<codeline lineno="776" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_1a2a4111906ef7390ddbccb45e59de959d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_1a2a4111906ef7390ddbccb45e59de959d" kindref="member">RotationMatrixPartialWrtRotationalState</ref>(</highlight></codeline>
+<codeline lineno="777"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>Eigen::Quaterniond(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>currentRotationToInertialFrameFunction<sp/>):</highlight></codeline>
+<codeline lineno="778"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>nullptr<sp/>),</highlight></codeline>
+<codeline lineno="779"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentRotationToInertialFrameFunction_(<sp/>currentRotationToInertialFrameFunction<sp/>)</highlight></codeline>
+<codeline lineno="780"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="781"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentQuaternionPartials_.resize(<sp/>7<sp/>);</highlight></codeline>
+<codeline lineno="782"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="783"><highlight class="normal"></highlight></codeline>
+<codeline lineno="785" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_1ab8263ee0f86eb405cb6fe193ab9753af" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_1ab8263ee0f86eb405cb6fe193ab9753af" kindref="member">~RotationMatrixPartialWrtRotationalState</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="786"><highlight class="normal"></highlight></codeline>
+<codeline lineno="788"><highlight class="normal"></highlight></codeline>
+<codeline lineno="795" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_1aa78fff3274ad7afd6d0f4ce81c1f6c90" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_1aa78fff3274ad7afd6d0f4ce81c1f6c90" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="796"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="797"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="798"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(</highlight></codeline>
+<codeline lineno="799"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>linear_algebra::convertQuaternionToVectorFormat(<sp/>currentRotationToInertialFrameFunction_(<sp/>time<sp/>)<sp/>),</highlight></codeline>
+<codeline lineno="800"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentQuaternionPartials_<sp/>);</highlight></codeline>
+<codeline lineno="801"><highlight class="normal"></highlight></codeline>
+<codeline lineno="802"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>3;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="803"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="804"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentQuaternionPartials_[<sp/>i<sp/>+<sp/>4<sp/>]<sp/>=<sp/><sp/>Eigen::Matrix3d::Zero(<sp/>);</highlight></codeline>
+<codeline lineno="805"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="806"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>currentQuaternionPartials_;</highlight></codeline>
+<codeline lineno="807"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="808"><highlight class="normal"></highlight></codeline>
+<codeline lineno="810"><highlight class="normal"></highlight></codeline>
+<codeline lineno="817" refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_1afd6782822a11194024aa42cf177cc2d5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_1afd6782822a11194024aa42cf177cc2d5" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="818"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="819"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="820"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>calling<sp/>RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter,<sp/>function<sp/>not<sp/>yet<sp/>implemented.&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="821"><highlight class="normal"></highlight></codeline>
+<codeline lineno="822"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="823"><highlight class="normal"></highlight></codeline>
+<codeline lineno="824"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="825"><highlight class="normal"></highlight></codeline>
+<codeline lineno="827"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>Eigen::Quaterniond(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>currentRotationToInertialFrameFunction_;</highlight></codeline>
+<codeline lineno="828"><highlight class="normal"></highlight></codeline>
+<codeline lineno="831"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>currentQuaternionPartials_;</highlight></codeline>
+<codeline lineno="832"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="833"><highlight class="normal"></highlight></codeline>
+<codeline lineno="835"><highlight class="normal"></highlight></codeline>
+<codeline lineno="839" refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState" kindref="compound">SynchronousRotationMatrixPartialWrtTranslationalState</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref></highlight></codeline>
+<codeline lineno="840"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="841"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="842"><highlight class="normal"></highlight></codeline>
+<codeline lineno="844"><highlight class="normal"></highlight></codeline>
+<codeline lineno="848" refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState_1a84224ab5b77d2ba6463119341cecfb9c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState_1a84224ab5b77d2ba6463119341cecfb9c" kindref="member">SynchronousRotationMatrixPartialWrtTranslationalState</ref>(</highlight></codeline>
+<codeline lineno="849"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>ephemerides::SynchronousRotationalEphemeris<sp/>&gt;<sp/>synchronousRotationaModel<sp/>):</highlight></codeline>
+<codeline lineno="850"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref>(<sp/>synchronousRotationaModel<sp/>),</highlight></codeline>
+<codeline lineno="851"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>synchronousRotationaModel_(<sp/>synchronousRotationaModel<sp/>)</highlight></codeline>
+<codeline lineno="852"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="853"><highlight class="normal"></highlight></codeline>
+<codeline lineno="854"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="855"><highlight class="normal"></highlight></codeline>
+<codeline lineno="857" refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState_1a639be515be41957257d3247e1795d206" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState_1a639be515be41957257d3247e1795d206" kindref="member">~SynchronousRotationMatrixPartialWrtTranslationalState</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="858"><highlight class="normal"></highlight></codeline>
+<codeline lineno="860"><highlight class="normal"></highlight></codeline>
+<codeline lineno="867"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState_1a2684c352946321f8e0f672a1fafab9ed" kindref="member">calculatePartialOfRotationMatrixToBaseFrameWrParameter</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="868"><highlight class="normal"></highlight></codeline>
+<codeline lineno="870"><highlight class="normal"></highlight></codeline>
+<codeline lineno="877" refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState_1a265aec73b700b7974f106fe1bcd4b53f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>Eigen::Matrix3d<sp/>&gt;<sp/><ref refid="classtudat_1_1observation__partials_1_1SynchronousRotationMatrixPartialWrtTranslationalState_1a265aec73b700b7974f106fe1bcd4b53f" kindref="member">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</ref>(</highlight></codeline>
+<codeline lineno="878"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="879"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="880"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>calling<sp/>RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter,<sp/>function<sp/>not<sp/>yet<sp/>implemented.&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="881"><highlight class="normal"></highlight></codeline>
+<codeline lineno="882"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="883"><highlight class="normal"></highlight></codeline>
+<codeline lineno="884"><highlight class="normal"></highlight></codeline>
+<codeline lineno="885"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="886"><highlight class="normal"></highlight></codeline>
+<codeline lineno="888"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>ephemerides::SynchronousRotationalEphemeris<sp/>&gt;<sp/>synchronousRotationaModel_;</highlight></codeline>
+<codeline lineno="889"><highlight class="normal"></highlight></codeline>
+<codeline lineno="890"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="891"><highlight class="normal"></highlight></codeline>
+<codeline lineno="893"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>std::pair&lt;<sp/>estimatable_parameters::EstimatebleParametersEnum,<sp/>std::string<sp/>&gt;,</highlight></codeline>
+<codeline lineno="894"><highlight class="normal">std::shared_ptr&lt;<sp/>observation_partials::RotationMatrixPartial<sp/>&gt;<sp/>&gt;<sp/>RotationMatrixPartialNamedList;</highlight></codeline>
+<codeline lineno="895"><highlight class="normal"></highlight></codeline>
+<codeline lineno="896"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="897"><highlight class="normal"></highlight></codeline>
+<codeline lineno="898"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="899"><highlight class="normal"></highlight></codeline>
+<codeline lineno="900"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_ROTATIONMATRIXPARTIAL_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"/>
+  </compounddef>
+</doxygen>

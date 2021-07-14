@@ -1,0 +1,506 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1geometric__shapes_1_1Torus" kind="class" language="C++" prot="public">
+    <compoundname>tudat::geometric_shapes::Torus</compoundname>
+    <basecompoundref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" prot="public" virt="non-virtual">tudat::geometric_shapes::SingleSurfaceGeometry</basecompoundref>
+    <includes refid="torus_8h" local="no">torus.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1geometric__shapes_1_1Torus_1acba1b39a8f576d6cce0adcced4eaf0c2" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::majorRadius_</definition>
+        <argsstring></argsstring>
+        <name>majorRadius_</name>
+        <briefdescription>
+<para>Major radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Major radius, i.e. radius of center of torus to center of tube. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="171" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1geometric__shapes_1_1Torus_1a790b5f23df17f8d60c0f37870f45547d" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::minorRadius_</definition>
+        <argsstring></argsstring>
+        <name>minorRadius_</name>
+        <briefdescription>
+<para>Minor radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Minor radius, i.e. radius of tube. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="177" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1a9ceb9b97d31907f567829a2cc11476e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::geometric_shapes::Torus::Torus</definition>
+        <argsstring>(const double majorRadius, const double minorRadius, const double minimumMajorCircumferentialAngle=0.0, const double maximumMajorCircumferentialAngle=2.0 *mathematical_constants::PI, const double minimumMinorCircumferentialAngle=0.0, const double maximumMinorCircumferentialAngle=2.0 *mathematical_constants::PI)</argsstring>
+        <name>Torus</name>
+        <param>
+          <type>const double</type>
+          <declname>majorRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minorRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumMajorCircumferentialAngle</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumMajorCircumferentialAngle</declname>
+          <defval>2.0 *mathematical_constants::PI</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumMinorCircumferentialAngle</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumMinorCircumferentialAngle</declname>
+          <defval>2.0 *mathematical_constants::PI</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. Default values set to full torus. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>majorRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Major radius of torus (i.e. radius from center of torus to outside, of torus). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minorRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minor radius of torus (i.e. radius of torus &apos;tube&apos;) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumMajorCircumferentialAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum of circumferential angle &apos;subtended by major radius&apos;. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumMajorCircumferentialAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum of circumferential angle &apos;subtended by major radius&apos;. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumMinorCircumferentialAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum of circumferential angle &apos;subtended by minor radius&apos;. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumMinorCircumferentialAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum of circumferential angle &apos;subtended by minor radius&apos;. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="56" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/torus.cpp" bodystart="25" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1a4d4945c2926a530d6bab05f503d849b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::geometric_shapes::Torus::getSurfacePoint</definition>
+        <argsstring>(const double majorCircumferentialAngle, const double minorCircumferentialAngle)</argsstring>
+        <name>getSurfacePoint</name>
+        <reimplements refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aec5c9957aa261662b34ddb0acf5eac40">getSurfacePoint</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>majorCircumferentialAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minorCircumferentialAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get surface point on torus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieves a surface point in Cartesian coordinates on the torus from values of the two independent variables. Function uses cartesianPositionVector_ member variable. Values of this vector set previous to function call are irrelevant. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>majorCircumferentialAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Major circumferential angle of the torus at which to retrieve the surface point. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minorCircumferentialAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minor circumferential angle of the torus at which to retrieve the surface point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Point on torus in Cartesian coordinates. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="74" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/torus.cpp" bodystart="40" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1ab2eee5aafe47effb68b2c85d06ecf1dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::geometric_shapes::Torus::getSurfaceDerivative</definition>
+        <argsstring>(const double majorCircumferentialAngle, const double minorCircumferentialAngle, const int powerOfMajorCircumferentialAngleDerivative, const int powerOfMinorCircumferentialAngleDerivative)</argsstring>
+        <name>getSurfaceDerivative</name>
+        <reimplements refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad5d412eff63b46b71cc774d222131795">getSurfaceDerivative</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>majorCircumferentialAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minorCircumferentialAngle</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>powerOfMajorCircumferentialAngleDerivative</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>powerOfMinorCircumferentialAngleDerivative</declname>
+        </param>
+        <briefdescription>
+<para>Get surface derivative on torus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieves the derivatives of the surface point with respect to the two independent variables. For powerOfMajorCircumferentialAngle = 1 and powerOfMinorCircumferentialAngle = 2 the function returns: <formula id="164">\[ \frac{ d^{ 3 } ( x, y, z ) } { du * dv^{ 2 } } \]</formula> (with u and v the major and minor angles). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>majorCircumferentialAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Major circumferential angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minorCircumferentialAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minor circumferential angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>powerOfMajorCircumferentialAngleDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Power of derivative with respect to major circumferential angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>powerOfMinorCircumferentialAngleDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Power of the derivative with respect to the minor circumferential angle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Surface derivative on torus. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="94" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/torus.cpp" bodystart="60" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1a4a6878288913f56d7dbf97519a706f3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::getParameter</definition>
+        <argsstring>(const int index)</argsstring>
+        <name>getParameter</name>
+        <reimplements refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a17437a185d1bc67dd7dc3cdfb43d92a6">getParameter</reimplements>
+        <param>
+          <type>const int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get parameter of torus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieves a parameter of the torus. Function uses parameter_ member variable to prevent multiple declarations. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of parameter to return ( index = 0: returns major radius; index = 1: returns minor radius ). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Selected parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="108" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/torus.cpp" bodystart="196" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1a9d6097a83aa258379ff9100b3e0647f3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::getMajorRadius</definition>
+        <argsstring>()</argsstring>
+        <name>getMajorRadius</name>
+        <briefdescription>
+<para>Get major radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the major radius. <simplesect kind="return"><para>Major radius. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="115" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="115" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1a08122ea7df1c1c4abe180cc39def306f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::getMinorRadius</definition>
+        <argsstring>()</argsstring>
+        <name>getMinorRadius</name>
+        <briefdescription>
+<para>Get minor radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the minor radius. <simplesect kind="return"><para>Minor radius. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="122" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="122" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1a3bcf4367a55dceb257e7b9a24939e8db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::getMaximumMajorCircumferentialAngle</definition>
+        <argsstring>()</argsstring>
+        <name>getMaximumMajorCircumferentialAngle</name>
+        <briefdescription>
+<para>Get maximum of major circumferential angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the maximum value of the major circumferential angle. <simplesect kind="return"><para>Maximum value of major circumferential angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="129" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="129" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1acd0484e5469ba29399f72a13590fbbf2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::getMaximumMinorCircumferentialAngle</definition>
+        <argsstring>()</argsstring>
+        <name>getMaximumMinorCircumferentialAngle</name>
+        <briefdescription>
+<para>Get maximum of minor circumferential angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the maximum of the minor circumferential angle. <simplesect kind="return"><para>Maximum minor circumferential angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="136" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="136" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1a84a6e6987f489f56641050251fac6b01" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::getMinimumMajorCircumferentialAngle</definition>
+        <argsstring>()</argsstring>
+        <name>getMinimumMajorCircumferentialAngle</name>
+        <briefdescription>
+<para>Get minimum of major circumferential angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the minimum value of the major circumferential angle. <simplesect kind="return"><para>Minimum value of major circumferential angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="143" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="143" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1Torus_1a7776ba439c6a70a8eee37723709bcb6e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::Torus::getMinimumMinorCircumferentialAngle</definition>
+        <argsstring>()</argsstring>
+        <name>getMinimumMinorCircumferentialAngle</name>
+        <briefdescription>
+<para>Get minimum of minor circumferential angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the minimum value of the minor circumferential angle. <simplesect kind="return"><para>Minimum value of minor circumferential angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="150" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="150" bodyend="150"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classtudat_1_1geometric__shapes_1_1Torus_1a984a8ce4547e36f6d9a1ce07df87e2d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, Torus &amp;torus)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1Torus" kindref="compound">Torus</ref> &amp;</type>
+          <declname>torus</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the class type, the ranges for the minor and major circumferential angles, and the major and minor radii. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream to which info is to be printed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>torus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1geometric__shapes_1_1Torus" kindref="compound">Torus</ref> frustum of which info is to be printed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream with printed info. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="161" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/torus.cpp" bodystart="222" bodyend="236"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1geometric__shapes_1_1Torus" kindref="compound">Torus</ref> class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class that defines the torus shape. The parameters are the majorRadius_, denoting the distance from the center of the torus to the center of the tube and the tubeRadius_, denoting the radius of the tube. Independent variables are the major and minor circumferential angles, with the former denoting the angle by which the tube is &apos;revolved&apos; and the latter denoting the point on the circular cross-section of the tube. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::SurfaceGeometry</label>
+        <link refid="classtudat_1_1SurfaceGeometry"/>
+      </node>
+      <node id="1">
+        <label>tudat::geometric_shapes::Torus</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1Torus"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::geometric_shapes::SingleSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::SurfaceGeometry</label>
+        <link refid="classtudat_1_1SurfaceGeometry"/>
+      </node>
+      <node id="1">
+        <label>tudat::geometric_shapes::Torus</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1Torus"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::geometric_shapes::SingleSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" line="37" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/torus.h" bodystart="38" bodyend="178"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa23bba50be6214d1621308761d8e3bb1" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>cartesianPositionVector_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66aefdc4fe0743bd110904521975886b51b" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>firstIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a9d6097a83aa258379ff9100b3e0647f3" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getMajorRadius</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a0c27b60cd7bb0dabd008c8512b9329b0" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getMaximumIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a3bcf4367a55dceb257e7b9a24939e8db" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getMaximumMajorCircumferentialAngle</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1acd0484e5469ba29399f72a13590fbbf2" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getMaximumMinorCircumferentialAngle</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1afd3d72e02db05e1ccb8702e73b42be01" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getMinimumIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a84a6e6987f489f56641050251fac6b01" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getMinimumMajorCircumferentialAngle</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a7776ba439c6a70a8eee37723709bcb6e" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getMinimumMinorCircumferentialAngle</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a08122ea7df1c1c4abe180cc39def306f" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getMinorRadius</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a64b41f34c562915f6b2842d460298d1d" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getOffset</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a4a6878288913f56d7dbf97519a706f3b" prot="public" virt="virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getParameter</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaf75807f06b998e8c8aaa3f6ef537f85" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getRotationMatrix</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1adcfa4b03a384ce4982b62136c018f91f" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getScalingMatrix</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1ab2eee5aafe47effb68b2c85d06ecf1dc" prot="public" virt="virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getSurfaceDerivative</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a4d4945c2926a530d6bab05f503d849b3" prot="public" virt="virtual"><scope>tudat::geometric_shapes::Torus</scope><name>getSurfacePoint</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8f811cfd5b699c23341a79e271bb3cb2" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>independentVariable_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>IndependentVariables</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1acba1b39a8f576d6cce0adcced4eaf0c2" prot="private" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>majorRadius_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad293722bccd5fd354b37d392278272ab" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>maximumIndependentVariable1_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a351c28e0101e03b52804290ef28c64f5" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>maximumIndependentVariable2_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a47690cfd9b5f3aabfd411f5ac561b153" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>minimumIndependentVariable1_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8bb8a8501f7095d4fc92b04b557c2f13" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>minimumIndependentVariable2_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a790b5f23df17f8d60c0f37870f45547d" prot="private" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>minorRadius_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a221abc0887c99ceb7368bf0bcfbcee98" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>offset_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a984a8ce4547e36f6d9a1ce07df87e2d8" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a801c01c437b48a0066cda10f5f2fc896" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>parameter_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a61a1d7b8952fb3d283ad409a2a5c4bd1" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>rotationMatrix_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ade223ab8cae98c7c90ad339e47e2fae8" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>scalingMatrix_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66a9cdae6dae5faa4dc8b7d64e7725ba86a" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>secondIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaefc36efe1b4f165628a1e6bcd5ce8b0" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>setMaximumIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aec4e218b11c994b5bfc451dace813b6c" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>setMinimumIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a97575d937668eb0079cce753ce08fabf" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>setOffset</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa47f4c3453f2d5365f41c23c6c1cf2e5" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>setRotationMatrix</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a7c8b995d50fa752ec0447d2bd18cd6b7" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>setScalingMatrix</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a84a7a555f2d51bbf05417aa696e18a20" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>SingleSurfaceGeometry</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1Torus_1a9ceb9b97d31907f567829a2cc11476e9" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>Torus</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaa8631cc37a83c042e39fc2ebc87fc91" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::Torus</scope><name>transformPoint</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ac276f4deb7405652e3e0521218910996" prot="public" virt="virtual"><scope>tudat::geometric_shapes::Torus</scope><name>~SingleSurfaceGeometry</name></member>
+      <member refid="classtudat_1_1SurfaceGeometry_1ab579812c998e712c009cbe455c0e5692" prot="public" virt="virtual"><scope>tudat::geometric_shapes::Torus</scope><name>~SurfaceGeometry</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::PropagationTimeTerminationSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1PropagationTerminationSettings" prot="public" virt="non-virtual">tudat::propagators::PropagationTerminationSettings</basecompoundref>
+    <includes refid="propagationTerminationSettings_8h" local="no">propagationTerminationSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_1ad457b83b386ac442a1db07cc6e79947d" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propagators::PropagationTimeTerminationSettings::terminationTime_</definition>
+        <argsstring></argsstring>
+        <name>terminationTime_</name>
+        <briefdescription>
+<para>Maximum time for the propagation, upon which the propagation is to be stopped. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="96" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_1a401967864c8060877285b6ae28d72444" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::PropagationTimeTerminationSettings::PropagationTimeTerminationSettings</definition>
+        <argsstring>(const double terminationTime, const bool checkTerminationToExactCondition=false)</argsstring>
+        <name>PropagationTimeTerminationSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>terminationTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>checkTerminationToExactCondition</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terminationTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum time for the propagation, upon which the propagation is to be stopped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>checkTerminationToExactCondition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="87" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="87" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_1a2f074f51ab17a053adc5b8a6f0252f22" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::PropagationTimeTerminationSettings::~PropagationTimeTerminationSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~PropagationTimeTerminationSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="93" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="93" bodyend="93"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time. Note that the propagator will finish a given time step, slightly surpassing the defined final time. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationSettings</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::PropagationTimeTerminationSettings</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationSettings</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::PropagationTimeTerminationSettings</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="76" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="77" bodyend="98"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationSettings_1a94d5f16bf334194fa59c21ce5356be4a" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTimeTerminationSettings</scope><name>checkTerminationToExactCondition_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationSettings_1af47e954aa67d5871f55e6259febbca70" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTimeTerminationSettings</scope><name>PropagationTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_1a401967864c8060877285b6ae28d72444" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTimeTerminationSettings</scope><name>PropagationTimeTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_1ad457b83b386ac442a1db07cc6e79947d" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTimeTerminationSettings</scope><name>terminationTime_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationSettings_1a678f5eca53de6e9a7c5c00666d6dfda3" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTimeTerminationSettings</scope><name>terminationType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationSettings_1aca71c6fc4cfcd0c2206cb4b850821cef" prot="public" virt="virtual"><scope>tudat::propagators::PropagationTimeTerminationSettings</scope><name>~PropagationTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_1a2f074f51ab17a053adc5b8a6f0252f22" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTimeTerminationSettings</scope><name>~PropagationTimeTerminationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

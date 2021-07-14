@@ -1,0 +1,399 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1NWayRangeObservationModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::NWayRangeObservationModel</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationModel" prot="public" virt="non-virtual">tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</basecompoundref>
+    <includes refid="nWayRangeObservationModel_8h" local="no">nWayRangeObservationModel.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ObservationScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a37f3a349be39cbd9f6998538045b7521" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::StateType</definition>
+        <argsstring></argsstring>
+        <name>StateType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="34" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1aab77ca2a33cf3353013642fa254540ec" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::PositionType</definition>
+        <argsstring></argsstring>
+        <name>PositionType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="35" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a7e4b483a2c602fe9c2507211453e1676" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::lightTimeCalculators_</definition>
+        <argsstring></argsstring>
+        <name>lightTimeCalculators_</name>
+        <briefdescription>
+<para>List of objects to compute the light-times for each leg of the n-way range. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of objects to compute the light-times (including any corrections w.r.t. Euclidean case) for each leg of the n-way range. First entry starts at transmitter; last entry is to receiver. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="224" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="224" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a8dfd5b53d6b1bfaadc2a4b6a1e242600" prot="private" static="no" mutable="no">
+        <type>std::function&lt; std::vector&lt; double &gt; const double) &gt;</type>
+        <definition>std::function&lt; std::vector&lt; double &gt; const double ) &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::retransmissionDelays_</definition>
+        <argsstring></argsstring>
+        <name>retransmissionDelays_</name>
+        <briefdescription>
+<para>Function that returns the list of retransmission delays as a function of observation time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that returns the list of retransmission delays as a function of observation time. The retransmission delays represent the time difference between the reception of a singal by an intermediate link end, and the retransmission to the subsequent link end. By default, this function is empty, in which case no retransmission delays are used. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="233" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1ab0edda46f49d1fb282e9a3d5adba2acd" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::currentRetransmissionDelays_</definition>
+        <argsstring></argsstring>
+        <name>currentRetransmissionDelays_</name>
+        <briefdescription>
+<para>List of retransmission delays, as computed by last call to computeIdealObservationsWithLinkEndData. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="236" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="236" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a1a430dd3fd3ececd5454cff0c75c7ed6" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::numberOfLinks_</definition>
+        <argsstring></argsstring>
+        <name>numberOfLinks_</name>
+        <briefdescription>
+<para>Number of links in n-way observation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="239" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="239" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1aafe2da045c669c569af603e1cc8e0418" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::numberOfLinkEnds_</definition>
+        <argsstring></argsstring>
+        <name>numberOfLinkEnds_</name>
+        <briefdescription>
+<para>Number of link ends in n-way observation (=number of links + 1) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="242" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="242" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a63ad366d31b3c6aac099e14f03e57096" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::linkEndTimes_</definition>
+        <argsstring></argsstring>
+        <name>linkEndTimes_</name>
+        <briefdescription>
+<para>Pre-declared vector of link end times, used for computeIdealObservations function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="245" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="245" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1acce74e1501211d701e07f28905f41aa4" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt;</type>
+        <definition>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::linkEndStates_</definition>
+        <argsstring></argsstring>
+        <name>linkEndStates_</name>
+        <briefdescription>
+<para>Pre-declared vector of link end states, used for computeIdealObservations function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="248" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="248" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a48291c6f06e6785395af56a0fbe9833b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::NWayRangeObservationModel</definition>
+        <argsstring>(const std::vector&lt; std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; &gt; lightTimeCalculators, const std::function&lt; std::vector&lt; double &gt;(const double) &gt; retransmissionDelays=std::function&lt; std::vector&lt; double &gt;(const double) &gt;(), const std::shared_ptr&lt; ObservationBias&lt; 1 &gt; &gt; observationBiasCalculator=nullptr)</argsstring>
+        <name>NWayRangeObservationModel</name>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt; &gt;</type>
+          <declname>lightTimeCalculators</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; std::vector&lt; double &gt;(const double) &gt;</type>
+          <declname>retransmissionDelays</declname>
+          <defval>std::function&lt; std::vector&lt; double &gt;(const double) &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBias" kindref="compound">ObservationBias</ref>&lt; 1 &gt; &gt;</type>
+          <declname>observationBiasCalculator</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lightTimeCalculators</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of objects to compute the light-times (including any corrections w.r.t. Euclidean case) for each leg of the n-way range. First entry starts at transmitter; last entry is to receiver. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>retransmissionDelays</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns the list of retransmission delays as a function of observation time. The retransmission delays represent the time difference between the reception of a singal by an intermediate link end, and the retransmission to the subsequent link end. By default, this function is empty, in which case no retransmission delays are used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observationBiasCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object for calculating (system-dependent) errors in the observable, i.e. deviations from the physically ideal observable between reference points (default none). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="49" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="49" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a6923d669f7b73d77b5e8f1016d7d8b29" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::~NWayRangeObservationModel</definition>
+        <argsstring>()</argsstring>
+        <name>~NWayRangeObservationModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="63" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="63" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a0da2e742914c119a42cc4702c52389fa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservations</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime)</argsstring>
+        <name>computeIdealObservations</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute ideal n-way range observation at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function compute ideal the n-way observation at a given time. The time argument can be at any of the link ends involved in the onbservation (including the intermediate link ends) by the linkEndAssociatedWithTime input). In the case where the reference link end is an intermediate link end, the inpit time denotes the reception time of the signal at this station (which need not be the same as its retransmission time). Note that this observable does include e.g. light-time corrections, which represent physically true corrections. It does not include e.g. system-dependent measurement. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observation is to be simulated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid, i.e. link end for which associated time is kept constant (to input value) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calculated observed one-way range value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="78" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="78" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a4a4381e91f707b1d138910378c46eca2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservationsWithLinkEndData</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime, std::vector&lt; double &gt; &amp;linkEndTimes, std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)</argsstring>
+        <name>computeIdealObservationsWithLinkEndData</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute n-way range observable without any corrections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute n-way range observable without any corrections, i.e. the true physical range as computed from the defined link ends. The time argument can be at any of the link ends involved in the onbservation (including the intermediate link ends) by the linkEndAssociatedWithTime input). In the case where the reference link end is an intermediate link end, the inpit time denotes the reception time of the signal at this station (which need not be the same as its retransmission time). Note that this observable does include light-time corrections, which represent physically true corrections. It does not include e.g. system-dependent measurement errors, such as biases or clock errors. The times and states of the link ends are also returned in full precision (determined by class template arguments). These states and times are returned by reference. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observable is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid, i.e. link end for which associated time is kept constant (to input value) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Ideal n-way range observable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="104" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="104" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1ac20ad8c396bc6aa869362b431121905c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; &gt; tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::getLightTimeCalculators</definition>
+        <argsstring>()</argsstring>
+        <name>getLightTimeCalculators</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="211" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="211" bodyend="214"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for simulating n-way range observables. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for simulating n-way range observations. It connects an arbitrary number of links by rane observables to obtain the n-way range. In most practical cases (e.g. DSN radio ranging, SLR), n will be equal to 2. Note that here the number of &apos;ways&apos; represents the number of legs that the signal travels along. As a result, for both DSN 2-way and 3-way observables, n equals 2 in this model. The difference is that the first and last link end will be the same for the former case, and different for the latter case. The retransmission of a signal at the intermediate link ends can be done with a (negative or positive) delay. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::NWayRangeObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" line="31" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/nWayRangeObservationModel.h" bodystart="32" bodyend="250"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a0da2e742914c119a42cc4702c52389fa" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1acc309e12a1396f0245d5faa48d2f6e13" prot="public" virt="virtual" ambiguityscope="ObservationModel&lt; 1, double, double &gt;::"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a4a4381e91f707b1d138910378c46eca2" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9ecd10a922744f259f842d4b6a411347" prot="public" virt="pure-virtual" ambiguityscope="ObservationModel&lt; 1, double, double &gt;::"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a199cabb55653815809a71ae266c4a428" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>computeObservationEntry</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9b9246a44342f0c05f6b0b49c269de2c" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>computeObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1aa40d89c3432581dad61a0893b4a1bd07" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>computeObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1ab0edda46f49d1fb282e9a3d5adba2acd" prot="private" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>currentRetransmissionDelays_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1ac20ad8c396bc6aa869362b431121905c" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>getLightTimeCalculators</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a02a719feded8289f8f90c8d5080f1f8f" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>getObservableType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1af7bb363bb98b710155dd585a9a6fada2" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>getObservationBiasCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ae819c04040cf0dcdd4617d49592ce33e" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ad22ad8c1f124d042c0110246da92fe24" prot="protected" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>isBiasnullptr_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a7e4b483a2c602fe9c2507211453e1676" prot="private" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>lightTimeCalculators_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1acce74e1501211d701e07f28905f41aa4" prot="private" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>linkEndStates_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a63ad366d31b3c6aac099e14f03e57096" prot="private" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>linkEndTimes_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1aafe2da045c669c569af603e1cc8e0418" prot="private" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>numberOfLinkEnds_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a1a430dd3fd3ececd5454cff0c75c7ed6" prot="private" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>numberOfLinks_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a48291c6f06e6785395af56a0fbe9833b" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>NWayRangeObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a0117fc5ab1859bdad1124ddd12be3620" prot="protected" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>observableType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a18d177b43452e3d1af4de8fa876b6df7" prot="protected" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>observationBiasCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a2e356049328b9044bf8f1d05ad094802" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>ObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1aab77ca2a33cf3353013642fa254540ec" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>PositionType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a8dfd5b53d6b1bfaadc2a4b6a1e242600" prot="private" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>retransmissionDelays_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a37f3a349be39cbd9f6998538045b7521" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>StateType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1NWayRangeObservationModel_1a6923d669f7b73d77b5e8f1016d7d8b29" prot="public" virt="non-virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>~NWayRangeObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a4b72c0c9d2d8ea5221bc7cf8fe64dda7" prot="public" virt="virtual"><scope>tudat::observation_models::NWayRangeObservationModel</scope><name>~ObservationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

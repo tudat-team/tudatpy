@@ -1,0 +1,113 @@
+\hypertarget{classtudat_1_1observation__models_1_1PositionObservationModel}{}\doxysection{tudat\+::observation\+\_\+models\+::Position\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1observation__models_1_1PositionObservationModel}\index{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$}}
+
+
+Class for simulating observations of three-\/dimensional position.  
+
+
+
+
+{\ttfamily \#include $<$position\+Observation\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+models\+::Position\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__models_1_1PositionObservationModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1PositionObservationModel_a6ae14ec7dc6b9d014135eb3cc56c68ac}{Position\+Observation\+Model}} (const std\+::function$<$ Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 6, 1 $>$(const Time\+Type \&) $>$ state\+Function, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBias}{Observation\+Bias}}$<$ 3 $>$ $>$ observation\+Bias\+Calculator=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1PositionObservationModel_aafa604b794d38a578aeed766397c4c5b}\label{classtudat_1_1observation__models_1_1PositionObservationModel_aafa604b794d38a578aeed766397c4c5b}} 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1PositionObservationModel_aafa604b794d38a578aeed766397c4c5b}{$\sim$\+Position\+Observation\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 3, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1PositionObservationModel_aecab836012475b3d870bc4a2dd076b9f}{compute\+Ideal\+Observations}} (const Time\+Type time, const Link\+End\+Type link\+End\+Associated\+With\+Time=observed\+\_\+body)
+\begin{DoxyCompactList}\small\item\em Function to compute ideal position observation at given time. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 3, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1PositionObservationModel_a5796fc852e925d69bd554d6e70f8fd89}{compute\+Ideal\+Observations\+With\+Link\+End\+Data}} (const Time\+Type time, const Link\+End\+Type link\+End\+Associated\+With\+Time, std\+::vector$<$ double $>$ \&link\+End\+Times, std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&link\+End\+States)
+\begin{DoxyCompactList}\small\item\em Function to compute ideal position observation at given time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Observation\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::observation\+\_\+models\+::\+Position\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$}
+
+Class for simulating observations of three-\/dimensional position. 
+
+Class for simulating observations of three-\/dimensional position. This observable is typically not realized in practice, but its use can be very valuable in simulation studies 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1PositionObservationModel_a6ae14ec7dc6b9d014135eb3cc56c68ac}\label{classtudat_1_1observation__models_1_1PositionObservationModel_a6ae14ec7dc6b9d014135eb3cc56c68ac}} 
+\index{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$}!PositionObservationModel@{PositionObservationModel}}
+\index{PositionObservationModel@{PositionObservationModel}!tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{PositionObservationModel()}{PositionObservationModel()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1PositionObservationModel}{tudat\+::observation\+\_\+models\+::\+Position\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1observation__models_1_1PositionObservationModel}{Position\+Observation\+Model}} (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 6, 1 $>$(const Time\+Type \&) $>$}]{state\+Function,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBias}{Observation\+Bias}}$<$ 3 $>$ $>$}]{observation\+Bias\+Calculator = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor, 
+\begin{DoxyParams}{Parameters}
+{\em state\+Function} & Function that returns the Cartesian state of the observed body as a function of time. \\
+\hline
+{\em observation\+Bias\+Calculator} & Object for calculating system-\/dependent errors in the observable, i.\+e. deviations from the physically ideal observable (default none). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1PositionObservationModel_aecab836012475b3d870bc4a2dd076b9f}\label{classtudat_1_1observation__models_1_1PositionObservationModel_aecab836012475b3d870bc4a2dd076b9f}} 
+\index{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$}!computeIdealObservations@{computeIdealObservations}}
+\index{computeIdealObservations@{computeIdealObservations}!tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{computeIdealObservations()}{computeIdealObservations()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 3, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1PositionObservationModel}{tudat\+::observation\+\_\+models\+::\+Position\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::compute\+Ideal\+Observations (\begin{DoxyParamCaption}\item[{const Time\+Type}]{time,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time = {\ttfamily observed\+\_\+body} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute ideal position observation at given time. 
+
+This function computes the ideal position observation at a given time (without biases). 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which observation is to be simulated \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Link end at which given time is valid (must be observed\+\_\+body for this derived class) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Calculated observed position of body. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1PositionObservationModel_a5796fc852e925d69bd554d6e70f8fd89}\label{classtudat_1_1observation__models_1_1PositionObservationModel_a5796fc852e925d69bd554d6e70f8fd89}} 
+\index{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$}!computeIdealObservationsWithLinkEndData@{computeIdealObservationsWithLinkEndData}}
+\index{computeIdealObservationsWithLinkEndData@{computeIdealObservationsWithLinkEndData}!tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::PositionObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{computeIdealObservationsWithLinkEndData()}{computeIdealObservationsWithLinkEndData()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 3, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1PositionObservationModel}{tudat\+::observation\+\_\+models\+::\+Position\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::compute\+Ideal\+Observations\+With\+Link\+End\+Data (\begin{DoxyParamCaption}\item[{const Time\+Type}]{time,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time,  }\item[{std\+::vector$<$ double $>$ \&}]{link\+End\+Times,  }\item[{std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&}]{link\+End\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute ideal position observation at given time. 
+
+This function computes the ideal position observation at a given time (without biases). The times and states of the link ends are also returned in full precision (determined by class template arguments). These states and times are returned by reference. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which observable is to be evaluated. \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Link end at which given time is valid (must be observed\+\_\+body for this derived class) \\
+\hline
+{\em link\+End\+Times} & List of times at each link end during observation. \\
+\hline
+{\em link\+End\+States} & List of states at each link end during observation. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Ideal position observable. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/observation\+\_\+models/position\+Observation\+Model.\+h\end{DoxyCompactItemize}

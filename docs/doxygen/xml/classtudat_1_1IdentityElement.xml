@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1IdentityElement" kind="class" language="C++" prot="public">
+    <compoundname>tudat::IdentityElement</compoundname>
+    <includes refid="identityElements_8h" local="no">identityElements.h</includes>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename VariableType</type>
+          </param>
+          <param>
+            <type>typename std::enable_if&lt; <ref refid="structtudat_1_1is__eigen__matrix" kindref="compound">is_eigen_matrix</ref>&lt; VariableType &gt;::value, int &gt;::type</type>
+            <defval>0</defval>
+          </param>
+        </templateparamlist>
+        <type>VariableType</type>
+        <definition>static VariableType tudat::IdentityElement::getAdditionIdentity</definition>
+        <argsstring>()</argsstring>
+        <name>getAdditionIdentity</name>
+        <briefdescription>
+<para>Function to output the zero value (i.e., the addition identity) for Eigen types. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to output the zero value (i.e., the addition identity) for Eigen types. <simplesect kind="return"><para>Addition identity of Eigen types. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" line="39" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" bodystart="39" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename VariableType</type>
+          </param>
+          <param>
+            <type>typename std::enable_if&lt;(std::is_integral&lt; VariableType &gt;::value||std::is_floating_point&lt; VariableType &gt;::value), int &gt;::type</type>
+            <defval>0</defval>
+          </param>
+        </templateparamlist>
+        <type>VariableType</type>
+        <definition>static VariableType tudat::IdentityElement::getAdditionIdentity</definition>
+        <argsstring>()</argsstring>
+        <name>getAdditionIdentity</name>
+        <briefdescription>
+<para>Function to output the zero value (i.e., the addition identity) for integer and floating point types. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to output the zero value (i.e., the addition identity) for integer and floating point types. <simplesect kind="return"><para>Addition identity of integer and floating point types. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" line="53" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" bodystart="53" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1IdentityElement_1a785db417309d5fcfd51b26b6a698a496" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename VariableType</type>
+          </param>
+          <param>
+            <type>typename std::enable_if&lt; <ref refid="structtudat_1_1is__eigen__matrix" kindref="compound">is_eigen_matrix</ref>&lt; VariableType &gt;::value, int &gt;::type</type>
+            <defval>0</defval>
+          </param>
+        </templateparamlist>
+        <type>VariableType</type>
+        <definition>static VariableType tudat::IdentityElement::getMultiplicationIdentity</definition>
+        <argsstring>()</argsstring>
+        <name>getMultiplicationIdentity</name>
+        <briefdescription>
+<para>Function to output the unit value (i.e., the multiplication identity) for Eigen types. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to output the unit value (i.e., the multiplication identity) for Eigen types. <simplesect kind="return"><para>Multiplication identity of Eigen types. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" line="64" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" bodystart="64" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1IdentityElement_1a785db417309d5fcfd51b26b6a698a496" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename VariableType</type>
+          </param>
+          <param>
+            <type>typename std::enable_if&lt;(std::is_integral&lt; VariableType &gt;::value||std::is_floating_point&lt; VariableType &gt;::value), int &gt;::type</type>
+            <defval>0</defval>
+          </param>
+        </templateparamlist>
+        <type>VariableType</type>
+        <definition>static VariableType tudat::IdentityElement::getMultiplicationIdentity</definition>
+        <argsstring>()</argsstring>
+        <name>getMultiplicationIdentity</name>
+        <briefdescription>
+<para>Function to output the unit value (i.e., the multiplication identity) for integer and floating point types. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to output the unit value (i.e., the multiplication identity) for integer and floating point types. <simplesect kind="return"><para>Multiplication identity of integer and floating point types. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" line="85" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" bodystart="85" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1IdentityElement_1a69bd6e4a485343a64290cd4bfe0b2f81" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename VariableType</type>
+          </param>
+          <param>
+            <type>typename std::enable_if&lt; <ref refid="structtudat_1_1is__eigen__matrix" kindref="compound">is_eigen_matrix</ref>&lt; VariableType &gt;::value, int &gt;::type</type>
+            <defval>0</defval>
+          </param>
+        </templateparamlist>
+        <type>VariableType</type>
+        <definition>static VariableType tudat::IdentityElement::getNullIdentity</definition>
+        <argsstring>()</argsstring>
+        <name>getNullIdentity</name>
+        <briefdescription>
+<para>Function to output the NaN value (i.e., the null identity) for Eigen types. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to output the NaN value (i.e., the null identity) for Eigen types. <simplesect kind="return"><para>Null identity of Eigen types. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" line="96" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" bodystart="96" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1IdentityElement_1a69bd6e4a485343a64290cd4bfe0b2f81" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename VariableType</type>
+          </param>
+          <param>
+            <type>typename std::enable_if&lt; std::is_floating_point&lt; VariableType &gt;::value, int &gt;::type</type>
+            <defval>0</defval>
+          </param>
+        </templateparamlist>
+        <type>VariableType</type>
+        <definition>static VariableType tudat::IdentityElement::getNullIdentity</definition>
+        <argsstring>()</argsstring>
+        <name>getNullIdentity</name>
+        <briefdescription>
+<para>Function to output the NaN value (i.e., the null identity) for floating point types. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to output the NaN value (i.e., the null identity) for floating point types. <simplesect kind="return"><para>Null identity of floating point types. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" line="108" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" bodystart="108" bodyend="111"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interface class to output the identity elements for any type. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Interface class to output the identity elements for any type. This class is then specialized for each type needed in Tudat. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" line="29" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/identityElements.h" bodystart="30" bodyend="113"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" prot="public" virt="non-virtual"><scope>tudat::IdentityElement</scope><name>getAdditionIdentity</name></member>
+      <member refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" prot="public" virt="non-virtual"><scope>tudat::IdentityElement</scope><name>getAdditionIdentity</name></member>
+      <member refid="classtudat_1_1IdentityElement_1a785db417309d5fcfd51b26b6a698a496" prot="public" virt="non-virtual"><scope>tudat::IdentityElement</scope><name>getMultiplicationIdentity</name></member>
+      <member refid="classtudat_1_1IdentityElement_1a785db417309d5fcfd51b26b6a698a496" prot="public" virt="non-virtual"><scope>tudat::IdentityElement</scope><name>getMultiplicationIdentity</name></member>
+      <member refid="classtudat_1_1IdentityElement_1a69bd6e4a485343a64290cd4bfe0b2f81" prot="public" virt="non-virtual"><scope>tudat::IdentityElement</scope><name>getNullIdentity</name></member>
+      <member refid="classtudat_1_1IdentityElement_1a69bd6e4a485343a64290cd4bfe0b2f81" prot="public" virt="non-virtual"><scope>tudat::IdentityElement</scope><name>getNullIdentity</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

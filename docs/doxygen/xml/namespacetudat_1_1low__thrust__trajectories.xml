@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1low__thrust__trajectories" kind="namespace" language="C++">
+    <compoundname>tudat::low_thrust_trajectories</compoundname>
+    <innerclass refid="classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel" prot="public">tudat::low_thrust_trajectories::HybridMethodModel</innerclass>
+    <innerclass refid="structtudat_1_1low__thrust__trajectories_1_1HybridMethodProblem" prot="public">tudat::low_thrust_trajectories::HybridMethodProblem</innerclass>
+    <innerclass refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLeg" prot="public">tudat::low_thrust_trajectories::LowThrustLeg</innerclass>
+    <innerclass refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings" prot="public">tudat::low_thrust_trajectories::LowThrustLegSettings</innerclass>
+    <innerclass refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings" prot="public">tudat::low_thrust_trajectories::HodographicShapingLegSettings</innerclass>
+    <innerclass refid="classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings" prot="public">tudat::low_thrust_trajectories::SphericalShapingLegSettings</innerclass>
+    <innerclass refid="structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem" prot="public">tudat::low_thrust_trajectories::TrajectoryOptimisationProblem</innerclass>
+    <innerclass refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanagan" prot="public">tudat::low_thrust_trajectories::SimsFlanagan</innerclass>
+    <innerclass refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel" prot="public">tudat::low_thrust_trajectories::SimsFlanaganModel</innerclass>
+    <innerclass refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem" prot="public">tudat::low_thrust_trajectories::SimsFlanaganProblem</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="lowThrustLegSettings_8h_1aba7471d3b97431385cf9223303300e0c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>LowThrustLegTypes</name>
+        <enumvalue id="lowThrustLegSettings_8h_1aba7471d3b97431385cf9223303300e0ca974b10d828a3068f2cfa78b087ce4a9e" prot="public">
+          <name>hodographic_shaping_leg</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lowThrustLegSettings_8h_1aba7471d3b97431385cf9223303300e0ca1149b042f36e91e41bba856c9ed5b250" prot="public">
+          <name>spherical_shaping_leg</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>List of available types of low thrust leg. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="43" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="44" bodyend="51"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="lowThrustLegSettings_8h_1a2c1aa1fe4707d90e7c45eeba398eeb7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLeg" kindref="compound">low_thrust_trajectories::LowThrustLeg</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; low_thrust_trajectories::LowThrustLeg &gt; tudat::low_thrust_trajectories::createLowThrustLeg</definition>
+        <argsstring>(const std::shared_ptr&lt; LowThrustLegSettings &gt; &amp;lowThrustLegSettings, const Eigen::Vector6d &amp;stateAtDeparture, const Eigen::Vector6d &amp;stateAtArrival, const double &amp;timeOfFlight)</argsstring>
+        <name>createLowThrustLeg</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings" kindref="compound">LowThrustLegSettings</ref> &gt; &amp;</type>
+          <declname>lowThrustLegSettings</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>stateAtDeparture</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>stateAtArrival</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/lowThrustLegSettings.cpp" line="21" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/lowThrustLegSettings.cpp" bodystart="21" bodyend="94" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" declline="298" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="simsFlanagan_8h_1a8cd15f05b0b6e154ccef9cba598fedf4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::low_thrust_trajectories::convertToSimsFlanaganThrustModel</definition>
+        <argsstring>(std::function&lt; Eigen::Vector3d(const double) &gt; thrustModelWrtTime, const double maximumThrust, const double timeOfFlight, const int numberSegmentsForwardPropagation, const int numberSegmentsBackwardPropagation)</argsstring>
+        <name>convertToSimsFlanaganThrustModel</name>
+        <param>
+          <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>thrustModelWrtTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumThrust</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberSegmentsForwardPropagation</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberSegmentsBackwardPropagation</declname>
+        </param>
+        <briefdescription>
+<para>Transform thrust model as a function of time into Sims Flanagan thrust model. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanagan.cpp" line="25" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanagan.cpp" bodystart="25" bodyend="53" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h" declline="31" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="simsFlanagan_8h_1a32ac93613a6e32c4e09a55b4f9c83436" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d(const double) &gt; tudat::low_thrust_trajectories::getInitialGuessFunctionFromShaping</definition>
+        <argsstring>(std::shared_ptr&lt; shape_based_methods::ShapeBasedMethod &gt; shapeBasedLeg, const int numberSegmentsSimsFlanagan, const double timeOfFlight, std::function&lt; double(const double) &gt; specificImpulseFunction, std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; double &gt; &gt; integratorSettings)</argsstring>
+        <name>getInitialGuessFunctionFromShaping</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1ShapeBasedMethod" kindref="compound">shape_based_methods::ShapeBasedMethod</ref> &gt;</type>
+          <declname>shapeBasedLeg</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberSegmentsSimsFlanagan</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>std::function&lt; double(const double) &gt;</type>
+          <declname>specificImpulseFunction</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; double &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <briefdescription>
+<para>Convert a shape-based thrust profile into a possible initial guess for Sims-Flanagan. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanagan.cpp" line="56" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanagan.cpp" bodystart="56" bodyend="120" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h" declline="37" declcolumn="15"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h" line="22" column="1"/>
+  </compounddef>
+</doxygen>

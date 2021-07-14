@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1is__time__type_3_01double_01_4" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::is_time_type&lt; double &gt;</compoundname>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1is__time__type_3_01double_01_4_1ade81aa9cb06b5e5853e03d0a21e07821" prot="public" static="yes" mutable="no">
+        <type>const bool</type>
+        <definition>const bool tudat::is_time_type&lt; double &gt;::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <initializer>= true</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="77" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="76" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" bodystart="76" bodyend="78"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1is__time__type_3_01double_01_4_1ade81aa9cb06b5e5853e03d0a21e07821" prot="public" virt="non-virtual"><scope>tudat::is_time_type&lt; double &gt;</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

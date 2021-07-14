@@ -1,0 +1,275 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::InitialTranslationalStateParameter</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::Matrix&lt; double, Eigen::Dynamic, 1 &gt; &gt;</basecompoundref>
+    <includes refid="initialTranslationalState_8h" local="no">initialTranslationalState.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename InitialStateParameterType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1ab643f362ddbb1c3fbc7a9fd9be468303" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt; tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::initialTranslationalState_</definition>
+        <argsstring></argsstring>
+        <name>initialTranslationalState_</name>
+        <briefdescription>
+<para>Current value of initial state (w.r.t. centralBody) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="99" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a407bce5364d60afbde1b41a831ff8582" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::centralBody_</definition>
+        <argsstring></argsstring>
+        <name>centralBody_</name>
+        <briefdescription>
+<para>Body w.r.t. which the initial state is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="102" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a081101854caa568f65a5e4b83643d817" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::frameOrientation_</definition>
+        <argsstring></argsstring>
+        <name>frameOrientation_</name>
+        <briefdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="105" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1acf9521e63317dfcec39505fc183685f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::InitialTranslationalStateParameter</definition>
+        <argsstring>(const std::string &amp;associatedBody, const Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt; &amp;initialTranslationalState, const std::string &amp;centralBody=&quot;SSB&quot;, const std::string &amp;frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>InitialTranslationalStateParameter</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialTranslationalState</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBody</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, sets initial value of translational state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets initial value of translational state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialTranslationalState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current value of initial state (w.r.t. centralBody) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body w.r.t. which the initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="36" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="36" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a127b7255f01047b7e25b44ffa8a15870" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt; tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::getParameterValue</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a63413b914f9e8b68705aba7048780200">getParameterValue</reimplements>
+        <briefdescription>
+<para>Function to get the current value of initial state w.r.t. centralBody. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the current value of initial state w.r.t. centralBody. <simplesect kind="return"><para>The current value of initial state w.r.t. centralBody. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="51" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="51" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a99775f766b178257618227c2f03d7d72" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::setParameterValue</definition>
+        <argsstring>(Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt; parameterValue)</argsstring>
+        <name>setParameterValue</name>
+        <param>
+          <type>Eigen::Matrix&lt; InitialStateParameterType, Eigen::Dynamic, 1 &gt;</type>
+          <declname>parameterValue</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the current value of initial state w.r.t. centralBody. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the current value of initial state w.r.t. centralBody. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The new value of initial state w.r.t. centralBody. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="61" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="61" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1af5ed822fe6786c76b9d522ad37230fb1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::getParameterSize</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterSize</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a989d54bab5c5e09ab6f1b709755b22e8">getParameterSize</reimplements>
+        <briefdescription>
+<para>Function to retrieve the size of the parameter (always 6). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the size of the parameter (always 6). <simplesect kind="return"><para>Size of parameter value (always 6). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="71" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="71" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1ad48cafad51ed877bc215295ecd0b8319" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::getCentralBody</definition>
+        <argsstring>()</argsstring>
+        <name>getCentralBody</name>
+        <briefdescription>
+<para>Function to get the name of the body w.r.t. which the initial state is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the name of the body w.r.t. which the initial state is to be estimated. <simplesect kind="return"><para>Name of the body w.r.t. which the initial state is to be estimated. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="81" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="81" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1ad8d3a27ef85326b099863b27c5cb946e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;::getFrameOrientation</definition>
+        <argsstring>()</argsstring>
+        <name>getFrameOrientation</name>
+        <briefdescription>
+<para>Function to get the orientation of the frame in which the state is defined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the orientation of the frame in which the state is defined. <simplesect kind="return"><para>Orientation of the frame in which the state is defined. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="91" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="91" bodyend="94"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interface class for the estimation of an initial translational state. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::Matrix&lt; double, Eigen::Dynamic, 1 &gt; &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::InitialTranslationalStateParameter&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::Matrix&lt; double, Eigen::Dynamic, 1 &gt; &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" line="24" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h" bodystart="25" bodyend="107"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a407bce5364d60afbde1b41a831ff8582" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>centralBody_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a4012bde7f5f26c5c590c0a149283dd4d" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a081101854caa568f65a5e4b83643d817" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>frameOrientation_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1ad48cafad51ed877bc215295ecd0b8319" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getCentralBody</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1adc670898ad79d02d23cfcf82b5578ed0" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getConstraintRightHandSide</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1af7db7b4da27ca2787b0090c409087cd7" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getConstraintSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a9c6c6514f75b2efdbd30cc2292fa3d0f" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getConstraintStateMultipler</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1ad8d3a27ef85326b099863b27c5cb946e" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getFrameOrientation</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5c264285d7e3ce9ce1452928ad8e7425" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getParameterDescription</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a23de3d6116f1414d5bb905f1b523cfdc" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getParameterName</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1af5ed822fe6786c76b9d522ad37230fb1" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getParameterSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a127b7255f01047b7e25b44ffa8a15870" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1ae97f1a8ef867dcaf72ceeb5050e64629" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1ab643f362ddbb1c3fbc7a9fd9be468303" prot="private" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>initialTranslationalState_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1acf9521e63317dfcec39505fc183685f7" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>InitialTranslationalStateParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a3d43d2db730c707b789768dad4de5ae6" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>parameterName_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialTranslationalStateParameter_1a99775f766b178257618227c2f03d7d72" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>setParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5df35bde257a6db401ca3c3613056554" prot="public" virt="pure-virtual" ambiguityscope="EstimatableParameter&lt; Eigen::Matrix&lt; double, Eigen::Dynamic, 1 &gt; &gt;::"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>setParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a211a379e14476e36a7693f43be29cb11" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialTranslationalStateParameter</scope><name>~EstimatableParameter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

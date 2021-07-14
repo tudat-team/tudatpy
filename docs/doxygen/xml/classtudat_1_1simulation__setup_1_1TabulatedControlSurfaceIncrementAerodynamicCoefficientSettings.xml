@@ -1,0 +1,290 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings" prot="public" virt="non-virtual">tudat::simulation_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings</basecompoundref>
+    <includes refid="createAerodynamicControlSurfaces_8h" local="no">createAerodynamicControlSurfaces.h</includes>
+    <templateparamlist>
+      <param>
+        <type>unsigned int</type>
+        <declname>NumberOfDimensions</declname>
+        <defname>NumberOfDimensions</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a78cbcce947a29df38ee245091e1cd4e9" prot="protected" static="no" mutable="no">
+        <type>const std::vector&lt; std::vector&lt; double &gt; &gt;</type>
+        <definition>const std::vector&lt; std::vector&lt; double &gt; &gt; tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::independentVariables_</definition>
+        <argsstring></argsstring>
+        <name>independentVariables_</name>
+        <briefdescription>
+<para>Values of the indepependent variables of tables of coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="227" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a10b74249093736a0fe9ffe658bb65424" prot="protected" static="no" mutable="no">
+        <type>boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt; NumberOfDimensions) &gt;</type>
+        <definition>boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt; NumberOfDimensions ) &gt; tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::forceCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>forceCoefficients_</name>
+        <briefdescription>
+<para>Values of force coefficients in table. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="230" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a78b99580a308ff47b153c31e761cb049" prot="protected" static="no" mutable="no">
+        <type>boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt; NumberOfDimensions) &gt;</type>
+        <definition>boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt; NumberOfDimensions ) &gt; tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::momentCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>momentCoefficients_</name>
+        <briefdescription>
+<para>Values of moment coefficients in table. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="233" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1ab4e9d9bea4de8bd5ca83b725cfad5da3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</definition>
+        <argsstring>(const std::vector&lt; std::vector&lt; double &gt; &gt; independentVariables, const boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt; forceCoefficients, const boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt; momentCoefficients, const std::vector&lt; aerodynamics::AerodynamicCoefficientsIndependentVariables &gt; independentVariableNames)</argsstring>
+        <name>TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</name>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; double &gt; &gt;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt;</type>
+          <declname>forceCoefficients</declname>
+        </param>
+        <param>
+          <type>const boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt;</type>
+          <declname>momentCoefficients</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; aerodynamics::AerodynamicCoefficientsIndependentVariables &gt;</type>
+          <declname>independentVariableNames</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, sets properties of aerodynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets properties of aerodynamic coefficients. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of indepependent variables at which the coefficients in the input multi arrays are defined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>forceCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of force coefficients at independent variables defined by independentVariables. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>momentCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of moment coefficients at independent variables defined by independentVariables. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariableNames</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with identifiers the physical meaning of each independent variable of the aerodynamic coefficients (must contain exactly one entry of control_surface_deflection_dependent). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="150" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="150" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a1bc0cfc512d5a93fbd5dcc26c327a762" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</definition>
+        <argsstring>(const std::vector&lt; std::vector&lt; double &gt; &gt; independentVariables, const boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt; forceCoefficients, const std::vector&lt; aerodynamics::AerodynamicCoefficientsIndependentVariables &gt; independentVariableNames)</argsstring>
+        <name>TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</name>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; double &gt; &gt;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt;(NumberOfDimensions) &gt;</type>
+          <declname>forceCoefficients</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; aerodynamics::AerodynamicCoefficientsIndependentVariables &gt;</type>
+          <declname>independentVariableNames</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, sets properties of force coefficients (and zero moment coefficients). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets properties of force coefficients (and zero moment coefficients). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of indepependent variables at which the coefficients in the input multi arrays are defined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>forceCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of force coefficients at independent variables defined by independentVariables. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariableNames</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with identifiers the physical meaning of each independent variable of the aerodynamic coefficients (must contain exactly one entry of control_surface_deflection_dependent). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="174" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="174" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a6237a12c16607dc783a0c3a7acf836d1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::~TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="192" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="192" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a0e5581659e64b17b88a26fbf3af23270" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::vector&lt; double &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; double &gt; &gt; tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::getIndependentVariables</definition>
+        <argsstring>()</argsstring>
+        <name>getIndependentVariables</name>
+        <briefdescription>
+<para>Function to return the values of the indepependent variables of tables of coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the values of the indepependent variables of tables of coefficients. <simplesect kind="return"><para>Values of the indepependent variables of tables of coefficients. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="199" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="199" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1aad5c27ba4ae94181a6833c18ddd81595" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt; NumberOfDimensions) &gt;</type>
+        <definition>boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt; NumberOfDimensions ) &gt; tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::getForceCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getForceCoefficients</name>
+        <briefdescription>
+<para>Function to return values of force coefficients in table. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return values of force coefficients in table. <simplesect kind="return"><para>Values of force coefficients in table. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="209" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="209" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1ab5eb9a8a55972b8a64b155c2db096ebb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt; NumberOfDimensions) &gt;</type>
+        <definition>boost::multi_array&lt; Eigen::Vector3d, static_cast&lt; size_t &gt; NumberOfDimensions ) &gt; tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;::getMomentCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getMomentCoefficients</name>
+        <briefdescription>
+<para>Function to return values of moment coefficients in table. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return values of moment coefficients in table. <simplesect kind="return"><para>Values of moment coefficients in table. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="219" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="219" bodyend="222"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Object for setting aerodynamic coefficients from a user-defined N-dimensional table. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Object for setting aerodynamic coefficients from a user-defined N-dimensional table (with N&gt;1). The user must provide the force (and moment) coefficients in boost multi_arrays, and define the physical meaning of each of the independent variables. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;</label>
+        <link refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings&lt; NumberOfDimensions &gt;</label>
+        <link refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" line="133" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h" bodystart="135" bodyend="234"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_1ad5d0fc09b99daeb12b2fd469caea0fa8" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>aerodynamicCoefficientType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_1a97d037ad3dce6fcc57800d6287679182" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>ControlSurfaceIncrementAerodynamicCoefficientSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a10b74249093736a0fe9ffe658bb65424" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>forceCoefficients_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_1a3301cfb6ed27265686a12d4da18a990d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>getAerodynamicCoefficientType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1aad5c27ba4ae94181a6833c18ddd81595" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>getForceCoefficients</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_1a6c3effe7bf5971c3194fd749df45a9c4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>getIndependentVariableNames</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a0e5581659e64b17b88a26fbf3af23270" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>getIndependentVariables</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1ab5eb9a8a55972b8a64b155c2db096ebb" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>getMomentCoefficients</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_1a1045014102e0796a6864d8c624be813b" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>independentVariableNames_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a78cbcce947a29df38ee245091e1cd4e9" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>independentVariables_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a78b99580a308ff47b153c31e761cb049" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>momentCoefficients_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1ab4e9d9bea4de8bd5ca83b725cfad5da3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a1bc0cfc512d5a93fbd5dcc26c327a762" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_1a6beb2ad3f82e5b0babb625885717c66b" prot="public" virt="virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>~ControlSurfaceIncrementAerodynamicCoefficientSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings_1a6237a12c16607dc783a0c3a7acf836d1" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</scope><name>~TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

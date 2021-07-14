@@ -1,0 +1,373 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::TwoWayDopplerObservationModel</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationModel" prot="public" virt="non-virtual">tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</basecompoundref>
+    <includes refid="twoWayDopplerObservationModel_8h" local="no">twoWayDopplerObservationModel.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ObservationScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a8f0ef8daa1b965bf30562be13afa19c0" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::StateType</definition>
+        <argsstring></argsstring>
+        <name>StateType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="35" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1aab4e159e81e0347ab2e685bc5186b15b" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::PositionType</definition>
+        <argsstring></argsstring>
+        <name>PositionType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="36" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a8b934c29b0f9f1165ba55516ad03fddb" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationModel" kindref="compound">observation_models::OneWayDopplerObservationModel</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::OneWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::uplinkDopplerCalculator_</definition>
+        <argsstring></argsstring>
+        <name>uplinkDopplerCalculator_</name>
+        <briefdescription>
+<para>Object that computes the one-way Doppler observable for the uplink. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="185" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a4bfeaf66e5c98eb5af9ee00cdd37e7c4" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationModel" kindref="compound">observation_models::OneWayDopplerObservationModel</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::OneWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::downlinkDopplerCalculator_</definition>
+        <argsstring></argsstring>
+        <name>downlinkDopplerCalculator_</name>
+        <briefdescription>
+<para>Object that computes the one-way Doppler observable for the downlink. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="189" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a57de2dedb30a7128904091bcf6e6ba39" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::linkEndTimes_</definition>
+        <argsstring></argsstring>
+        <name>linkEndTimes_</name>
+        <briefdescription>
+<para>Pre-declared vector of link end times, used for computeIdealObservations function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="192" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="192" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1aaf36fdc2e3250cb74043a2d8eb5d6fa7" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt;</type>
+        <definition>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::linkEndStates_</definition>
+        <argsstring></argsstring>
+        <name>linkEndStates_</name>
+        <briefdescription>
+<para>Pre-declared vector of link end states, used for computeIdealObservations function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="195" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1abe08250c04ae2889b70dc820c382364c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::TwoWayDopplerObservationModel</definition>
+        <argsstring>(const std::shared_ptr&lt; observation_models::OneWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt; &gt; uplinkDopplerCalculator, const std::shared_ptr&lt; observation_models::OneWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt; &gt; downlinkDopplerCalculator, const std::shared_ptr&lt; ObservationBias&lt; 1 &gt; &gt; observationBiasCalculator=nullptr)</argsstring>
+        <name>TwoWayDopplerObservationModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationModel" kindref="compound">observation_models::OneWayDopplerObservationModel</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+          <declname>uplinkDopplerCalculator</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationModel" kindref="compound">observation_models::OneWayDopplerObservationModel</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+          <declname>downlinkDopplerCalculator</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBias" kindref="compound">ObservationBias</ref>&lt; 1 &gt; &gt;</type>
+          <declname>observationBiasCalculator</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uplinkDopplerCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object that computes the one-way Doppler observable for the uplink </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>downlinkDopplerCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object that computes the one-way Doppler observable for the downlink </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observationBiasCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object for calculating system-dependent errors in the observable, i.e. deviations from the physically ideal observable between reference points (default none). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="47" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="47" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1ae34469dbf4baecf4543145c5c7e8639f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::~TwoWayDopplerObservationModel</definition>
+        <argsstring>()</argsstring>
+        <name>~TwoWayDopplerObservationModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="61" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1abd3be27b41e7a6f0e1e5a97c66c91e10" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservations</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime)</argsstring>
+        <name>computeIdealObservations</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute ideal one-way Doppler observation without any corrections at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function compute ideal the one-way observation without any corrections at a given time. The time argument can be either the reception or transmission time (defined by linkEndAssociatedWithTime input). It does not include system-dependent measurement errors, such as biases or clock errors. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observation is to be simulated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid, i.e. link end for which associated time is kept constant (to input value) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calculated observed one-way Doppler value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="74" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="74" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a8aa39b198d4d997ac41f855abbe264fa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservationsWithLinkEndData</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime, std::vector&lt; double &gt; &amp;linkEndTimes, std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)</argsstring>
+        <name>computeIdealObservationsWithLinkEndData</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute one-way Doppler observable without any corrections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute one-way Doppler observable without any corrections, i.e. the true physical Doppler as computed from the defined link ends. It does not include system-dependent measurement errors, such as biases or clock errors. The times and states of the link ends are also returned in double precision. These states and times are returned by reference. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observable is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid, i.e. link end for which associated time is kept constant (to input value) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Ideal one-way Doppler observable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="96" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="96" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a8729a297ec00c4d71b1497893d669d34" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationModel" kindref="compound">observation_models::OneWayDopplerObservationModel</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::OneWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::getUplinkDopplerCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getUplinkDopplerCalculator</name>
+        <briefdescription>
+<para>Function to retrieve the object that computes the one-way Doppler observable for the uplink. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the object that computes the one-way Doppler observable for the uplink <simplesect kind="return"><para>Object that computes the one-way Doppler observable for the uplink </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="165" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="165" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a771be55fede0e936d630bdf7d1302f7d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationModel" kindref="compound">observation_models::OneWayDopplerObservationModel</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::OneWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;::getDownlinkDopplerCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getDownlinkDopplerCalculator</name>
+        <briefdescription>
+<para>Function to retrieve the object that computes the one-way Doppler observable for the downlink. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the object that computes the one-way Doppler observable for the downlink <simplesect kind="return"><para>Object that computes the one-way Doppler observable for the downlink </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="176" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="176" bodyend="179"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Computes observable the (simplified) one-way Doppler observation between two link ends, omitting proper time rates and light time corrections.</para>
+<para>Computes observable the (simplified) one-way Doppler observation between two link ends, omitting proper time rates and light time corrections. The observable is defined as d f_{B}/d_f_{A} - 1, with A the transmitter and B the receiver, and f the frequency of the signal. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::TwoWayDopplerObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" line="31" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/twoWayDopplerObservationModel.h" bodystart="32" bodyend="197"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1abd3be27b41e7a6f0e1e5a97c66c91e10" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1acc309e12a1396f0245d5faa48d2f6e13" prot="public" virt="virtual" ambiguityscope="ObservationModel&lt; 1, double, double &gt;::"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a8aa39b198d4d997ac41f855abbe264fa" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9ecd10a922744f259f842d4b6a411347" prot="public" virt="pure-virtual" ambiguityscope="ObservationModel&lt; 1, double, double &gt;::"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a199cabb55653815809a71ae266c4a428" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>computeObservationEntry</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9b9246a44342f0c05f6b0b49c269de2c" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>computeObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1aa40d89c3432581dad61a0893b4a1bd07" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>computeObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a4bfeaf66e5c98eb5af9ee00cdd37e7c4" prot="private" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>downlinkDopplerCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a771be55fede0e936d630bdf7d1302f7d" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>getDownlinkDopplerCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a02a719feded8289f8f90c8d5080f1f8f" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>getObservableType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1af7bb363bb98b710155dd585a9a6fada2" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>getObservationBiasCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ae819c04040cf0dcdd4617d49592ce33e" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a8729a297ec00c4d71b1497893d669d34" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>getUplinkDopplerCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ad22ad8c1f124d042c0110246da92fe24" prot="protected" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>isBiasnullptr_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1aaf36fdc2e3250cb74043a2d8eb5d6fa7" prot="private" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>linkEndStates_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a57de2dedb30a7128904091bcf6e6ba39" prot="private" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>linkEndTimes_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a0117fc5ab1859bdad1124ddd12be3620" prot="protected" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>observableType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a18d177b43452e3d1af4de8fa876b6df7" prot="protected" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>observationBiasCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a2e356049328b9044bf8f1d05ad094802" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>ObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1aab4e159e81e0347ab2e685bc5186b15b" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>PositionType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a8f0ef8daa1b965bf30562be13afa19c0" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>StateType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1abe08250c04ae2889b70dc820c382364c" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>TwoWayDopplerObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1a8b934c29b0f9f1165ba55516ad03fddb" prot="private" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>uplinkDopplerCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a4b72c0c9d2d8ea5221bc7cf8fe64dda7" prot="public" virt="virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>~ObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1TwoWayDopplerObservationModel_1ae34469dbf4baecf4543145c5c7e8639f" prot="public" virt="non-virtual"><scope>tudat::observation_models::TwoWayDopplerObservationModel</scope><name>~TwoWayDopplerObservationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

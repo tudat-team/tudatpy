@@ -1,0 +1,134 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Rotation\+Model\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1RotationModelSettings}\index{tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}}
+
+
+Class for providing settings for rotation model.  
+
+
+
+
+{\ttfamily \#include $<$create\+Rotation\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Rotation\+Model\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.066667cm]{classtudat_1_1simulation__setup_1_1RotationModelSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_aebe6e9ad90787c441e4736971b778396}{Rotation\+Model\+Settings}} (const Rotation\+Model\+Type rotation\+Type, const std\+::string \&original\+Frame, const std\+::string \&target\+Frame)
+\begin{DoxyCompactList}\small\item\em Constructor, sets type of rotation model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_aae3318a08e2fc5dd26b8b038fa51a451}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_aae3318a08e2fc5dd26b8b038fa51a451}} 
+virtual \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_aae3318a08e2fc5dd26b8b038fa51a451}{$\sim$\+Rotation\+Model\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Rotation\+Model\+Type \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_afbb5f870668604c75eab753968cb6b6d}{get\+Rotation\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the type of rotation model that is to be created. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_a9ba9508d4c524bcd90f0a09e36b3bdd5}{get\+Original\+Frame}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the base frame of rotation model. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_a4f7f267d90d71182613fedfdc0363e4d}{get\+Target\+Frame}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the target frame of rotation model. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_a7a3e915574afe20bb1ca65577a032226}{reset\+Original\+Frame}} (const std\+::string \&original\+Frame)
+\begin{DoxyCompactList}\small\item\em Function to reset the orientation of the base frame. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_af2b7a9868f25f739090e438acee36304}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_af2b7a9868f25f739090e438acee36304}} 
+Rotation\+Model\+Type \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_af2b7a9868f25f739090e438acee36304}{rotation\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of rotation model that is to be created. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_a3664732bd644fd17c1c56a9193816d60}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_a3664732bd644fd17c1c56a9193816d60}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_a3664732bd644fd17c1c56a9193816d60}{original\+Frame\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Target frame of rotation model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_a5e950c3ec40646eac2ae85eea100ae6f}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_a5e950c3ec40646eac2ae85eea100ae6f}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings_a5e950c3ec40646eac2ae85eea100ae6f}{target\+Frame\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Base frame of rotation model. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for providing settings for rotation model. 
+
+Class for providing settings for automatic rotation model creation. This class is a functional (base) class for settings of rotation models that require no information in addition to their type. Rotation model classes defining requiring additional information must be created using an object derived from this class. @get\+\_\+docstring(Rotation\+Model\+Settings.\+\_\+\+\_\+docstring\+\_\+\+\_\+) 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_aebe6e9ad90787c441e4736971b778396}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_aebe6e9ad90787c441e4736971b778396}} 
+\index{tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}!RotationModelSettings@{RotationModelSettings}}
+\index{RotationModelSettings@{RotationModelSettings}!tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{RotationModelSettings()}{RotationModelSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Rotation\+Model\+Settings\+::\+Rotation\+Model\+Settings (\begin{DoxyParamCaption}\item[{const Rotation\+Model\+Type}]{rotation\+Type,  }\item[{const std\+::string \&}]{original\+Frame,  }\item[{const std\+::string \&}]{target\+Frame }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets type of rotation model. 
+
+Constructor, sets type of rotation model and base and target frame identifiers. Settings for rotation models requiring additional information should be defined in a derived class. 
+\begin{DoxyParams}{Parameters}
+{\em rotation\+Type} & Type of rotation model that is to be created. \\
+\hline
+{\em original\+Frame} & Base frame of rotation model. \\
+\hline
+{\em target\+Frame} & Target frame of rotation model. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_a9ba9508d4c524bcd90f0a09e36b3bdd5}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_a9ba9508d4c524bcd90f0a09e36b3bdd5}} 
+\index{tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}!getOriginalFrame@{getOriginalFrame}}
+\index{getOriginalFrame@{getOriginalFrame}!tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{getOriginalFrame()}{getOriginalFrame()}}
+{\footnotesize\ttfamily std\+::string tudat\+::simulation\+\_\+setup\+::\+Rotation\+Model\+Settings\+::get\+Original\+Frame (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the base frame of rotation model. 
+
+Function to return the base frame of rotation model. \begin{DoxyReturn}{Returns}
+Base frame of rotation model. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_afbb5f870668604c75eab753968cb6b6d}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_afbb5f870668604c75eab753968cb6b6d}} 
+\index{tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}!getRotationType@{getRotationType}}
+\index{getRotationType@{getRotationType}!tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{getRotationType()}{getRotationType()}}
+{\footnotesize\ttfamily Rotation\+Model\+Type tudat\+::simulation\+\_\+setup\+::\+Rotation\+Model\+Settings\+::get\+Rotation\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the type of rotation model that is to be created. 
+
+Function to return the type of rotation model that is to be created. \begin{DoxyReturn}{Returns}
+Type of rotation model that is to be created. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_a4f7f267d90d71182613fedfdc0363e4d}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_a4f7f267d90d71182613fedfdc0363e4d}} 
+\index{tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}!getTargetFrame@{getTargetFrame}}
+\index{getTargetFrame@{getTargetFrame}!tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{getTargetFrame()}{getTargetFrame()}}
+{\footnotesize\ttfamily std\+::string tudat\+::simulation\+\_\+setup\+::\+Rotation\+Model\+Settings\+::get\+Target\+Frame (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the target frame of rotation model. 
+
+Function to return the target frame of rotation model. \begin{DoxyReturn}{Returns}
+Target frame of rotation model. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RotationModelSettings_a7a3e915574afe20bb1ca65577a032226}\label{classtudat_1_1simulation__setup_1_1RotationModelSettings_a7a3e915574afe20bb1ca65577a032226}} 
+\index{tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}!resetOriginalFrame@{resetOriginalFrame}}
+\index{resetOriginalFrame@{resetOriginalFrame}!tudat::simulation\_setup::RotationModelSettings@{tudat::simulation\_setup::RotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{resetOriginalFrame()}{resetOriginalFrame()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Rotation\+Model\+Settings\+::reset\+Original\+Frame (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{original\+Frame }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the orientation of the base frame. 
+
+Function to reset the orientation of the base frame. 
+\begin{DoxyParams}{Parameters}
+{\em original\+Frame} & New base frame orientation \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Rotation\+Model.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,560 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::aerodynamics::AerodynamicCoefficientGenerator</compoundname>
+    <basecompoundref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface" prot="public" virt="non-virtual">tudat::aerodynamics::AerodynamicCoefficientInterface</basecompoundref>
+    <includes refid="aerodynamicCoefficientGenerator_8h" local="no">aerodynamicCoefficientGenerator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>unsigned int</type>
+        <declname>NumberOfIndependentVariables</declname>
+        <defname>NumberOfIndependentVariables</defname>
+      </param>
+      <param>
+        <type>unsigned int</type>
+        <declname>NumberOfCoefficients</declname>
+        <defname>NumberOfCoefficients</defname>
+        <defval>6</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ad6fc1e382d822715b80f9a1636e5ce53" prot="protected" static="no" mutable="no">
+        <type>boost::multi_array&lt; Eigen::Matrix&lt; double, NumberOfCoefficients, 1 &gt;, NumberOfIndependentVariables &gt;</type>
+        <definition>boost::multi_array&lt; Eigen::Matrix&lt; double, NumberOfCoefficients, 1 &gt;, NumberOfIndependentVariables &gt; tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::aerodynamicCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>aerodynamicCoefficients_</name>
+        <briefdescription>
+<para>N-dimensional array containing all computed aerodynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>N-dimensional array containing all computer aerodynamic coefficients. The k-th dimension pertains to coefficients at the k-th independent variable, the data points for which are defined by dataPointsOfIndependentVariables_ and the physical meaning of which are defined by independentVariableNames_ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="282" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="282" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a14278ec758b9bfbfa73c5564abce310f" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::vector&lt; double &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; double &gt; &gt; tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::dataPointsOfIndependentVariables_</definition>
+        <argsstring></argsstring>
+        <name>dataPointsOfIndependentVariables_</name>
+        <briefdescription>
+<para>Data points of the independent variables at which the coefficients are calculated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Data points of the independent variables at which the coefficients are calculated. The k-th vector contains the vector of data points to which the k-th independent variables (defined by independentVariableNames_) are set during the calculation of the aerodynamic coefficients. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="291" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="291" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ac74ac5b066446d059fcb2cad7411ac62" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1Interpolator" kindref="compound">interpolators::Interpolator</ref>&lt; double, Eigen::Vector6d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::Interpolator&lt; double, Eigen::Vector6d &gt; &gt; tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::coefficientInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>coefficientInterpolator_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Interpolator producing continuous aerodynamic coefficients from the discrete calculations contained in aerodynamicCoefficients_. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="296" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="296" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a469808ab7a0fe9491562b8f46fe3c0c6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::AerodynamicCoefficientGenerator</definition>
+        <argsstring>(const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;dataPointsOfIndependentVariables, const double referenceLength, const double referenceArea, const double lateralReferenceLength, const Eigen::Vector3d &amp;momentReferencePoint, const std::vector&lt; AerodynamicCoefficientsIndependentVariables &gt; independentVariableNames, const bool areCoefficientsInAerodynamicFrame=true, const bool areCoefficientsInNegativeAxisDirection=true)</argsstring>
+        <name>AerodynamicCoefficientGenerator</name>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;</type>
+          <declname>dataPointsOfIndependentVariables</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceLength</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceArea</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>lateralReferenceLength</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>momentReferencePoint</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; AerodynamicCoefficientsIndependentVariables &gt;</type>
+          <declname>independentVariableNames</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areCoefficientsInAerodynamicFrame</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areCoefficientsInNegativeAxisDirection</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Default base class constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default base class constructor, sets independent variable data points and aerodynamics reference quantities. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataPointsOfIndependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of vector, where each subvector contains the data points of each of the independent variables for the coefficient generation. The number of subvectors must be equal to the number of independent variables. It is recommended that each of the subvectors is sorted in ascending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference length with which aerodynamic moments (about x- and z- axes) are non-dimensionalized. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceArea</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference area with which aerodynamic forces and moments are non-dimensionalized. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lateralReferenceLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference length with which aerodynamic moments (about y-axis) is non-dimensionalized. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>momentReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point w.r.t. aerodynamic moment is calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariableNames</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with identifiers the physical meaning of each independent variable of the aerodynamic coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areCoefficientsInAerodynamicFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz) (default true). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areCoefficientsInNegativeAxisDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to define whether the aerodynamic coefficients are positiver along tyhe positive axes of the body or aerodynamic frame (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the coefficients are typically defined in negative direction (default true). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="81" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="81" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a3d460a387284388a7c0cb2517288df5c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::~AerodynamicCoefficientGenerator</definition>
+        <argsstring>()</argsstring>
+        <name>~AerodynamicCoefficientGenerator</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="113" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="113" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1acb3c4f4b8332af012032a6300bc30e7b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::getNumberOfValuesOfIndependentVariable</definition>
+        <argsstring>(const int independentVariable) const</argsstring>
+        <name>getNumberOfValuesOfIndependentVariable</name>
+        <param>
+          <type>const int</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Get the number of points for an independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the number of different values of a given independent variable at which coefficients are determined. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variable from which to retrieve number of data points. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of data points for selected independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="123" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="123" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a9d7115d794324cf9e42eed27bc0f28ed" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::getIndependentVariablePoint</definition>
+        <argsstring>(const int independentVariable, const int index) const</argsstring>
+        <name>getIndependentVariablePoint</name>
+        <param>
+          <type>const int</type>
+          <declname>independentVariable</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get a value of an independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns a value of an independent variable at which aerodynamic coefficients are to be determined. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variable index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index from independent variable list for which to retrieve the value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of independent variable at index. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="136" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="136" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1abb510c0b6d78349c6e41658ea8b63bc8" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>Eigen::Matrix&lt; double, NumberOfCoefficients, 1 &gt;</type>
+        <definition>virtual Eigen::Matrix&lt; double, NumberOfCoefficients, 1 &gt; tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::getAerodynamicCoefficientsDataPoint</definition>
+        <argsstring>(const boost::array&lt; int, NumberOfIndependentVariables &gt; independentVariables)=0</argsstring>
+        <name>getAerodynamicCoefficientsDataPoint</name>
+        <param>
+          <type>const boost::array&lt; int, NumberOfIndependentVariables &gt;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Get aerodynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual function to return the aerodynamic coefficients at a specified set of independent variables. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of values of independent variable indices in dataPointsOfIndependentVariables_ for which to retrieve aerodynamic coefficients. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>vector of coefficients at specified independent variable indices. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="149" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a8d45750ac8b56931b3ee805cefd5a9da" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>boost::multi_array&lt; Eigen::Matrix&lt; double, NumberOfCoefficients, 1 &gt;, NumberOfIndependentVariables &gt;</type>
+        <definition>boost::multi_array&lt; Eigen::Matrix&lt; double, NumberOfCoefficients, 1 &gt;, NumberOfIndependentVariables &gt; tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::getAerodynamicCoefficientsTables</definition>
+        <argsstring>()</argsstring>
+        <name>getAerodynamicCoefficientsTables</name>
+        <briefdescription>
+<para>Function to return the complete set of aerodynamic coefficients that have been calculated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the complete set of aerodynamic coefficients that have been calculated. <simplesect kind="return"><para>Complete set of aerodynamic coefficients that have been calculated. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="158" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="158" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1aa114019ee49550774f570990712ddbfd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::vector&lt; double &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; double &gt; &gt; tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::getDataPointsOfIndependentVariables</definition>
+        <argsstring>()</argsstring>
+        <name>getDataPointsOfIndependentVariables</name>
+        <briefdescription>
+<para>Get the data points of the independent variables at which the coefficients are calculated. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the data points of the independent variables at which the coefficients are calculated. The aerodynamic coefficients are calculated each set of combinations of the independent variables. <simplesect kind="return"><para>Data points of the independent variables at which the coefficients are calculated. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="170" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="170" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a4000ce99127f0aa63d10eaa986d57b3b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::saveAerodynamicCoefficientsTables</definition>
+        <argsstring>(const std::map&lt; unsigned int, std::string &gt; &amp;fileNamesMap)</argsstring>
+        <name>saveAerodynamicCoefficientsTables</name>
+        <param>
+          <type>const std::map&lt; unsigned int, std::string &gt; &amp;</type>
+          <declname>fileNamesMap</declname>
+        </param>
+        <briefdescription>
+<para>Save aerodynamic coefficients to file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Save aerodynamic coefficients to file. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileNamesMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of paths to files where aerodynamics coefficients are to be saved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="180" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="180" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1af84b7325a95c9c4468a53f3edcf0d39e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::saveAerodynamicCoefficientsTables</definition>
+        <argsstring>(const std::string &amp;fileName, const std::vector&lt; unsigned int &gt; coefficientIndices={ 0, 1, 2, 3, 4, 5 })</argsstring>
+        <name>saveAerodynamicCoefficientsTables</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; unsigned int &gt;</type>
+          <declname>coefficientIndices</declname>
+          <defval>{ 0, 1, 2, 3, 4, 5 }</defval>
+        </param>
+        <briefdescription>
+<para>Save aerodynamic coefficients to a single file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Save aerodynamic coefficients to a single file, in case of one independent variable is used. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Paths to file where aerodynamics coefficients are to be saved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coefficientIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Indices of coefficients to be saved. Default value is all of them. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="198" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="198" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ac9fa0edb774691693299291eccc100e5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::updateCurrentCoefficients</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;independentVariables, const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateCurrentCoefficients</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a368494b2f082a82d39f83d1eb9ce103f">updateCurrentCoefficients</reimplements>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Compute the aerodynamic coefficients at current flight condition. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute the aerodynamic coefficients at current flight conditions (independent variables). Input is a set of independent variables (doubles) which represent the variables from which the coefficients are calculated. The physical nature of these variables depends on the coefficientFunction_ variables. The size of the independent variable vector must be numberOfIndependentVariables_ <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variables of force and moment coefficient determination implemented by derived class </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which coefficients are to be updated (not used in this derived class). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="231" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="231" bodyend="252"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a33f99bba58afd64d95b5c896b29234fb" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::generateCoefficients</definition>
+        <argsstring>()=0</argsstring>
+        <name>generateCoefficients</name>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a598edf788167446e87df9db972ddf56f">generateCoefficients</reimplementedby>
+        <briefdescription>
+<para>Generate aerodynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual function to generate aerodynamic coefficients for the list of independent variables passed to the constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="261" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a8e6f4b78c17854f5cab41f5c404fca00" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;::createInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>createInterpolator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create the coefficient interpolator from the discrete set in aerodynamicCoefficients_ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="265" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="265" bodyend="272"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for aerodynamic coefficient generator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Abstract base class for aerodynamic analysis method. Stores independent variable values and data points of independent variables. Coefficients are stored in a multi_array of pointers. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::AerodynamicCoefficientInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; NumberOfIndependentVariables, NumberOfCoefficients &gt;</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::AerodynamicCoefficientInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" line="52" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h" bodystart="53" bodyend="297"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a469808ab7a0fe9491562b8f46fe3c0c6" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>AerodynamicCoefficientGenerator</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1afcf63dcf774ca65e91ce8449f3e22d74" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>AerodynamicCoefficientInterface</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ad6fc1e382d822715b80f9a1636e5ce53" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>aerodynamicCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a29e32be7cec1045dba10c7a60182ad05" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>areCoefficientsInAerodynamicFrame_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a6ede4ceff6ef3a4eb91e4061750e5c19" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>areCoefficientsInNegativeAxisDirection_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ac74ac5b066446d059fcb2cad7411ac62" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>coefficientInterpolator_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a904ec19864b2a25cd1db606bbb22aa81" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>controlSurfaceIncrementInterfaces_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab14a77a9c578c1153ec128fc927fc4f9" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>controlSurfaceNames_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a8e6f4b78c17854f5cab41f5c404fca00" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>createInterpolator</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ac2e2b9a55f0269a611599a652a556c9a" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>currentForceCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a421867bb3bd06711019c80621ac75473" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>currentMomentCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a14278ec758b9bfbfa73c5564abce310f" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>dataPointsOfIndependentVariables_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a33f99bba58afd64d95b5c896b29234fb" prot="protected" virt="pure-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>generateCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1abb510c0b6d78349c6e41658ea8b63bc8" prot="public" virt="pure-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getAerodynamicCoefficientsDataPoint</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a8d45750ac8b56931b3ee805cefd5a9da" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getAerodynamicCoefficientsTables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1acc664214ae5fee886b3a2ffa22dce2d9" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getAreCoefficientsInAerodynamicFrame</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a55875655a4a678eaa5fdb80cb4827e9f" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getAreCoefficientsInNegativeAxisDirection</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ad5c005acfa80f3761f20850a855d1644" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getControlSurfaceIndependentVariableName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a63f2ffc4d03a6902e0760f93b1931b5a" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getControlSurfaceIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a69a2aa883a2fba8bc918dcd60a654eb9" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getControlSurfaceName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a6b2eee400f93606c83e0429ab8b974d6" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getCurrentAerodynamicCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a1d482f3c4cba5a2354d12610319aa7af" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getCurrentForceCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a81b6c6f36bea4e10bdde1d67f95740d7" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getCurrentMomentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1aa114019ee49550774f570990712ddbfd" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getDataPointsOfIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a91798427fd03d66a696f97f9c01292c4" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getIndependentVariableName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a605d78a84519402354ac1551e7eb2d0d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getIndependentVariableNames</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a9d7115d794324cf9e42eed27bc0f28ed" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getIndependentVariablePoint</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ac340c18b6cb008955c8dc426c31d6adb" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getLateralReferenceLength</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab940adb9ffb34d7910bdb11ca06143f6" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getMomentReferencePoint</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a1ca99957277b60ca79aaf4eb48e3f003" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getNumberOfControlSurfaceIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aeec44dc3a056968cb685dd3f0642bf5d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getNumberOfControlSurfaces</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af10cc21f485df4f2c877f827c7a38493" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getNumberOfIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1acb3c4f4b8332af012032a6300bc30e7b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getNumberOfValuesOfIndependentVariable</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aaf0325453208d06cfbf8aa7a854d6875" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getReferenceArea</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a8bf7126281dbe7017490e77768e23670" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getReferenceLength</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a116a427562ff47a5cfb717fc5931171b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>getReferenceLengths</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a5e0570c4a1562fa17fde2fa5c5e2b3a8" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>independentVariableNames_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1addb200a9776750fdc60ae9d5f9291fc8" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>lateralReferenceLength_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a88e4085f5377db07dece01f46badc536" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>momentReferencePoint_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab8d9151ab40af2f5bce2cf0208020e1b" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>numberOfIndependentVariables_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af4588066ab70f6866f5754016c7876c3" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>referenceArea_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a37ca00d965d756bbf54b727516a33a57" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>referenceLength_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af170e69f9c689cce254dbf9b7d0fb2ab" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>referenceLengths_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a4000ce99127f0aa63d10eaa986d57b3b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>saveAerodynamicCoefficientsTables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1af84b7325a95c9c4468a53f3edcf0d39e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>saveAerodynamicCoefficientsTables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a5b6637fe09eee857978eae3ff94db959" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>setControlSurfaceIncrements</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ac9fa0edb774691693299291eccc100e5" prot="public" virt="virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>updateCurrentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a59727b07127b2e8ef0af43b3177a0808" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>updateCurrentControlSurfaceCoefficientsCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aa32aa23f6d4e140130a44a74f60893dc" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>updateFullCurrentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a3d460a387284388a7c0cb2517288df5c" prot="public" virt="virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>~AerodynamicCoefficientGenerator</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aa1df9aca23300659cd752d9afa42efa4" prot="public" virt="virtual"><scope>tudat::aerodynamics::AerodynamicCoefficientGenerator</scope><name>~AerodynamicCoefficientInterface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

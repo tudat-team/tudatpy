@@ -1,0 +1,420 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1ObservationSimulatorBase" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::observation_models::ObservationSimulatorBase</compoundname>
+    <includes refid="observationSimulator_8h" local="no">observationSimulator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ObservationScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae1c7c12fc87026c0c8328ed04f10c798" prot="protected" static="no" mutable="no">
+        <type>ObservableType</type>
+        <definition>ObservableType tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::observableType_</definition>
+        <argsstring></argsstring>
+        <name>observableType_</name>
+        <briefdescription>
+<para>Type of observable for which this object computes observations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="259" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" bodystart="259" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; LinkEnds, std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator" kindref="compound">ObservationViabilityCalculator</ref> &gt; &gt; &gt;</type>
+        <definition>std::map&lt; LinkEnds, std::vector&lt; std::shared_ptr&lt; ObservationViabilityCalculator &gt; &gt; &gt; tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::viabilityCalculators_</definition>
+        <argsstring></argsstring>
+        <name>viabilityCalculators_</name>
+        <briefdescription>
+<para>List of observation viability calculators, sorted by LinkEnds. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="262" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" bodystart="262" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ac079d2d1cd42b07e74aacf62533f6f28" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::ObservationSimulatorBase</definition>
+        <argsstring>(const ObservableType observableType)</argsstring>
+        <name>ObservationSimulatorBase</name>
+        <param>
+          <type>const ObservableType</type>
+          <declname>observableType</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of observable for which this object computes observations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="146" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" bodystart="146" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ad52f049877949ec8ca9e4e7e69479e75" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::~ObservationSimulatorBase</definition>
+        <argsstring>()</argsstring>
+        <name>~ObservationSimulatorBase</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="151" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" bodystart="151" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1aa95ee5346ad56a1fff76520142086c46" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>ObservableType</type>
+        <definition>ObservableType tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::getObservableType</definition>
+        <argsstring>()</argsstring>
+        <name>getObservableType</name>
+        <briefdescription>
+<para>Function to get the type of observable for which this object computes observations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the type of observable for which this object computes observations <simplesect kind="return"><para>Type of observable for which this object computes observations </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="158" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" bodystart="158" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1aad7bd1073d02404c117d984ce39409ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>int</type>
+        <definition>virtual int tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::getObservationSize</definition>
+        <argsstring>(const LinkEnds &amp;linkEnds)=0</argsstring>
+        <name>getObservationSize</name>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1ObservationSimulator_1a38e047f6a4bc54be0252296d169cf151">getObservationSize</reimplementedby>
+        <param>
+          <type>const LinkEnds &amp;</type>
+          <declname>linkEnds</declname>
+        </param>
+        <briefdescription>
+<para>Function to get the observation model for a given set of link ends. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the observation model for a given set of link ends <simplesect kind="return"><para>Observation model for a given set of link ends </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="168" column="17"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a35e5fd2214d342991819fe4fbd659642" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>virtual Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt; tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::simulateObservation</definition>
+        <argsstring>(const TimeType observationTime, const LinkEnds linkEnds, const LinkEndType linkEndAssociatedWithTime, std::vector&lt; double &gt; &amp;linkEndTimes, std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)=0</argsstring>
+        <name>simulateObservation</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>observationTime</declname>
+        </param>
+        <param>
+          <type>const LinkEnds</type>
+          <declname>linkEnds</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function (pure virtual) to simulate a single observation between specified link ends. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function (pure virtual) to simulate a single observation between specified link ends. Function is provided to have an interface to simulate a single observation from an <ref refid="classtudat_1_1observation__models_1_1ObservationModel" kindref="compound">ObservationModel</ref> object (in <ref refid="classtudat_1_1observation__models_1_1ObservationSimulator" kindref="compound">ObservationSimulator</ref> derived class) without the need for a ObservationSize template argument. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observable is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEnds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set of stations, S/C etc. in link, with specifiers of type of link end. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid, i.e. link end for which associated time is kept constant (to input value) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Simulated observation at requested time and link ends. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="184" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1afe9a274000df6656ecd291b077b4a8c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::pair&lt; Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;, std::vector&lt; TimeType &gt; &gt;</type>
+        <definition>virtual std::pair&lt; Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;, std::vector&lt; TimeType &gt; &gt; tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::simulateObservations</definition>
+        <argsstring>(const std::vector&lt; TimeType &gt; &amp;observationTimes, const LinkEnds linkEnds, const LinkEndType linkEndAssociatedWithTime, const bool checkTimes=true)=0</argsstring>
+        <name>simulateObservations</name>
+        <param>
+          <type>const std::vector&lt; TimeType &gt; &amp;</type>
+          <declname>observationTimes</declname>
+        </param>
+        <param>
+          <type>const LinkEnds</type>
+          <declname>linkEnds</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>checkTimes</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Function (pure virtual) to simulate observations between specified link ends. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function (pure virtual) to simulate observations between specified link ends. Users can specify whether to check for availability of link at given reception time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of times at which observations taked place (i.e. reception time) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEnds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set of stations, S/C etc. in link, with specifiers of type of link end. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference link end for observable </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>checkTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the observation times are to be checked for viability </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Observations at given times (concatenated in an Eigen vector), with associated times </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="202" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae670794e383f799abd99ebb382c22159" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::pair&lt; Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;, std::pair&lt; std::vector&lt; TimeType &gt;, LinkEndType &gt; &gt;</type>
+        <definition>virtual std::pair&lt; Eigen::Matrix&lt; ObservationScalarType, Eigen::Dynamic, 1 &gt;, std::pair&lt; std::vector&lt; TimeType &gt;, LinkEndType &gt; &gt; tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::simulateObservationsWithLinkEndId</definition>
+        <argsstring>(const std::vector&lt; TimeType &gt; &amp;observationTimes, const LinkEnds linkEnds, const LinkEndType linkEndAssociatedWithTime, const bool checkTimes=true)=0</argsstring>
+        <name>simulateObservationsWithLinkEndId</name>
+        <param>
+          <type>const std::vector&lt; TimeType &gt; &amp;</type>
+          <declname>observationTimes</declname>
+        </param>
+        <param>
+          <type>const LinkEnds</type>
+          <declname>linkEnds</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>checkTimes</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Function (pure virtual) to simulate observations between specified link ends. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function (pure virtual) to simulate observations between specified link ends. Users can specify whether to check for availability of link at given reception time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of times at which observations taked place (i.e. reception time) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEnds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set of stations, S/C etc. in link, with specifiers of type of link end. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference link end for observable </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>checkTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the observation times are to be checked for viability </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Observations at given times (concatenated in an Eigen vector), with associated times and reference link end. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="218" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a9d47cab41af990d667b833397d199315" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::setViabilityCalculators</definition>
+        <argsstring>(const std::map&lt; LinkEnds, std::vector&lt; std::shared_ptr&lt; ObservationViabilityCalculator &gt; &gt; &gt; &amp;viabilityCalculators)</argsstring>
+        <name>setViabilityCalculators</name>
+        <param>
+          <type>const std::map&lt; LinkEnds, std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator" kindref="compound">ObservationViabilityCalculator</ref> &gt; &gt; &gt; &amp;</type>
+          <declname>viabilityCalculators</declname>
+        </param>
+        <briefdescription>
+<para>Function to set observation viability calculators. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set observation viability calculators, a different list must be provided for each set of link ends. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>viabilityCalculators</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of observation viability calculators, sorted by LinkEnds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="228" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" bodystart="228" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a95ecdc26cceb6fdcecb80847104aaad2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator" kindref="compound">ObservationViabilityCalculator</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; ObservationViabilityCalculator &gt; &gt; tudat::observation_models::ObservationSimulatorBase&lt; ObservationScalarType, TimeType &gt;::getLinkViabilityCalculators</definition>
+        <argsstring>(const LinkEnds &amp;linkEnds)</argsstring>
+        <name>getLinkViabilityCalculators</name>
+        <param>
+          <type>const LinkEnds &amp;</type>
+          <declname>linkEnds</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve observation viability calculators for a single set of link ends. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve observation viability calculators for a single set of link ends <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEnds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link ends for which observation viability calculators are to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Observation viability calculators for requestred single set of link ends (empty vector if no calculators for requested link ends are given in this object) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="242" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" bodystart="242" bodyend="253"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Virtual base class for the observation simulator class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Virtual base class for the observation simulator class, which is used to compute observable values of a single type of observable This base class is used for practical purposes, as the derived class has a template argument for the observable size, precluding the possibility of making a list of objects for all observation simulators (e.g. one for each observable type) </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" line="137" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationSimulator.h" bodystart="138" bodyend="263"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a95ecdc26cceb6fdcecb80847104aaad2" prot="public" virt="non-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>getLinkViabilityCalculators</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1aa95ee5346ad56a1fff76520142086c46" prot="public" virt="non-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>getObservableType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1aad7bd1073d02404c117d984ce39409ac" prot="public" virt="pure-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae1c7c12fc87026c0c8328ed04f10c798" prot="protected" virt="non-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>observableType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ac079d2d1cd42b07e74aacf62533f6f28" prot="public" virt="non-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>ObservationSimulatorBase</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a9d47cab41af990d667b833397d199315" prot="public" virt="non-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>setViabilityCalculators</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a35e5fd2214d342991819fe4fbd659642" prot="public" virt="pure-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>simulateObservation</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1afe9a274000df6656ecd291b077b4a8c8" prot="public" virt="pure-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>simulateObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ae670794e383f799abd99ebb382c22159" prot="public" virt="pure-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>simulateObservationsWithLinkEndId</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1a825c8988f2d89ea34420a3fd6d5b6f0b" prot="protected" virt="non-virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>viabilityCalculators_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSimulatorBase_1ad52f049877949ec8ca9e4e7e69479e75" prot="public" virt="virtual"><scope>tudat::observation_models::ObservationSimulatorBase</scope><name>~ObservationSimulatorBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

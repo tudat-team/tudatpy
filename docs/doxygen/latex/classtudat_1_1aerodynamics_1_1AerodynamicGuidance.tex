@@ -1,0 +1,100 @@
+\hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance}{}\doxysection{tudat\+::aerodynamics\+::Aerodynamic\+Guidance Class Reference}
+\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance}\index{tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}}
+
+
+{\ttfamily \#include $<$aerodynamic\+Guidance.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_aaf4f9cfc62d861c1e2c4438d9cfb84cb}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_aaf4f9cfc62d861c1e2c4438d9cfb84cb}} 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_aaf4f9cfc62d861c1e2c4438d9cfb84cb}{Aerodynamic\+Guidance}} ()
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a01f1a9a23bc8d0794003909d61385ab1}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a01f1a9a23bc8d0794003909d61385ab1}} 
+virtual \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a01f1a9a23bc8d0794003909d61385ab1}{$\sim$\+Aerodynamic\+Guidance}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a97a6200cf74d60a2a5ad1616e159ffc5}{update\+Guidance}} (const double current\+Time)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function to update the guidance to the current time and state. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_ac8d09c3926209eb3d440484c0580f6ea}{get\+Current\+Angle\+Of\+Attack}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the current angle of attack, as set by last call to update\+Guidance function. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a3ea3dcb8ee9f99f5107ad1aa86b23ae3}{get\+Current\+Angle\+Of\+Sideslip}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the current angle of sideslip, as set by last call to update\+Guidance function. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a342513b4fa99f1f09365ff4f7a3c572f}{get\+Current\+Bank\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the current bank angle, as set by last call to update\+Guidance function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_abf93dc422542fbbbabd8102e105c0e50}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_abf93dc422542fbbbabd8102e105c0e50}} 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_abf93dc422542fbbbabd8102e105c0e50}{current\+Angle\+Of\+Attack\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current angle of attack, as set by last call to update\+Guidance function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_ad1921668cf3feb2bedbb183713b03843}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_ad1921668cf3feb2bedbb183713b03843}} 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_ad1921668cf3feb2bedbb183713b03843}{current\+Angle\+Of\+Sideslip\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current angle of sideslip, as set by last call to update\+Guidance function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a7bd38e6cef133b0ed8487d8d88cdc9ad}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a7bd38e6cef133b0ed8487d8d88cdc9ad}} 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a7bd38e6cef133b0ed8487d8d88cdc9ad}{current\+Bank\+Angle\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current bank angle, as set by last call to update\+Guidance function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class in which the aerodynamic angles (angle of attack, sideslip and bank angle) are computed. A derived class implementing a specific guidance law is to be implemented by the user. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_ac8d09c3926209eb3d440484c0580f6ea}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_ac8d09c3926209eb3d440484c0580f6ea}} 
+\index{tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}!getCurrentAngleOfAttack@{getCurrentAngleOfAttack}}
+\index{getCurrentAngleOfAttack@{getCurrentAngleOfAttack}!tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}}
+\doxysubsubsection{\texorpdfstring{getCurrentAngleOfAttack()}{getCurrentAngleOfAttack()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Aerodynamic\+Guidance\+::get\+Current\+Angle\+Of\+Attack (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the current angle of attack, as set by last call to update\+Guidance function. 
+
+Function to retrieve the current angle of attack, as set by last call to update\+Guidance function \begin{DoxyReturn}{Returns}
+Current angle of attack, as set by last call to update\+Guidance function 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a3ea3dcb8ee9f99f5107ad1aa86b23ae3}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a3ea3dcb8ee9f99f5107ad1aa86b23ae3}} 
+\index{tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}!getCurrentAngleOfSideslip@{getCurrentAngleOfSideslip}}
+\index{getCurrentAngleOfSideslip@{getCurrentAngleOfSideslip}!tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}}
+\doxysubsubsection{\texorpdfstring{getCurrentAngleOfSideslip()}{getCurrentAngleOfSideslip()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Aerodynamic\+Guidance\+::get\+Current\+Angle\+Of\+Sideslip (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the current angle of sideslip, as set by last call to update\+Guidance function. 
+
+Function to retrieve the current angle of sideslip, as set by last call to update\+Guidance function \begin{DoxyReturn}{Returns}
+Current angle of sideslip, as set by last call to update\+Guidance function 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a342513b4fa99f1f09365ff4f7a3c572f}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a342513b4fa99f1f09365ff4f7a3c572f}} 
+\index{tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}!getCurrentBankAngle@{getCurrentBankAngle}}
+\index{getCurrentBankAngle@{getCurrentBankAngle}!tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}}
+\doxysubsubsection{\texorpdfstring{getCurrentBankAngle()}{getCurrentBankAngle()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Aerodynamic\+Guidance\+::get\+Current\+Bank\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the current bank angle, as set by last call to update\+Guidance function. 
+
+Function to retrieve the current bank angle, as set by last call to update\+Guidance function \begin{DoxyReturn}{Returns}
+Current bank angle, as set by last call to update\+Guidance function 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a97a6200cf74d60a2a5ad1616e159ffc5}\label{classtudat_1_1aerodynamics_1_1AerodynamicGuidance_a97a6200cf74d60a2a5ad1616e159ffc5}} 
+\index{tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}!updateGuidance@{updateGuidance}}
+\index{updateGuidance@{updateGuidance}!tudat::aerodynamics::AerodynamicGuidance@{tudat::aerodynamics::AerodynamicGuidance}}
+\doxysubsubsection{\texorpdfstring{updateGuidance()}{updateGuidance()}}
+{\footnotesize\ttfamily virtual void tudat\+::aerodynamics\+::\+Aerodynamic\+Guidance\+::update\+Guidance (\begin{DoxyParamCaption}\item[{const double}]{current\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function to update the guidance to the current time and state. 
+
+Pure virtual function to update the guidance to the current time and state 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} to which the guidance object is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/aerodynamics/aerodynamic\+Guidance.\+h\end{DoxyCompactItemize}

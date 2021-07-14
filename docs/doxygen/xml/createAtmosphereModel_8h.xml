@@ -1,0 +1,1134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="createAtmosphereModel_8h" kind="file" language="C++">
+    <compoundname>createAtmosphereModel.h</compoundname>
+    <includes local="no">string</includes>
+    <includes local="no">map</includes>
+    <includes local="no">memory</includes>
+    <includes refid="atmosphereModel_8h" local="yes">tudat/astro/aerodynamics/atmosphereModel.h</includes>
+    <includes refid="exponentialAtmosphere_8h" local="yes">tudat/astro/aerodynamics/exponentialAtmosphere.h</includes>
+    <includes refid="customConstantTemperatureAtmosphere_8h" local="yes">tudat/astro/aerodynamics/customConstantTemperatureAtmosphere.h</includes>
+    <includes refid="physicalConstants_8h" local="yes">tudat/astro/basic_astro/physicalConstants.h</includes>
+    <includes refid="interpolator_8h" local="yes">tudat/math/interpolators/interpolator.h</includes>
+    <includes refid="identityElements_8h" local="yes">tudat/basics/identityElements.h</includes>
+    <includedby refid="atmosphere_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/atmosphere.h</includedby>
+    <includedby refid="createBodies_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h</includedby>
+    <includedby refid="environment__setup_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup.h</includedby>
+    <includedby refid="createAtmosphereModel_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/createAtmosphereModel.cpp</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h</label>
+        <link refid="createAtmosphereModel_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>functional</label>
+      </node>
+      <node id="27">
+        <label>boost/shared_ptr.hpp</label>
+      </node>
+      <node id="9">
+        <label>limits</label>
+      </node>
+      <node id="19">
+        <label>tudat/astro/aerodynamics/exponentialAtmosphere.h</label>
+        <link refid="exponentialAtmosphere_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="33">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>tudat/astro/aerodynamics/customConstantTemperatureAtmosphere.h</label>
+        <link refid="customConstantTemperatureAtmosphere_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>cmath</label>
+      </node>
+      <node id="11">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="2">
+        <label>string</label>
+      </node>
+      <node id="3">
+        <label>map</label>
+      </node>
+      <node id="13">
+        <label>tudat/astro/reference_frames/referenceFrameTransformations.h</label>
+        <link refid="referenceFrameTransformations_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>boost/function.hpp</label>
+      </node>
+      <node id="17">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="31">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>vector</label>
+      </node>
+      <node id="20">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="29">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat/astro/aerodynamics/atmosphereModel.h</label>
+        <link refid="atmosphereModel_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>tudat/astro/aerodynamics/aerodynamics.h</label>
+        <link refid="astro_2aerodynamics_2aerodynamics_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>tudat/astro/aerodynamics/standardAtmosphere.h</label>
+        <link refid="standardAtmosphere_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat/astro/aerodynamics/windModel.h</label>
+        <link refid="windModel_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="32">
+        <label>type_traits</label>
+      </node>
+      <node id="7">
+        <label>complex</label>
+      </node>
+      <node id="30">
+        <label>algorithm</label>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h</label>
+        <link refid="createAtmosphereModel_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/defaultBodies.h</label>
+        <link refid="defaultBodies_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h</label>
+        <link refid="createBodies_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/state.h</label>
+        <link refid="state_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup.h</label>
+        <link refid="environment__setup_8h_source"/>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/atmosphere.h</label>
+        <link refid="atmosphere_8h_source"/>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/body.h</label>
+        <link refid="interface_2json_2environment_2body_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1WindModelSettings" prot="public">tudat::simulation_setup::WindModelSettings</innerclass>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings" prot="public">tudat::simulation_setup::ConstantWindModelSettings</innerclass>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings" prot="public">tudat::simulation_setup::CustomWindModelSettings</innerclass>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" prot="public">tudat::simulation_setup::AtmosphereSettings</innerclass>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings" prot="public">tudat::simulation_setup::ExponentialAtmosphereSettings</innerclass>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings" prot="public">tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</innerclass>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1NRLMSISE00AtmosphereSettings" prot="public">tudat::simulation_setup::NRLMSISE00AtmosphereSettings</innerclass>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings" prot="public">tudat::simulation_setup::TabulatedAtmosphereSettings</innerclass>
+    <innerclass refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings" prot="public">tudat::simulation_setup::ScaledAtmosphereSettings</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1simulation__setup">tudat::simulation_setup</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_CREATEATMOSPHEREMODEL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_CREATEATMOSPHEREMODEL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;map&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/aerodynamics/atmosphereModel.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/aerodynamics/exponentialAtmosphere.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/aerodynamics/customConstantTemperatureAtmosphere.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/physicalConstants.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/interpolators/interpolator.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/basics/identityElements.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">simulation_setup</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">aerodynamics;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>WindModelTypes</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>constant_wind_model,</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>custom_wind_model</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="classtudat_1_1simulation__setup_1_1WindModelSettings" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings" kindref="compound">WindModelSettings</ref></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a61856d5bd8d10d726afdd36814971c13" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a61856d5bd8d10d726afdd36814971c13" kindref="member">WindModelSettings</ref>(</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>WindModelTypes<sp/>windModelType,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>reference_frames::AerodynamicsReferenceFrames<sp/>associatedFrame<sp/>=<sp/>reference_frames::vertical_frame<sp/>):</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>windModelType_(<sp/>windModelType<sp/>),<sp/>associatedFrame_(<sp/>associatedFrame<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a21f3cb2bf2147286afc1662df50da1af" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a21f3cb2bf2147286afc1662df50da1af" kindref="member">~WindModelSettings</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a1b98ab565b7a0a02dd018dcdd7bca511" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>WindModelTypes<sp/><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a1b98ab565b7a0a02dd018dcdd7bca511" kindref="member">getWindModelType</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>windModelType_;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>reference_frames::AerodynamicsReferenceFrames<sp/>getAssociatedFrame(<sp/>)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>associatedFrame_;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1af91c5f7dc6d8950cf591ef9ad86c8466" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>WindModelTypes<sp/><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1af91c5f7dc6d8950cf591ef9ad86c8466" kindref="member">windModelType_</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>reference_frames::AerodynamicsReferenceFrames<sp/>associatedFrame_;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings" kindref="compound">ConstantWindModelSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings" kindref="compound">WindModelSettings</ref></highlight></codeline>
+<codeline lineno="95"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings" kindref="compound">ConstantWindModelSettings</ref>(</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>constantWindVelocity,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>reference_frames::AerodynamicsReferenceFrames<sp/>associatedFrame<sp/>=<sp/>reference_frames::vertical_frame<sp/>):</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings" kindref="compound">WindModelSettings</ref>(<sp/>constant_wind_model,<sp/>associatedFrame<sp/>),</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>constantWindVelocity_(<sp/>constantWindVelocity<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/>getConstantWindVelocity(<sp/>)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>constantWindVelocity_;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/>constantWindVelocity_;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings" kindref="compound">CustomWindModelSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings" kindref="compound">WindModelSettings</ref></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1a94c38205405f29160b5e9384587816cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1a94c38205405f29160b5e9384587816cd" kindref="member">CustomWindModelSettings</ref>(</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>Eigen::Vector3d(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>windFunction,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>reference_frames::AerodynamicsReferenceFrames<sp/>associatedFrame<sp/>=<sp/>reference_frames::vertical_frame<sp/><sp/>):</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1WindModelSettings" kindref="compound">WindModelSettings</ref>(<sp/>custom_wind_model,<sp/>associatedFrame<sp/>),<sp/>windFunction_(<sp/>windFunction<sp/>)</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133" refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1ae944f84200df2e658cca71fc4747fb56" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1ae944f84200df2e658cca71fc4747fb56" kindref="member">~CustomWindModelSettings</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140" refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1adf05f2f63f27b8e65c7b4c593a02d40d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>Eigen::Vector3d(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1adf05f2f63f27b8e65c7b4c593a02d40d" kindref="member">getWindFunction</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>windFunction_;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150" refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1a78cb89c3559a1ac27b2c5956104bed1a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1a78cb89c3559a1ac27b2c5956104bed1a" kindref="member">setWindFunction</ref>(</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>Eigen::Vector3d(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>windFunction<sp/>)</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>windFunction_<sp/>=<sp/>windFunction;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1ae52c1048cd95b1d8e8bb218f39fc5e24" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>Eigen::Vector3d(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomWindModelSettings_1ae52c1048cd95b1d8e8bb218f39fc5e24" kindref="member">windFunction_</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>AtmosphereTypes</highlight></codeline>
+<codeline lineno="168"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>exponential_atmosphere,</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>custom_constant_temperature_atmosphere,</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>tabulated_atmosphere,</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/>nrlmsise00,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>scaled_atmosphere</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183" refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193" refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a82760111a1975705c2bd939836e8486a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a82760111a1975705c2bd939836e8486a" kindref="member">AtmosphereSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>AtmosphereTypes<sp/>atmosphereType<sp/>):</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atmosphereType_(<sp/>atmosphereType<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197" refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a5d315b52924a7f82d4e269402c60a51c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a5d315b52924a7f82d4e269402c60a51c" kindref="member">~AtmosphereSettings</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204" refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1aec4287b357a3bb6abc189f7c27474531" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>AtmosphereTypes<sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1aec4287b357a3bb6abc189f7c27474531" kindref="member">getAtmosphereType</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>atmosphereType_;<sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211" refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a65fbe7e983518c965f99b9b8cb4891e0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>WindModelSettings<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a65fbe7e983518c965f99b9b8cb4891e0" kindref="member">getWindSettings</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>windSettings_;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1ab140972c4f4657425eff7e21ed8f0631" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1ab140972c4f4657425eff7e21ed8f0631" kindref="member">setWindSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>WindModelSettings<sp/>&gt;<sp/>windSettings<sp/>)</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>windSettings_<sp/>=<sp/>windSettings;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/>AtmosphereTypes<sp/>atmosphereType_;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>WindModelSettings<sp/>&gt;<sp/>windSettings_;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings" kindref="compound">ExponentialAtmosphereSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref></highlight></codeline>
+<codeline lineno="238"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a5f95da0a434fcc7c0360fc0c9a7b00bc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a5f95da0a434fcc7c0360fc0c9a7b00bc" kindref="member">ExponentialAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>densityScaleHeight,</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>constantTemperature,</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>densityAtZeroAltitude,</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant<sp/>=<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR,</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats<sp/>=<sp/>1.4<sp/>):</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>exponential_atmosphere<sp/>),</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>densityScaleHeight_(<sp/>densityScaleHeight<sp/>),<sp/>constantTemperature_(<sp/>constantTemperature<sp/>),</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>densityAtZeroAltitude_(<sp/>densityAtZeroAltitude<sp/>),<sp/>specificGasConstant_(<sp/>specificGasConstant<sp/>),</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ratioOfSpecificHeats_(<sp/>ratioOfSpecificHeats<sp/>),<sp/>bodyWithPredefinedExponentialAtmosphere_(<sp/>undefined_body<sp/>)</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a9aa78e54c97d7a00a6ebbf97164121a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a9aa78e54c97d7a00a6ebbf97164121a2" kindref="member">ExponentialAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>BodiesWithPredefinedExponentialAtmospheres<sp/>bodyWithPredefinedExponentialAtmosphere<sp/>):</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>exponential_atmosphere<sp/>),</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyWithPredefinedExponentialAtmosphere_(<sp/>bodyWithPredefinedExponentialAtmosphere<sp/>)</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>that<sp/>the<sp/>body<sp/>name<sp/>inserted<sp/>is<sp/>available</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<sp/>bodyWithPredefinedExponentialAtmosphere<sp/>)</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>earth:</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>mars:</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>all<sp/>is<sp/>good</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>while<sp/>creating<sp/>exponential<sp/>atmosphere.<sp/>The<sp/>body<sp/>name<sp/>provided<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;does<sp/>not<sp/>match<sp/>any<sp/>predefined<sp/>atmosphere<sp/>model.<sp/>Available<sp/>models<sp/>for:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Earth,<sp/>Mars.&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1ae2654f691fa13bd913d052300376a5cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1ae2654f691fa13bd913d052300376a5cd" kindref="member">getDensityScaleHeight</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>densityScaleHeight_;<sp/>}</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a7726581a154975351ff48e426788e8af" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a7726581a154975351ff48e426788e8af" kindref="member">getConstantTemperature</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>constantTemperature_;<sp/>}</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a4c7022b628cf8055728eba4df03f37cc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a4c7022b628cf8055728eba4df03f37cc" kindref="member">getDensityAtZeroAltitude</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>densityAtZeroAltitude_;<sp/>}</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a5377998853c2e147b149ed7a8c92842a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a5377998853c2e147b149ed7a8c92842a" kindref="member">getSpecificGasConstant</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>specificGasConstant_;<sp/>}</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a7ef0a11b063b64fa70b7f4556cb985d8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a7ef0a11b063b64fa70b7f4556cb985d8" kindref="member">getRatioOfSpecificHeats</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats_;<sp/>}</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327" refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a119e7a0a31a73abbb26c6528ba532bca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>BodiesWithPredefinedExponentialAtmospheres<sp/><ref refid="classtudat_1_1simulation__setup_1_1ExponentialAtmosphereSettings_1a119e7a0a31a73abbb26c6528ba532bca" kindref="member">getBodyName</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bodyWithPredefinedExponentialAtmosphere_;</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>densityScaleHeight_;</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>constantTemperature_;</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>densityAtZeroAltitude_;</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant_;</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats_;</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/>BodiesWithPredefinedExponentialAtmospheres<sp/>bodyWithPredefinedExponentialAtmosphere_;</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"></highlight></codeline>
+<codeline lineno="353"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"></highlight></codeline>
+<codeline lineno="356" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings" kindref="compound">CustomConstantTemperatureAtmosphereSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref></highlight></codeline>
+<codeline lineno="357"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" kindref="member">DensityFunction</ref>;</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"></highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="372" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a27bd0672ba4e6de57c3d877464ba470a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a27bd0672ba4e6de57c3d877464ba470a" kindref="member">CustomConstantTemperatureAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" kindref="member">DensityFunction</ref>&amp;<sp/>densityFunction,</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>constantTemperature,</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant<sp/>=<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR,</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats<sp/>=<sp/>1.4<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>custom_constant_temperature_atmosphere<sp/>),</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>densityFunction_(<sp/>densityFunction<sp/>),</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>constantTemperature_(<sp/>constantTemperature<sp/>),</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificGasConstant_(<sp/>specificGasConstant<sp/>),</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ratioOfSpecificHeats_(<sp/>ratioOfSpecificHeats<sp/>)</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight></codeline>
+<codeline lineno="385"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5e402078dbf7dd54ff9e6628546df166" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5e402078dbf7dd54ff9e6628546df166" kindref="member">CustomConstantTemperatureAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>AvailableConstantTemperatureAtmosphereModels<sp/>densityFunctionType,</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>constantTemperature,</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant,</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats,</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>modelSpecificParameters<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>custom_constant_temperature_atmosphere<sp/>),</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>densityFunctionType_(<sp/>densityFunctionType<sp/>),</highlight></codeline>
+<codeline lineno="402"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>constantTemperature_(<sp/>constantTemperature<sp/>),</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificGasConstant_(<sp/>specificGasConstant<sp/>),</highlight></codeline>
+<codeline lineno="404"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ratioOfSpecificHeats_(<sp/>ratioOfSpecificHeats<sp/>),</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>modelSpecificParameters_(<sp/>modelSpecificParameters<sp/>)</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal"></highlight></codeline>
+<codeline lineno="413" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a9e25d4dc93946573476a75d76936813e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" kindref="member">DensityFunction</ref><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a9e25d4dc93946573476a75d76936813e" kindref="member">getDensityFunction</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>densityFunction_;<sp/>}</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"></highlight></codeline>
+<codeline lineno="416"><highlight class="normal"></highlight></codeline>
+<codeline lineno="420" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1abfe4dda5aaee39ae621e6c8175ed0eed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>AvailableConstantTemperatureAtmosphereModels<sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1abfe4dda5aaee39ae621e6c8175ed0eed" kindref="member">getDensityFunctionType</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>densityFunctionType_;<sp/>}</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="normal"></highlight></codeline>
+<codeline lineno="428" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a8604dd73120977000b85a27af811abb3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a8604dd73120977000b85a27af811abb3" kindref="member">getConstantTemperature</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>constantTemperature_;<sp/>}</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"></highlight></codeline>
+<codeline lineno="431"><highlight class="normal"></highlight></codeline>
+<codeline lineno="436" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a2328bc9583c91efadb7c0a3a6f94605a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a2328bc9583c91efadb7c0a3a6f94605a" kindref="member">getSpecificGasConstant</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>specificGasConstant_;<sp/>}</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="444" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1aff758be0111dff0d240059ee25b18b2c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1aff758be0111dff0d240059ee25b18b2c" kindref="member">getRatioOfSpecificHeats</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats_;<sp/>}</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"></highlight></codeline>
+<codeline lineno="447"><highlight class="normal"></highlight></codeline>
+<codeline lineno="451" refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a2c94f245b43118608ed4da1737ec6210" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a2c94f245b43118608ed4da1737ec6210" kindref="member">getModelSpecificParameters</ref>(<sp/>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>modelSpecificParameters_;<sp/>}</highlight></codeline>
+<codeline lineno="452"><highlight class="normal"></highlight></codeline>
+<codeline lineno="453"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"></highlight></codeline>
+<codeline lineno="456"><highlight class="normal"></highlight></codeline>
+<codeline lineno="460"><highlight class="normal"><sp/><sp/><sp/><sp/>DensityFunction<sp/>densityFunction_;</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"></highlight></codeline>
+<codeline lineno="463"><highlight class="normal"></highlight></codeline>
+<codeline lineno="466"><highlight class="normal"><sp/><sp/><sp/><sp/>AvailableConstantTemperatureAtmosphereModels<sp/>densityFunctionType_;</highlight></codeline>
+<codeline lineno="467"><highlight class="normal"></highlight></codeline>
+<codeline lineno="469"><highlight class="normal"></highlight></codeline>
+<codeline lineno="472"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>constantTemperature_;</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"></highlight></codeline>
+<codeline lineno="475"><highlight class="normal"></highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant_;</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"></highlight></codeline>
+<codeline lineno="482"><highlight class="normal"></highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats_;</highlight></codeline>
+<codeline lineno="487"><highlight class="normal"></highlight></codeline>
+<codeline lineno="489"><highlight class="normal"></highlight></codeline>
+<codeline lineno="492"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>modelSpecificParameters_;</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"></highlight></codeline>
+<codeline lineno="494"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"></highlight></codeline>
+<codeline lineno="497" refid="classtudat_1_1simulation__setup_1_1NRLMSISE00AtmosphereSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1NRLMSISE00AtmosphereSettings" kindref="compound">NRLMSISE00AtmosphereSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref></highlight></codeline>
+<codeline lineno="498"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="500"><highlight class="normal"></highlight></codeline>
+<codeline lineno="502"><highlight class="normal"></highlight></codeline>
+<codeline lineno="507" refid="classtudat_1_1simulation__setup_1_1NRLMSISE00AtmosphereSettings_1ac88371f09c766572a7418fdcca570ecf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1NRLMSISE00AtmosphereSettings_1ac88371f09c766572a7418fdcca570ecf" kindref="member">NRLMSISE00AtmosphereSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>spaceWeatherFile<sp/>):</highlight></codeline>
+<codeline lineno="508"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>nrlmsise00<sp/>),<sp/>spaceWeatherFile_(<sp/>spaceWeatherFile<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="509"><highlight class="normal"></highlight></codeline>
+<codeline lineno="511"><highlight class="normal"></highlight></codeline>
+<codeline lineno="515" refid="classtudat_1_1simulation__setup_1_1NRLMSISE00AtmosphereSettings_1afcc3882ccc47ac662ff4d23a83c485a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1simulation__setup_1_1NRLMSISE00AtmosphereSettings_1afcc3882ccc47ac662ff4d23a83c485a2" kindref="member">getSpaceWeatherFile</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>spaceWeatherFile_;<sp/>}</highlight></codeline>
+<codeline lineno="516"><highlight class="normal"></highlight></codeline>
+<codeline lineno="517"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="518"><highlight class="normal"></highlight></codeline>
+<codeline lineno="520"><highlight class="normal"></highlight></codeline>
+<codeline lineno="523"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/>spaceWeatherFile_;</highlight></codeline>
+<codeline lineno="524"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"></highlight></codeline>
+<codeline lineno="526"><highlight class="normal"></highlight></codeline>
+<codeline lineno="528" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings" kindref="compound">TabulatedAtmosphereSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref></highlight></codeline>
+<codeline lineno="529"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="530"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="531"><highlight class="normal"></highlight></codeline>
+<codeline lineno="533"><highlight class="normal"></highlight></codeline>
+<codeline lineno="547" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a2534800a0246736d9789e60a369efadc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a2534800a0246736d9789e60a369efadc" kindref="member">TabulatedAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="548"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>int,<sp/>std::string<sp/>&gt;&amp;<sp/>atmosphereTableFile,</highlight></codeline>
+<codeline lineno="549"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereIndependentVariables<sp/>&gt;&amp;<sp/>independentVariablesNames<sp/>=<sp/>{<sp/>altitude_dependent_atmosphere<sp/>},</highlight></codeline>
+<codeline lineno="550"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereDependentVariables<sp/>&gt;&amp;<sp/>dependentVariablesNames<sp/>=<sp/>{<sp/>density_dependent_atmosphere,</highlight></codeline>
+<codeline lineno="551"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pressure_dependent_atmosphere,<sp/>temperature_dependent_atmosphere<sp/>},</highlight></codeline>
+<codeline lineno="552"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant<sp/>=<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR,</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats<sp/>=<sp/>1.4,</highlight></codeline>
+<codeline lineno="554"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>interpolators::BoundaryInterpolationType<sp/>&gt;&amp;<sp/>boundaryHandling<sp/>=<sp/>{<sp/>},</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;<sp/>&gt;&amp;<sp/>defaultExtrapolationValue<sp/>=<sp/>{<sp/>}<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="556"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>AtmosphereSettings(<sp/>tabulated_atmosphere<sp/>),<sp/>atmosphereFile_(<sp/>atmosphereTableFile<sp/>),</highlight></codeline>
+<codeline lineno="557"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>independentVariables_(<sp/>independentVariablesNames<sp/>),<sp/>dependentVariables_(<sp/>dependentVariablesNames<sp/>),</highlight></codeline>
+<codeline lineno="558"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificGasConstant_(<sp/>specificGasConstant<sp/>),<sp/>ratioOfSpecificHeats_(<sp/>ratioOfSpecificHeats<sp/>),</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boundaryHandling_(<sp/>boundaryHandling<sp/>),<sp/>defaultExtrapolationValue_(<sp/>defaultExtrapolationValue<sp/>)</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"></highlight></codeline>
+<codeline lineno="563"><highlight class="normal"></highlight></codeline>
+<codeline lineno="578" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a3f3b3c42806d59e53359c989b53f9b68" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a3f3b3c42806d59e53359c989b53f9b68" kindref="member">TabulatedAtmosphereSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>int,<sp/>std::string<sp/>&gt;&amp;<sp/>atmosphereTableFile,</highlight></codeline>
+<codeline lineno="579"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereIndependentVariables<sp/>&gt;&amp;<sp/>independentVariablesNames,</highlight></codeline>
+<codeline lineno="580"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereDependentVariables<sp/>&gt;&amp;<sp/>dependentVariablesNames,</highlight></codeline>
+<codeline lineno="581"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant,</highlight></codeline>
+<codeline lineno="582"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats,</highlight></codeline>
+<codeline lineno="583"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">interpolators::BoundaryInterpolationType</ref><sp/>boundaryHandling,</highlight></codeline>
+<codeline lineno="584"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>defaultExtrapolationValue<sp/>=<sp/>IdentityElement::getAdditionIdentity&lt;<sp/>double<sp/>&gt;(<sp/>)<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings" kindref="compound">TabulatedAtmosphereSettings</ref>(<sp/>atmosphereTableFile,<sp/>independentVariablesNames,<sp/>dependentVariablesNames,</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificGasConstant,<sp/>ratioOfSpecificHeats,</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>interpolators::<ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref><sp/>&gt;(</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>independentVariablesNames.size(<sp/>),<sp/>boundaryHandling<sp/>),</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;<sp/>&gt;(</highlight></codeline>
+<codeline lineno="590"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dependentVariablesNames.size(<sp/>),<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;(</highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>independentVariablesNames.size(<sp/>),<sp/>std::make_pair(</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultExtrapolationValue,<sp/>defaultExtrapolationValue<sp/>)<sp/>)<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="594"><highlight class="normal"></highlight></codeline>
+<codeline lineno="596"><highlight class="normal"></highlight></codeline>
+<codeline lineno="608" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1ae12301d07bd901fd38e9719b3f0bb1c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1ae12301d07bd901fd38e9719b3f0bb1c4" kindref="member">TabulatedAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="609"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>atmosphereTableFile,</highlight></codeline>
+<codeline lineno="610"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereDependentVariables<sp/>&gt;&amp;<sp/>dependentVariablesNames<sp/>=<sp/>{<sp/>density_dependent_atmosphere,</highlight></codeline>
+<codeline lineno="611"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pressure_dependent_atmosphere,<sp/>temperature_dependent_atmosphere<sp/>},</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant<sp/>=<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR,</highlight></codeline>
+<codeline lineno="613"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats<sp/>=<sp/>1.4,</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">interpolators::BoundaryInterpolationType</ref><sp/>boundaryHandling<sp/>=<sp/>interpolators::use_boundary_value,</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>defaultExtrapolationValue<sp/>=<sp/>IdentityElement::getAdditionIdentity&lt;<sp/>double<sp/>&gt;(<sp/>)<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings" kindref="compound">TabulatedAtmosphereSettings</ref>(<sp/>{<sp/>{<sp/>0,<sp/>atmosphereTableFile<sp/>}<sp/>},<sp/>{<sp/>altitude_dependent_atmosphere<sp/>},</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dependentVariablesNames,<sp/>specificGasConstant,</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ratioOfSpecificHeats,<sp/>{<sp/>boundaryHandling<sp/>},</highlight></codeline>
+<codeline lineno="619"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;<sp/>&gt;(</highlight></codeline>
+<codeline lineno="620"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dependentVariablesNames.size(<sp/>),<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;(</highlight></codeline>
+<codeline lineno="621"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,<sp/>std::make_pair(<sp/>defaultExtrapolationValue,<sp/>defaultExtrapolationValue<sp/>)<sp/>)<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="623"><highlight class="normal"></highlight></codeline>
+<codeline lineno="625"><highlight class="normal"></highlight></codeline>
+<codeline lineno="637" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1aefa4e161a61d4f3ebe126d595b611989" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1aefa4e161a61d4f3ebe126d595b611989" kindref="member">TabulatedAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>int,<sp/>std::string<sp/>&gt;&amp;<sp/>atmosphereTableFile,</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereIndependentVariables<sp/>&gt;&amp;<sp/>independentVariablesNames,</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereDependentVariables<sp/>&gt;&amp;<sp/>dependentVariablesNames,</highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>interpolators::BoundaryInterpolationType<sp/>&gt;&amp;<sp/>boundaryHandling,</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;<sp/>&gt;&amp;<sp/>defaultExtrapolationValue<sp/>=<sp/>{<sp/>}<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="643"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>tabulated_atmosphere<sp/>),<sp/>atmosphereFile_(<sp/>atmosphereTableFile<sp/>),</highlight></codeline>
+<codeline lineno="644"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>independentVariables_(<sp/>independentVariablesNames<sp/>),<sp/>dependentVariables_(<sp/>dependentVariablesNames<sp/>),</highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificGasConstant_(<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR<sp/>),<sp/>ratioOfSpecificHeats_(<sp/>1.4<sp/>),</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boundaryHandling_(<sp/>boundaryHandling<sp/>),<sp/>defaultExtrapolationValue_(<sp/>defaultExtrapolationValue<sp/>)</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="648"><highlight class="normal"></highlight></codeline>
+<codeline lineno="650"><highlight class="normal"></highlight></codeline>
+<codeline lineno="664" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a4cbc0672afeb6d48c82d5eee45bd3398" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a4cbc0672afeb6d48c82d5eee45bd3398" kindref="member">TabulatedAtmosphereSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>int,<sp/>std::string<sp/>&gt;&amp;<sp/>atmosphereTableFile,</highlight></codeline>
+<codeline lineno="665"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereIndependentVariables<sp/>&gt;&amp;<sp/>independentVariablesNames,</highlight></codeline>
+<codeline lineno="666"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereDependentVariables<sp/>&gt;&amp;<sp/>dependentVariablesNames,</highlight></codeline>
+<codeline lineno="667"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>interpolators::BoundaryInterpolationType<sp/>&gt;&amp;<sp/>boundaryHandling,</highlight></codeline>
+<codeline lineno="668"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>defaultExtrapolationValue<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>tabulated_atmosphere<sp/>),<sp/>atmosphereFile_(<sp/>atmosphereTableFile<sp/>),</highlight></codeline>
+<codeline lineno="670"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>independentVariables_(<sp/>independentVariablesNames<sp/>),<sp/>dependentVariables_(<sp/>dependentVariablesNames<sp/>),</highlight></codeline>
+<codeline lineno="671"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>specificGasConstant_(<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR<sp/>),<sp/>ratioOfSpecificHeats_(<sp/>1.4<sp/>),</highlight></codeline>
+<codeline lineno="672"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boundaryHandling_(<sp/>boundaryHandling<sp/>)</highlight></codeline>
+<codeline lineno="673"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="674"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Assign<sp/>default<sp/>values</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="675"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultExtrapolationValue_.resize(<sp/>dependentVariablesNames.size(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="676"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>dependentVariablesNames.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="677"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="678"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>independentVariablesNames.size(<sp/>);<sp/>j++<sp/>)</highlight></codeline>
+<codeline lineno="679"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="680"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/>boundaryHandling_.at(<sp/>j<sp/>)<sp/>==<sp/>interpolators::use_default_value<sp/>||</highlight></codeline>
+<codeline lineno="681"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boundaryHandling_.at(<sp/>j<sp/>)<sp/>==<sp/>interpolators::use_default_value_with_warning<sp/>)</highlight></codeline>
+<codeline lineno="682"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="683"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultExtrapolationValue_.at(<sp/>i<sp/>).push_back(<sp/>std::make_pair(<sp/>defaultExtrapolationValue.at(<sp/>i<sp/>),</highlight></codeline>
+<codeline lineno="684"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultExtrapolationValue.at(<sp/>i<sp/>)<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="685"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="686"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="687"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="688"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultExtrapolationValue_.at(<sp/>i<sp/>).push_back(<sp/>std::make_pair(<sp/>IdentityElement::getAdditionIdentity&lt;<sp/>double<sp/>&gt;(<sp/>),</highlight></codeline>
+<codeline lineno="689"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IdentityElement::getAdditionIdentity&lt;<sp/>double<sp/>&gt;(<sp/>)<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="690"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="691"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="692"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="693"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="694"><highlight class="normal"></highlight></codeline>
+<codeline lineno="697"><highlight class="normal"></highlight></codeline>
+<codeline lineno="712" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a531f2eb90a457a40ffa82f22679ac9af" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a531f2eb90a457a40ffa82f22679ac9af" kindref="member">TabulatedAtmosphereSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/>int,<sp/>std::string<sp/>&gt;&amp;<sp/>atmosphereTableFile,</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereIndependentVariables<sp/>&gt;&amp;<sp/>independentVariablesNames,</highlight></codeline>
+<codeline lineno="714"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>AtmosphereDependentVariables<sp/>&gt;&amp;<sp/>dependentVariablesNames,</highlight></codeline>
+<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">interpolators::BoundaryInterpolationType</ref><sp/>boundaryHandling,</highlight></codeline>
+<codeline lineno="716"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>defaultExtrapolationValue<sp/>=<sp/>IdentityElement::getAdditionIdentity&lt;<sp/>double<sp/>&gt;(<sp/>)<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="717"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings" kindref="compound">TabulatedAtmosphereSettings</ref>(<sp/>atmosphereTableFile,<sp/>independentVariablesNames,<sp/>dependentVariablesNames,</highlight></codeline>
+<codeline lineno="718"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR,<sp/>1.4,</highlight></codeline>
+<codeline lineno="719"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>interpolators::<ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref><sp/>&gt;(</highlight></codeline>
+<codeline lineno="720"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>independentVariablesNames.size(<sp/>),<sp/>boundaryHandling<sp/>),</highlight></codeline>
+<codeline lineno="721"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;<sp/>&gt;(</highlight></codeline>
+<codeline lineno="722"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dependentVariablesNames.size(<sp/>),<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;(</highlight></codeline>
+<codeline lineno="723"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>independentVariablesNames.size(<sp/>),<sp/>std::make_pair(</highlight></codeline>
+<codeline lineno="724"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultExtrapolationValue,<sp/>defaultExtrapolationValue<sp/>)<sp/>)<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="725"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="726"><highlight class="normal"></highlight></codeline>
+<codeline lineno="728"><highlight class="normal"></highlight></codeline>
+<codeline lineno="732" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a234c41e28994c5fb8336b9f83aeccec9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>int,<sp/>std::string<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a234c41e28994c5fb8336b9f83aeccec9" kindref="member">getAtmosphereFile</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>atmosphereFile_;<sp/>}</highlight></codeline>
+<codeline lineno="733"><highlight class="normal"></highlight></codeline>
+<codeline lineno="735"><highlight class="normal"></highlight></codeline>
+<codeline lineno="739" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1aa02ed9ae762dcd211c30690bd8cc61bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::string<sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1aa02ed9ae762dcd211c30690bd8cc61bd" kindref="member">getAtmosphereFile</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fileIndex<sp/>)</highlight></codeline>
+<codeline lineno="740"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="741"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>atmosphereFile_.at(<sp/>fileIndex<sp/>);</highlight></codeline>
+<codeline lineno="742"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="743"><highlight class="normal"></highlight></codeline>
+<codeline lineno="745"><highlight class="normal"></highlight></codeline>
+<codeline lineno="749" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a3f9eb3f4f452dee67cbc54f5a1ed6abf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>AtmosphereIndependentVariables<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a3f9eb3f4f452dee67cbc54f5a1ed6abf" kindref="member">getIndependentVariables</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>independentVariables_;<sp/>}</highlight></codeline>
+<codeline lineno="750"><highlight class="normal"></highlight></codeline>
+<codeline lineno="752"><highlight class="normal"></highlight></codeline>
+<codeline lineno="756" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a4f922f832176c80130da310ea685fef9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>AtmosphereDependentVariables<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a4f922f832176c80130da310ea685fef9" kindref="member">getDependentVariables</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>dependentVariables_;<sp/>}</highlight></codeline>
+<codeline lineno="757"><highlight class="normal"></highlight></codeline>
+<codeline lineno="759"><highlight class="normal"></highlight></codeline>
+<codeline lineno="763" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1ae1750e204c4b7713927b4d027a5dd69f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1ae1750e204c4b7713927b4d027a5dd69f" kindref="member">getSpecificGasConstant</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>specificGasConstant_;<sp/>}</highlight></codeline>
+<codeline lineno="764"><highlight class="normal"></highlight></codeline>
+<codeline lineno="766"><highlight class="normal"></highlight></codeline>
+<codeline lineno="770" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a5968098bbeffbe5053f97d60f9c002cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a5968098bbeffbe5053f97d60f9c002cd" kindref="member">getRatioOfSpecificHeats</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats_;<sp/>}</highlight></codeline>
+<codeline lineno="771"><highlight class="normal"></highlight></codeline>
+<codeline lineno="773"><highlight class="normal"></highlight></codeline>
+<codeline lineno="777" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a09a6643ddf9695e05aff601f3e8e9459" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>interpolators::BoundaryInterpolationType<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a09a6643ddf9695e05aff601f3e8e9459" kindref="member">getBoundaryHandling</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>boundaryHandling_;<sp/>}</highlight></codeline>
+<codeline lineno="778"><highlight class="normal"></highlight></codeline>
+<codeline lineno="780"><highlight class="normal"></highlight></codeline>
+<codeline lineno="784" refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a6e317db3f266a33f912cc87f472f1cec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/><ref refid="classtudat_1_1simulation__setup_1_1TabulatedAtmosphereSettings_1a6e317db3f266a33f912cc87f472f1cec" kindref="member">getDefaultExtrapolationValue</ref>(<sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>defaultExtrapolationValue_;<sp/>}</highlight></codeline>
+<codeline lineno="785"><highlight class="normal"></highlight></codeline>
+<codeline lineno="786"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="787"><highlight class="normal"></highlight></codeline>
+<codeline lineno="789"><highlight class="normal"></highlight></codeline>
+<codeline lineno="795"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>int,<sp/>std::string<sp/>&gt;<sp/>atmosphereFile_;</highlight></codeline>
+<codeline lineno="796"><highlight class="normal"></highlight></codeline>
+<codeline lineno="798"><highlight class="normal"></highlight></codeline>
+<codeline lineno="802"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>AtmosphereIndependentVariables<sp/>&gt;<sp/>independentVariables_;</highlight></codeline>
+<codeline lineno="803"><highlight class="normal"></highlight></codeline>
+<codeline lineno="805"><highlight class="normal"></highlight></codeline>
+<codeline lineno="809"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>AtmosphereDependentVariables<sp/>&gt;<sp/>dependentVariables_;</highlight></codeline>
+<codeline lineno="810"><highlight class="normal"></highlight></codeline>
+<codeline lineno="812"><highlight class="normal"></highlight></codeline>
+<codeline lineno="815"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant_;</highlight></codeline>
+<codeline lineno="816"><highlight class="normal"></highlight></codeline>
+<codeline lineno="818"><highlight class="normal"></highlight></codeline>
+<codeline lineno="821"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats_;</highlight></codeline>
+<codeline lineno="822"><highlight class="normal"></highlight></codeline>
+<codeline lineno="824"><highlight class="normal"></highlight></codeline>
+<codeline lineno="827"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>interpolators::BoundaryInterpolationType<sp/>&gt;<sp/>boundaryHandling_;</highlight></codeline>
+<codeline lineno="828"><highlight class="normal"></highlight></codeline>
+<codeline lineno="830"><highlight class="normal"></highlight></codeline>
+<codeline lineno="833"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>double,<sp/>double<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>defaultExtrapolationValue_;</highlight></codeline>
+<codeline lineno="834"><highlight class="normal"></highlight></codeline>
+<codeline lineno="835"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="836"><highlight class="normal"></highlight></codeline>
+<codeline lineno="837"><highlight class="normal"></highlight></codeline>
+<codeline lineno="838"><highlight class="normal"></highlight></codeline>
+<codeline lineno="839" refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings" kindref="compound">ScaledAtmosphereSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref></highlight></codeline>
+<codeline lineno="840"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="841"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="842"><highlight class="normal"></highlight></codeline>
+<codeline lineno="843"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings" kindref="compound">ScaledAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="844"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>baseSettings,</highlight></codeline>
+<codeline lineno="845"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scaling,</highlight></codeline>
+<codeline lineno="846"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isScalingAbsolute<sp/>):</highlight></codeline>
+<codeline lineno="847"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>scaled_atmosphere<sp/>),</highlight></codeline>
+<codeline lineno="848"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>baseSettings_(<sp/>baseSettings<sp/>),<sp/>scaling_(<sp/>[=](<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>){<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>scaling;<sp/>}<sp/>),<sp/>isScalingAbsolute_(<sp/>isScalingAbsolute<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="849"><highlight class="normal"></highlight></codeline>
+<codeline lineno="850"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1ScaledAtmosphereSettings" kindref="compound">ScaledAtmosphereSettings</ref>(</highlight></codeline>
+<codeline lineno="851"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>baseSettings,</highlight></codeline>
+<codeline lineno="852"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>scaling,</highlight></codeline>
+<codeline lineno="853"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isScalingAbsolute<sp/>):</highlight></codeline>
+<codeline lineno="854"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref>(<sp/>scaled_atmosphere<sp/>),</highlight></codeline>
+<codeline lineno="855"><highlight class="normal"><sp/><sp/><sp/><sp/>baseSettings_(<sp/>baseSettings<sp/>),<sp/>scaling_(<sp/>scaling<sp/>),<sp/>isScalingAbsolute_(<sp/>isScalingAbsolute<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="856"><highlight class="normal"></highlight></codeline>
+<codeline lineno="857"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>getBaseSettings(<sp/>)</highlight></codeline>
+<codeline lineno="858"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="859"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>baseSettings_;</highlight></codeline>
+<codeline lineno="860"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="861"><highlight class="normal"></highlight></codeline>
+<codeline lineno="862"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>getScaling(<sp/>)</highlight></codeline>
+<codeline lineno="863"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="864"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>scaling_;</highlight></codeline>
+<codeline lineno="865"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="866"><highlight class="normal"></highlight></codeline>
+<codeline lineno="867"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>getIsScalingAbsolute(<sp/>)</highlight></codeline>
+<codeline lineno="868"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="869"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>isScalingAbsolute_;</highlight></codeline>
+<codeline lineno="870"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="871"><highlight class="normal"></highlight></codeline>
+<codeline lineno="872"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="873"><highlight class="normal"></highlight></codeline>
+<codeline lineno="874"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>baseSettings_;</highlight></codeline>
+<codeline lineno="875"><highlight class="normal"></highlight></codeline>
+<codeline lineno="876"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>scaling_;</highlight></codeline>
+<codeline lineno="877"><highlight class="normal"></highlight></codeline>
+<codeline lineno="878"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isScalingAbsolute_;</highlight></codeline>
+<codeline lineno="879"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="880"><highlight class="normal"></highlight></codeline>
+<codeline lineno="881"><highlight class="normal"></highlight></codeline>
+<codeline lineno="882"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>exponentialAtmosphereSettings(</highlight></codeline>
+<codeline lineno="883"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>densityScaleHeight,</highlight></codeline>
+<codeline lineno="884"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>densityAtZeroAltitude,</highlight></codeline>
+<codeline lineno="885"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>constantTemperature,</highlight></codeline>
+<codeline lineno="886"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant<sp/>=<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR,</highlight></codeline>
+<codeline lineno="887"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats<sp/>=<sp/>1.4<sp/>)</highlight></codeline>
+<codeline lineno="888"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="889"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>ExponentialAtmosphereSettings<sp/>&gt;(</highlight></codeline>
+<codeline lineno="890"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>densityScaleHeight,<sp/>constantTemperature,<sp/>densityAtZeroAltitude,<sp/>specificGasConstant,</highlight></codeline>
+<codeline lineno="891"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ratioOfSpecificHeats<sp/>);</highlight></codeline>
+<codeline lineno="892"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="893"><highlight class="normal"></highlight></codeline>
+<codeline lineno="894"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>exponentialAtmosphereSettings(</highlight></codeline>
+<codeline lineno="895"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>densityScaleHeight,</highlight></codeline>
+<codeline lineno="896"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>densityAtZeroAltitude<sp/>)</highlight></codeline>
+<codeline lineno="897"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="898"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>ExponentialAtmosphereSettings<sp/>&gt;(</highlight></codeline>
+<codeline lineno="899"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>densityScaleHeight,<sp/>TUDAT_NAN,<sp/>densityAtZeroAltitude,<sp/>TUDAT_NAN,<sp/>TUDAT_NAN<sp/>);</highlight></codeline>
+<codeline lineno="900"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="901"><highlight class="normal"></highlight></codeline>
+<codeline lineno="902"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>exponentialAtmosphereSettings(</highlight></codeline>
+<codeline lineno="903"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>bodyName<sp/>)</highlight></codeline>
+<codeline lineno="904"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="905"><highlight class="normal"><sp/><sp/><sp/><sp/>BodiesWithPredefinedExponentialAtmospheres<sp/>bodyId;</highlight></codeline>
+<codeline lineno="906"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>bodyName<sp/>==<sp/></highlight><highlight class="stringliteral">&quot;Earth&quot;</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="907"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="908"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyId<sp/>=<sp/>BodiesWithPredefinedExponentialAtmospheres::earth;</highlight></codeline>
+<codeline lineno="909"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="910"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>bodyName<sp/>==<sp/></highlight><highlight class="stringliteral">&quot;Mars&quot;</highlight><highlight class="normal"><sp/>)</highlight></codeline>
+<codeline lineno="911"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="912"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyId<sp/>=<sp/>BodiesWithPredefinedExponentialAtmospheres::mars;</highlight></codeline>
+<codeline lineno="913"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="914"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="915"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="916"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>while<sp/>creating<sp/>exponential<sp/>atmosphere.<sp/>The<sp/>body<sp/>name<sp/>provided<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="917"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;does<sp/>not<sp/>match<sp/>any<sp/>predefined<sp/>atmosphere<sp/>model.<sp/>Available<sp/>models<sp/>for:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="918"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Earth,<sp/>Mars.&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="919"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="920"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>ExponentialAtmosphereSettings<sp/>&gt;(</highlight></codeline>
+<codeline lineno="921"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bodyId<sp/>);</highlight></codeline>
+<codeline lineno="922"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="923"><highlight class="normal"></highlight></codeline>
+<codeline lineno="924"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>nrlmsise00AtmosphereSettings(<sp/>)</highlight></codeline>
+<codeline lineno="925"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="926"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>AtmosphereSettings<sp/>&gt;(<sp/>nrlmsise00<sp/>);</highlight></codeline>
+<codeline lineno="927"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="928"><highlight class="normal"></highlight></codeline>
+<codeline lineno="929"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>double(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>DensityFunction;</highlight></codeline>
+<codeline lineno="930"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>customConstantTemperatureAtmosphereSettings(</highlight></codeline>
+<codeline lineno="931"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>densityFunction,</highlight></codeline>
+<codeline lineno="932"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>constantTemperature,</highlight></codeline>
+<codeline lineno="933"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant<sp/>=<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR,</highlight></codeline>
+<codeline lineno="934"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats<sp/>=<sp/>1.4<sp/>)</highlight></codeline>
+<codeline lineno="935"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="936"><highlight class="normal"><sp/><sp/><sp/><sp/>DensityFunction<sp/>fullDensityFunction<sp/>=<sp/>[=](</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>altitude,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>double,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>double,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>double<sp/>){</highlight></codeline>
+<codeline lineno="937"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>densityFunction(<sp/>altitude<sp/>);<sp/>};</highlight></codeline>
+<codeline lineno="938"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>CustomConstantTemperatureAtmosphereSettings<sp/>&gt;(</highlight></codeline>
+<codeline lineno="939"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fullDensityFunction,<sp/>constantTemperature,<sp/>specificGasConstant,<sp/>ratioOfSpecificHeats<sp/>);</highlight></codeline>
+<codeline lineno="940"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="941"><highlight class="normal"></highlight></codeline>
+<codeline lineno="942"><highlight class="normal"></highlight></codeline>
+<codeline lineno="943"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>customConstantTemperatureAtmosphereSettings(</highlight></codeline>
+<codeline lineno="944"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>DensityFunction<sp/>densityFunction,</highlight></codeline>
+<codeline lineno="945"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>constantTemperature,</highlight></codeline>
+<codeline lineno="946"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificGasConstant<sp/>=<sp/>physical_constants::SPECIFIC_GAS_CONSTANT_AIR,</highlight></codeline>
+<codeline lineno="947"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ratioOfSpecificHeats<sp/>=<sp/>1.4<sp/>)</highlight></codeline>
+<codeline lineno="948"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="949"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>CustomConstantTemperatureAtmosphereSettings<sp/>&gt;(</highlight></codeline>
+<codeline lineno="950"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>densityFunction,<sp/>constantTemperature,<sp/>specificGasConstant,<sp/>ratioOfSpecificHeats<sp/>);</highlight></codeline>
+<codeline lineno="951"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="952"><highlight class="normal"></highlight></codeline>
+<codeline lineno="953"><highlight class="normal"></highlight></codeline>
+<codeline lineno="954"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>scaledAtmosphereSettings(</highlight></codeline>
+<codeline lineno="955"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>baseSettings,</highlight></codeline>
+<codeline lineno="956"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>scaling,</highlight></codeline>
+<codeline lineno="957"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isScalingAbsolute<sp/>)</highlight></codeline>
+<codeline lineno="958"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="959"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>ScaledAtmosphereSettings<sp/>&gt;(<sp/>baseSettings,<sp/>scaling,<sp/>isScalingAbsolute<sp/>);</highlight></codeline>
+<codeline lineno="960"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="961"><highlight class="normal"></highlight></codeline>
+<codeline lineno="962"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>scaledAtmosphereSettings(</highlight></codeline>
+<codeline lineno="963"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>baseSettings,</highlight></codeline>
+<codeline lineno="964"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scaling,</highlight></codeline>
+<codeline lineno="965"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isScalingAbsolute<sp/>)</highlight></codeline>
+<codeline lineno="966"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="967"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>ScaledAtmosphereSettings<sp/>&gt;(<sp/>baseSettings,<sp/>scaling,<sp/>isScalingAbsolute<sp/>);</highlight></codeline>
+<codeline lineno="968"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="969"><highlight class="normal"></highlight></codeline>
+<codeline lineno="970"><highlight class="normal"></highlight></codeline>
+<codeline lineno="971"><highlight class="normal"></highlight></codeline>
+<codeline lineno="972"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>WindModelSettings<sp/>&gt;<sp/>customWindModelSettings(</highlight></codeline>
+<codeline lineno="973"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/>Eigen::Vector3d(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>)<sp/>&gt;<sp/>windFunction,</highlight></codeline>
+<codeline lineno="974"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>reference_frames::AerodynamicsReferenceFrames<sp/>associatedFrame<sp/>=<sp/>reference_frames::vertical_frame<sp/>)</highlight></codeline>
+<codeline lineno="975"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="976"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>CustomWindModelSettings<sp/>&gt;(<sp/>windFunction,<sp/>associatedFrame<sp/>);</highlight></codeline>
+<codeline lineno="977"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="978"><highlight class="normal"></highlight></codeline>
+<codeline lineno="979"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>WindModelSettings<sp/>&gt;<sp/>constantWindModelSettings(</highlight></codeline>
+<codeline lineno="980"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>constantWindVelocity,</highlight></codeline>
+<codeline lineno="981"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>reference_frames::AerodynamicsReferenceFrames<sp/>associatedFrame<sp/>=<sp/>reference_frames::vertical_frame<sp/>)</highlight></codeline>
+<codeline lineno="982"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="983"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_shared&lt;<sp/>ConstantWindModelSettings<sp/>&gt;(<sp/>constantWindVelocity,<sp/>associatedFrame<sp/>);</highlight></codeline>
+<codeline lineno="984"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="985"><highlight class="normal"></highlight></codeline>
+<codeline lineno="987"><highlight class="normal"></highlight></codeline>
+<codeline lineno="994"><highlight class="normal">std::shared_ptr&lt;<sp/>aerodynamics::WindModel<sp/>&gt;<sp/>createWindModel(</highlight></codeline>
+<codeline lineno="995"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>WindModelSettings<sp/>&gt;<sp/>windSettings,</highlight></codeline>
+<codeline lineno="996"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>body);</highlight></codeline>
+<codeline lineno="997"><highlight class="normal"></highlight></codeline>
+<codeline lineno="999"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1006"><highlight class="normal">std::shared_ptr&lt;<sp/>aerodynamics::AtmosphereModel<sp/>&gt;<sp/>createAtmosphereModel(</highlight></codeline>
+<codeline lineno="1007"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>AtmosphereSettings<sp/>&gt;<sp/>atmosphereSettings,</highlight></codeline>
+<codeline lineno="1008"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string&amp;<sp/>body<sp/>);</highlight></codeline>
+<codeline lineno="1009"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1010"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>simulation_setup</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1011"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1012"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1013"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1014"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1015"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_CREATEATMOSPHEREMODEL_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,312 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1numerical__derivatives" kind="namespace" language="C++">
+    <compoundname>tudat::numerical_derivatives</compoundname>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="numericalDerivative_8h_1a40bd37f9c7fbcc7c4e6012cb393c3263" prot="public" static="no" strong="no">
+        <type></type>
+        <name>CentralDifferenceOrders</name>
+        <enumvalue id="numericalDerivative_8h_1a40bd37f9c7fbcc7c4e6012cb393c3263aa87fbd8ae5cb88d92542716ee3164928" prot="public">
+          <name>order2</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="numericalDerivative_8h_1a40bd37f9c7fbcc7c4e6012cb393c3263a481d30cce633a8c3e662f895249e1386" prot="public">
+          <name>order4</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="numericalDerivative_8h_1a40bd37f9c7fbcc7c4e6012cb393c3263a8ab3c270feb05285be6cca8b5c68fe76" prot="public">
+          <name>order6</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="numericalDerivative_8h_1a40bd37f9c7fbcc7c4e6012cb393c3263adc6f3803a0c7a6aebb21557c6eb20b11" prot="public">
+          <name>order8</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum with list of available orders. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of available orders: 2, 4, 6, 8. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" line="37" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" bodystart="38" bodyend="43"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="numericalDerivative_8h_1aa8ee3afc71f51f0014bab07086f1983c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const std::map&lt; int, double &gt; &amp;</type>
+        <definition>const std::map&lt; int, double &gt; &amp; tudat::numerical_derivatives::getCentralDifferenceCoefficients</definition>
+        <argsstring>(CentralDifferenceOrders order)</argsstring>
+        <name>getCentralDifferenceCoefficients</name>
+        <param>
+          <type>CentralDifferenceOrders</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Get coefficients of a certain order for central difference numerical derivatives. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get coefficients of a certain order for central difference numerical derivatives as a map of position versus weight. Coefficients are from (Fornberg, B., 1988). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The order of the coeffients. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Map of position versus weight. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/numericalDerivative.cpp" line="27" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/numericalDerivative.cpp" bodystart="27" bodyend="64" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" declline="52" declcolumn="16"/>
+      </memberdef>
+      <memberdef kind="function" id="numericalDerivative_8h_1a5d17dc7173f7bd07840c102fab93b140" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename InputType</type>
+          </param>
+          <param>
+            <type>typename ResultType</type>
+          </param>
+        </templateparamlist>
+        <type>ResultType</type>
+        <definition>ResultType tudat::numerical_derivatives::computeCentralDifference</definition>
+        <argsstring>(const InputType &amp;input, const int derivativeIndex, const std::function&lt; ResultType(const InputType &amp;) &gt; &amp;function, double minimumStep=0.0, double relativeStepSize=0.0, CentralDifferenceOrders order=order2)</argsstring>
+        <name>computeCentralDifference</name>
+        <param>
+          <type>const InputType &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>derivativeIndex</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; ResultType(const InputType &amp;) &gt; &amp;</type>
+          <declname>function</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>minimumStep</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>relativeStepSize</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>CentralDifferenceOrders</type>
+          <declname>order</declname>
+          <defval>order2</defval>
+        </param>
+        <briefdescription>
+<para>Compute a numerical derivative using a central difference method. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes a specified numerical derivative using a central difference method for a vector function with vector output. The implemented orders are 2nd, 4th and 8th. This function needs to be fully implemented in the header file because it is a template function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>input</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>derivativeIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The index of the entry of the input vector with respect to which to take the derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>function</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The function to call with signature void( const VectorXd&amp; input, VectorXd&amp; result ). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The absolute minimum step size to take. By default 2^-13. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The relative step size to take. By default 2^-26. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The order of the algorithm to use. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Numerical derivative calculated from input </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" line="72" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" bodystart="72" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="numericalDerivative_8h_1a3ade2cd8e120f3c587872135bd9400d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::numerical_derivatives::computeCentralDifference</definition>
+        <argsstring>(const Eigen::VectorXd &amp;input, const std::function&lt; Eigen::VectorXd(const Eigen::VectorXd &amp;) &gt; &amp;function, double minimumStep=0.0, double relativeStepSize=0.0, CentralDifferenceOrders order=order2)</argsstring>
+        <name>computeCentralDifference</name>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::VectorXd(const Eigen::VectorXd &amp;) &gt; &amp;</type>
+          <declname>function</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>minimumStep</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>relativeStepSize</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>CentralDifferenceOrders</type>
+          <declname>order</declname>
+          <defval>order2</defval>
+        </param>
+        <briefdescription>
+<para>Compute a full numerical derivative using a central difference method. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes a Jacobian numerically using a central difference method for a vector function with vector output. The implemented orders are 2nd, 4th and 8th.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>input</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input vector </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>function</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The function to call with signature void( const VectorXd&amp; input, VectorXd&amp; result ). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The absolute minimum step size to take. By default 2^-13. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The relative step size to take. By default 2^-26. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The order of the algorithm to use. Will yield an assertion failure if not 2 or 4. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Numerical derivative calculated from input </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/numericalDerivative.cpp" line="66" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/numericalDerivative.cpp" bodystart="66" bodyend="84" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" declline="138" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="numericalDerivative_8h_1a90d924bfd950aabdba7fa7f13f41e856" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename DependentVariableType</type>
+          </param>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::numerical_derivatives::computeCentralDifferenceFromFunction</definition>
+        <argsstring>(const std::function&lt; DependentVariableType(const IndependentVariableType) &gt; &amp;dependentVariableFunction, const IndependentVariableType nominalIndependentVariable, const IndependentVariableType independentVariableStepSize, CentralDifferenceOrders order=order2)</argsstring>
+        <name>computeCentralDifferenceFromFunction</name>
+        <param>
+          <type>const std::function&lt; DependentVariableType(const IndependentVariableType) &gt; &amp;</type>
+          <declname>dependentVariableFunction</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>nominalIndependentVariable</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>independentVariableStepSize</declname>
+        </param>
+        <param>
+          <type>CentralDifferenceOrders</type>
+          <declname>order</declname>
+          <defval>order2</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" line="144" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" bodystart="144" bodyend="176"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/numericalDerivative.h" line="30" column="1"/>
+  </compounddef>
+</doxygen>

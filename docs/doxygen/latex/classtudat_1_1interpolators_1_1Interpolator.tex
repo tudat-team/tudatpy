@@ -1,0 +1,106 @@
+\hypertarget{classtudat_1_1interpolators_1_1Interpolator}{}\doxysection{tudat\+::interpolators\+::Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$ Class Template Reference}
+\label{classtudat_1_1interpolators_1_1Interpolator}\index{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+
+
+Base class for interpolator.  
+
+
+
+
+{\ttfamily \#include $<$interpolator.\+h$>$}
+
+Inheritance diagram for tudat\+::interpolators\+::Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.326975cm]{classtudat_1_1interpolators_1_1Interpolator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator_ac6359fc3104b07fb6cac0b3b3221cc3d}{$\sim$\+Interpolator}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual Dependent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator_a0b8c3f199c7a2297928936f00790f190}{interpolate}} (const std\+::vector$<$ Independent\+Variable\+Type $>$ \&independent\+Variable\+Values)=0
+\begin{DoxyCompactList}\small\item\em Interpolate. \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator_a2fec09b3d811b2399d9abce5c8917b5a}{get\+Number\+Of\+Dimensions}} ()=0
+\begin{DoxyCompactList}\small\item\em Function to return the number of independent variables of the interpolation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type, typename Dependent\+Variable\+Type$>$\newline
+class tudat\+::interpolators\+::\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}
+
+Base class for interpolator. 
+
+Base class for the interpolators included in Tudat, the dependent and independent variable types are specified as user parameters, as are the number of dimensions. The number of dimensions is chosen as a template parameter, so that a boost multi\+\_\+array of this dimension can be used as a member variable of derived classes. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Independent\+Variable\+Type} & Type of independent variable(s). \\
+\hline
+{\em Independent\+Variable\+Type} & Type of dependent variable. \\
+\hline
+{\em number\+Of\+Dimensions} & Number of independent directions for independent variables. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1Interpolator_ac6359fc3104b07fb6cac0b3b3221cc3d}\label{classtudat_1_1interpolators_1_1Interpolator_ac6359fc3104b07fb6cac0b3b3221cc3d}} 
+\index{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$}!````~Interpolator@{$\sim$Interpolator}}
+\index{````~Interpolator@{$\sim$Interpolator}!tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{$\sim$Interpolator()}{~Interpolator()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type $>$ \\
+virtual \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{tudat\+::interpolators\+::\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::$\sim$\mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{Interpolator}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Destructor. 
+
+Destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1Interpolator_a2fec09b3d811b2399d9abce5c8917b5a}\label{classtudat_1_1interpolators_1_1Interpolator_a2fec09b3d811b2399d9abce5c8917b5a}} 
+\index{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$}!getNumberOfDimensions@{getNumberOfDimensions}}
+\index{getNumberOfDimensions@{getNumberOfDimensions}!tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{getNumberOfDimensions()}{getNumberOfDimensions()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type $>$ \\
+virtual int \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{tudat\+::interpolators\+::\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::get\+Number\+Of\+Dimensions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function to return the number of independent variables of the interpolation. 
+
+Function to return the number of independent variables of the interpolation, i.\+e. size that the vector used as input for \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator_a0b8c3f199c7a2297928936f00790f190}{Interpolator\+::interpolate}} should be. \begin{DoxyReturn}{Returns}
+Number of independent variables of the interpolation. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator_a149d4201dc4869276bd2961d17e5acdd}{tudat\+::interpolators\+::\+One\+Dimensional\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a6eff921f1aea578ea1cf4d3965675774}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1Interpolator_a0b8c3f199c7a2297928936f00790f190}\label{classtudat_1_1interpolators_1_1Interpolator_a0b8c3f199c7a2297928936f00790f190}} 
+\index{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$}!interpolate@{interpolate}}
+\index{interpolate@{interpolate}!tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::Interpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{interpolate()}{interpolate()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type $>$ \\
+virtual Dependent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{tudat\+::interpolators\+::\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::interpolate (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Independent\+Variable\+Type $>$ \&}]{independent\+Variable\+Values }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Interpolate. 
+
+This function performs the interpolation. It must be implemented in derived classes. 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variable\+Values} & Vector of values of independent variables at which the value of the dependent variable is to be determined. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Interpolated value of dependent variable. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_aebae2bb3772c8a893a6d4f9be0836746}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$}}, \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator_aaf340e39d13f8b31cab6887b48427918}{tudat\+::interpolators\+::\+One\+Dimensional\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiLinearInterpolator_ac41f7ee6508212d5827fb461c850a75f}{tudat\+::interpolators\+::\+Multi\+Linear\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/interpolators/interpolator.\+h\end{DoxyCompactItemize}

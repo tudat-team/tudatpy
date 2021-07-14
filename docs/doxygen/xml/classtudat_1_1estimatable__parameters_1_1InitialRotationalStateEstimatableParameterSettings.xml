@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameterSettings</basecompoundref>
+    <includes refid="estimatableParameterSettings_8h" local="no">estimatableParameterSettings.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename InitialStateParameterType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1ad3a89aede859f3db28a6124885cb0667" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::initialTime_</definition>
+        <argsstring></argsstring>
+        <name>initialTime_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which initial state is defined (NaN for user-defined initial state value). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="437" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="437" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1a5c26b5cba3100928de20a264e5e7d579" prot="public" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; InitialStateParameterType, 7, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; InitialStateParameterType, 7, 1 &gt; tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::initialStateValue_</definition>
+        <argsstring></argsstring>
+        <name>initialStateValue_</name>
+        <briefdescription>
+<para>Current value of initial state (w.r.t. baseOrientation), set manually by used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="440" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="440" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1ae51849762120e90c6a8d970a61f4003f" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::baseOrientation_</definition>
+        <argsstring></argsstring>
+        <name>baseOrientation_</name>
+        <briefdescription>
+<para>Orientation w.r.t. which the initial state is to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="443" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="443" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1ab56aced738d6de9bceaba046bed05a5b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::InitialRotationalStateEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const Eigen::Matrix&lt; InitialStateParameterType, 7, 1 &gt; initialStateValue, const std::string &amp;baseOrientation=&quot;SSB&quot;)</argsstring>
+        <name>InitialRotationalStateEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; InitialStateParameterType, 7, 1 &gt;</type>
+          <declname>initialStateValue</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>baseOrientation</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, sets initial value of rotational state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets initial value of rotational state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialStateValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current value of initial state (w.r.t. baseOrientation) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>baseOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation w.r.t. which the initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="412" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="412" bodyend="418"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1a51c466785777ef65b286e39b2724b11e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;::InitialRotationalStateEstimatableParameterSettings</definition>
+        <argsstring>(const std::string &amp;associatedBody, const double initialTime, const std::string &amp;baseOrientation=&quot;SSB&quot;)</argsstring>
+        <name>InitialRotationalStateEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>baseOrientation</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, without initial value of rotational state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, without initial value of rotational state. Current initial state is retrieved from environment (ephemeris objects) during creation of parameter object. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body for which initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which initial state is defined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>baseOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation w.r.t. which the initial state is to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of the frame in which the state is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="429" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="429" bodyend="434"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for estimating an initial rotational state. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings&lt; InitialStateParameterType &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>baseOrientation_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="400" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="401" bodyend="445"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1ae51849762120e90c6a8d970a61f4003f" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</scope><name>baseOrientation_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a9daf25d39f47b7253d0705460760c79c" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</scope><name>EstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1ab56aced738d6de9bceaba046bed05a5b" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</scope><name>InitialRotationalStateEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1a51c466785777ef65b286e39b2724b11e" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</scope><name>InitialRotationalStateEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1a5c26b5cba3100928de20a264e5e7d579" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</scope><name>initialStateValue_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1InitialRotationalStateEstimatableParameterSettings_1ad3a89aede859f3db28a6124885cb0667" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</scope><name>initialTime_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a5879aeacc6f924dd33459251044bdc6e" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</scope><name>parameterType_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a337ccc9c7a09be382677b818d3042082" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::InitialRotationalStateEstimatableParameterSettings</scope><name>~EstimatableParameterSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

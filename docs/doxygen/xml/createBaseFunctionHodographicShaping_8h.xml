@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="createBaseFunctionHodographicShaping_8h" kind="file" language="C++">
+    <compoundname>createBaseFunctionHodographicShaping.h</compoundname>
+    <includes local="no">cmath</includes>
+    <includes local="no">boost/make_shared.hpp</includes>
+    <includes refid="baseFunctionsHodographicShaping_8h" local="yes">tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h</includes>
+    <includedby refid="lowThrustOptimisationSetup_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</includedby>
+    <includedby refid="getRecommendedBaseFunctionsHodographicShaping_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h</includedby>
+    <includedby refid="low__thrust_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</includedby>
+    <includedby refid="createBaseFunctionHodographicShaping_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.cpp</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h</label>
+        <link refid="createBaseFunctionHodographicShaping_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>cmath</label>
+      </node>
+      <node id="4">
+        <label>tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h</label>
+        <link refid="baseFunctionsHodographicShaping_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>boost/make_shared.hpp</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h</label>
+        <link refid="createBaseFunctionHodographicShaping_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h</label>
+        <link refid="getRecommendedBaseFunctionsHodographicShaping_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::ExponentialFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::PowerFunctionHodographicShapingSettings</innerclass>
+    <innerclass refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings" prot="public">tudat::shape_based_methods::PowerTimesTrigonometricFunctionHodographicShapingSettings</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1shape__based__methods">tudat::shape_based_methods</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_CREATE_BASE_FUNCTION_HODOGRAPHIC_SHAPING_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_CREATE_BASE_FUNCTION_HODOGRAPHIC_SHAPING_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cmath&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/make_shared.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">shape_based_methods</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" kindref="compound">BaseFunctionHodographicShapingSettings</ref></highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1ab0b7695f6126237c44e06bda38b7cecc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1ab0b7695f6126237c44e06bda38b7cecc" kindref="member">BaseFunctionHodographicShapingSettings</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1af6d1203a4edd1c772949548dbf9590e0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1af6d1203a4edd1c772949548dbf9590e0" kindref="member">~BaseFunctionHodographicShapingSettings</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings" kindref="compound">TrigonometricFunctionHodographicShapingSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" kindref="compound">BaseFunctionHodographicShapingSettings</ref></highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1aa4c12c955efcc6c317e9f272127d132d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1aa4c12c955efcc6c317e9f272127d132d" kindref="member">TrigonometricFunctionHodographicShapingSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>frequency<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1ab8f78104e5ba45d13985e01a9b2cbc39" kindref="member">frequency_</ref>(<sp/>frequency<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1ab8f78104e5ba45d13985e01a9b2cbc39" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1ab8f78104e5ba45d13985e01a9b2cbc39" kindref="member">frequency_</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings" kindref="compound">ExponentialFunctionHodographicShapingSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" kindref="compound">BaseFunctionHodographicShapingSettings</ref></highlight></codeline>
+<codeline lineno="58"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a1f0d21d268011b013e3a61f7b58c2df1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a1f0d21d268011b013e3a61f7b58c2df1" kindref="member">ExponentialFunctionHodographicShapingSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>exponent,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scaleFactor<sp/>=<sp/>1.0<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3b97b0635ba044091b7c0a8ff5eb85ca" kindref="member">exponent_</ref>(<sp/>exponent<sp/>),<sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3dbdd87feb778fcd6fb81bc630fcaf12" kindref="member">scaleFactor_</ref>(<sp/>scaleFactor<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3b97b0635ba044091b7c0a8ff5eb85ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3b97b0635ba044091b7c0a8ff5eb85ca" kindref="member">exponent_</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3dbdd87feb778fcd6fb81bc630fcaf12" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialFunctionHodographicShapingSettings_1a3dbdd87feb778fcd6fb81bc630fcaf12" kindref="member">scaleFactor_</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings" kindref="compound">ExponentialTimesTrigonometricFunctionHodographicShapingSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" kindref="compound">BaseFunctionHodographicShapingSettings</ref></highlight></codeline>
+<codeline lineno="81"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a342698e6cb68e90b8f0dbb85155e6207" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a342698e6cb68e90b8f0dbb85155e6207" kindref="member">ExponentialTimesTrigonometricFunctionHodographicShapingSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>exponent,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>frequency,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scaleFactor<sp/>=<sp/>1.0<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a75ec496c0fda630c1cec03430a6f8412" kindref="member">exponent_</ref>(<sp/>exponent<sp/>),<sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a52e8cec535ab686d1cb72e697a37b121" kindref="member">frequency_</ref>(<sp/>frequency<sp/>),<sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a006c80312425f7740ff0ebbb8c9200b7" kindref="member">scaleFactor_</ref>(<sp/>scaleFactor<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a75ec496c0fda630c1cec03430a6f8412" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a75ec496c0fda630c1cec03430a6f8412" kindref="member">exponent_</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a52e8cec535ab686d1cb72e697a37b121" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a52e8cec535ab686d1cb72e697a37b121" kindref="member">frequency_</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a006c80312425f7740ff0ebbb8c9200b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a006c80312425f7740ff0ebbb8c9200b7" kindref="member">scaleFactor_</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings" kindref="compound">PowerFunctionHodographicShapingSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" kindref="compound">BaseFunctionHodographicShapingSettings</ref></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings_1a54599e6ffb66e591b154d08f429501bf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings_1a54599e6ffb66e591b154d08f429501bf" kindref="member">PowerFunctionHodographicShapingSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>exponent,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scaleFactor<sp/>=<sp/>1.0<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings_1a69f0e5f39604115b706c0df21628d8d8" kindref="member">exponent_</ref>(<sp/>exponent<sp/>),<sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings_1a8210b15e8512ac99283213734f371b9f" kindref="member">scaleFactor_</ref>(<sp/>scaleFactor<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings_1a69f0e5f39604115b706c0df21628d8d8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings_1a69f0e5f39604115b706c0df21628d8d8" kindref="member">exponent_</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings_1a8210b15e8512ac99283213734f371b9f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerFunctionHodographicShapingSettings_1a8210b15e8512ac99283213734f371b9f" kindref="member">scaleFactor_</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings" kindref="compound">PowerTimesTrigonometricFunctionHodographicShapingSettings</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" kindref="compound">BaseFunctionHodographicShapingSettings</ref></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1ab3ac7839b80402d7e0827cfaa21f4875" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1ab3ac7839b80402d7e0827cfaa21f4875" kindref="member">PowerTimesTrigonometricFunctionHodographicShapingSettings</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>exponent,</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>frequency,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scaleFactor<sp/>=<sp/>1.0<sp/>)<sp/>:</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1a9e171be3ce106976002897be0126d010" kindref="member">exponent_</ref>(<sp/>exponent<sp/>),<sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1ad0cae9c3a23edbeb4f61288039c7b2c7" kindref="member">frequency_</ref>(<sp/>frequency<sp/>),<sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1a8e603048c2b401f2f076eabdca98a5cb" kindref="member">scaleFactor_</ref>(<sp/>scaleFactor<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148" refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1a9e171be3ce106976002897be0126d010" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1a9e171be3ce106976002897be0126d010" kindref="member">exponent_</ref>;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151" refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1ad0cae9c3a23edbeb4f61288039c7b2c7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1ad0cae9c3a23edbeb4f61288039c7b2c7" kindref="member">frequency_</ref>;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1a8e603048c2b401f2f076eabdca98a5cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1shape__based__methods_1_1PowerTimesTrigonometricFunctionHodographicShapingSettings_1a8e603048c2b401f2f076eabdca98a5cb" kindref="member">scaleFactor_</ref>;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal">std::shared_ptr&lt;<sp/>shape_based_methods::BaseFunctionHodographicShaping<sp/>&gt;<sp/>createBaseFunctionHodographicShaping(</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>shape_based_methods::baseFunctionHodographicShapingType<sp/>baseFunctionType,</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>shape_based_methods::BaseFunctionHodographicShapingSettings<sp/>&gt;<sp/>baseFunctionSettings<sp/>);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shape_based_methods</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_CREATE_BASE_FUNCTION_HODOGRAPHIC_SHAPING_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"/>
+  </compounddef>
+</doxygen>

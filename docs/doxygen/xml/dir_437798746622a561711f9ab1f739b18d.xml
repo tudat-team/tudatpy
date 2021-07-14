@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_437798746622a561711f9ab1f739b18d" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment</compoundname>
+    <innerfile refid="interface_2json_2environment_2aerodynamics_8h">aerodynamics.h</innerfile>
+    <innerfile refid="atmosphere_8h">atmosphere.h</innerfile>
+    <innerfile refid="interface_2json_2environment_2body_8h">body.h</innerfile>
+    <innerfile refid="interface_2json_2environment_2ephemeris_8h">ephemeris.h</innerfile>
+    <innerfile refid="gravityField_8h">gravityField.h</innerfile>
+    <innerfile refid="gravityFieldVariation_8h">gravityFieldVariation.h</innerfile>
+    <innerfile refid="groundStations_8h">groundStations.h</innerfile>
+    <innerfile refid="radiationPressure_8h">radiationPressure.h</innerfile>
+    <innerfile refid="rotationModel_8h">rotationModel.h</innerfile>
+    <innerfile refid="shapeModel_8h">shapeModel.h</innerfile>
+    <innerfile refid="json_2environment_2spice_8h">spice.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/"/>
+  </compounddef>
+</doxygen>

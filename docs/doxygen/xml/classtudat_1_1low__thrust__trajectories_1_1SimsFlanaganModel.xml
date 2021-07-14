@@ -1,0 +1,877 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::low_thrust_trajectories::SimsFlanaganModel</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a35bd59d672c7410a86c23f9bc742a78e" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::stateAtDeparture_</definition>
+        <argsstring></argsstring>
+        <name>stateAtDeparture_</name>
+        <briefdescription>
+<para>State vector of the vehicle at the leg departure. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="192" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="192" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ae99899bb06cff8bf83d696f4aad3b46e" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::stateAtArrival_</definition>
+        <argsstring></argsstring>
+        <name>stateAtArrival_</name>
+        <briefdescription>
+<para>State vector of the vehicle at the leg arrival. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="195" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a2d189c5a6b62537119c48c7bacda75de" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::centralBodyGravitationalParameter_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameter_</name>
+        <briefdescription>
+<para>Gravitational parameter of the central body of the 2-body problem. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="198" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a0ba1ca170181f868c73fc1b2e87fc281" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::initialSpacecraftMass_</definition>
+        <argsstring></argsstring>
+        <name>initialSpacecraftMass_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="200" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="200" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a1aafe24a386eba1b83421a9450223e72" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::maximumThrust_</definition>
+        <argsstring></argsstring>
+        <name>maximumThrust_</name>
+        <briefdescription>
+<para>Maximum allowed thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="203" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1acbd10b9dfd239111f01d2ca41fde86ab" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double ( const double ) &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::specificImpulseFunction_</definition>
+        <argsstring></argsstring>
+        <name>specificImpulseFunction_</name>
+        <briefdescription>
+<para>Specific impulse. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="206" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a8fb6228be2d082e63f59a3d84dcd2854" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::low_thrust_trajectories::SimsFlanaganModel::numberSegments_</definition>
+        <argsstring></argsstring>
+        <name>numberSegments_</name>
+        <briefdescription>
+<para>Number of segments into which the leg is subdivided. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="209" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="209" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a2aac0eded9bf6d1ee7f4f532f4d86af5" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::timeOfFlight_</definition>
+        <argsstring></argsstring>
+        <name>timeOfFlight_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> of flight for the leg. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="212" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aca9a6d1bff1443002b9bed68130f6b99" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Vector3d &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::throttles_</definition>
+        <argsstring></argsstring>
+        <name>throttles_</name>
+        <briefdescription>
+<para>Vector of throttles for each segment of the leg. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="215" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="215" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ada5ecb70064ff31510b3023680f1e6d3" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::segmentMasses_</definition>
+        <argsstring></argsstring>
+        <name>segmentMasses_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="217" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="217" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a26f39d6dc9c91a971044b3e85b0829b9" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::low_thrust_trajectories::SimsFlanaganModel::numberSegmentsForwardPropagation_</definition>
+        <argsstring></argsstring>
+        <name>numberSegmentsForwardPropagation_</name>
+        <briefdescription>
+<para>Number of segments for the forward propagation from departure to match point. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="221" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aac12c28514a0471ed883751c74f2d0a9" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::low_thrust_trajectories::SimsFlanaganModel::numberSegmentsBackwardPropagation_</definition>
+        <argsstring></argsstring>
+        <name>numberSegmentsBackwardPropagation_</name>
+        <briefdescription>
+<para>Number of segments for the backward propagation from arrival to match point. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="224" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="224" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a00885e109e3d65c5c1beb307c2f18184" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::segmentDurationForwardPropagation_</definition>
+        <argsstring></argsstring>
+        <name>segmentDurationForwardPropagation_</name>
+        <briefdescription>
+<para>Segment duration for forward propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="227" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a1a8d3854a1a2a84a4e94eedb8c2df477" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::segmentDurationBackwardPropagation_</definition>
+        <argsstring></argsstring>
+        <name>segmentDurationBackwardPropagation_</name>
+        <briefdescription>
+<para>Segment duration for backward propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="230" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a7ee5d63be22094f39edc52290be5468b" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::timeAtMatchPoint_</definition>
+        <argsstring></argsstring>
+        <name>timeAtMatchPoint_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> defining the match point (half of the time of flight). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="233" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ade24f6d629674ca10a8965930c7419d7" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::stateAtMatchPointFromForwardPropagation_</definition>
+        <argsstring></argsstring>
+        <name>stateAtMatchPointFromForwardPropagation_</name>
+        <briefdescription>
+<para>State at match point from forward propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="236" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="236" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1acea539a8a91afda94a18f6c34c7cd643" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::stateAtMatchPointFromBackwardPropagation_</definition>
+        <argsstring></argsstring>
+        <name>stateAtMatchPointFromBackwardPropagation_</name>
+        <briefdescription>
+<para>State at match point from backward propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="239" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="239" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1adc814f23d38d0f03a0ccfbbcc3faa5ce" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::totalDeltaV_</definition>
+        <argsstring></argsstring>
+        <name>totalDeltaV_</name>
+        <briefdescription>
+<para>Total deltaV. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="242" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="242" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ab4aad715d9e6c79ccae916e286e82f0c" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::timesAtNodes_</definition>
+        <argsstring></argsstring>
+        <name>timesAtNodes_</name>
+        <briefdescription>
+<para>Vector containing the time associated to each node of the leg. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="245" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="245" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1af2e714aa6efac50f91a73419857729f5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::low_thrust_trajectories::SimsFlanaganModel::SimsFlanaganModel</definition>
+        <argsstring>(const Eigen::Vector6d &amp;stateAtDeparture, const Eigen::Vector6d &amp;stateAtArrival, const double centralBodyGravitationalParameter, const double initialSpacecraftMass, const double maximumThrust, const std::function&lt; double(const double) &gt; specificImpulseFunction, const double timeOfFlight, std::vector&lt; Eigen::Vector3d &gt; &amp;throttles)</argsstring>
+        <name>SimsFlanaganModel</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>stateAtDeparture</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>stateAtArrival</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>initialSpacecraftMass</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumThrust</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>specificImpulseFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt; &amp;</type>
+          <declname>throttles</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="30" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="30" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aaa5da288bea6b90f817b277b309ed360" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::low_thrust_trajectories::SimsFlanaganModel::~SimsFlanaganModel</definition>
+        <argsstring>()</argsstring>
+        <name>~SimsFlanaganModel</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="77" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="77" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ad6a906fd76919859908cdda9f8e738c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::low_thrust_trajectories::SimsFlanaganModel::propagateForwardFromDepartureToMatchPoint</definition>
+        <argsstring>()</argsstring>
+        <name>propagateForwardFromDepartureToMatchPoint</name>
+        <briefdescription>
+<para>Propagate the spacecraft trajectory from departure to match point (forward propagation). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="80" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="234" bodyend="244"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1acf2ac0d186d9dcec49cfd11ef68b61c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::low_thrust_trajectories::SimsFlanaganModel::propagateBackwardFromArrivalToMatchPoint</definition>
+        <argsstring>()</argsstring>
+        <name>propagateBackwardFromArrivalToMatchPoint</name>
+        <briefdescription>
+<para>Propagate the spacecraft trajectory from arrival to match point (backward propagation). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="83" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="247" bodyend="257"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a7a5c7a6a247c9dbdb487147eed31b458" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::low_thrust_trajectories::SimsFlanaganModel::getStateAtLegDeparture</definition>
+        <argsstring>()</argsstring>
+        <name>getStateAtLegDeparture</name>
+        <briefdescription>
+<para>Returns initial state at leg departure. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="86" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="86" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ab8caa1e5e4607987f879095017b66f1b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::low_thrust_trajectories::SimsFlanaganModel::getStateAtLegArrival</definition>
+        <argsstring>()</argsstring>
+        <name>getStateAtLegArrival</name>
+        <briefdescription>
+<para>Returns final state at leg arrival. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="92" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="92" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a3044519214a0de826c22a3fbf3c0868b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::getMaximumThrustValue</definition>
+        <argsstring>()</argsstring>
+        <name>getMaximumThrustValue</name>
+        <briefdescription>
+<para>Returns maximum allowed thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="98" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="98" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aca13555a28f4b006f431bdb81d324ed8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::low_thrust_trajectories::SimsFlanaganModel::getNumberOfSegments</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfSegments</name>
+        <briefdescription>
+<para>Returns number of segments into which the leg is subdivided. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="104" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="104" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a8c7041451799ff1b74d6ea3dfa0eae7e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::getTimeOfFlight</definition>
+        <argsstring>()</argsstring>
+        <name>getTimeOfFlight</name>
+        <briefdescription>
+<para>Returns time of flight. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="110" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="110" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a6d22054d633c1807cc47934bc1452cf5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Vector3d &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::getThrottles</definition>
+        <argsstring>()</argsstring>
+        <name>getThrottles</name>
+        <briefdescription>
+<para>Return vector of throttles. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="116" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="116" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a57ed14e105256bf8b1984247377a1a44" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::getStateAtMatchPointForwardPropagation</definition>
+        <argsstring>()</argsstring>
+        <name>getStateAtMatchPointForwardPropagation</name>
+        <briefdescription>
+<para>Return state vector at match point from forward propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="122" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="122" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ae14c2b350d78dde4bad0d839a64033ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::getStateAtMatchPointBackwardPropagation</definition>
+        <argsstring>()</argsstring>
+        <name>getStateAtMatchPointBackwardPropagation</name>
+        <briefdescription>
+<para>Return state vector at match point from backward propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="128" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="128" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1adb5338f31fb6023d39c45c9b51a5e08a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::getTotalDeltaV</definition>
+        <argsstring>()</argsstring>
+        <name>getTotalDeltaV</name>
+        <briefdescription>
+<para>Return total deltaV required by the trajectory. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="134" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="169" bodyend="191"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a769637ca7734823325a0be832636aae2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>basic_astrodynamics::AccelerationMap</type>
+        <definition>basic_astrodynamics::AccelerationMap tudat::low_thrust_trajectories::SimsFlanaganModel::getLowThrustTrajectoryAccelerationMap</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies, const std::string &amp;bodyToPropagate, const std::string &amp;centralBody)</argsstring>
+        <name>getLowThrustTrajectoryAccelerationMap</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyToPropagate</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBody</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="136" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="142" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ad6832ec53e71c710007832eabc5dabdc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::propagateTrajectoryForward</definition>
+        <argsstring>(double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration)</argsstring>
+        <name>propagateTrajectoryForward</name>
+        <param>
+          <type>double</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>finalTime</declname>
+        </param>
+        <param>
+          <type>Eigen::Vector6d</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>segmentDuration</declname>
+        </param>
+        <briefdescription>
+<para>Propagate the trajectory to given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Propagate the trajectory forward to given time. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="142" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="391" bodyend="448"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a3d3d39e9af975f5126754cb5dd192d1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::propagateTrajectoryBackward</definition>
+        <argsstring>(double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration)</argsstring>
+        <name>propagateTrajectoryBackward</name>
+        <param>
+          <type>double</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>finalTime</declname>
+        </param>
+        <param>
+          <type>Eigen::Vector6d</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>segmentDuration</declname>
+        </param>
+        <briefdescription>
+<para>Propagate the trajectory to given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Propagate the trajectory backward to given time. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="146" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="452" bodyend="506"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a33f9f45529a8aa8c0a60e9aa7f1acf40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::Vector6d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector6d &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::propagateTrajectoryForward</definition>
+        <argsstring>(std::vector&lt; double &gt; epochs, std::map&lt; double, Eigen::Vector6d &gt; &amp;propagatedTrajectory, double segmentDuration)</argsstring>
+        <name>propagateTrajectoryForward</name>
+        <param>
+          <type>std::vector&lt; double &gt;</type>
+          <declname>epochs</declname>
+        </param>
+        <param>
+          <type>std::map&lt; double, Eigen::Vector6d &gt; &amp;</type>
+          <declname>propagatedTrajectory</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>segmentDuration</declname>
+        </param>
+        <briefdescription>
+<para>Propagate the trajectory to set of epochs (forward propagation). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Propagate the trajectory to set of epochs. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="149" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="510" bodyend="553"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ab8e226ce218d6e03bc9682344333d4a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::Vector6d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector6d &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::propagateTrajectoryBackward</definition>
+        <argsstring>(std::vector&lt; double &gt; epochs, std::map&lt; double, Eigen::Vector6d &gt; &amp;propagatedTrajectory, double segmentDuration)</argsstring>
+        <name>propagateTrajectoryBackward</name>
+        <param>
+          <type>std::vector&lt; double &gt;</type>
+          <declname>epochs</declname>
+        </param>
+        <param>
+          <type>std::map&lt; double, Eigen::Vector6d &gt; &amp;</type>
+          <declname>propagatedTrajectory</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>segmentDuration</declname>
+        </param>
+        <briefdescription>
+<para>Propagate the trajectory to set of epochs (backward propagation). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Propagate the trajectory to set of epochs. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="153" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="558" bodyend="599"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a5da3e1d21e3b3f726f13a4a135a57d44" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::low_thrust_trajectories::SimsFlanaganModel::propagateTrajectory</definition>
+        <argsstring>(std::vector&lt; double &gt; epochs, std::map&lt; double, Eigen::Vector6d &gt; &amp;propagatedTrajectory)</argsstring>
+        <name>propagateTrajectory</name>
+        <param>
+          <type>std::vector&lt; double &gt;</type>
+          <declname>epochs</declname>
+        </param>
+        <param>
+          <type>std::map&lt; double, Eigen::Vector6d &gt; &amp;</type>
+          <declname>propagatedTrajectory</declname>
+        </param>
+        <briefdescription>
+<para>Propagate the trajectory to set of epochs. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="157" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="603" bodyend="658"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aa1d9e828950199ad5546583d05781e8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::propagateInsideForwardSegment</definition>
+        <argsstring>(double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState)</argsstring>
+        <name>propagateInsideForwardSegment</name>
+        <param>
+          <type>double</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>finalTime</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>segmentDuration</declname>
+        </param>
+        <param>
+          <type>Eigen::Vector6d</type>
+          <declname>initialState</declname>
+        </param>
+        <briefdescription>
+<para>Propagate the trajectory inside one segment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="161" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="261" bodyend="322"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aab0bc62926728091894779b91261ad4d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganModel::propagateInsideBackwardSegment</definition>
+        <argsstring>(double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState)</argsstring>
+        <name>propagateInsideBackwardSegment</name>
+        <param>
+          <type>double</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>finalTime</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>segmentDuration</declname>
+        </param>
+        <param>
+          <type>Eigen::Vector6d</type>
+          <declname>initialState</declname>
+        </param>
+        <briefdescription>
+<para>Propagate the trajectory inside one segment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="164" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="326" bodyend="387"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a3386c31169ba8cd190d29cd6a956806f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::low_thrust_trajectories::SimsFlanaganModel::propagateMassToSegments</definition>
+        <argsstring>()</argsstring>
+        <name>propagateMassToSegments</name>
+        <briefdescription>
+<para>Propagate the mass from departure to a given segment. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="166" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="194" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a4352f1c986c1c14f2d0e423941d971e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::low_thrust_trajectories::SimsFlanaganModel::convertTimeToLegSegment</definition>
+        <argsstring>(double currentTime)</argsstring>
+        <name>convertTimeToLegSegment</name>
+        <param>
+          <type>double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="168" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="22" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a647b7841d6ee89795ca46935df41c440" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings" kindref="compound">simulation_setup::ThrustAccelerationSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; simulation_setup::ThrustAccelerationSettings &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::getThrustAccelerationSettingsFullLeg</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies)</argsstring>
+        <name>getThrustAccelerationSettingsFullLeg</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="170" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="108" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a21123166470b443413cdb0165883cca1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganModel::getMassAtSegment</definition>
+        <argsstring>(const int segment)</argsstring>
+        <name>getMassAtSegment</name>
+        <param>
+          <type>const int</type>
+          <declname>segment</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="173" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="173" bodyend="176"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a11d14ae04243eb834b1d613229ad0285" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1ThrustAccelerationSettings" kindref="compound">simulation_setup::ThrustAccelerationSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; simulation_setup::ThrustAccelerationSettings &gt; tudat::low_thrust_trajectories::SimsFlanaganModel::getConstantThrustAccelerationSettingsPerSegment</definition>
+        <argsstring>(unsigned int indexSegment)</argsstring>
+        <name>getConstantThrustAccelerationSettingsPerSegment</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>indexSegment</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="180" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="45" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ade0ea25bd76d7c9c14509521825ea1a8" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>basic_astrodynamics::AccelerationMap</type>
+        <definition>basic_astrodynamics::AccelerationMap tudat::low_thrust_trajectories::SimsFlanaganModel::getAccelerationModelPerSegment</definition>
+        <argsstring>(const unsigned int indexSegment, const simulation_setup::SystemOfBodies &amp;bodies, const std::string &amp;bodyToPropagate, const std::string &amp;centralBody)</argsstring>
+        <name>getAccelerationModelPerSegment</name>
+        <param>
+          <type>const unsigned int</type>
+          <declname>indexSegment</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyToPropagate</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBody</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="183" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganModel.cpp" bodystart="78" bodyend="105"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" line="25" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h" bodystart="26" bodyend="248"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a2d189c5a6b62537119c48c7bacda75de" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>centralBodyGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a4352f1c986c1c14f2d0e423941d971e4" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>convertTimeToLegSegment</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ade0ea25bd76d7c9c14509521825ea1a8" prot="protected" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getAccelerationModelPerSegment</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a11d14ae04243eb834b1d613229ad0285" prot="protected" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getConstantThrustAccelerationSettingsPerSegment</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a769637ca7734823325a0be832636aae2" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getLowThrustTrajectoryAccelerationMap</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a21123166470b443413cdb0165883cca1" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getMassAtSegment</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a3044519214a0de826c22a3fbf3c0868b" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getMaximumThrustValue</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aca13555a28f4b006f431bdb81d324ed8" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getNumberOfSegments</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ab8caa1e5e4607987f879095017b66f1b" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getStateAtLegArrival</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a7a5c7a6a247c9dbdb487147eed31b458" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getStateAtLegDeparture</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ae14c2b350d78dde4bad0d839a64033ea" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getStateAtMatchPointBackwardPropagation</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a57ed14e105256bf8b1984247377a1a44" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getStateAtMatchPointForwardPropagation</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a6d22054d633c1807cc47934bc1452cf5" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getThrottles</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a647b7841d6ee89795ca46935df41c440" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getThrustAccelerationSettingsFullLeg</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a8c7041451799ff1b74d6ea3dfa0eae7e" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getTimeOfFlight</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1adb5338f31fb6023d39c45c9b51a5e08a" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>getTotalDeltaV</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a0ba1ca170181f868c73fc1b2e87fc281" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>initialSpacecraftMass_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a1aafe24a386eba1b83421a9450223e72" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>maximumThrust_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a8fb6228be2d082e63f59a3d84dcd2854" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>numberSegments_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aac12c28514a0471ed883751c74f2d0a9" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>numberSegmentsBackwardPropagation_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a26f39d6dc9c91a971044b3e85b0829b9" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>numberSegmentsForwardPropagation_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1acf2ac0d186d9dcec49cfd11ef68b61c0" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateBackwardFromArrivalToMatchPoint</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ad6a906fd76919859908cdda9f8e738c8" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateForwardFromDepartureToMatchPoint</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aab0bc62926728091894779b91261ad4d" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateInsideBackwardSegment</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aa1d9e828950199ad5546583d05781e8c" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateInsideForwardSegment</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a3386c31169ba8cd190d29cd6a956806f" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateMassToSegments</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a5da3e1d21e3b3f726f13a4a135a57d44" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateTrajectory</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a3d3d39e9af975f5126754cb5dd192d1d" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateTrajectoryBackward</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ab8e226ce218d6e03bc9682344333d4a5" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateTrajectoryBackward</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ad6832ec53e71c710007832eabc5dabdc" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateTrajectoryForward</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a33f9f45529a8aa8c0a60e9aa7f1acf40" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>propagateTrajectoryForward</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a1a8d3854a1a2a84a4e94eedb8c2df477" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>segmentDurationBackwardPropagation_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a00885e109e3d65c5c1beb307c2f18184" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>segmentDurationForwardPropagation_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ada5ecb70064ff31510b3023680f1e6d3" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>segmentMasses_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1af2e714aa6efac50f91a73419857729f5" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>SimsFlanaganModel</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1acbd10b9dfd239111f01d2ca41fde86ab" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>specificImpulseFunction_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ae99899bb06cff8bf83d696f4aad3b46e" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>stateAtArrival_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a35bd59d672c7410a86c23f9bc742a78e" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>stateAtDeparture_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1acea539a8a91afda94a18f6c34c7cd643" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>stateAtMatchPointFromBackwardPropagation_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ade24f6d629674ca10a8965930c7419d7" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>stateAtMatchPointFromForwardPropagation_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aca9a6d1bff1443002b9bed68130f6b99" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>throttles_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a7ee5d63be22094f39edc52290be5468b" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>timeAtMatchPoint_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1a2aac0eded9bf6d1ee7f4f532f4d86af5" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>timeOfFlight_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1ab4aad715d9e6c79ccae916e286e82f0c" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>timesAtNodes_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1adc814f23d38d0f03a0ccfbbcc3faa5ce" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>totalDeltaV_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1SimsFlanaganModel_1aaa5da288bea6b90f817b277b309ed360" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganModel</scope><name>~SimsFlanaganModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

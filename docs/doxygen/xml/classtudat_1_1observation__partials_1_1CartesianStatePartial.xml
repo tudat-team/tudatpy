@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1CartesianStatePartial" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::observation_partials::CartesianStatePartial</compoundname>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition" prot="public" virt="non-virtual">tudat::observation_partials::CartesianPartialWrtBodyFixedPosition</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtCartesianState" prot="public" virt="non-virtual">tudat::observation_partials::CartesianStatePartialWrtCartesianState</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtRotationMatrixParameter" prot="public" virt="non-virtual">tudat::observation_partials::CartesianStatePartialWrtRotationMatrixParameter</derivedcompoundref>
+    <includes refid="positionPartials_8h" local="no">positionPartials.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1CartesianStatePartial_1afedcabf26a8b07866627d2a33d8722be" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::CartesianStatePartial::CartesianStatePartial</definition>
+        <argsstring>()</argsstring>
+        <name>CartesianStatePartial</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="66" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="66" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1CartesianStatePartial_1a57f969c657c5c827ac78d92c6898b98e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::observation_partials::CartesianStatePartial::~CartesianStatePartial</definition>
+        <argsstring>()</argsstring>
+        <name>~CartesianStatePartial</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="69" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="69" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1CartesianStatePartial_1a8f6fecdf33b3250ee347be93e246f80b" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>Eigen::Matrix&lt; double, 3, Eigen::Dynamic &gt;</type>
+        <definition>virtual Eigen::Matrix&lt; double, 3, Eigen::Dynamic &gt; tudat::observation_partials::CartesianStatePartial::calculatePartialOfPosition</definition>
+        <argsstring>(const Eigen::Vector6d &amp;state, const double time)=0</argsstring>
+        <name>calculatePartialOfPosition</name>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtCartesianState_1a643cd7b3f0f249a62a83bcfe07c74e54">calculatePartialOfPosition</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtRotationMatrixParameter_1a7e5e7a700b860a939c5f64856489a971">calculatePartialOfPosition</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_1acd28c0b438dba9fd5d03885a4bd935f0">calculatePartialOfPosition</reimplementedby>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Pure virtual base class function for determining partial at current time and body state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual base class function for determining partial at current time and body state wrt parameter of specific implemented derived. class. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current inertial state of point of which partial is to be calculated by derived class </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Partial of point position wrt parameter (with specific parameter determined by derived class implementation). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="79" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1CartesianStatePartial_1adcf58f0e2f838bf26bcac372ec0a43b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>Eigen::Matrix&lt; double, 3, Eigen::Dynamic &gt;</type>
+        <definition>virtual Eigen::Matrix&lt; double, 3, Eigen::Dynamic &gt; tudat::observation_partials::CartesianStatePartial::calculatePartialOfVelocity</definition>
+        <argsstring>(const Eigen::Vector6d &amp;state, const double time)=0</argsstring>
+        <name>calculatePartialOfVelocity</name>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtCartesianState_1a34bf279e1852aab7dc2b91c02ef3d2e0">calculatePartialOfVelocity</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtRotationMatrixParameter_1a10650a4f53593fc86a6807b1260c33bb">calculatePartialOfVelocity</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_1a7e2c65e5a37b3589a2a125628a173bbf">calculatePartialOfVelocity</reimplementedby>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="82" column="27"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for calculating the partial of an inertial position wrt a parameter. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for calculating the partial of an inertial position wrt a parameter. A derived class is implemented for each (type of) estimatable parameter. A separate instance of the class must be made for each distinct state. Note that partials wrt parameters describing a property of a rotation matrix from a local to the inertial frame is implemented in the <ref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" kindref="compound">RotationMatrixPartial</ref> class, which is then used by the <ref refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtRotationMatrixParameter" kindref="compound">CartesianStatePartialWrtRotationMatrixParameter</ref> derived class of this class </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_partials::CartesianPartialWrtBodyFixedPosition</label>
+        <link refid="classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::CartesianStatePartial</label>
+        <link refid="classtudat_1_1observation__partials_1_1CartesianStatePartial"/>
+      </node>
+      <node id="4">
+        <label>tudat::observation_partials::CartesianStatePartialWrtRotationMatrixParameter</label>
+        <link refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtRotationMatrixParameter"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::observation_partials::CartesianStatePartialWrtCartesianState</label>
+        <link refid="classtudat_1_1observation__partials_1_1CartesianStatePartialWrtCartesianState"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" line="62" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/positionPartials.h" bodystart="63" bodyend="84"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1CartesianStatePartial_1a8f6fecdf33b3250ee347be93e246f80b" prot="public" virt="pure-virtual"><scope>tudat::observation_partials::CartesianStatePartial</scope><name>calculatePartialOfPosition</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1CartesianStatePartial_1adcf58f0e2f838bf26bcac372ec0a43b3" prot="public" virt="pure-virtual"><scope>tudat::observation_partials::CartesianStatePartial</scope><name>calculatePartialOfVelocity</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1CartesianStatePartial_1afedcabf26a8b07866627d2a33d8722be" prot="public" virt="non-virtual"><scope>tudat::observation_partials::CartesianStatePartial</scope><name>CartesianStatePartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1CartesianStatePartial_1a57f969c657c5c827ac78d92c6898b98e" prot="public" virt="virtual"><scope>tudat::observation_partials::CartesianStatePartial</scope><name>~CartesianStatePartial</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

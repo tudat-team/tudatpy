@@ -1,0 +1,815 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::PlanetaryRotationModelSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1RotationModelSettings" prot="public" virt="non-virtual">tudat::simulation_setup::RotationModelSettings</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a57915b14587f16b3b4743738ba81b3d0" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::angleN_</definition>
+        <argsstring></argsstring>
+        <name>angleN_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="594" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="594" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ad49df10bafb2183af5ebd2a6d5dc9003" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::angleJ_</definition>
+        <argsstring></argsstring>
+        <name>angleJ_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="595" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="595" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a4e0147addd4ea2f55f32d2ec2840129a" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::anglePsiAtEpoch_</definition>
+        <argsstring></argsstring>
+        <name>anglePsiAtEpoch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="596" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="596" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a4263cb8eee1fb9686f281c4f9c2d50fe" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::anglePsiRateAtEpoch_</definition>
+        <argsstring></argsstring>
+        <name>anglePsiRateAtEpoch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="597" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="597" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a91871e5b49a1d30cd49c6eea04d68adb" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::angleIAtEpoch_</definition>
+        <argsstring></argsstring>
+        <name>angleIAtEpoch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="598" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="598" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1aa74c5050d9701fd6911f11d64e775b24" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::angleIRateAtEpoch_</definition>
+        <argsstring></argsstring>
+        <name>angleIRateAtEpoch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="599" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="599" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a0e8c581c4f810d99fc53e9187d64e2c2" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::anglePhiAtEpoch_</definition>
+        <argsstring></argsstring>
+        <name>anglePhiAtEpoch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="600" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="600" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a736f39fc5918143220119e06e21b3a38" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::anglePhiRateAtEpoch_</definition>
+        <argsstring></argsstring>
+        <name>anglePhiRateAtEpoch_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="601" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="601" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a6714e10467451751d1e88031e7c21451" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::coreFactor_</definition>
+        <argsstring></argsstring>
+        <name>coreFactor_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="602" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="602" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a148c4e6a8c8589d66c744851c6495891" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::freeCoreNutationRate_</definition>
+        <argsstring></argsstring>
+        <name>freeCoreNutationRate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="603" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="603" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ac4a103377076dfe9fa4ec9b73c6d4651" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+        <definition>std::map&lt; double, std::pair&lt; double, double &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::meanMotionDirectNutationCorrections_</definition>
+        <argsstring></argsstring>
+        <name>meanMotionDirectNutationCorrections_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="604" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="604" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1acfea9027aaca39bdaee1994129ecfaa3" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::meanMotionTimeDependentPhaseNutationCorrections_</definition>
+        <argsstring></argsstring>
+        <name>meanMotionTimeDependentPhaseNutationCorrections_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="605" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="605" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a6a26e7991cd96fdc249b6c6891f9658b" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; double(const double) &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; double( const double ) &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::timeDependentPhaseCorrectionFunctions_</definition>
+        <argsstring></argsstring>
+        <name>timeDependentPhaseCorrectionFunctions_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="606" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="606" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a757c659c6520051e4d187938489fdbf4" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+        <definition>std::map&lt; double, std::pair&lt; double, double &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::rotationRateCorrections_</definition>
+        <argsstring></argsstring>
+        <name>rotationRateCorrections_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="607" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="607" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a0fa0c44f2fb23ce2e06163c486bbb613" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+        <definition>std::map&lt; double, std::pair&lt; double, double &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::xPolarMotionCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>xPolarMotionCoefficients_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="608" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="608" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1aa82f5bb2bf315fe04564c3798faf080a" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+        <definition>std::map&lt; double, std::pair&lt; double, double &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::yPolarMotionCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>yPolarMotionCoefficients_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="609" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="609" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a8510579fbc40d3ef2ff356207ca6223a" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::PlanetaryRotationModelSettings::centralBody_</definition>
+        <argsstring></argsstring>
+        <name>centralBody_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="611" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="611" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ac19aaad901eec2ad11819dd05235b508" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::initialTime_</definition>
+        <argsstring></argsstring>
+        <name>initialTime_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="613" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="613" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a4cb4fbaf3867b1ab2dd2296e1982594b" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::finalTime_</definition>
+        <argsstring></argsstring>
+        <name>finalTime_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="614" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="614" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a5471f3b9b3a73e5390978f1aebbb80f0" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::timeStep_</definition>
+        <argsstring></argsstring>
+        <name>timeStep_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="615" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="615" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a7e716d28c60180e9f8d6f0b0c96b5a2b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::PlanetaryRotationModelSettings::PlanetaryRotationModelSettings</definition>
+        <argsstring>(const double angleN, const double angleJ, const double anglePsiAtEpoch, const double anglePsiRateAtEpoch, const double angleIAtEpoch, const double angleIRateAtEpoch, const double anglePhiAtEpoch, const double anglePhiRateAtEpoch, const double coreFactor, const double freeCoreNutationRate, const std::string originalFrame, const std::string targetFrame, const std::string centralBody, const double initialTime, const double finalTime, const double timeStep=150.0, const std::map&lt; double, std::pair&lt; double, double &gt; &gt; meanMotionDirectNutationCorrections=(std::map&lt; double, std::pair&lt; double, double &gt; &gt;()), std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt; meanMotionTimeDependentPhaseNutationCorrections=(std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt;()), std::vector&lt; std::function&lt; double(const double) &gt; &gt; timeDependentPhaseCorrectionFunctions=(std::vector&lt; std::function&lt; double(const double) &gt; &gt;()), const std::map&lt; double, std::pair&lt; double, double &gt; &gt; rotationRateCorrections=(std::map&lt; double, std::pair&lt; double, double &gt; &gt;()), const std::map&lt; double, std::pair&lt; double, double &gt; &gt; xPolarMotionCoefficients=(std::map&lt; double, std::pair&lt; double, double &gt; &gt;()), const std::map&lt; double, std::pair&lt; double, double &gt; &gt; yPolarMotionCoefficients=(std::map&lt; double, std::pair&lt; double, double &gt; &gt;()))</argsstring>
+        <name>PlanetaryRotationModelSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>angleN</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleJ</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>anglePsiAtEpoch</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>anglePsiRateAtEpoch</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleIAtEpoch</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleIRateAtEpoch</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>anglePhiAtEpoch</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>anglePhiRateAtEpoch</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>coreFactor</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>freeCoreNutationRate</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>targetFrame</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>centralBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>finalTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeStep</declname>
+          <defval>150.0</defval>
+        </param>
+        <param>
+          <type>const std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+          <declname>meanMotionDirectNutationCorrections</declname>
+          <defval>(std::map&lt; double, std::pair&lt; double, double &gt; &gt;())</defval>
+        </param>
+        <param>
+          <type>std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt;</type>
+          <declname>meanMotionTimeDependentPhaseNutationCorrections</declname>
+          <defval>(std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt;())</defval>
+        </param>
+        <param>
+          <type>std::vector&lt; std::function&lt; double(const double) &gt; &gt;</type>
+          <declname>timeDependentPhaseCorrectionFunctions</declname>
+          <defval>(std::vector&lt; std::function&lt; double(const double) &gt; &gt;())</defval>
+        </param>
+        <param>
+          <type>const std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+          <declname>rotationRateCorrections</declname>
+          <defval>(std::map&lt; double, std::pair&lt; double, double &gt; &gt;())</defval>
+        </param>
+        <param>
+          <type>const std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+          <declname>xPolarMotionCoefficients</declname>
+          <defval>(std::map&lt; double, std::pair&lt; double, double &gt; &gt;())</defval>
+        </param>
+        <param>
+          <type>const std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+          <declname>yPolarMotionCoefficients</declname>
+          <defval>(std::map&lt; double, std::pair&lt; double, double &gt; &gt;())</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="418" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="418" bodyend="456"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1aefc54bf52fd29f53f980c75c89ac09bb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::PlanetaryRotationModelSettings::updateAnglesAtEpoch</definition>
+        <argsstring>(Eigen::Vector3d anglesAtEpoch)</argsstring>
+        <name>updateAnglesAtEpoch</name>
+        <param>
+          <type>Eigen::Vector3d</type>
+          <declname>anglesAtEpoch</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="458" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="458" bodyend="463"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1afa0e555de1af4a370df2f8954fd4f06e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getAngleN</definition>
+        <argsstring>()</argsstring>
+        <name>getAngleN</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="465" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="465" bodyend="468"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a91a32b3c75674f10b9caca028564b6df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getAngleJ</definition>
+        <argsstring>()</argsstring>
+        <name>getAngleJ</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="470" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="470" bodyend="473"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a9dabded2eefd6180668a477d16fa85db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getAnglePsiAtEpoch</definition>
+        <argsstring>()</argsstring>
+        <name>getAnglePsiAtEpoch</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="475" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="475" bodyend="478"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a29665d7dc5dfe684c03d15b7517c65ba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getAnglePsiRateAtEpoch</definition>
+        <argsstring>()</argsstring>
+        <name>getAnglePsiRateAtEpoch</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="479" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="479" bodyend="482"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a8cd00a87750b9757de3b0a3e6ed39553" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getAngleIAtEpoch</definition>
+        <argsstring>()</argsstring>
+        <name>getAngleIAtEpoch</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="484" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="484" bodyend="487"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ada2a8c073667cec7b2d5f910049e91d3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getAngleIRateAtEpoch</definition>
+        <argsstring>()</argsstring>
+        <name>getAngleIRateAtEpoch</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="489" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="489" bodyend="492"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1af8a0d7327f31500485fe694b4e032498" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getAnglePhiAtEpoch</definition>
+        <argsstring>()</argsstring>
+        <name>getAnglePhiAtEpoch</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="494" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="494" bodyend="497"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a155fa7f4125ed88405c0ebcc42e2f15e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getAnglePhiRateAtEpoch</definition>
+        <argsstring>()</argsstring>
+        <name>getAnglePhiRateAtEpoch</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="499" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="499" bodyend="502"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a63b41ca8556bac7e678c90ec3fd9eabc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getCoreFactor</definition>
+        <argsstring>()</argsstring>
+        <name>getCoreFactor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="504" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="504" bodyend="507"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a975f8c52b90c700f753b3b81e9e29a56" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getFreeCoreNutationRate</definition>
+        <argsstring>()</argsstring>
+        <name>getFreeCoreNutationRate</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="509" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="509" bodyend="512"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a65f33d439593b145735bba6756f5ab90" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+        <definition>std::map&lt; double, std::pair&lt; double, double &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::getMeanMotionDirectNutationCorrections</definition>
+        <argsstring>()</argsstring>
+        <name>getMeanMotionDirectNutationCorrections</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="514" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="514" bodyend="517"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a2634a49df3960109e800d7baee82d87f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::getMeanMotionTimeDependentPhaseNutationCorrections</definition>
+        <argsstring>()</argsstring>
+        <name>getMeanMotionTimeDependentPhaseNutationCorrections</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="519" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="519" bodyend="522"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a9731c40944ed98180f20d14b6bb49437" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::function&lt; double(const double) &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; double( const double ) &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::getTimeDependentPhaseCorrectionFunctions</definition>
+        <argsstring>()</argsstring>
+        <name>getTimeDependentPhaseCorrectionFunctions</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="524" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="524" bodyend="527"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a87b6d2fa4d53f756019067cf0727392e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+        <definition>std::map&lt; double, std::pair&lt; double, double &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::getRotationRateCorrections</definition>
+        <argsstring>()</argsstring>
+        <name>getRotationRateCorrections</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="529" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="529" bodyend="532"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ab32df9eaf5879e3f18f69fbc2d9112f6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+        <definition>std::map&lt; double, std::pair&lt; double, double &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::getxPolarMotionCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getxPolarMotionCoefficients</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="534" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="534" bodyend="537"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1aea5fcd8af11bd40efa85c90e9ec00fa6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+        <definition>std::map&lt; double, std::pair&lt; double, double &gt; &gt; tudat::simulation_setup::PlanetaryRotationModelSettings::getyPolarMotionCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getyPolarMotionCoefficients</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="539" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="539" bodyend="542"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a8817bf391804208a481dc243b8eff2eb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getInitialTime</definition>
+        <argsstring>()</argsstring>
+        <name>getInitialTime</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="544" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="544" bodyend="547"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a9beb8e26f610851c4fed8dcc060f7037" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getFinalTime</definition>
+        <argsstring>()</argsstring>
+        <name>getFinalTime</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="549" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="549" bodyend="552"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a1d10bb6d5a35093422e0994a61d5205c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::PlanetaryRotationModelSettings::getTimeStep</definition>
+        <argsstring>()</argsstring>
+        <name>getTimeStep</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="554" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="554" bodyend="557"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ab00940d391f919825ac942510e45d807" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::PlanetaryRotationModelSettings::getCentralBody</definition>
+        <argsstring>()</argsstring>
+        <name>getCentralBody</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="559" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="559" bodyend="562"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1af4f6a4cd96efe0e1540ed711405664bd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::PlanetaryRotationModelSettings::setPeriodTermsToZero</definition>
+        <argsstring>()</argsstring>
+        <name>setPeriodTermsToZero</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="564" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="564" bodyend="572"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a5350edeac5139f35713c9719ed130032" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::PlanetaryRotationModelSettings::setPeriodTerms</definition>
+        <argsstring>(std::map&lt; double, std::pair&lt; double, double &gt; &gt; meanMotionDirectNutationCorrections, std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt; meanMotionTimeDependentPhaseNutationCorrection, std::map&lt; double, std::pair&lt; double, double &gt; &gt; rotationRateCorrections, std::map&lt; double, std::pair&lt; double, double &gt; &gt; xPolarMotionCoefficients, std::map&lt; double, std::pair&lt; double, double &gt; &gt; yPolarMotionCoefficients)</argsstring>
+        <name>setPeriodTerms</name>
+        <param>
+          <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+          <declname>meanMotionDirectNutationCorrections</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::map&lt; double, std::pair&lt; double, double &gt; &gt; &gt;</type>
+          <declname>meanMotionTimeDependentPhaseNutationCorrection</declname>
+        </param>
+        <param>
+          <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+          <declname>rotationRateCorrections</declname>
+        </param>
+        <param>
+          <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+          <declname>xPolarMotionCoefficients</declname>
+        </param>
+        <param>
+          <type>std::map&lt; double, std::pair&lt; double, double &gt; &gt;</type>
+          <declname>yPolarMotionCoefficients</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="574" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="574" bodyend="585"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a366ed29e147695d98386fd6e1aceb075" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::PlanetaryRotationModelSettings::setCoreFactorAndFreeCoreNutation</definition>
+        <argsstring>(double coreFactor, double freeCoreNutationRate)</argsstring>
+        <name>setCoreFactorAndFreeCoreNutation</name>
+        <param>
+          <type>double</type>
+          <declname>coreFactor</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>freeCoreNutationRate</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="587" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="587" bodyend="591"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::RotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RotationModelSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::PlanetaryRotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::RotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RotationModelSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>originalFrame_</edgelabel>
+          <edgelabel>targetFrame_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::PlanetaryRotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="415" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="416" bodyend="616"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a91871e5b49a1d30cd49c6eea04d68adb" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>angleIAtEpoch_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1aa74c5050d9701fd6911f11d64e775b24" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>angleIRateAtEpoch_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ad49df10bafb2183af5ebd2a6d5dc9003" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>angleJ_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a57915b14587f16b3b4743738ba81b3d0" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>angleN_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a0e8c581c4f810d99fc53e9187d64e2c2" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>anglePhiAtEpoch_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a736f39fc5918143220119e06e21b3a38" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>anglePhiRateAtEpoch_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a4e0147addd4ea2f55f32d2ec2840129a" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>anglePsiAtEpoch_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a4263cb8eee1fb9686f281c4f9c2d50fe" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>anglePsiRateAtEpoch_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a8510579fbc40d3ef2ff356207ca6223a" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>centralBody_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a6714e10467451751d1e88031e7c21451" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>coreFactor_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a4cb4fbaf3867b1ab2dd2296e1982594b" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>finalTime_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a148c4e6a8c8589d66c744851c6495891" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>freeCoreNutationRate_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a8cd00a87750b9757de3b0a3e6ed39553" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getAngleIAtEpoch</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ada2a8c073667cec7b2d5f910049e91d3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getAngleIRateAtEpoch</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a91a32b3c75674f10b9caca028564b6df" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getAngleJ</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1afa0e555de1af4a370df2f8954fd4f06e" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getAngleN</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1af8a0d7327f31500485fe694b4e032498" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getAnglePhiAtEpoch</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a155fa7f4125ed88405c0ebcc42e2f15e" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getAnglePhiRateAtEpoch</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a9dabded2eefd6180668a477d16fa85db" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getAnglePsiAtEpoch</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a29665d7dc5dfe684c03d15b7517c65ba" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getAnglePsiRateAtEpoch</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ab00940d391f919825ac942510e45d807" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getCentralBody</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a63b41ca8556bac7e678c90ec3fd9eabc" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getCoreFactor</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a9beb8e26f610851c4fed8dcc060f7037" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getFinalTime</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a975f8c52b90c700f753b3b81e9e29a56" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getFreeCoreNutationRate</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a8817bf391804208a481dc243b8eff2eb" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getInitialTime</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a65f33d439593b145735bba6756f5ab90" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getMeanMotionDirectNutationCorrections</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a2634a49df3960109e800d7baee82d87f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getMeanMotionTimeDependentPhaseNutationCorrections</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a9ba9508d4c524bcd90f0a09e36b3bdd5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getOriginalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a87b6d2fa4d53f756019067cf0727392e" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getRotationRateCorrections</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1afbb5f870668604c75eab753968cb6b6d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getRotationType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a4f7f267d90d71182613fedfdc0363e4d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getTargetFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a9731c40944ed98180f20d14b6bb49437" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getTimeDependentPhaseCorrectionFunctions</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a1d10bb6d5a35093422e0994a61d5205c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getTimeStep</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ab32df9eaf5879e3f18f69fbc2d9112f6" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getxPolarMotionCoefficients</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1aea5fcd8af11bd40efa85c90e9ec00fa6" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>getyPolarMotionCoefficients</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ac19aaad901eec2ad11819dd05235b508" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>initialTime_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1ac4a103377076dfe9fa4ec9b73c6d4651" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>meanMotionDirectNutationCorrections_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1acfea9027aaca39bdaee1994129ecfaa3" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>meanMotionTimeDependentPhaseNutationCorrections_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a3664732bd644fd17c1c56a9193816d60" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>originalFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a7e716d28c60180e9f8d6f0b0c96b5a2b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>PlanetaryRotationModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a7a3e915574afe20bb1ca65577a032226" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>resetOriginalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1aebe6e9ad90787c441e4736971b778396" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>RotationModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a757c659c6520051e4d187938489fdbf4" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>rotationRateCorrections_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1af2b7a9868f25f739090e438acee36304" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>rotationType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a366ed29e147695d98386fd6e1aceb075" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>setCoreFactorAndFreeCoreNutation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a5350edeac5139f35713c9719ed130032" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>setPeriodTerms</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1af4f6a4cd96efe0e1540ed711405664bd" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>setPeriodTermsToZero</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a5e950c3ec40646eac2ae85eea100ae6f" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>targetFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a6a26e7991cd96fdc249b6c6891f9658b" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>timeDependentPhaseCorrectionFunctions_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a5471f3b9b3a73e5390978f1aebbb80f0" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>timeStep_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1aefc54bf52fd29f53f980c75c89ac09bb" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>updateAnglesAtEpoch</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1a0fa0c44f2fb23ce2e06163c486bbb613" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>xPolarMotionCoefficients_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_1aa82f5bb2bf315fe04564c3798faf080a" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>yPolarMotionCoefficients_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1aae3318a08e2fc5dd26b8b038fa51a451" prot="public" virt="virtual"><scope>tudat::simulation_setup::PlanetaryRotationModelSettings</scope><name>~RotationModelSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

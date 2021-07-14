@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::basic_astrodynamics::BodyShapeModel</compoundname>
+    <derivedcompoundref refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::SphericalBodyShapeModel</derivedcompoundref>
+    <includes refid="bodyShapeModel_8h" local="no">bodyShapeModel.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a9afa14876ae1e01c193995c53c443f8e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::BodyShapeModel::BodyShapeModel</definition>
+        <argsstring>()</argsstring>
+        <name>BodyShapeModel</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/bodyShapeModel.h" line="42" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/bodyShapeModel.h" bodystart="42" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a614eec798723a1f059436fb033a946ed" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::basic_astrodynamics::BodyShapeModel::~BodyShapeModel</definition>
+        <argsstring>()</argsstring>
+        <name>~BodyShapeModel</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/bodyShapeModel.h" line="45" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/bodyShapeModel.h" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a8439cdf3a6dd14875fb8892341bde3ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::basic_astrodynamics::BodyShapeModel::getAltitude</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition)=0</argsstring>
+        <name>getAltitude</name>
+        <reimplementedby refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a9a4e37d448cb35c1a34259a11832eeb0">getAltitude</reimplementedby>
+        <reimplementedby refid="classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_1af58a594fa71dfd1791881c8961d571bb">getAltitude</reimplementedby>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <briefdescription>
+<para>Calculates the altitude above the shape. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the altitude above the shape from the a body fixed position. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian, body-fixed position of the point at which the altitude is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Altitude above the body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/bodyShapeModel.h" line="54" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a36f348a51efc73a5414d55438d4347eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::basic_astrodynamics::BodyShapeModel::getAverageRadius</definition>
+        <argsstring>()=0</argsstring>
+        <name>getAverageRadius</name>
+        <reimplementedby refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1ad7f4f8bc028731164d1ae39a373e39a7">getAverageRadius</reimplementedby>
+        <reimplementedby refid="classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_1a707e6c239b890936d39018762cd0a627">getAverageRadius</reimplementedby>
+        <briefdescription>
+<para>Function to return the mean radius of the shape model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the mean radius of the shape model, to be used for functions requiring moderate to low accuracy for shape model, i.e. using a &apos;nearest equivalent&apos; sphere. <simplesect kind="return"><para>Average radius of shape model. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/bodyShapeModel.h" line="63" column="20"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for body shape models. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This is the base class for shape models for (celestial) bodies, such as spheres, ellipsoids, or tri-axial ellipsoids. It can be used to calculate the altitude above such a shape or the local radius. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::BodyShapeModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel"/>
+      </node>
+      <node id="3">
+        <label>tudat::basic_astrodynamics::SphericalBodyShapeModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/bodyShapeModel.h" line="37" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/bodyShapeModel.h" bodystart="38" bodyend="67"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a9afa14876ae1e01c193995c53c443f8e" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::BodyShapeModel</scope><name>BodyShapeModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a8439cdf3a6dd14875fb8892341bde3ee" prot="public" virt="pure-virtual"><scope>tudat::basic_astrodynamics::BodyShapeModel</scope><name>getAltitude</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a36f348a51efc73a5414d55438d4347eb" prot="public" virt="pure-virtual"><scope>tudat::basic_astrodynamics::BodyShapeModel</scope><name>getAverageRadius</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a614eec798723a1f059436fb033a946ed" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::BodyShapeModel</scope><name>~BodyShapeModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

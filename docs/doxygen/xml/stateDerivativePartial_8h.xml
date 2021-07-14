@@ -1,0 +1,2080 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="stateDerivativePartial_8h" kind="file" language="C++">
+    <compoundname>stateDerivativePartial.h</compoundname>
+    <includes local="no">string</includes>
+    <includes local="no">map</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes local="no">boost/bind.hpp</includes>
+    <includes refid="accelerationModel_8h" local="yes">tudat/astro/basic_astro/accelerationModel.h</includes>
+    <includes refid="accelerationModelTypes_8h" local="yes">tudat/astro/basic_astro/accelerationModelTypes.h</includes>
+    <includes refid="singleStateTypeDerivative_8h" local="yes">tudat/astro/propagators/singleStateTypeDerivative.h</includes>
+    <includes refid="estimatableParameter_8h" local="yes">tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h</includes>
+    <includedby refid="accelerationPartial_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h</includedby>
+    <includedby refid="torquePartial_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h</includedby>
+    <includedby refid="orbit__determination_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination.h</includedby>
+    <includedby refid="createStateDerivativePartials_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createStateDerivativePartials.h</includedby>
+    <includedby refid="stateDerivativePartial_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/stateDerivativePartial.cpp</includedby>
+    <incdepgraph>
+      <node id="18">
+        <label>boost/lambda/lambda.hpp</label>
+      </node>
+      <node id="17">
+        <label>functional</label>
+      </node>
+      <node id="95">
+        <label>boost/shared_ptr.hpp</label>
+      </node>
+      <node id="13">
+        <label>limits</label>
+      </node>
+      <node id="97">
+        <label>tudat/astro/propagators/singleStateTypeDerivative.h</label>
+        <link refid="singleStateTypeDerivative_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h</label>
+        <link refid="mutualSphericalHarmonicGravityModel_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h</label>
+        <link refid="stateDerivativePartial_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="97" relation="include">
+        </childnode>
+        <childnode refid="98" relation="include">
+        </childnode>
+      </node>
+      <node id="71">
+        <label>boost/math/special_functions/atanh.hpp</label>
+      </node>
+      <node id="6">
+        <label>tudat/astro/basic_astro/accelerationModel.h</label>
+        <link refid="accelerationModel_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="93">
+        <label>boost/date_time/gregorian/gregorian.hpp</label>
+      </node>
+      <node id="24">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="39">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>cmath</label>
+      </node>
+      <node id="81">
+        <label>tudat/math/root_finders/newtonRaphson.h</label>
+        <link refid="newtonRaphson_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+        <childnode refid="82" relation="include">
+        </childnode>
+      </node>
+      <node id="78">
+        <label>stdexcept</label>
+      </node>
+      <node id="4">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="94">
+        <label>tudat/astro/electromagnetism/solarSailAcceleration.h</label>
+        <link refid="solarSailAcceleration_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="96" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="91">
+        <label>tudat/astro/ephemerides/rotationalEphemeris.h</label>
+        <link refid="rotationalEphemeris_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="88">
+        <label>tudat/astro/propulsion/massRateFromThrust.h</label>
+        <link refid="massRateFromThrust_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/astro/gravitation/centralGravityModel.h</label>
+        <link refid="centralGravityModel_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>string</label>
+      </node>
+      <node id="59">
+        <label>tudat/astro/reference_frames/dependentOrientationCalculator.h</label>
+        <link refid="dependentOrientationCalculator_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>tudat/astro/basic_astro/customAccelerationModel.h</label>
+        <link refid="customAccelerationModel_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="70">
+        <label>tudat/astro/basic_astro/orbitalElementConversions.h</label>
+        <link refid="orbitalElementConversions_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>map</label>
+      </node>
+      <node id="14">
+        <label>tudat/astro/basic_astro/accelerationModelTypes.h</label>
+        <link refid="accelerationModelTypes_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+        <childnode refid="94" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>tudat/astro/reference_frames/referenceFrameTransformations.h</label>
+        <link refid="referenceFrameTransformations_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="69">
+        <label>tudat/astro/basic_astro/missionGeometry.h</label>
+        <link refid="missionGeometry_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>tudat/math/basic/functionProxy.h</label>
+        <link refid="functionProxy_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="85" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>tudat/astro/propulsion/thrustAccelerationModel.h</label>
+        <link refid="thrustAccelerationModel_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="86" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>boost/circular_buffer.hpp</label>
+      </node>
+      <node id="76">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>tudat/astro/propulsion/thrustGuidance.h</label>
+        <link refid="thrustGuidance_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>boost/function.hpp</label>
+      </node>
+      <node id="16">
+        <label>tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h</label>
+        <link refid="cannonBallRadiationPressureAcceleration_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="64">
+        <label>tudat/astro/propulsion/thrustFunctions.h</label>
+        <link refid="thrustFunctions_8h_source"/>
+      </node>
+      <node id="74">
+        <label>tudat/math/root_finders/createRootFinder.h</label>
+        <link refid="createRootFinder_8h_source"/>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="79" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+        <childnode refid="83" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="96">
+        <label>tudat/astro/electromagnetism/solarSailForce.h</label>
+        <link refid="solarSailForce_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="19">
+        <label>tudat/astro/electromagnetism/cannonBallRadiationPressureForce.h</label>
+        <link refid="cannonBallRadiationPressureForce_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>tudat/math/basic/linearAlgebra.h</label>
+        <link refid="linearAlgebra_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="68">
+        <label>tudat/astro/basic_astro/stateVectorIndices.h</label>
+        <link refid="stateVectorIndices_8h_source"/>
+      </node>
+      <node id="66">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="77">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>tudat/astro/system_models/engineModel.h</label>
+        <link refid="engineModel_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>tudat/math/root_finders/halleyRootFinder.h</label>
+        <link refid="halleyRootFinder_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="62">
+        <label>tudat/astro/propulsion/thrustMagnitudeWrapper.h</label>
+        <link refid="thrustMagnitudeWrapper_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>tudat/astro/aerodynamics/aerodynamicForce.h</label>
+        <link refid="aerodynamicForce_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h</label>
+        <link refid="aerodynamicCoefficientInterface_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="73">
+        <label>boost/math/special_functions/asinh.hpp</label>
+      </node>
+      <node id="34">
+        <label>boost/unordered_map.hpp</label>
+      </node>
+      <node id="92">
+        <label>tudat/astro/basic_astro/timeConversions.h</label>
+        <link refid="timeConversions_8h_source"/>
+        <childnode refid="93" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="87">
+        <label>tudat/math/basic/nearestNeighbourSearch.h</label>
+        <link refid="nearestNeighbourSearch_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>vector</label>
+      </node>
+      <node id="98">
+        <label>tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h</label>
+        <link refid="estimatableParameter_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="95" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="97" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h</label>
+        <link refid="sphericalHarmonicsGravityModelBase_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="79">
+        <label>tudat/math/root_finders/bisection.h</label>
+        <link refid="bisection_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="90">
+        <label>tudat/astro/basic_astro/empiricalAcceleration.h</label>
+        <link refid="empiricalAcceleration_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="91" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="23">
+        <label>tudat/astro/electromagnetism/radiationPressureInterface.h</label>
+        <link refid="radiationPressureInterface_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>tudat/math/basic/legendrePolynomials.h</label>
+        <link refid="legendrePolynomials_8h_source"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="85">
+        <label>tudat/math/basic/basicFunction.h</label>
+        <link refid="basicFunction_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>tudat/astro/gravitation/thirdBodyPerturbation.h</label>
+        <link refid="thirdBodyPerturbation_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="82">
+        <label>tudat/math/basic/convergenceException.h</label>
+        <link refid="convergenceException_8h_source"/>
+        <childnode refid="78" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>tudat/astro/electromagnetism/panelledRadiationPressure.h</label>
+        <link refid="panelledRadiationPressure_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>tudat/basics/utilities.h</label>
+        <link refid="basics_2utilities_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h</label>
+        <link refid="controlSurfaceAerodynamicCoefficientInterface_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>boost/enable_shared_from_this.hpp</label>
+      </node>
+      <node id="67">
+        <label>tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h</label>
+        <link refid="modifiedEquinoctialElementConversions_8h_source"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>iostream</label>
+      </node>
+      <node id="10">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>cstddef</label>
+      </node>
+      <node id="49">
+        <label>tudat/astro/aerodynamics/aerodynamics.h</label>
+        <link refid="astro_2aerodynamics_2aerodynamics_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>unordered_map</label>
+      </node>
+      <node id="56">
+        <label>tudat/astro/propagators/environmentUpdateTypes.h</label>
+        <link refid="environmentUpdateTypes_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>tudat/math/basic/sphericalHarmonics.h</label>
+        <link refid="sphericalHarmonics_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="89">
+        <label>tudat/astro/relativity/relativisticAccelerationCorrection.h</label>
+        <link refid="relativisticAccelerationCorrection_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="72">
+        <label>tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h</label>
+        <link refid="convertMeanToEccentricAnomalies_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="84" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>tudat/astro/gravitation/directTidalDissipationAcceleration.h</label>
+        <link refid="directTidalDissipationAcceleration_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>Eigen/SVD</label>
+      </node>
+      <node id="28">
+        <label>tudat/astro/gravitation/sphericalHarmonicsGravityModel.h</label>
+        <link refid="sphericalHarmonicsGravityModel_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="83">
+        <label>tudat/math/root_finders/secantRootFinder.h</label>
+        <link refid="secantRootFinder_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>type_traits</label>
+      </node>
+      <node id="29">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="51">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="11">
+        <label>complex</label>
+      </node>
+      <node id="42">
+        <label>algorithm</label>
+      </node>
+      <node id="54">
+        <label>tudat/astro/basic_astro/massRateModel.h</label>
+        <link refid="astro_2basic__astro_2massRateModel_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>tudat/astro/aerodynamics/aerodynamicAcceleration.h</label>
+        <link refid="aerodynamicAcceleration_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>memory</label>
+      </node>
+      <node id="86">
+        <label>tudat/math/interpolators/lookupScheme.h</label>
+        <link refid="lookupScheme_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="87" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="62">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h</label>
+        <link refid="inertiaTensorPartial_8h_source"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/variationalEquations.h</label>
+        <link refid="variationalEquations_8h_source"/>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h</label>
+        <link refid="directTidalDissipationAccelerationPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h</label>
+        <link refid="panelledRadiationPressureAccelerationPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/radiationPressureAccelerationPartial.h</label>
+        <link refid="radiationPressureAccelerationPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h</label>
+        <link refid="dynamicsSimulator_8h_source"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h</label>
+        <link refid="propagationTermination_8h_source"/>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h</label>
+        <link refid="stateDerivativePartial_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutput.h</label>
+        <link refid="propagationOutput_8h_source"/>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h</label>
+        <link refid="accelerationPartial_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/dynamicsStateDerivativeModel.h</label>
+        <link refid="dynamicsStateDerivativeModel_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h</label>
+        <link refid="sphericalHarmonicGravitationalTorquePartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h</label>
+        <link refid="aerodynamicAccelerationPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/getZeroProperModeRotationalInitialState.h</label>
+        <link refid="getZeroProperModeRotationalInitialState_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="52">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/defaultBodies.h</label>
+        <link refid="defaultBodies_8h_source"/>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createBodies.h</label>
+        <link refid="createBodies_8h_source"/>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createTorquePartials.h</label>
+        <link refid="createTorquePartials_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h</label>
+        <link refid="thirdBodyGravityPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/empiricalAccelerationPartial.h</label>
+        <link refid="empiricalAccelerationPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination.h</label>
+        <link refid="orbit__determination_8h_source"/>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators.h</label>
+        <link refid="propagators_8h_source"/>
+      </node>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/state.h</label>
+        <link refid="state_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h</label>
+        <link refid="torquePartial_8h_source"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNumericalSimulator.h</label>
+        <link refid="createNumericalSimulator_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/export.h</label>
+        <link refid="export_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createAccelerationPartials.h</label>
+        <link refid="createAccelerationPartials_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="49">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/unitTestSupport.h</label>
+        <link refid="unitTestSupport_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h</label>
+        <link refid="inertialTorquePartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup.h</label>
+        <link refid="environment__setup_8h_source"/>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="30">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h</label>
+        <link refid="variationalEquationsSolver_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="63">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/secondDegreeGravitationalTorquePartial.h</label>
+        <link refid="secondDegreeGravitationalTorquePartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h</label>
+        <link refid="centralGravityAccelerationPartial_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="55">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createEstimatableParameters.h</label>
+        <link refid="createEstimatableParameters_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createStateDerivativePartials.h</label>
+        <link refid="createStateDerivativePartials_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/rotational_dynamics_partials/constantTorquePartial.h</label>
+        <link refid="constantTorquePartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h</label>
+        <link refid="sphericalHarmonicAccelerationPartial_8h_source"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/body.h</label>
+        <link refid="interface_2json_2environment_2body_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h</label>
+        <link refid="mutualSphericalHarmonicGravityPartial_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="58">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/integrateEquations.h</label>
+        <link refid="integrateEquations_8h_source"/>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+      <node id="43">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h</label>
+        <link refid="thrustAccelerationPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/relativisticAccelerationPartial.h</label>
+        <link refid="relativisticAccelerationPartial_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" prot="public">tudat::orbit_determination::StateDerivativePartial</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1orbit__determination">tudat::orbit_determination</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_STATEDERIVATIVEPARTIAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_STATEDERIVATIVEPARTIAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;map&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/bind.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/accelerationModel.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/accelerationModelTypes.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/propagators/singleStateTypeDerivative.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">orbit_determination</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref></highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a4827d172b38b466f65f4da68500f53ea" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a4827d172b38b466f65f4da68500f53ea" kindref="member">StateDerivativePartial</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>propagators::IntegratedStateType<sp/>integratedStateType,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>std::string,<sp/>std::string<sp/>&gt;&amp;<sp/>integrationReferencePoint<sp/>):</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" kindref="member">integratedStateType_</ref>(<sp/>integratedStateType<sp/>),<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" kindref="member">integrationReferencePoint_</ref>(<sp/>integrationReferencePoint<sp/>)</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentTime_<sp/>=<sp/>TUDAT_NAN;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref><sp/>=<sp/>propagators::getGeneralizedAccelerationSize(<sp/>integratedStateType<sp/>);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a05f085a890b27518ca24446ac22bdb3e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a05f085a890b27518ca24446ac22bdb3e" kindref="member">~StateDerivativePartial</ref>(<sp/>)<sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>std::function&lt;<sp/>void(<sp/>Eigen::Block&lt;<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="72" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ab4fa1fbffa888476633642ca3e1a1dd1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ab4fa1fbffa888476633642ca3e1a1dd1" kindref="member">getDerivativeFunctionWrtStateOfIntegratedBody</ref>(</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>std::string,<sp/>std::string<sp/>&gt;&amp;<sp/>stateReferencePoint,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>propagators::IntegratedStateType<sp/>integratedStateType<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7d6dc0c6a70e33af5aefedf00dee1959" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7d6dc0c6a70e33af5aefedf00dee1959" kindref="member">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</ref>(</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>std::string,<sp/>std::string<sp/>&gt;&amp;<sp/>stateReferencePoint,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>propagators::IntegratedStateType<sp/>integratedStateType<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a17003fa377113426b3e556a78f147941" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a17003fa377113426b3e556a78f147941" kindref="member">wrtParameter</ref>(</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; double &gt;</ref><sp/>&gt;<sp/>parameter<sp/>)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Initialize<sp/>partial</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/>partial<sp/>=<sp/>Eigen::MatrixXd(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>,<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Get<sp/>partial<sp/>computation<sp/>function.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;<sp/>partialFunction<sp/>=</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" kindref="member">getParameterPartialFunction</ref>(<sp/>parameter<sp/>);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>parameter<sp/>dependency<sp/>exists,<sp/>compute<sp/>it,<sp/>otherwise<sp/>set<sp/>partial<sp/>to<sp/>zero.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>partialFunction.second<sp/>&gt;<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partialFunction.first(<sp/>partial<sp/>);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partial<sp/>=<sp/>Eigen::MatrixXd::Zero(</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>propagators::getGeneralizedAccelerationSize(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" kindref="member">integratedStateType_</ref><sp/>),<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>partial;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" kindref="member">getParameterPartialFunction</ref>(</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; double &gt;</ref><sp/>&gt;<sp/>parameter<sp/>)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>partialFunction;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>partialFunction,<sp/>0<sp/>);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae12101f97027e73084d3d80dbc7059b3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae12101f97027e73084d3d80dbc7059b3" kindref="member">wrtParameter</ref>(</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</ref><sp/>&gt;<sp/>parameter<sp/>)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Initialize<sp/>partial</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/>partial<sp/>=<sp/>Eigen::MatrixXd(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>,<sp/>parameter-&gt;getParameterSize(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Get<sp/>partial<sp/>computation<sp/>function.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;<sp/>partialFunction<sp/>=</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" kindref="member">getParameterPartialFunction</ref>(<sp/>parameter<sp/>);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>parameter<sp/>dependency<sp/>exists,<sp/>compute<sp/>it,<sp/>otherwise<sp/>set<sp/>partial<sp/>to<sp/>zero.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>partialFunction.second<sp/>&gt;<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partialFunction.first(<sp/>partial<sp/>);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partial<sp/>=<sp/>Eigen::MatrixXd::Zero(<sp/>propagators::getSingleIntegrationSize(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" kindref="member">integratedStateType_</ref><sp/>),</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parameter-&gt;getParameterSize(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>partial;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a849b14fede905e4e26ee2e752fbc95cc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a849b14fede905e4e26ee2e752fbc95cc" kindref="member">getParameterPartialFunction</ref>(</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</ref><sp/>&gt;<sp/>parameter<sp/>)</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>partialFunction;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>partialFunction,<sp/>0<sp/>);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6801a8f31cc0fcdb9679c2db6be3b157" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6801a8f31cc0fcdb9679c2db6be3b157" kindref="member">update</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a01893338e6faedd93cc0410bb692ce12" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>propagators::IntegratedStateType<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a01893338e6faedd93cc0410bb692ce12" kindref="member">getIntegratedStateType</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" kindref="member">integratedStateType_</ref>;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adbe24dfd4085ec6343ccf18478b52bc0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>std::string,<sp/>std::string<sp/>&gt;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adbe24dfd4085ec6343ccf18478b52bc0" kindref="member">getIntegrationReferencePoint</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" kindref="member">integrationReferencePoint_</ref>;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3654d540045886559b6592dc4f30bab8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3654d540045886559b6592dc4f30bab8" kindref="member">resetTime</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime<sp/>=<sp/>TUDAT_NAN<sp/>)</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>if<sp/>update<sp/>is<sp/>needed.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>!(<sp/>currentTime_<sp/>==<sp/>currentTime<sp/><sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7b26a08bb4990220a7d2f40f3681274a" kindref="member">resetCurrentParameterValues</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentTime_<sp/>=<sp/>currentTime;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Perform<sp/>updates<sp/>of<sp/>member<sp/>objects<sp/>if<sp/>needed.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aa0245f5f6b58423905b64709dac39a4c" kindref="member">resetTimeOfMemberObjects</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" kindref="member">getCurrentParameterPartial</ref>(</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; double &gt;</ref><sp/>&gt;<sp/>parameter,</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::Block&lt;<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>partialMatrix<sp/>)</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>if<sp/>dependecy<sp/>is<sp/>computed</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" kindref="member">currentDoubleParameterPartials_</ref>.count(<sp/>parameter<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>if<sp/>dependecy<sp/>exists<sp/>at<sp/>all</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" kindref="member">parameterDoublePartialFunctions_</ref>.count(<sp/>parameter<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Parameter<sp/>of<sp/>type<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::to_string(<sp/>parameter-&gt;getParameterName(<sp/>).first<sp/>)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string(<sp/>parameter-&gt;getParameterName(<sp/>).second.first<sp/>)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string(<sp/>parameter-&gt;getParameterName(<sp/>).second.second<sp/>)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/>not<sp/>found<sp/>in<sp/>list<sp/>of<sp/>existing<sp/>partials&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Warning,<sp/>double<sp/>partial<sp/>should<sp/>already<sp/>be<sp/>calculated&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" kindref="member">parameterDoublePartialFunctions_</ref>.at(<sp/>parameter<sp/>)(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" kindref="member">currentDoubleParameterPartials_</ref>[<sp/>parameter<sp/>]<sp/>);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partialMatrix<sp/>+=<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" kindref="member">currentDoubleParameterPartials_</ref>[<sp/>parameter<sp/>];</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ac31393221aeef20ea4ee5d7d0ad59aba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ac31393221aeef20ea4ee5d7d0ad59aba" kindref="member">getCurrentDoubleParameterPartial</ref>(</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; double &gt;</ref><sp/>&gt;<sp/>parameter,</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd&amp;<sp/>parameterPartial<sp/>)</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parameterPartial.block(<sp/>0,<sp/>0,<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>,<sp/>1<sp/>)<sp/>.setZero(<sp/>);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" kindref="member">getCurrentParameterPartial</ref>(<sp/>parameter,<sp/>parameterPartial.block(<sp/>0,<sp/>0,<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>,<sp/>1<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1acdfcbf63330d5b2b04fbaeb3787c8f68" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1acdfcbf63330d5b2b04fbaeb3787c8f68" kindref="member">getCurrentParameterPartial</ref>(</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</ref><sp/>&gt;<sp/>parameter,</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::Block&lt;<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>partialMatrix<sp/>)</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" kindref="member">currentVectorParameterPartials_</ref>.count(<sp/>parameter<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" kindref="member">parameterVectorPartialFunctions_</ref>.count(<sp/>parameter<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/>errorMessage<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;Parameter<sp/>of<sp/>type<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::to_string(<sp/>parameter-&gt;getParameterName(<sp/>).first<sp/>)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string(<sp/>parameter-&gt;getParameterName(<sp/>).second.first<sp/>)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::string(<sp/>parameter-&gt;getParameterName(<sp/>).second.second<sp/>)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/>not<sp/>found<sp/>in<sp/>list<sp/>of<sp/>existing<sp/>partials&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/>errorMessage<sp/>);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Warning,<sp/>vector<sp/>partial<sp/>should<sp/>already<sp/>be<sp/>calculated&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" kindref="member">parameterVectorPartialFunctions_</ref>.at(<sp/>parameter<sp/>)(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" kindref="member">currentVectorParameterPartials_</ref>[<sp/>parameter<sp/>]<sp/>);</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>partialMatrix<sp/>+=<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" kindref="member">currentVectorParameterPartials_</ref>[<sp/>parameter<sp/>];</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a2ba60d5dd1c131412a8f1aae8dd47a21" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a2ba60d5dd1c131412a8f1aae8dd47a21" kindref="member">getCurrentVectorParameterPartial</ref>(</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</ref><sp/>&gt;<sp/>parameter,</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd&amp;<sp/>parameterPartial<sp/>)</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parameterPartial.block(<sp/>0,<sp/>0,<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>,<sp/>parameter-&gt;getParameterSize(<sp/>)<sp/>).setZero(<sp/>);</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" kindref="member">getCurrentParameterPartial</ref>(<sp/>parameter,<sp/>parameterPartial.block(</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/>0,<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>,<sp/>parameter-&gt;getParameterSize(<sp/>)<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a481fc771c0a87996bc469b34ead49db9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a481fc771c0a87996bc469b34ead49db9" kindref="member">setParameterPartialUpdateFunction</ref>(</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; double &gt;</ref><sp/>&gt;<sp/>parameter<sp/>)</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Get<sp/>partial<sp/>function.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;<sp/>parameterPartialFunction<sp/>=</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" kindref="member">getParameterPartialFunction</ref>(<sp/>parameter<sp/>);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>partial<sp/>function<sp/>found,<sp/>add<sp/>function<sp/>to<sp/>list<sp/>of<sp/>computations<sp/>to<sp/>be<sp/>performed<sp/>when<sp/>calling</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>updateParameterPartials.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>parameterPartialFunction.second<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" kindref="member">parameterDoublePartialFunctions_</ref>.count(<sp/>parameter<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" kindref="member">parameterDoublePartialFunctions_</ref>.count(<sp/>parameter<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" kindref="member">parameterDoublePartialFunctions_</ref>[<sp/>parameter<sp/>]<sp/>=<sp/>parameterPartialFunction.first;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" kindref="member">isCurrentDoubleParameterPartialSet_</ref>[<sp/>parameter<sp/>]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" kindref="member">currentDoubleParameterPartials_</ref>[<sp/>parameter<sp/>]<sp/>=<sp/>Eigen::MatrixXd(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>,<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>parameterPartialFunction.second;</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a646f021c7c884446d482b9b0ab1e14f4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a646f021c7c884446d482b9b0ab1e14f4" kindref="member">setParameterPartialUpdateFunction</ref>(</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</ref><sp/>&gt;<sp/>parameter<sp/>)</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Get<sp/>partial<sp/>function.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;<sp/>parameterPartialFunction<sp/>=</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" kindref="member">getParameterPartialFunction</ref>(<sp/>parameter<sp/>);</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"></highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>If<sp/>partial<sp/>function<sp/>found,<sp/>add<sp/>function<sp/>to<sp/>list<sp/>of<sp/>computations<sp/>to<sp/>be<sp/>performed<sp/>when<sp/>calling</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>updateParameterPartials.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>parameterPartialFunction.second<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" kindref="member">currentVectorParameterPartials_</ref>.count(<sp/>parameter<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" kindref="member">parameterVectorPartialFunctions_</ref>.count(<sp/>parameter<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" kindref="member">parameterVectorPartialFunctions_</ref>[<sp/>parameter<sp/>]<sp/>=<sp/>parameterPartialFunction.first;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" kindref="member">isCurrentVectorParameterPartialSet_</ref>[<sp/>parameter<sp/>]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" kindref="member">currentVectorParameterPartials_</ref>[<sp/>parameter<sp/>]<sp/>=</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>,<sp/>parameter-&gt;getParameterSize(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>parameterPartialFunction.second;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight></codeline>
+<codeline lineno="385"><highlight class="normal"></highlight></codeline>
+<codeline lineno="388" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7a6f8bf919e2a0c16bc254738123b5b4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7a6f8bf919e2a0c16bc254738123b5b4" kindref="member">updateParameterPartials</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Update<sp/>member<sp/>object<sp/>partials.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a53491f7d5c94bd64b71c5190b9793a64" kindref="member">updateParameterPartialsOfMemberObjects</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"></highlight></codeline>
+<codeline lineno="393"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Update<sp/>double<sp/>parameter<sp/>partials</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" kindref="member">parameterDoublePartialFunctionIterator_</ref><sp/>=<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" kindref="member">parameterDoublePartialFunctions_</ref>.begin(<sp/>);</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" kindref="member">parameterDoublePartialFunctionIterator_</ref><sp/>!=<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" kindref="member">parameterDoublePartialFunctions_</ref>.end(<sp/>);</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" kindref="member">parameterDoublePartialFunctionIterator_</ref>++<sp/>)</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" kindref="member">isCurrentDoubleParameterPartialSet_</ref>.at(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" kindref="member">parameterDoublePartialFunctionIterator_</ref>-&gt;first<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" kindref="member">parameterDoublePartialFunctionIterator_</ref>-&gt;second(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" kindref="member">currentDoubleParameterPartials_</ref>[<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" kindref="member">parameterDoublePartialFunctionIterator_</ref>-&gt;first<sp/>]<sp/><sp/>);</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" kindref="member">isCurrentDoubleParameterPartialSet_</ref>[<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" kindref="member">parameterDoublePartialFunctionIterator_</ref>-&gt;first<sp/>]<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="402"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="404"><highlight class="normal"></highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Update<sp/>vector<sp/>parameter<sp/>partials</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="406"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" kindref="member">parameterVectorPartialFunctionIterator_</ref><sp/>=<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" kindref="member">parameterVectorPartialFunctions_</ref>.begin(<sp/>);</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" kindref="member">parameterVectorPartialFunctionIterator_</ref><sp/>!=<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" kindref="member">parameterVectorPartialFunctions_</ref>.end(<sp/>);</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" kindref="member">parameterVectorPartialFunctionIterator_</ref>++<sp/>)</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" kindref="member">isCurrentVectorParameterPartialSet_</ref>.at(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" kindref="member">parameterVectorPartialFunctionIterator_</ref>-&gt;first<sp/>)<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" kindref="member">parameterVectorPartialFunctionIterator_</ref>-&gt;second(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" kindref="member">currentVectorParameterPartials_</ref>[<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" kindref="member">parameterVectorPartialFunctionIterator_</ref>-&gt;first<sp/>]<sp/><sp/>);</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" kindref="member">isCurrentVectorParameterPartialSet_</ref>[<sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" kindref="member">parameterVectorPartialFunctionIterator_</ref>-&gt;first<sp/>]<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="416"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="417"><highlight class="normal"></highlight></codeline>
+<codeline lineno="418"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"></highlight></codeline>
+<codeline lineno="421"><highlight class="normal"></highlight></codeline>
+<codeline lineno="426" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a53491f7d5c94bd64b71c5190b9793a64" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a53491f7d5c94bd64b71c5190b9793a64" kindref="member">updateParameterPartialsOfMemberObjects</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"></highlight></codeline>
+<codeline lineno="429"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"></highlight></codeline>
+<codeline lineno="432"><highlight class="normal"></highlight></codeline>
+<codeline lineno="437" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aa0245f5f6b58423905b64709dac39a4c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aa0245f5f6b58423905b64709dac39a4c" kindref="member">resetTimeOfMemberObjects</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="440"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="441"><highlight class="normal"></highlight></codeline>
+<codeline lineno="443" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7b26a08bb4990220a7d2f40f3681274a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7b26a08bb4990220a7d2f40f3681274a" kindref="member">resetCurrentParameterValues</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="444"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" kindref="member">isCurrentDoubleParameterPartialSetIterator_</ref><sp/>=<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" kindref="member">isCurrentDoubleParameterPartialSet_</ref>.begin(<sp/>);</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" kindref="member">isCurrentDoubleParameterPartialSetIterator_</ref><sp/>!=<sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" kindref="member">isCurrentDoubleParameterPartialSet_</ref>.end(<sp/>);</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" kindref="member">isCurrentDoubleParameterPartialSetIterator_</ref>++<sp/>)</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" kindref="member">isCurrentDoubleParameterPartialSet_</ref>[<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" kindref="member">isCurrentDoubleParameterPartialSetIterator_</ref>-&gt;first<sp/>]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="451"><highlight class="normal"></highlight></codeline>
+<codeline lineno="452"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" kindref="member">isCurrentVectorParameterPartialSetIterator_</ref><sp/>=<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" kindref="member">isCurrentVectorParameterPartialSet_</ref>.begin(<sp/>);</highlight></codeline>
+<codeline lineno="453"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" kindref="member">isCurrentVectorParameterPartialSetIterator_</ref><sp/>!=<sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" kindref="member">isCurrentVectorParameterPartialSet_</ref>.end(<sp/>);</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" kindref="member">isCurrentVectorParameterPartialSetIterator_</ref>++<sp/>)</highlight></codeline>
+<codeline lineno="455"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="456"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" kindref="member">isCurrentVectorParameterPartialSet_</ref>[<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" kindref="member">isCurrentVectorParameterPartialSetIterator_</ref>-&gt;first<sp/>]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="457"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="458"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="459"><highlight class="normal"></highlight></codeline>
+<codeline lineno="461" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>propagators::IntegratedStateType<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" kindref="member">integratedStateType_</ref>;</highlight></codeline>
+<codeline lineno="462"><highlight class="normal"></highlight></codeline>
+<codeline lineno="464" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" kindref="member">accelerationSize_</ref>;</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"></highlight></codeline>
+<codeline lineno="467"><highlight class="normal"></highlight></codeline>
+<codeline lineno="472" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>std::string,<sp/>std::string<sp/>&gt;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" kindref="member">integrationReferencePoint_</ref>;</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"></highlight></codeline>
+<codeline lineno="474"><highlight class="normal"></highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>double<sp/>&gt;<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="477" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" kindref="member">isCurrentDoubleParameterPartialSet_</ref>;</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"></highlight></codeline>
+<codeline lineno="480"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>double<sp/>&gt;<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&gt;::iterator</highlight></codeline>
+<codeline lineno="481" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" kindref="member">isCurrentDoubleParameterPartialSetIterator_</ref>;</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"></highlight></codeline>
+<codeline lineno="483"><highlight class="normal"></highlight></codeline>
+<codeline lineno="484"><highlight class="normal"></highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>double<sp/>&gt;<sp/>&gt;,<sp/>Eigen::MatrixXd<sp/>&gt;</highlight></codeline>
+<codeline lineno="487" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" kindref="member">currentDoubleParameterPartials_</ref>;</highlight></codeline>
+<codeline lineno="488"><highlight class="normal"></highlight></codeline>
+<codeline lineno="490"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>double<sp/>&gt;<sp/>&gt;,</highlight></codeline>
+<codeline lineno="491" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>&gt;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" kindref="member">parameterDoublePartialFunctions_</ref>;</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"></highlight></codeline>
+<codeline lineno="494"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>double<sp/>&gt;<sp/>&gt;,</highlight></codeline>
+<codeline lineno="495" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>&gt;::iterator<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" kindref="member">parameterDoublePartialFunctionIterator_</ref>;</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"></highlight></codeline>
+<codeline lineno="497"><highlight class="normal"></highlight></codeline>
+<codeline lineno="498"><highlight class="normal"></highlight></codeline>
+<codeline lineno="500"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>Eigen::VectorXd<sp/>&gt;<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&gt;</highlight></codeline>
+<codeline lineno="501" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" kindref="member">isCurrentVectorParameterPartialSet_</ref>;</highlight></codeline>
+<codeline lineno="502"><highlight class="normal"></highlight></codeline>
+<codeline lineno="504"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>Eigen::VectorXd<sp/>&gt;<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>&gt;::iterator</highlight></codeline>
+<codeline lineno="505" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" kindref="member">isCurrentVectorParameterPartialSetIterator_</ref>;</highlight></codeline>
+<codeline lineno="506"><highlight class="normal"></highlight></codeline>
+<codeline lineno="507"><highlight class="normal"></highlight></codeline>
+<codeline lineno="508"><highlight class="normal"></highlight></codeline>
+<codeline lineno="510"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>Eigen::VectorXd<sp/>&gt;<sp/>&gt;,</highlight></codeline>
+<codeline lineno="511" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/>&gt;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" kindref="member">currentVectorParameterPartials_</ref>;</highlight></codeline>
+<codeline lineno="512"><highlight class="normal"></highlight></codeline>
+<codeline lineno="514"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>Eigen::VectorXd<sp/>&gt;<sp/>&gt;,</highlight></codeline>
+<codeline lineno="515" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/><sp/>)<sp/>&gt;<sp/>&gt;<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" kindref="member">parameterVectorPartialFunctions_</ref>;</highlight></codeline>
+<codeline lineno="516"><highlight class="normal"></highlight></codeline>
+<codeline lineno="518"><highlight class="normal"><sp/><sp/><sp/><sp/>std::map&lt;<sp/>std::shared_ptr&lt;<sp/>estimatable_parameters::EstimatableParameter&lt;<sp/>Eigen::VectorXd<sp/>&gt;<sp/>&gt;,</highlight></codeline>
+<codeline lineno="519" refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>&gt;::iterator<sp/><ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" kindref="member">parameterVectorPartialFunctionIterator_</ref>;</highlight></codeline>
+<codeline lineno="520"><highlight class="normal"></highlight></codeline>
+<codeline lineno="521"><highlight class="normal"></highlight></codeline>
+<codeline lineno="522"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>currentTime_;</highlight></codeline>
+<codeline lineno="523"><highlight class="normal"></highlight></codeline>
+<codeline lineno="524"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"></highlight></codeline>
+<codeline lineno="527"><highlight class="normal"></highlight></codeline>
+<codeline lineno="532"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>orbit_determination::StateDerivativePartial<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="533"><highlight class="normal">StateDerivativePartialsMap;</highlight></codeline>
+<codeline lineno="534"><highlight class="normal"></highlight></codeline>
+<codeline lineno="536"><highlight class="normal"></highlight></codeline>
+<codeline lineno="541"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>evaluateNegativeParameterPartialFunction(</highlight></codeline>
+<codeline lineno="542"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>parameterPartialFunction,</highlight></codeline>
+<codeline lineno="543"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd&amp;<sp/>partial<sp/>);</highlight></codeline>
+<codeline lineno="544"><highlight class="normal"></highlight></codeline>
+<codeline lineno="546"><highlight class="normal"></highlight></codeline>
+<codeline lineno="555"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>evaluateSubtractedParameterPartialFunction(</highlight></codeline>
+<codeline lineno="556"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>firstParameterPartialFunction,</highlight></codeline>
+<codeline lineno="557"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>parameterPartialFunctionToSubtract,</highlight></codeline>
+<codeline lineno="558"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd&amp;<sp/>partial<sp/>);</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"></highlight></codeline>
+<codeline lineno="561"><highlight class="normal"></highlight></codeline>
+<codeline lineno="570"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>evaluateAddedParameterPartialFunction(</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>firstParameterPartialFunction,</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>parameterPartialFunctionToAdd,</highlight></codeline>
+<codeline lineno="573"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd&amp;<sp/>partial<sp/>);</highlight></codeline>
+<codeline lineno="574"><highlight class="normal"></highlight></codeline>
+<codeline lineno="576"><highlight class="normal"></highlight></codeline>
+<codeline lineno="587"><highlight class="normal">std::pair&lt;<sp/>std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;<sp/>createMergedParameterPartialFunction(</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;&amp;<sp/>partialFunctionOfAccelerationToAdd,</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::pair&lt;<sp/>std::function&lt;<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>&gt;&amp;<sp/>partialFunctionOfAccelerationToSubtract<sp/>);</highlight></codeline>
+<codeline lineno="590"><highlight class="normal"></highlight></codeline>
+<codeline lineno="591"><highlight class="normal"></highlight></codeline>
+<codeline lineno="594"><highlight class="normal"></highlight></codeline>
+<codeline lineno="609"><highlight class="normal">std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>getCombinedCurrentDoubleParameterFunction(</highlight></codeline>
+<codeline lineno="610"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>StateDerivativePartial<sp/>&gt;<sp/>firstPartial,</highlight></codeline>
+<codeline lineno="611"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>StateDerivativePartial<sp/>&gt;<sp/>secondPartial,</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; double &gt;</ref><sp/>&gt;<sp/>parameterObject,</highlight></codeline>
+<codeline lineno="613"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>firstPartialSize,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>secondPartialSize,</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>subtractPartials<sp/>=<sp/>0<sp/>);</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"></highlight></codeline>
+<codeline lineno="618"><highlight class="normal"></highlight></codeline>
+<codeline lineno="633"><highlight class="normal">std::function&lt;<sp/>void(<sp/>Eigen::MatrixXd&amp;<sp/>)<sp/>&gt;<sp/>getCombinedCurrentVectorParameterFunction(</highlight></codeline>
+<codeline lineno="634"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>StateDerivativePartial<sp/>&gt;<sp/>firstPartial,</highlight></codeline>
+<codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>StateDerivativePartial<sp/>&gt;<sp/>secondPartial,</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</ref><sp/>&gt;<sp/>parameterObject,</highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>firstPartialSize,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>secondPartialSize,</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>subtractPartials<sp/>=<sp/>0<sp/>);</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"></highlight></codeline>
+<codeline lineno="640"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>orbit_determination</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="641"><highlight class="normal"></highlight></codeline>
+<codeline lineno="642"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="643"><highlight class="normal"></highlight></codeline>
+<codeline lineno="644"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_STATEDERIVATIVEPARTIAL_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h"/>
+  </compounddef>
+</doxygen>

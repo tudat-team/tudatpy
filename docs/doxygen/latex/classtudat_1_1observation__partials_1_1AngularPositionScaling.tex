@@ -1,0 +1,112 @@
+\hypertarget{classtudat_1_1observation__partials_1_1AngularPositionScaling}{}\doxysection{tudat\+::observation\+\_\+partials\+::Angular\+Position\+Scaling Class Reference}
+\label{classtudat_1_1observation__partials_1_1AngularPositionScaling}\index{tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}}
+
+
+Derived class for scaling three-\/dimensional position partial to angular position observable partial.  
+
+
+
+
+{\ttfamily \#include $<$angular\+Position\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Angular\+Position\+Scaling\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1AngularPositionScaling}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1AngularPositionScaling_aad5072fb29e822d4042be2fc5134670e}\label{classtudat_1_1observation__partials_1_1AngularPositionScaling_aad5072fb29e822d4042be2fc5134670e}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_aad5072fb29e822d4042be2fc5134670e}{$\sim$\+Angular\+Position\+Scaling}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_ac62b64a319dcbbc3f61752dad343b775}{update}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&link\+End\+States, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type fixed\+Link\+End, const Eigen\+::\+Vector\+Xd current\+Observation)
+\begin{DoxyCompactList}\small\item\em Update the scaling object to the current times and states. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, 2, 3 $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_a04c0378cb7b5d29b42a62ee74d863102}{get\+Scaling\+Factor}} (const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Type)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the scaling factor for specific link end. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector2d \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_a2f4e51bc54acffff6ee7856257f07ba7}{get\+Light\+Time\+Partial\+Scaling\+Factor}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the factor by which the light-\/time partials should be scaled in one-\/way observation partial. \end{DoxyCompactList}\item 
+observation\+\_\+models\+::\+Link\+End\+Type \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_a8766899fbfb278e13d9af5f7c5d13a4f}{get\+Current\+Link\+End\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the fixed link end for last computation of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_ac62b64a319dcbbc3f61752dad343b775}{update()}} function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Derived class for scaling three-\/dimensional position partial to angular position observable partial. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1AngularPositionScaling_a8766899fbfb278e13d9af5f7c5d13a4f}\label{classtudat_1_1observation__partials_1_1AngularPositionScaling_a8766899fbfb278e13d9af5f7c5d13a4f}} 
+\index{tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}!getCurrentLinkEndType@{getCurrentLinkEndType}}
+\index{getCurrentLinkEndType@{getCurrentLinkEndType}!tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}}
+\doxysubsubsection{\texorpdfstring{getCurrentLinkEndType()}{getCurrentLinkEndType()}}
+{\footnotesize\ttfamily observation\+\_\+models\+::\+Link\+End\+Type tudat\+::observation\+\_\+partials\+::\+Angular\+Position\+Scaling\+::get\+Current\+Link\+End\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the fixed link end for last computation of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_ac62b64a319dcbbc3f61752dad343b775}{update()}} function. 
+
+Fixed link end for last computation of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_ac62b64a319dcbbc3f61752dad343b775}{update()}} function. \begin{DoxyReturn}{Returns}
+Function to get the fixed link end for last computation of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_ac62b64a319dcbbc3f61752dad343b775}{update()}} function. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1AngularPositionScaling_a2f4e51bc54acffff6ee7856257f07ba7}\label{classtudat_1_1observation__partials_1_1AngularPositionScaling_a2f4e51bc54acffff6ee7856257f07ba7}} 
+\index{tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}!getLightTimePartialScalingFactor@{getLightTimePartialScalingFactor}}
+\index{getLightTimePartialScalingFactor@{getLightTimePartialScalingFactor}!tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}}
+\doxysubsubsection{\texorpdfstring{getLightTimePartialScalingFactor()}{getLightTimePartialScalingFactor()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector2d tudat\+::observation\+\_\+partials\+::\+Angular\+Position\+Scaling\+::get\+Light\+Time\+Partial\+Scaling\+Factor (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the factor by which the light-\/time partials should be scaled in one-\/way observation partial. 
+
+Function to retrieve the factor by which the light-\/time partials should be scaled in one-\/way observation partial. \begin{DoxyReturn}{Returns}
+Factor by which the light-\/time partials should be scaled in one-\/way observation partial. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1AngularPositionScaling_a04c0378cb7b5d29b42a62ee74d863102}\label{classtudat_1_1observation__partials_1_1AngularPositionScaling_a04c0378cb7b5d29b42a62ee74d863102}} 
+\index{tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}!getScalingFactor@{getScalingFactor}}
+\index{getScalingFactor@{getScalingFactor}!tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}}
+\doxysubsubsection{\texorpdfstring{getScalingFactor()}{getScalingFactor()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix$<$ double, 2, 3 $>$ tudat\+::observation\+\_\+partials\+::\+Angular\+Position\+Scaling\+::get\+Scaling\+Factor (\begin{DoxyParamCaption}\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the scaling factor for specific link end. 
+
+Function to retrieve the scaling factor for specific link end 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+Type} & Link end for which scaling factor is to be returned \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Position partial scaling factor at current link end 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1AngularPositionScaling_ac62b64a319dcbbc3f61752dad343b775}\label{classtudat_1_1observation__partials_1_1AngularPositionScaling_ac62b64a319dcbbc3f61752dad343b775}} 
+\index{tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}!update@{update}}
+\index{update@{update}!tudat::observation\_partials::AngularPositionScaling@{tudat::observation\_partials::AngularPositionScaling}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::observation\+\_\+partials\+::\+Angular\+Position\+Scaling\+::update (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{link\+End\+States,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{fixed\+Link\+End,  }\item[{const Eigen\+::\+Vector\+Xd}]{current\+Observation }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Update the scaling object to the current times and states. 
+
+Update the scaling object to the current times and states 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+States} & List of states at each link end during observation Index of vector maps to link end for a given Obsevable\+Type through get\+Link\+End\+Index function. \\
+\hline
+{\em times} & List of times at each link end during observation. \\
+\hline
+{\em fixed\+Link\+End} & Link end at which observation time is defined, i.\+e. link end for which associated time is kept constant when computing observable. \\
+\hline
+{\em current\+Observation} & Value of observation for which partial scaling is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling_a7bf12506127c4527eacae23c6a9cf469}{tudat\+::observation\+\_\+partials\+::\+Position\+Partial\+Scaling}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/angular\+Position\+Partial.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/observation\+\_\+partials/angular\+Position\+Partial.\+cpp\end{DoxyCompactItemize}

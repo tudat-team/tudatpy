@@ -1,0 +1,108 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Mee\+Costate\+Based\+Thrust\+Direction\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings}\index{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings@{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings}}
+
+
+Class for defining settings for MEE-\/costate based thrust direction guidance.  
+
+
+
+
+{\ttfamily \#include $<$thrust\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Mee\+Costate\+Based\+Thrust\+Direction\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_abe057ccfd471be087b56797c04f33017}{Mee\+Costate\+Based\+Thrust\+Direction\+Settings}} (const std\+::string \&vehicle\+Name, const std\+::string \&central\+Body\+Name, const std\+::function$<$ Eigen\+::\+Vector\+Xd(const double) $>$ costate\+Function)
+\begin{DoxyCompactList}\small\item\em Constructor with costate function. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_a0b978332063555f423af7485af2573f7}{Mee\+Costate\+Based\+Thrust\+Direction\+Settings}} (const std\+::string \&vehicle\+Name, const std\+::string \&central\+Body\+Name, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator}{interpolators\+::\+One\+Dimensional\+Interpolator}}$<$ double, Eigen\+::\+Vector\+Xd $>$ $>$ costate\+Interpolator)
+\begin{DoxyCompactList}\small\item\em Constructor with costate function. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ae2b4feb214e0da8155c871b1e92f83c9}{Mee\+Costate\+Based\+Thrust\+Direction\+Settings}} (const std\+::string \&vehicle\+Name, const std\+::string \&central\+Body\+Name, const Eigen\+::\+Vector\+Xd constant\+Costates)
+\begin{DoxyCompactList}\small\item\em Constructor with costate function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ae39999493901e2d803d86ca3138921a7}\label{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ae39999493901e2d803d86ca3138921a7}} 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ae39999493901e2d803d86ca3138921a7}{$\sim$\+Mee\+Costate\+Based\+Thrust\+Direction\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ad999113d62aaf8237b37f51e386fdd78}\label{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ad999113d62aaf8237b37f51e386fdd78}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ad999113d62aaf8237b37f51e386fdd78}{vehicle\+Name\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Name of vehicle under thrust. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_a5eb16a82e5d7078e67f7ad84c0882667}\label{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_a5eb16a82e5d7078e67f7ad84c0882667}} 
+std\+::function$<$ Eigen\+::\+Vector\+Xd(const double) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_a5eb16a82e5d7078e67f7ad84c0882667}{costate\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function returning the 5 costates as a function of time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for defining settings for MEE-\/costate based thrust direction guidance. 
+
+Class for defining settings for MEE-\/costate based thrust direction guidance. Model details can be found in Kluever (2010) and Boudestijn (2014). The MEE-\/costates are provided for the five slow elements, as a function of time. Constructors for constant costates, and costates from an interpolator, are also provided. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_abe057ccfd471be087b56797c04f33017}\label{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_abe057ccfd471be087b56797c04f33017}} 
+\index{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings@{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings}!MeeCostateBasedThrustDirectionSettings@{MeeCostateBasedThrustDirectionSettings}}
+\index{MeeCostateBasedThrustDirectionSettings@{MeeCostateBasedThrustDirectionSettings}!tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings@{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings}}
+\doxysubsubsection{\texorpdfstring{MeeCostateBasedThrustDirectionSettings()}{MeeCostateBasedThrustDirectionSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Mee\+Costate\+Based\+Thrust\+Direction\+Settings\+::\+Mee\+Costate\+Based\+Thrust\+Direction\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{vehicle\+Name,  }\item[{const std\+::string \&}]{central\+Body\+Name,  }\item[{const std\+::function$<$ Eigen\+::\+Vector\+Xd(const double) $>$}]{costate\+Function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with costate function. 
+
+Constructor with costate function 
+\begin{DoxyParams}{Parameters}
+{\em vehicle\+Name} & Name of vehicle under thrust \\
+\hline
+{\em central\+Body\+Name} & Name of central body (w.\+r.\+t. which MEE are calculated) \\
+\hline
+{\em costate\+Function} & Function returning the 5 costates as a function of time \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_a0b978332063555f423af7485af2573f7}\label{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_a0b978332063555f423af7485af2573f7}} 
+\index{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings@{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings}!MeeCostateBasedThrustDirectionSettings@{MeeCostateBasedThrustDirectionSettings}}
+\index{MeeCostateBasedThrustDirectionSettings@{MeeCostateBasedThrustDirectionSettings}!tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings@{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings}}
+\doxysubsubsection{\texorpdfstring{MeeCostateBasedThrustDirectionSettings()}{MeeCostateBasedThrustDirectionSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Mee\+Costate\+Based\+Thrust\+Direction\+Settings\+::\+Mee\+Costate\+Based\+Thrust\+Direction\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{vehicle\+Name,  }\item[{const std\+::string \&}]{central\+Body\+Name,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator}{interpolators\+::\+One\+Dimensional\+Interpolator}}$<$ double, Eigen\+::\+Vector\+Xd $>$ $>$}]{costate\+Interpolator }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with costate function. 
+
+Constructor with costate function 
+\begin{DoxyParams}{Parameters}
+{\em vehicle\+Name} & Name of vehicle under thrust \\
+\hline
+{\em central\+Body\+Name} & Name of central body (w.\+r.\+t. which MEE are calculated) \\
+\hline
+{\em costate\+Interpolator} & Interpolator returning the 5 costates as a function of time \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ae2b4feb214e0da8155c871b1e92f83c9}\label{classtudat_1_1simulation__setup_1_1MeeCostateBasedThrustDirectionSettings_ae2b4feb214e0da8155c871b1e92f83c9}} 
+\index{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings@{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings}!MeeCostateBasedThrustDirectionSettings@{MeeCostateBasedThrustDirectionSettings}}
+\index{MeeCostateBasedThrustDirectionSettings@{MeeCostateBasedThrustDirectionSettings}!tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings@{tudat::simulation\_setup::MeeCostateBasedThrustDirectionSettings}}
+\doxysubsubsection{\texorpdfstring{MeeCostateBasedThrustDirectionSettings()}{MeeCostateBasedThrustDirectionSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Mee\+Costate\+Based\+Thrust\+Direction\+Settings\+::\+Mee\+Costate\+Based\+Thrust\+Direction\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{vehicle\+Name,  }\item[{const std\+::string \&}]{central\+Body\+Name,  }\item[{const Eigen\+::\+Vector\+Xd}]{constant\+Costates }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with costate function. 
+
+Constructor with costate function 
+\begin{DoxyParams}{Parameters}
+{\em vehicle\+Name} & Name of vehicle under thrust \\
+\hline
+{\em central\+Body\+Name} & Name of central body (w.\+r.\+t. which MEE are calculated) \\
+\hline
+{\em constant\+Costates} & The 5 costates, which will be used as constants in time \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/thrust\+Settings.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,540 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1interpolators_1_1LagrangeInterpolator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::interpolators::LagrangeInterpolator</compoundname>
+    <basecompoundref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" prot="public" virt="non-virtual">tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</basecompoundref>
+    <includes refid="lagrangeInterpolator_8h" local="no">lagrangeInterpolator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+      <param>
+        <type>typename DependentVariableType</type>
+      </param>
+      <param>
+        <type>typename ScalarType</type>
+        <defval>IndependentVariableType</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1aba95a545e58edde70d506ece6dbf57ba" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::vector&lt; ScalarType &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; ScalarType &gt; &gt; tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::denominators</definition>
+        <argsstring></argsstring>
+        <name>denominators</name>
+        <briefdescription>
+<para>Pre-computed denominators to be used in interpolation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="441" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="441" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1ae21fe86b14f87aedfbad70f4114552af" prot="private" static="no" mutable="no">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::zeroEntry_</definition>
+        <argsstring></argsstring>
+        <name>zeroEntry_</name>
+        <briefdescription>
+<para>Zero entry for dependent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Zero entry for dependent variables, i.e. algebraic identity element for addition of dependent variables. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="448" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="448" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a5cf3afc4ebfc146500c0e20da92e3a76" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::numberOfStages_</definition>
+        <argsstring></argsstring>
+        <name>numberOfStages_</name>
+        <briefdescription>
+<para>Number of stages of interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of stages of interpolator, i.e. order of interpolating polynomial/number of intervals used to create interpolant. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="455" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="455" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a2fdb87582d571c7c6ee0195bbe93a01b" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::offsetEntries_</definition>
+        <argsstring></argsstring>
+        <name>offsetEntries_</name>
+        <briefdescription>
+<para>Number of entries at edges of domain where Lagrange interpolation is not used directly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of entries at edges of domain where Lagrange interpolation is not used directly. <simplesect kind="see"><para>initializeBoundaryInterpolators </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="462" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="462" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1ae07af8a766f6cf091a1a86dbffcd58ec" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; ScalarType &gt;</type>
+        <definition>std::vector&lt; ScalarType &gt; tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::independentVariableDifferenceCache</definition>
+        <argsstring></argsstring>
+        <name>independentVariableDifferenceCache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="464" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="464" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a6d86a31a487bfe8a61dff32c59896642" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">OneDimensionalInterpolator</ref>&lt; IndependentVariableType, DependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; OneDimensionalInterpolator &lt; IndependentVariableType, DependentVariableType &gt; &gt; tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::beginInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>beginInterpolator_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1interpolators_1_1Interpolator" kindref="compound">Interpolator</ref> to be used at beginning of domain. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="468" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="468" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a56d3d27730a2500f087fba654d2d5952" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">OneDimensionalInterpolator</ref>&lt; IndependentVariableType, DependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; OneDimensionalInterpolator &lt; IndependentVariableType, DependentVariableType &gt; &gt; tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::endInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>endInterpolator_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1interpolators_1_1Interpolator" kindref="compound">Interpolator</ref> to be used at end of domain. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="472" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="472" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1acbf5712aab794af8f7240462ce484bbe" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::numberOfIndependentValues_</definition>
+        <argsstring></argsstring>
+        <name>numberOfIndependentValues_</name>
+        <briefdescription>
+<para>Size of (in)dependent variable vector. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="475" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="475" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a4931937ef7550a38d058e5d3bf15127d" prot="private" static="no" mutable="no">
+        <type><ref refid="namespacetudat_1_1interpolators_1a465ce415c7cb7907a83c6e796b589a94" kindref="member">LagrangeInterpolatorBoundaryHandling</ref></type>
+        <definition>LagrangeInterpolatorBoundaryHandling tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::lagrangeBoundaryHandling_</definition>
+        <argsstring></argsstring>
+        <name>lagrangeBoundaryHandling_</name>
+        <briefdescription>
+<para>Method to be used for handling boundaries of the interpolation domain. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Method to be used for handling boundaries of the interpolation domain. <simplesect kind="see"><para>initializeBoundaryInterpolators </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="482" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="482" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a64395b3360f54cdef864e44003ea2dcf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::LagrangeInterpolator</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentVariables, const std::vector&lt; DependentVariableType &gt; &amp;dependentVariables, const int numberOfStages, const AvailableLookupScheme selectedLookupScheme=huntingAlgorithm, const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling=lagrange_cubic_spline_boundary_interpolation, const BoundaryInterpolationType boundaryHandling=extrapolate_at_boundary, const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;defaultExtrapolationValue=std::make_pair(IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;(), IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;()))</argsstring>
+        <name>LagrangeInterpolator</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>dependentVariables</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfStages</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+          <defval>huntingAlgorithm</defval>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a465ce415c7cb7907a83c6e796b589a94" kindref="member">LagrangeInterpolatorBoundaryHandling</ref></type>
+          <declname>lagrangeBoundaryHandling</declname>
+          <defval>lagrange_cubic_spline_boundary_interpolation</defval>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+          <defval>extrapolate_at_boundary</defval>
+        </param>
+        <param>
+          <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval>std::make_pair(<ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;(), <ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;())</defval>
+        </param>
+        <briefdescription>
+<para>Constructor from vectors of independent/dependent data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This constructor initializes the interpolator from two vectors containing the independent variables and dependent variables. A look-up scheme can be provided to override the given default. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of values of independent variables that are used, must be sorted in ascending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of values of dependent variables that are used. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfStages</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of data points that are used to calculate the interpolating polynomial (must be even). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of lookupscheme from enum. This algorithm is used to find the nearest lower data point in the independent variables when requesting interpolation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lagrangeBoundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling does something. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method, in case the independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of default values to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="83" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="83" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a2d18bfa4a62d40c8f171f9f916d2007d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::LagrangeInterpolator</definition>
+        <argsstring>(const std::map&lt; IndependentVariableType, DependentVariableType &gt; &amp;dataMap, const int numberOfStages, const AvailableLookupScheme selectedLookupScheme=huntingAlgorithm, const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling=lagrange_cubic_spline_boundary_interpolation, const BoundaryInterpolationType boundaryHandling=extrapolate_at_boundary, const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;defaultExtrapolationValue=std::make_pair(IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;(), IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;()))</argsstring>
+        <name>LagrangeInterpolator</name>
+        <param>
+          <type>const std::map&lt; IndependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>dataMap</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfStages</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+          <defval>huntingAlgorithm</defval>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a465ce415c7cb7907a83c6e796b589a94" kindref="member">LagrangeInterpolatorBoundaryHandling</ref></type>
+          <declname>lagrangeBoundaryHandling</declname>
+          <defval>lagrange_cubic_spline_boundary_interpolation</defval>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+          <defval>extrapolate_at_boundary</defval>
+        </param>
+        <param>
+          <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval>std::make_pair(<ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;(), <ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;())</defval>
+        </param>
+        <briefdescription>
+<para>Constructor from map of independent/dependent data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This constructor initializes the interpolator from a map containing independent variables as key and dependent variables as value. A look-up scheme can be provided to override the given default. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map containing independent variables as key and dependent variables as value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfStages</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of data points that are used to calculate the interpolating polynomial (must be even). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier of lookupscheme from enum. This algorithm is used to find the nearest lower data point in the independent variables when requesting interpolation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lagrangeBoundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method specific to the Lagrange interpolator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method, in case the independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of default values to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="163" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="163" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1aa41b862da7b1ec1cb6783f65ab2634d9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::~LagrangeInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>~LagrangeInterpolator</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="218" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="218" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1ada90e5c75857ef9246d582d24c74fc85" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::interpolate</definition>
+        <argsstring>(const IndependentVariableType targetIndependentVariableValue)</argsstring>
+        <name>interpolate</name>
+        <reimplements refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1756cce160465357493e18221aa49dee">interpolate</reimplements>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>targetIndependentVariableValue</declname>
+        </param>
+        <briefdescription>
+<para>Function interpolates dependent variable value at given independent variable value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function interpolates dependent variable value at given independent variable value. The polynomial centered on the requested interval is used for the interpolation. Note that the number of data points, not the values of the independent variables are used for determining the center (in case of a non-equispaced grid). If the required interpolating polynimial goes beyond the independent variable bondaries, a cubic spline with natural boundary conditions is used. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>targetIndependentVariableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable at which interpolation is to take place. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value of dependent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="235" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="235" bodyend="327"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1aef28fed6aee0899b5eac85aaf420718a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::getNumberOfStages</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfStages</name>
+        <briefdescription>
+<para>Function to retrieve the number of stages of interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the number of stages of interpolator <simplesect kind="return"><para>Number of stages of interpolator </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="334" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="334" bodyend="337"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1af0ce08635f7455a6ae70d22e3a8eddeb" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::initializeDenominators</definition>
+        <argsstring>()</argsstring>
+        <name>initializeDenominators</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function called at initialization which pre-computes the denominators of the interpolants at each interval.</para>
+<para>Function called at initialization which pre-computes the denominators of the interpolants at each interval, i.e. each interval between two subsequent independent variable values. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="349" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="349" bodyend="393"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a7be6efedf2ca5fbf0954764c1fff0c83" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;::initializeBoundaryInterpolators</definition>
+        <argsstring>(const AvailableLookupScheme selectedLookupScheme=huntingAlgorithm)</argsstring>
+        <name>initializeBoundaryInterpolators</name>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+          <defval>huntingAlgorithm</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function called at initialization which creates the interpolators used at the boundaries of the interpolation domain.</para>
+<para>Function called at initialization which creates the interpolators used at the boundaries of the interpolation domain. At the edges of the domain, there is no center interval available, so Runge&apos;s phenomenon can cause excessive interpolation errors, especially for higher order polynomials. In these regions, the interpolator applies any of a number of techniques, defined by the lagrangeBoundaryHandling_ variable. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Selected lookup scheme does something. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="406" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="406" bodyend="438"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to perform Lagrange polynomial interpolation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to perform Lagrange polynomial interpolation from a set of independent and dependent values, as well as the order of the interpolation. Note that this class is optimized for many function calls to interpolate, since the denominators for the interpolations are pre-computed for all interpolation intervals. See e.g. <ulink url="http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html">http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html</ulink> for mathematical details. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1LagrangeInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::interpolators::LagrangeInterpolator&lt; IndependentVariableType, DependentVariableType, ScalarType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1LagrangeInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" line="53" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/lagrangeInterpolator.h" bodystart="55" bodyend="484"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a6d86a31a487bfe8a61dff32c59896642" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>beginInterpolator_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a5667535e45f5768ae46dd3b7d8895434" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>boundaryHandling_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae6db7b6475e9c91eeaa00a0d3e546977" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>checkBoundaryCase</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad81400f48dbbc749680975d4ba4ae0de" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>checkInterpolationBoundary</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a0cf25b829669d7e1bede2ea4f0677bcd" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>defaultExtrapolationValue_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1aba95a545e58edde70d506ece6dbf57ba" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>denominators</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>dependentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a56d3d27730a2500f087fba654d2d5952" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>endInterpolator_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad0b73292c984422f5dd2164d3dbda3ff" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>getDependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ab6b15e16220ddf2f5896c37afb1d1e05" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>getIndependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae2f2a3c4a9838b33add5dac14f69f86f" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>getLookUpScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a149d4201dc4869276bd2961d17e5acdd" prot="public" virt="virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>getNumberOfDimensions</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1aef28fed6aee0899b5eac85aaf420718a" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>getNumberOfStages</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>independentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1ae07af8a766f6cf091a1a86dbffcd58ec" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>independentVariableDifferenceCache</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a7be6efedf2ca5fbf0954764c1fff0c83" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>initializeBoundaryInterpolators</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1af0ce08635f7455a6ae70d22e3a8eddeb" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>initializeDenominators</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1ada90e5c75857ef9246d582d24c74fc85" prot="public" virt="virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aaf340e39d13f8b31cab6887b48427918" prot="public" virt="virtual" ambiguityscope="tudat::interpolators::OneDimensionalInterpolator::"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1c2938974e40dd7b48bc6fd42cc7a1cb" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>interpolateNonConst</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a4931937ef7550a38d058e5d3bf15127d" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>lagrangeBoundaryHandling_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a64395b3360f54cdef864e44003ea2dcf" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>LagrangeInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a2d18bfa4a62d40c8f171f9f916d2007d" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>LagrangeInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1f1471fffc3f6f0b33f8ca44108e9dec" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>lookUpScheme_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1abc218f1803c7f54fad3e0e71d625c764" prot="protected" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>makeLookupScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1acbf5712aab794af8f7240462ce484bbe" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>numberOfIndependentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a5cf3afc4ebfc146500c0e20da92e3a76" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>numberOfStages_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1a2fdb87582d571c7c6ee0195bbe93a01b" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>offsetEntries_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a49ff8a3d4870f4651d576abe48654ed2" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a83cc44f27902300df59e43ad9bb04e37" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1ae21fe86b14f87aedfbad70f4114552af" prot="private" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>zeroEntry_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1Interpolator_1ac6359fc3104b07fb6cac0b3b3221cc3d" prot="public" virt="virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>~Interpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1LagrangeInterpolator_1aa41b862da7b1ec1cb6783f65ab2634d9" prot="public" virt="non-virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>~LagrangeInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad359d0d7a6f229fb9f65260cb3bd2779" prot="public" virt="virtual"><scope>tudat::interpolators::LagrangeInterpolator</scope><name>~OneDimensionalInterpolator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

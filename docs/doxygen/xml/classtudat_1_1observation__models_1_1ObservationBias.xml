@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1ObservationBias" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::observation_models::ObservationBias</compoundname>
+    <includes refid="observationBias_8h" local="no">observationBias.h</includes>
+    <templateparamlist>
+      <param>
+        <type>int</type>
+        <declname>ObservationSize</declname>
+        <defname>ObservationSize</defname>
+        <defval>1</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationBias_1a31ad7d28d9b81c4c0df65fd47e39f3ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ObservationBias&lt; ObservationSize &gt;::ObservationBias</definition>
+        <argsstring>()</argsstring>
+        <name>ObservationBias</name>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="57" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationBias_1a5e9f892808937f518b7398f6cfcd19de" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::observation_models::ObservationBias&lt; ObservationSize &gt;::~ObservationBias</definition>
+        <argsstring>()</argsstring>
+        <name>~ObservationBias</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="60" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="60" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationBias_1af90beeae19a9c220994d7410baab945d" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>Eigen::Matrix&lt; double, ObservationSize, 1 &gt;</type>
+        <definition>virtual Eigen::Matrix&lt; double, ObservationSize, 1 &gt; tudat::observation_models::ObservationBias&lt; ObservationSize &gt;::getObservationBias</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;linkEndTimes, const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates, const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;currentObservableValue=Eigen::Matrix&lt; double, ObservationSize, 1 &gt;::Constant(TUDAT_NAN))=0</argsstring>
+        <name>getObservationBias</name>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1ConstantRelativeObservationBias_1af8ed73c6a56c2bd11248cff55f8d5734">getObservationBias</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1ab502439d9b4116f4be9fddb64bb8794f">getObservationBias</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1a118c219c5cc5e34fd5c976dc24f4b827">getObservationBias</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1ConstantArcWiseObservationBias_1a7b048857683e359e525615adfe61f9df">getObservationBias</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1ConstantRelativeArcWiseObservationBias_1a873a66fb31ddc330a31daac6c6d407a5">getObservationBias</reimplementedby>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;</type>
+          <declname>currentObservableValue</declname>
+          <defval>Eigen::Matrix&lt; double, ObservationSize, 1 &gt;::Constant(TUDAT_NAN)</defval>
+        </param>
+        <briefdescription>
+<para>Pure virtual function to retrieve the observation bias. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to retrieve the observation bias as a function of the observation times and states (which are typically computed by the <ref refid="classtudat_1_1observation__models_1_1ObservationModel" kindref="compound">ObservationModel</ref>) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unbiased value of the observable (default NAN for compatibility purposes with original version of code). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Observation bias at given times and states. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="72" column="27"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationBias_1adaa0258566dfe1e9438afbcfb57ccddb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::observation_models::ObservationBias&lt; ObservationSize &gt;::getObservationSize</definition>
+        <argsstring>()</argsstring>
+        <name>getObservationSize</name>
+        <briefdescription>
+<para>Function to return the size of the associated observation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the size of the associated observation <simplesect kind="return"><para>Size of the associated observation </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="83" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="83" bodyend="86"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class (non-functional) for describing observation biases. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class (non-functional) for describing observation biases. In this context, an observation bias denotes any deviation from the ideal observable between two reference points. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="52" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="53" bodyend="87"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1af90beeae19a9c220994d7410baab945d" prot="public" virt="pure-virtual"><scope>tudat::observation_models::ObservationBias</scope><name>getObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1adaa0258566dfe1e9438afbcfb57ccddb" prot="public" virt="non-virtual"><scope>tudat::observation_models::ObservationBias</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1a31ad7d28d9b81c4c0df65fd47e39f3ea" prot="public" virt="non-virtual"><scope>tudat::observation_models::ObservationBias</scope><name>ObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1a5e9f892808937f518b7398f6cfcd19de" prot="public" virt="virtual"><scope>tudat::observation_models::ObservationBias</scope><name>~ObservationBias</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

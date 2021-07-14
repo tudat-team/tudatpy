@@ -1,0 +1,388 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="spiceRotationalEphemeris_8cpp" kind="file" language="C++">
+    <compoundname>spiceRotationalEphemeris.cpp</compoundname>
+    <includes local="no">stdexcept</includes>
+    <includes refid="physicalConstants_8h" local="yes">tudat/astro/basic_astro/physicalConstants.h</includes>
+    <includes refid="timeConversions_8h" local="yes">tudat/astro/basic_astro/timeConversions.h</includes>
+    <includes refid="spiceInterface_8h" local="yes">tudat/interface/spice/spiceInterface.h</includes>
+    <includes refid="spiceRotationalEphemeris_8h" local="yes">tudat/interface/spice/spiceRotationalEphemeris.h</includes>
+    <incdepgraph>
+      <node id="31">
+        <label>tudat/config.hpp</label>
+      </node>
+      <node id="22">
+        <label>tudat/io/streamFilters.h</label>
+        <link refid="streamFilters_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>system_error</label>
+      </node>
+      <node id="37">
+        <label>functional</label>
+      </node>
+      <node id="18">
+        <label>iomanip</label>
+      </node>
+      <node id="7">
+        <label>limits</label>
+      </node>
+      <node id="10">
+        <label>tudat/interface/spice/spiceInterface.h</label>
+        <link refid="spiceInterface_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>boost/iostreams/device/back_inserter.hpp</label>
+      </node>
+      <node id="28">
+        <label>stdlib.h</label>
+      </node>
+      <node id="9">
+        <label>boost/date_time/gregorian/gregorian.hpp</label>
+      </node>
+      <node id="14">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="34">
+        <label>tudat/astro/ephemerides/tleEphemeris.h</label>
+        <link refid="tleEphemeris_8h_source"/>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>cmath</label>
+      </node>
+      <node id="2">
+        <label>stdexcept</label>
+      </node>
+      <node id="13">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="45">
+        <label>tudat/astro/ephemerides/rotationalEphemeris.h</label>
+        <link refid="rotationalEphemeris_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>string</label>
+      </node>
+      <node id="16">
+        <label>tudat/io/basicInputOutput.h</label>
+        <link refid="basicInputOutput_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>map</label>
+      </node>
+      <node id="25">
+        <label>boost/iostreams/stream_buffer.hpp</label>
+      </node>
+      <node id="17">
+        <label>fstream</label>
+      </node>
+      <node id="42">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="30">
+        <label>tudat/resource/resource.h</label>
+      </node>
+      <node id="38">
+        <label>tudat/math/basic/linearAlgebra.h</label>
+        <link refid="linearAlgebra_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceRotationalEphemeris.cpp</label>
+        <link refid="spiceRotationalEphemeris_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>tudat/astro/ephemerides/ephemeris.h</label>
+        <link refid="astro_2ephemerides_2ephemeris_8h_source"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat/astro/basic_astro/timeConversions.h</label>
+        <link refid="timeConversions_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>vector</label>
+      </node>
+      <node id="23">
+        <label>boost/iostreams/filter/line.hpp</label>
+      </node>
+      <node id="32">
+        <label>cspice/SpiceUsr.h</label>
+      </node>
+      <node id="27">
+        <label>tudat/paths.hpp</label>
+        <link refid="paths_8hpp_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>boost/filesystem.hpp</label>
+      </node>
+      <node id="33">
+        <label>cspice/SpiceZfc.h</label>
+      </node>
+      <node id="40">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>iostream</label>
+      </node>
+      <node id="44">
+        <label>tudat/interface/spice/spiceRotationalEphemeris.h</label>
+        <link refid="spiceRotationalEphemeris_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>boost/regex.hpp</label>
+      </node>
+      <node id="39">
+        <label>Eigen/SVD</label>
+      </node>
+      <node id="6">
+        <label>complex</label>
+      </node>
+      <node id="41">
+        <label>algorithm</label>
+      </node>
+      <node id="36">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1ephemerides">tudat::ephemerides</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdexcept&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/physicalConstants.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/timeConversions.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/interface/spice/spiceInterface.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/interface/spice/spiceRotationalEphemeris.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="18"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">ephemerides</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal">Eigen::Quaterniond<sp/><ref refid="classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_1ab3ac9ee4633524110222c0afb4c27bb4" kindref="member">SpiceRotationalEphemeris::getRotationToBaseFrame</ref>(</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>secondsSinceEpoch<sp/>)</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Get<sp/>rotational<sp/>quaternion<sp/>from<sp/>spice<sp/>wrapper<sp/>function</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>spice_interface::computeRotationQuaternionBetweenFrames(</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris_1a113566bbf2ec56dc623466c98dab0454" kindref="member">targetFrameOrientation_</ref>,<sp/><ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris_1ae8cb8bf513d5c4088386333b7e071677" kindref="member">baseFrameOrientation_</ref>,<sp/>secondsSinceEpoch<sp/>+<sp/>referenceDayOffSet_<sp/>);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">Eigen::Matrix3d<sp/><ref refid="classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_1ab99c74c3949251affc7829f28cd39671" kindref="member">SpiceRotationalEphemeris::getDerivativeOfRotationToBaseFrame</ref>(</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>secondsSinceEpoch<sp/>)</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Get<sp/>rotation<sp/>matrix<sp/>derivative<sp/>from<sp/>spice<sp/>wrapper<sp/>function</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>spice_interface::computeRotationMatrixDerivativeBetweenFrames(</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris_1a113566bbf2ec56dc623466c98dab0454" kindref="member">targetFrameOrientation_</ref>,<sp/><ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris_1ae8cb8bf513d5c4088386333b7e071677" kindref="member">baseFrameOrientation_</ref>,<sp/>secondsSinceEpoch<sp/>+<sp/>referenceDayOffSet_<sp/>);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1ephemerides_1_1SpiceRotationalEphemeris_1af7a669375d65d14ac82b54e3a4b84ae1" kindref="member">SpiceRotationalEphemeris::getFullRotationalQuantitiesToTargetFrame</ref>(</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::Quaterniond&amp;<sp/>currentRotationToLocalFrame,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::Matrix3d&amp;<sp/>currentRotationToLocalFrameDerivative,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::Vector3d&amp;<sp/>currentAngularVelocityVectorInGlobalFrame,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>secondsSinceEpoch)</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>rotation<sp/>(and<sp/>its<sp/>time<sp/>derivative)<sp/>directly<sp/>from<sp/>spice.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>Eigen::Quaterniond,<sp/>Eigen::Matrix3d<sp/>&gt;<sp/>fullRotation<sp/>=</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spice_interface::computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris_1ae8cb8bf513d5c4088386333b7e071677" kindref="member">baseFrameOrientation_</ref>,<sp/><ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris_1a113566bbf2ec56dc623466c98dab0454" kindref="member">targetFrameOrientation_</ref>,<sp/>secondsSinceEpoch<sp/>+<sp/>referenceDayOffSet_<sp/>);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>currentRotationToLocalFrame<sp/>=<sp/>fullRotation.first;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>currentRotationToLocalFrameDerivative<sp/>=<sp/>fullRotation.second;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>angular<sp/>velocity<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>currentAngularVelocityVectorInGlobalFrame<sp/>=<sp/>getRotationalVelocityVectorInBaseFrameFromMatrices(</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::Matrix3d(<sp/>currentRotationToLocalFrame<sp/>),<sp/>currentRotationToLocalFrameDerivative.transpose(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>ephemerides</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice/spiceRotationalEphemeris.cpp"/>
+  </compounddef>
+</doxygen>

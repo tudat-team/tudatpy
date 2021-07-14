@@ -1,0 +1,252 @@
+\hypertarget{classtudat_1_1input__output_1_1MissileDatcomData}{}\doxysection{tudat\+::input\+\_\+output\+::Missile\+Datcom\+Data Class Reference}
+\label{classtudat_1_1input__output_1_1MissileDatcomData}\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+
+
+Class which converts and contains the Missile Datcom output aerodynamic data.  
+
+
+
+
+{\ttfamily \#include $<$missile\+Datcom\+Data.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a59f58b6a3d2b3eaf142d8dae05aff805}{Static\+Coefficient\+Names}} \{ \newline
+{\bfseries cn} = 0
+, {\bfseries cm} = 1
+, {\bfseries ca} = 2
+, {\bfseries cy} = 3
+, \newline
+{\bfseries cln} = 4
+, {\bfseries cll} = 5
+, {\bfseries cna} = 6
+, {\bfseries cma} = 7
+, \newline
+{\bfseries cyb} = 8
+, {\bfseries cnb} = 9
+, {\bfseries clb} = 10
+ \}
+\begin{DoxyCompactList}\small\item\em Enum of static coefficients. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a93b8790c7c2d450f94483c2f67dace70}{Dynamic\+Coefficient\+Names}} \{ \newline
+{\bfseries cnq} = 0
+, {\bfseries cmq} = 1
+, {\bfseries caq} = 2
+, {\bfseries cyq} = 3
+, \newline
+{\bfseries clnq} = 4
+, {\bfseries cllq} = 5
+, {\bfseries cnr} = 6
+, {\bfseries cmr} = 7
+, \newline
+{\bfseries car} = 8
+, {\bfseries cyr} = 9
+, {\bfseries clnr} = 10
+, {\bfseries cllr} = 11
+, \newline
+{\bfseries cnp} = 12
+, {\bfseries cmp} = 13
+, {\bfseries cap} = 14
+, {\bfseries cyp} = 15
+, \newline
+{\bfseries clnp} = 16
+, {\bfseries cllp} = 17
+, {\bfseries cnad} = 18
+, {\bfseries cmad} = 19
+ \}
+\begin{DoxyCompactList}\small\item\em Enum of dynamic coefficients. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a7818405c9b4f8bdb3302948dcb64513b}{Missile\+Datcom\+Data}} (const std\+::string \&file\+Name\+And\+Path)
+\begin{DoxyCompactList}\small\item\em Constructor that reads and processes Missile Datcom output. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_ac415b9399cc895a2a010826b9432a753}{get\+Static\+Coefficient}} (int mach\+Index, int angle\+Of\+Attack\+Index, \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a59f58b6a3d2b3eaf142d8dae05aff805}{Static\+Coefficient\+Names}} coefficient\+Index)
+\begin{DoxyCompactList}\small\item\em Access the static coefficient database. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a415898448aceb412dcb867b79f1eda19}{get\+Dynamic\+Coefficient}} (int mach\+Index, int angle\+Of\+Attack\+Index, \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a93b8790c7c2d450f94483c2f67dace70}{Dynamic\+Coefficient\+Names}} coefficient\+Index)
+\begin{DoxyCompactList}\small\item\em Access the dynamic coefficient database. \end{DoxyCompactList}\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a78afcae23a03f68ab848e9b4f6a67630}{get\+Angle\+Of\+Attacks}} ()
+\begin{DoxyCompactList}\small\item\em Retrieve the angle of attacks. \end{DoxyCompactList}\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_af194cf80d0da6f96f5e6c587f206e8b1}{get\+Mach\+Numbers}} ()
+\begin{DoxyCompactList}\small\item\em Retrieve the Mach numbers. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_afa1d01855c36699eb9e39ab8f883f781}{get\+Side\+Slip\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Retrieve the side slip angle. \end{DoxyCompactList}\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a65edc8773e36bdbe06aa3b2ec54e0d8c}{get\+Reynolds\+Numbers}} ()
+\begin{DoxyCompactList}\small\item\em Retrieve the Reynolds Numbers. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_adcc70a61395544f5fde79dd17e40e8c0}{write\+Coefficients\+To\+File}} (const std\+::string \&file\+Name\+Base, const int base\+Precision=std\+::numeric\+\_\+limits$<$ double $>$\+::digits10, const int exponent\+Width=2)
+\begin{DoxyCompactList}\small\item\em Write the database to space-\/separated files. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class which converts and contains the Missile Datcom output aerodynamic data. 
+
+Class which converts and contains the Missile Datcom output aerodynamic data It is initialized with the data from the \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomReader}{Missile\+Datcom\+Reader}}. It first converts the vector obtained from the for004.\+dat file to usable data. Subsequently, coefficients can be retrieved per type. 
+
+\doxysubsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_a93b8790c7c2d450f94483c2f67dace70}\label{classtudat_1_1input__output_1_1MissileDatcomData_a93b8790c7c2d450f94483c2f67dace70}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!DynamicCoefficientNames@{DynamicCoefficientNames}}
+\index{DynamicCoefficientNames@{DynamicCoefficientNames}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{DynamicCoefficientNames}{DynamicCoefficientNames}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a93b8790c7c2d450f94483c2f67dace70}{tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::\+Dynamic\+Coefficient\+Names}}}
+
+
+
+Enum of dynamic coefficients. 
+
+Enum of dynamic coefficients available via Missile Datcom output. See documentation for details. \mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_a59f58b6a3d2b3eaf142d8dae05aff805}\label{classtudat_1_1input__output_1_1MissileDatcomData_a59f58b6a3d2b3eaf142d8dae05aff805}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!StaticCoefficientNames@{StaticCoefficientNames}}
+\index{StaticCoefficientNames@{StaticCoefficientNames}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{StaticCoefficientNames}{StaticCoefficientNames}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a59f58b6a3d2b3eaf142d8dae05aff805}{tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::\+Static\+Coefficient\+Names}}}
+
+
+
+Enum of static coefficients. 
+
+Enum of static coefficients available via Missile Datcom output. See documentation for details. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_a7818405c9b4f8bdb3302948dcb64513b}\label{classtudat_1_1input__output_1_1MissileDatcomData_a7818405c9b4f8bdb3302948dcb64513b}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!MissileDatcomData@{MissileDatcomData}}
+\index{MissileDatcomData@{MissileDatcomData}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{MissileDatcomData()}{MissileDatcomData()}}
+{\footnotesize\ttfamily tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::\+Missile\+Datcom\+Data (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{file\+Name\+And\+Path }\end{DoxyParamCaption})}
+
+
+
+Constructor that reads and processes Missile Datcom output. 
+
+Constructor. Reads Missile Datcom file and sets class member variables from file contents. 
+\begin{DoxyParams}{Parameters}
+{\em file\+Name\+And\+Path} & Name of the file containg missile datcom output, including the relative path wrt Tudat root path. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_a78afcae23a03f68ab848e9b4f6a67630}\label{classtudat_1_1input__output_1_1MissileDatcomData_a78afcae23a03f68ab848e9b4f6a67630}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!getAngleOfAttacks@{getAngleOfAttacks}}
+\index{getAngleOfAttacks@{getAngleOfAttacks}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{getAngleOfAttacks()}{getAngleOfAttacks()}}
+{\footnotesize\ttfamily std\+::vector$<$ double $>$ tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::get\+Angle\+Of\+Attacks (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieve the angle of attacks. 
+
+Retrieve the vector with the different angle of attacks. \begin{DoxyReturn}{Returns}
+The vector with the different angles of attack. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_a415898448aceb412dcb867b79f1eda19}\label{classtudat_1_1input__output_1_1MissileDatcomData_a415898448aceb412dcb867b79f1eda19}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!getDynamicCoefficient@{getDynamicCoefficient}}
+\index{getDynamicCoefficient@{getDynamicCoefficient}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{getDynamicCoefficient()}{getDynamicCoefficient()}}
+{\footnotesize\ttfamily double tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::get\+Dynamic\+Coefficient (\begin{DoxyParamCaption}\item[{int}]{mach\+Index,  }\item[{int}]{angle\+Of\+Attack\+Index,  }\item[{\mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a93b8790c7c2d450f94483c2f67dace70}{Dynamic\+Coefficient\+Names}}}]{coefficient\+Index }\end{DoxyParamCaption})}
+
+
+
+Access the dynamic coefficient database. 
+
+Function to access the dynamic coefficient database.
+
+Accesses the dynamic coefficient database. 
+\begin{DoxyParams}{Parameters}
+{\em mach\+Index} & The machnumber index at which the coefficient is accessed. \\
+\hline
+{\em angle\+Of\+Attack\+Index} & The angle of attack index at which the coefficient is accessed. \\
+\hline
+{\em coefficient\+Index} & The index of the coefficient. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Dynamic coefficient value. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_af194cf80d0da6f96f5e6c587f206e8b1}\label{classtudat_1_1input__output_1_1MissileDatcomData_af194cf80d0da6f96f5e6c587f206e8b1}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!getMachNumbers@{getMachNumbers}}
+\index{getMachNumbers@{getMachNumbers}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{getMachNumbers()}{getMachNumbers()}}
+{\footnotesize\ttfamily std\+::vector$<$ double $>$ tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::get\+Mach\+Numbers (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieve the Mach numbers. 
+
+Retrieve the vector with the different angle of attacks. \begin{DoxyReturn}{Returns}
+The vector with the different angles of attack. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_a65edc8773e36bdbe06aa3b2ec54e0d8c}\label{classtudat_1_1input__output_1_1MissileDatcomData_a65edc8773e36bdbe06aa3b2ec54e0d8c}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!getReynoldsNumbers@{getReynoldsNumbers}}
+\index{getReynoldsNumbers@{getReynoldsNumbers}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{getReynoldsNumbers()}{getReynoldsNumbers()}}
+{\footnotesize\ttfamily std\+::vector$<$ double $>$ tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::get\+Reynolds\+Numbers (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieve the Reynolds Numbers. 
+
+Retrieve the vector with the different Reynolds Numbers. \begin{DoxyReturn}{Returns}
+The vector with the different Reynolds Numbers. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_afa1d01855c36699eb9e39ab8f883f781}\label{classtudat_1_1input__output_1_1MissileDatcomData_afa1d01855c36699eb9e39ab8f883f781}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!getSideSlipAngle@{getSideSlipAngle}}
+\index{getSideSlipAngle@{getSideSlipAngle}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{getSideSlipAngle()}{getSideSlipAngle()}}
+{\footnotesize\ttfamily double tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::get\+Side\+Slip\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieve the side slip angle. 
+
+Retrieve the vector with the different side slip angles. \begin{DoxyReturn}{Returns}
+The vector with the different side slip angles. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_ac415b9399cc895a2a010826b9432a753}\label{classtudat_1_1input__output_1_1MissileDatcomData_ac415b9399cc895a2a010826b9432a753}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!getStaticCoefficient@{getStaticCoefficient}}
+\index{getStaticCoefficient@{getStaticCoefficient}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{getStaticCoefficient()}{getStaticCoefficient()}}
+{\footnotesize\ttfamily double tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::get\+Static\+Coefficient (\begin{DoxyParamCaption}\item[{int}]{mach\+Index,  }\item[{int}]{angle\+Of\+Attack\+Index,  }\item[{\mbox{\hyperlink{classtudat_1_1input__output_1_1MissileDatcomData_a59f58b6a3d2b3eaf142d8dae05aff805}{Static\+Coefficient\+Names}}}]{coefficient\+Index }\end{DoxyParamCaption})}
+
+
+
+Access the static coefficient database. 
+
+Function to access the static coefficient database.
+
+Accesses the static coefficient database. 
+\begin{DoxyParams}{Parameters}
+{\em mach\+Index} & The machnumber index at which the coefficient is accessed. \\
+\hline
+{\em angle\+Of\+Attack\+Index} & The angle of attack index at which the coefficient is accessed. \\
+\hline
+{\em coefficient\+Index} & The index of the coefficient. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The value of the coefficient. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1input__output_1_1MissileDatcomData_adcc70a61395544f5fde79dd17e40e8c0}\label{classtudat_1_1input__output_1_1MissileDatcomData_adcc70a61395544f5fde79dd17e40e8c0}} 
+\index{tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}!writeCoefficientsToFile@{writeCoefficientsToFile}}
+\index{writeCoefficientsToFile@{writeCoefficientsToFile}!tudat::input\_output::MissileDatcomData@{tudat::input\_output::MissileDatcomData}}
+\doxysubsubsection{\texorpdfstring{writeCoefficientsToFile()}{writeCoefficientsToFile()}}
+{\footnotesize\ttfamily void tudat\+::input\+\_\+output\+::\+Missile\+Datcom\+Data\+::write\+Coefficients\+To\+File (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{file\+Name\+Base,  }\item[{const int}]{base\+Precision = {\ttfamily std\+:\+:numeric\+\_\+limits$<$~double~$>$\+:\+:digits10},  }\item[{const int}]{exponent\+Width = {\ttfamily 2} }\end{DoxyParamCaption})}
+
+
+
+Write the database to space-\/separated files. 
+
+Write the database to CSV files.
+
+Writes the stored data to a file. Per angle of attack a txt file is generated. 
+\begin{DoxyParams}{Parameters}
+{\em file\+Name\+Base} & Base for the output filename. \\
+\hline
+{\em base\+Precision} & Number of digits of precision of the base of the output floating-\/point numbers in scientific notation. \\
+\hline
+{\em exponent\+Width} & Number of digits used to represent the exponent of the output floating-\/point numbers in scientific notation. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/io/missile\+Datcom\+Data.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/io/missile\+Datcom\+Data.\+cpp\end{DoxyCompactItemize}

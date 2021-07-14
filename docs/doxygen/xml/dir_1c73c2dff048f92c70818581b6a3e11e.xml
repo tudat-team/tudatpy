@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_1c73c2dff048f92c70818581b6a3e11e" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics</compoundname>
+    <innerfile refid="aerodynamicAcceleration_8h">aerodynamicAcceleration.h</innerfile>
+    <innerfile refid="aerodynamicCoefficientGenerator_8h">aerodynamicCoefficientGenerator.h</innerfile>
+    <innerfile refid="aerodynamicCoefficientInterface_8h">aerodynamicCoefficientInterface.h</innerfile>
+    <innerfile refid="aerodynamicForce_8h">aerodynamicForce.h</innerfile>
+    <innerfile refid="aerodynamicGuidance_8h">aerodynamicGuidance.h</innerfile>
+    <innerfile refid="astro_2aerodynamics_2aerodynamics_8h">aerodynamics.h</innerfile>
+    <innerfile refid="aerodynamicTorque_8h">aerodynamicTorque.h</innerfile>
+    <innerfile refid="astro_2aerodynamics_2applicationOutput_8h">applicationOutput.h</innerfile>
+    <innerfile refid="atmosphereModel_8h">atmosphereModel.h</innerfile>
+    <innerfile refid="controlSurfaceAerodynamicCoefficientInterface_8h">controlSurfaceAerodynamicCoefficientInterface.h</innerfile>
+    <innerfile refid="customAerodynamicCoefficientInterface_8h">customAerodynamicCoefficientInterface.h</innerfile>
+    <innerfile refid="customConstantTemperatureAtmosphere_8h">customConstantTemperatureAtmosphere.h</innerfile>
+    <innerfile refid="equilibriumWallTemperature_8h">equilibriumWallTemperature.h</innerfile>
+    <innerfile refid="exponentialAtmosphere_8h">exponentialAtmosphere.h</innerfile>
+    <innerfile refid="flightConditions_8h">flightConditions.h</innerfile>
+    <innerfile refid="hypersonicLocalInclinationAnalysis_8h">hypersonicLocalInclinationAnalysis.h</innerfile>
+    <innerfile refid="nrlmsise00Atmosphere_8h">nrlmsise00Atmosphere.h</innerfile>
+    <innerfile refid="nrlmsise00InputFunctions_8h">nrlmsise00InputFunctions.h</innerfile>
+    <innerfile refid="standardAtmosphere_8h">standardAtmosphere.h</innerfile>
+    <innerfile refid="tabulatedAtmosphere_8h">tabulatedAtmosphere.h</innerfile>
+    <innerfile refid="testApolloCapsuleCoefficients_8h">testApolloCapsuleCoefficients.h</innerfile>
+    <innerfile refid="trimOrientation_8h">trimOrientation.h</innerfile>
+    <innerfile refid="windModel_8h">windModel.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/"/>
+  </compounddef>
+</doxygen>

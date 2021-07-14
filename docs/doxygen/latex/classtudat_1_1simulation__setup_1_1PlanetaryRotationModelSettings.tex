@@ -1,0 +1,92 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Planetary\+Rotation\+Model\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings}\index{tudat::simulation\_setup::PlanetaryRotationModelSettings@{tudat::simulation\_setup::PlanetaryRotationModelSettings}}
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Planetary\+Rotation\+Model\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a7e716d28c60180e9f8d6f0b0c96b5a2b}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a7e716d28c60180e9f8d6f0b0c96b5a2b}} 
+{\bfseries Planetary\+Rotation\+Model\+Settings} (const double angleN, const double angleJ, const double angle\+Psi\+At\+Epoch, const double angle\+Psi\+Rate\+At\+Epoch, const double angle\+IAt\+Epoch, const double angle\+IRate\+At\+Epoch, const double angle\+Phi\+At\+Epoch, const double angle\+Phi\+Rate\+At\+Epoch, const double core\+Factor, const double free\+Core\+Nutation\+Rate, const std\+::string original\+Frame, const std\+::string target\+Frame, const std\+::string central\+Body, const double initial\+Time, const double final\+Time, const double time\+Step=150.\+0, const std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ mean\+Motion\+Direct\+Nutation\+Corrections=(std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$()), std\+::vector$<$ std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ $>$ mean\+Motion\+Time\+Dependent\+Phase\+Nutation\+Corrections=(std\+::vector$<$ std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ $>$()), std\+::vector$<$ std\+::function$<$ double(const double) $>$ $>$ time\+Dependent\+Phase\+Correction\+Functions=(std\+::vector$<$ std\+::function$<$ double(const double) $>$ $>$()), const std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ rotation\+Rate\+Corrections=(std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$()), const std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ x\+Polar\+Motion\+Coefficients=(std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$()), const std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ y\+Polar\+Motion\+Coefficients=(std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$()))
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_aefc54bf52fd29f53f980c75c89ac09bb}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_aefc54bf52fd29f53f980c75c89ac09bb}} 
+void {\bfseries update\+Angles\+At\+Epoch} (Eigen\+::\+Vector3d angles\+At\+Epoch)
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_afa0e555de1af4a370df2f8954fd4f06e}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_afa0e555de1af4a370df2f8954fd4f06e}} 
+double {\bfseries get\+AngleN} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a91a32b3c75674f10b9caca028564b6df}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a91a32b3c75674f10b9caca028564b6df}} 
+double {\bfseries get\+AngleJ} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a9dabded2eefd6180668a477d16fa85db}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a9dabded2eefd6180668a477d16fa85db}} 
+double {\bfseries get\+Angle\+Psi\+At\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a29665d7dc5dfe684c03d15b7517c65ba}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a29665d7dc5dfe684c03d15b7517c65ba}} 
+double {\bfseries get\+Angle\+Psi\+Rate\+At\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a8cd00a87750b9757de3b0a3e6ed39553}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a8cd00a87750b9757de3b0a3e6ed39553}} 
+double {\bfseries get\+Angle\+IAt\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_ada2a8c073667cec7b2d5f910049e91d3}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_ada2a8c073667cec7b2d5f910049e91d3}} 
+double {\bfseries get\+Angle\+IRate\+At\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_af8a0d7327f31500485fe694b4e032498}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_af8a0d7327f31500485fe694b4e032498}} 
+double {\bfseries get\+Angle\+Phi\+At\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a155fa7f4125ed88405c0ebcc42e2f15e}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a155fa7f4125ed88405c0ebcc42e2f15e}} 
+double {\bfseries get\+Angle\+Phi\+Rate\+At\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a63b41ca8556bac7e678c90ec3fd9eabc}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a63b41ca8556bac7e678c90ec3fd9eabc}} 
+double {\bfseries get\+Core\+Factor} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a975f8c52b90c700f753b3b81e9e29a56}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a975f8c52b90c700f753b3b81e9e29a56}} 
+double {\bfseries get\+Free\+Core\+Nutation\+Rate} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a65f33d439593b145735bba6756f5ab90}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a65f33d439593b145735bba6756f5ab90}} 
+std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ {\bfseries get\+Mean\+Motion\+Direct\+Nutation\+Corrections} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a2634a49df3960109e800d7baee82d87f}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a2634a49df3960109e800d7baee82d87f}} 
+std\+::vector$<$ std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ $>$ {\bfseries get\+Mean\+Motion\+Time\+Dependent\+Phase\+Nutation\+Corrections} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a9731c40944ed98180f20d14b6bb49437}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a9731c40944ed98180f20d14b6bb49437}} 
+std\+::vector$<$ std\+::function$<$ double(const double) $>$ $>$ {\bfseries get\+Time\+Dependent\+Phase\+Correction\+Functions} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a87b6d2fa4d53f756019067cf0727392e}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a87b6d2fa4d53f756019067cf0727392e}} 
+std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ {\bfseries get\+Rotation\+Rate\+Corrections} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_ab32df9eaf5879e3f18f69fbc2d9112f6}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_ab32df9eaf5879e3f18f69fbc2d9112f6}} 
+std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ {\bfseries getx\+Polar\+Motion\+Coefficients} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_aea5fcd8af11bd40efa85c90e9ec00fa6}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_aea5fcd8af11bd40efa85c90e9ec00fa6}} 
+std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ {\bfseries gety\+Polar\+Motion\+Coefficients} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a8817bf391804208a481dc243b8eff2eb}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a8817bf391804208a481dc243b8eff2eb}} 
+double {\bfseries get\+Initial\+Time} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a9beb8e26f610851c4fed8dcc060f7037}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a9beb8e26f610851c4fed8dcc060f7037}} 
+double {\bfseries get\+Final\+Time} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a1d10bb6d5a35093422e0994a61d5205c}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a1d10bb6d5a35093422e0994a61d5205c}} 
+double {\bfseries get\+Time\+Step} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_ab00940d391f919825ac942510e45d807}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_ab00940d391f919825ac942510e45d807}} 
+std\+::string {\bfseries get\+Central\+Body} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_af4f6a4cd96efe0e1540ed711405664bd}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_af4f6a4cd96efe0e1540ed711405664bd}} 
+void {\bfseries set\+Period\+Terms\+To\+Zero} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a5350edeac5139f35713c9719ed130032}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a5350edeac5139f35713c9719ed130032}} 
+void {\bfseries set\+Period\+Terms} (std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ mean\+Motion\+Direct\+Nutation\+Corrections, std\+::vector$<$ std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ $>$ mean\+Motion\+Time\+Dependent\+Phase\+Nutation\+Correction, std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ rotation\+Rate\+Corrections, std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ x\+Polar\+Motion\+Coefficients, std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ y\+Polar\+Motion\+Coefficients)
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a366ed29e147695d98386fd6e1aceb075}\label{classtudat_1_1simulation__setup_1_1PlanetaryRotationModelSettings_a366ed29e147695d98386fd6e1aceb075}} 
+void {\bfseries set\+Core\+Factor\+And\+Free\+Core\+Nutation} (double core\+Factor, double free\+Core\+Nutation\+Rate)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Rotation\+Model.\+h\end{DoxyCompactItemize}

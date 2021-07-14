@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_c63d9fe1099b1aecc95b977daedc9ab4" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/interpolators</compoundname>
+    <innerfile refid="cubicSplineInterpolator_8cpp">cubicSplineInterpolator.cpp</innerfile>
+    <innerfile refid="interpolator_8cpp">interpolator.cpp</innerfile>
+    <innerfile refid="lagrangeInterpolator_8cpp">lagrangeInterpolator.cpp</innerfile>
+    <innerfile refid="linearInterpolator_8cpp">linearInterpolator.cpp</innerfile>
+    <innerfile refid="multiLinearInterpolator_8cpp">multiLinearInterpolator.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/interpolators/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,222 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Spherical\+Harmonics\+Gravity\+Field\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings}\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+
+
+{\ttfamily \#include $<$create\+Gravity\+Field.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Spherical\+Harmonics\+Gravity\+Field\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_af2f87c838c2d1b8e6b785d0fe46fe2ed}{Spherical\+Harmonics\+Gravity\+Field\+Settings}} (const double gravitational\+Parameter, const double reference\+Radius, const Eigen\+::\+Matrix\+Xd cosine\+Coefficients, const Eigen\+::\+Matrix\+Xd sine\+Coefficients, const std\+::string \&associated\+Reference\+Frame)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_aef2f0df360b63ce50be3e8c8187ac1de}{get\+Gravitational\+Parameter}} ()
+\begin{DoxyCompactList}\small\item\em Function to return gravitational parameter for gravity field. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a4d593d10d3ccf40cc390d23f21888d67}{reset\+Gravitational\+Parameter}} (const double gravitational\+Parameter)
+\begin{DoxyCompactList}\small\item\em Function to reset gravitational parameter for gravity field. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a06e6e0ca92a788a758717fb9326586ff}{get\+Reference\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Function to return reference radius of spherical harmonic field expansion. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a87662d525e51f93282a4f4a0f455c744}{get\+Cosine\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Function to return cosine spherical harmonic coefficients (geodesy normalized). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_affab93e36ccc7cbdaf4633b16b1c08a2}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_affab93e36ccc7cbdaf4633b16b1c08a2}} 
+void {\bfseries reset\+Cosine\+Coefficients} (const Eigen\+::\+Matrix\+Xd cosine\+Coefficients)
+\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_af4e24e25017efcb3718993206c520293}{get\+Sine\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Function to return sine spherical harmonic coefficients (geodesy normalized). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a2fcb990fe65228ac80844ff7dd4bc364}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a2fcb990fe65228ac80844ff7dd4bc364}} 
+void {\bfseries reset\+Sine\+Coefficients} (const Eigen\+::\+Matrix\+Xd sine\+Coefficients)
+\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a7f45f92da7b88e2cc64b8a54a2f987d2}{get\+Associated\+Reference\+Frame}} ()
+\begin{DoxyCompactList}\small\item\em Function to return identifier for body-\/fixed reference frame. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a80afd072faff148fb9cd1a669183dd4a}{reset\+Associated\+Reference\+Frame}} (const std\+::string \&associated\+Reference\+Frame)
+\begin{DoxyCompactList}\small\item\em Function to reset identifier for body-\/fixed reference frame to which the coefficients are referred. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a38e4e596f84064b80d43fbd97819a497}{get\+Create\+Time\+Dependent\+Field}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve boolean that denotes whether the field should be created as time-\/dependent. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_ab605aa9f057ceac71628addee765e37a}{set\+Create\+Time\+Dependent\+Field}} (const bool create\+Time\+Dependent\+Field)
+\begin{DoxyCompactList}\small\item\em Function to reset boolean that denotes whether the field should be created as time-\/dependent. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a7cfee6ac9c4dfdb924822366c628b177}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a7cfee6ac9c4dfdb924822366c628b177}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a7cfee6ac9c4dfdb924822366c628b177}{gravitational\+Parameter\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Gravitational parameter for gravity field that is to be created. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a43add9671636f7bfff4943b92f3a04c7}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a43add9671636f7bfff4943b92f3a04c7}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a43add9671636f7bfff4943b92f3a04c7}{reference\+Radius\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Reference radius of spherical harmonic field expansion. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_ac717184928ec5f5dbaafea036fe53398}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_ac717184928ec5f5dbaafea036fe53398}} 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_ac717184928ec5f5dbaafea036fe53398}{cosine\+Coefficients\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Cosine spherical harmonic coefficients (geodesy normalized). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a29c8979891c850b3f727f1f9524b3623}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a29c8979891c850b3f727f1f9524b3623}} 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a29c8979891c850b3f727f1f9524b3623}{sine\+Coefficients\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Sine spherical harmonic coefficients (geodesy normalized). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a541d0ff633594a7dc66c6f3c71ee3b15}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a541d0ff633594a7dc66c6f3c71ee3b15}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a541d0ff633594a7dc66c6f3c71ee3b15}{associated\+Reference\+Frame\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Identifier for body-\/fixed reference frame to which the coefficients are referred. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a75679f99b86156faefa9f06e8411167d}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a75679f99b86156faefa9f06e8411167d}} 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a75679f99b86156faefa9f06e8411167d}{create\+Time\+Dependent\+Field\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean that denotes whether the field should be created as time-\/dependent (even if no variations are imposed intially) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Derived class of \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1GravityFieldSettings}{Gravity\+Field\+Settings}} defining settings of spherical harmonic gravity field representation. @get\+\_\+docstring(Spherical\+Harmonics\+Gravity\+Field\+Settings.\+\_\+\+\_\+docstring\+\_\+\+\_\+) 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_af2f87c838c2d1b8e6b785d0fe46fe2ed}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_af2f87c838c2d1b8e6b785d0fe46fe2ed}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!SphericalHarmonicsGravityFieldSettings@{SphericalHarmonicsGravityFieldSettings}}
+\index{SphericalHarmonicsGravityFieldSettings@{SphericalHarmonicsGravityFieldSettings}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{SphericalHarmonicsGravityFieldSettings()}{SphericalHarmonicsGravityFieldSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings (\begin{DoxyParamCaption}\item[{const double}]{gravitational\+Parameter,  }\item[{const double}]{reference\+Radius,  }\item[{const Eigen\+::\+Matrix\+Xd}]{cosine\+Coefficients,  }\item[{const Eigen\+::\+Matrix\+Xd}]{sine\+Coefficients,  }\item[{const std\+::string \&}]{associated\+Reference\+Frame }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em gravitational\+Parameter} & Gravitational parameter of gravity field. \\
+\hline
+{\em reference\+Radius} & Reference radius of spherical harmonic field expansion. \\
+\hline
+{\em cosine\+Coefficients} & Cosine spherical harmonic coefficients (geodesy normalized). \\
+\hline
+{\em sine\+Coefficients} & Sine spherical harmonic coefficients (geodesy normalized). \\
+\hline
+{\em associated\+Reference\+Frame} & Identifier for body-\/fixed reference frame to which the coefficients are referred. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a7f45f92da7b88e2cc64b8a54a2f987d2}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a7f45f92da7b88e2cc64b8a54a2f987d2}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!getAssociatedReferenceFrame@{getAssociatedReferenceFrame}}
+\index{getAssociatedReferenceFrame@{getAssociatedReferenceFrame}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{getAssociatedReferenceFrame()}{getAssociatedReferenceFrame()}}
+{\footnotesize\ttfamily std\+::string tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::get\+Associated\+Reference\+Frame (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return identifier for body-\/fixed reference frame. 
+
+Function to return identifier for body-\/fixed reference frame to which the coefficients are referred. \begin{DoxyReturn}{Returns}
+Identifier for body-\/fixed reference frame to which the coefficients are referred. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a87662d525e51f93282a4f4a0f455c744}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a87662d525e51f93282a4f4a0f455c744}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!getCosineCoefficients@{getCosineCoefficients}}
+\index{getCosineCoefficients@{getCosineCoefficients}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{getCosineCoefficients()}{getCosineCoefficients()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix\+Xd tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::get\+Cosine\+Coefficients (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return cosine spherical harmonic coefficients (geodesy normalized). 
+
+Function to return cosine spherical harmonic coefficients (geodesy normalized). \begin{DoxyReturn}{Returns}
+Cosine spherical harmonic coefficients (geodesy normalized). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a38e4e596f84064b80d43fbd97819a497}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a38e4e596f84064b80d43fbd97819a497}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!getCreateTimeDependentField@{getCreateTimeDependentField}}
+\index{getCreateTimeDependentField@{getCreateTimeDependentField}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{getCreateTimeDependentField()}{getCreateTimeDependentField()}}
+{\footnotesize\ttfamily bool tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::get\+Create\+Time\+Dependent\+Field (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve boolean that denotes whether the field should be created as time-\/dependent. 
+
+Function to retrieve boolean that denotes whether the field should be created as time-\/dependent \begin{DoxyReturn}{Returns}
+Boolean that denotes whether the field should be created as time-\/dependent 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_aef2f0df360b63ce50be3e8c8187ac1de}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_aef2f0df360b63ce50be3e8c8187ac1de}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!getGravitationalParameter@{getGravitationalParameter}}
+\index{getGravitationalParameter@{getGravitationalParameter}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{getGravitationalParameter()}{getGravitationalParameter()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::get\+Gravitational\+Parameter (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return gravitational parameter for gravity field. 
+
+Function to return gravitational parameter for gravity field. \begin{DoxyReturn}{Returns}
+Gravitational parameter for gravity field. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a06e6e0ca92a788a758717fb9326586ff}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a06e6e0ca92a788a758717fb9326586ff}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!getReferenceRadius@{getReferenceRadius}}
+\index{getReferenceRadius@{getReferenceRadius}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{getReferenceRadius()}{getReferenceRadius()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::get\+Reference\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return reference radius of spherical harmonic field expansion. 
+
+Function to return reference radius of spherical harmonic field expansion \begin{DoxyReturn}{Returns}
+Reference radius of spherical harmonic field expansion 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_af4e24e25017efcb3718993206c520293}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_af4e24e25017efcb3718993206c520293}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!getSineCoefficients@{getSineCoefficients}}
+\index{getSineCoefficients@{getSineCoefficients}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{getSineCoefficients()}{getSineCoefficients()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix\+Xd tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::get\+Sine\+Coefficients (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return sine spherical harmonic coefficients (geodesy normalized). 
+
+Function to return sine spherical harmonic coefficients (geodesy normalized). \begin{DoxyReturn}{Returns}
+Sine spherical harmonic coefficients (geodesy normalized). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a80afd072faff148fb9cd1a669183dd4a}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a80afd072faff148fb9cd1a669183dd4a}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!resetAssociatedReferenceFrame@{resetAssociatedReferenceFrame}}
+\index{resetAssociatedReferenceFrame@{resetAssociatedReferenceFrame}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{resetAssociatedReferenceFrame()}{resetAssociatedReferenceFrame()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::reset\+Associated\+Reference\+Frame (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{associated\+Reference\+Frame }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset identifier for body-\/fixed reference frame to which the coefficients are referred. 
+
+Function to reset identifier for body-\/fixed reference frame to which the coefficients are referred. 
+\begin{DoxyParams}{Parameters}
+{\em associated\+Reference\+Frame} & Identifier for body-\/fixed reference frame to which the coefficients are referred. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a4d593d10d3ccf40cc390d23f21888d67}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_a4d593d10d3ccf40cc390d23f21888d67}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!resetGravitationalParameter@{resetGravitationalParameter}}
+\index{resetGravitationalParameter@{resetGravitationalParameter}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{resetGravitationalParameter()}{resetGravitationalParameter()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::reset\+Gravitational\+Parameter (\begin{DoxyParamCaption}\item[{const double}]{gravitational\+Parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset gravitational parameter for gravity field. 
+
+Function to reset gravitational parameter for gravity field. 
+\begin{DoxyParams}{Parameters}
+{\em gravitational\+Parameter} & New gravitational parameter for gravity field. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_ab605aa9f057ceac71628addee765e37a}\label{classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings_ab605aa9f057ceac71628addee765e37a}} 
+\index{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}!setCreateTimeDependentField@{setCreateTimeDependentField}}
+\index{setCreateTimeDependentField@{setCreateTimeDependentField}!tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings@{tudat::simulation\_setup::SphericalHarmonicsGravityFieldSettings}}
+\doxysubsubsection{\texorpdfstring{setCreateTimeDependentField()}{setCreateTimeDependentField()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Spherical\+Harmonics\+Gravity\+Field\+Settings\+::set\+Create\+Time\+Dependent\+Field (\begin{DoxyParamCaption}\item[{const bool}]{create\+Time\+Dependent\+Field }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset boolean that denotes whether the field should be created as time-\/dependent. 
+
+Function to reset boolean that denotes whether the field should be created as time-\/dependent 
+\begin{DoxyParams}{Parameters}
+{\em create\+Time\+Dependent\+Field} & Boolean that denotes whether the field should be created as time-\/dependent \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Gravity\+Field.\+h\end{DoxyCompactItemize}

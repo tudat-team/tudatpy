@@ -1,0 +1,198 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::AccelerationPartialWrtStateSaveSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings" prot="public" virt="non-virtual">tudat::propagators::SingleDependentVariableSaveSettings</basecompoundref>
+    <includes refid="propagationOutputSettings_8h" local="no">propagationOutputSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings_1ab18765116f3d3812e52846a50cc9b055" prot="public" static="no" mutable="no">
+        <type>basic_astrodynamics::AvailableAcceleration</type>
+        <definition>basic_astrodynamics::AvailableAcceleration tudat::propagators::AccelerationPartialWrtStateSaveSettings::accelerationModelType_</definition>
+        <argsstring></argsstring>
+        <name>accelerationModelType_</name>
+        <briefdescription>
+<para>Type of acceleration that is to be saved. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="476" column="48" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="476" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings_1a353ddfc86529286bfa94ab97c123da26" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::propagators::AccelerationPartialWrtStateSaveSettings::derivativeWrtBody_</definition>
+        <argsstring></argsstring>
+        <name>derivativeWrtBody_</name>
+        <briefdescription>
+<para>String denoting w.r.t. which body the derivative needs to be taken. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="479" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="479" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings_1a0e68415ceb16deeee4eb1c8ab81bccda" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::propagators::AccelerationPartialWrtStateSaveSettings::thirdBody_</definition>
+        <argsstring></argsstring>
+        <name>thirdBody_</name>
+        <briefdescription>
+<para>String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="482" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="482" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings_1a3893267741f70644bd149b5b8b483ff2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::AccelerationPartialWrtStateSaveSettings::AccelerationPartialWrtStateSaveSettings</definition>
+        <argsstring>(const std::string &amp;bodyUndergoingAcceleration, const std::string &amp;bodyExertingAcceleration, const basic_astrodynamics::AvailableAcceleration accelerationModelType, const std::string derivativeWrtBody, const std::string thirdBody=&quot;&quot;)</argsstring>
+        <name>AccelerationPartialWrtStateSaveSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyUndergoingAcceleration</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::AvailableAcceleration</type>
+          <declname>accelerationModelType</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>derivativeWrtBody</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>thirdBody</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyUndergoingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Body exerting acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationModelType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of acceleration that is to be saved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>derivativeWrtBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String denoting w.r.t. which body the partial needs to be taken. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thirdBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="464" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="464" bodyend="473"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define . </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::propagators::VariableSettings</label>
+        <link refid="classtudat_1_1propagators_1_1VariableSettings"/>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::AccelerationPartialWrtStateSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::propagators::VariableSettings</label>
+        <link refid="classtudat_1_1propagators_1_1VariableSettings"/>
+      </node>
+      <node id="4">
+        <label>string</label>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleDependentVariableSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>associatedBody_</edgelabel>
+          <edgelabel>secondaryBody_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::AccelerationPartialWrtStateSaveSettings</label>
+        <link refid="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>derivativeWrtBody_</edgelabel>
+          <edgelabel>thirdBody_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" line="450" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationOutputSettings.h" bodystart="451" bodyend="484"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings_1ab18765116f3d3812e52846a50cc9b055" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>accelerationModelType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings_1a3893267741f70644bd149b5b8b483ff2" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>AccelerationPartialWrtStateSaveSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1a75122aa26880a97151b0caa4cc54f786" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>associatedBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1a70571bf244f86184b51cf3d35d729ce2" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>componentIndex_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1ac9d4da0711fb2550e3478452a1259cf0" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>dependentVariableType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings_1a353ddfc86529286bfa94ab97c123da26" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>derivativeWrtBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1ae753de13467b2d1b065651f3ba7c0633" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>secondaryBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings_1aab1f0f83270f9007d5ffee52568358f9" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>SingleDependentVariableSaveSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1AccelerationPartialWrtStateSaveSettings_1a0e68415ceb16deeee4eb1c8ab81bccda" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>thirdBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1af61b6a0eef072c45660f5ea1989c2363" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>VariableSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1a976fc230d756ed3251ea04ee48fc1994" prot="public" virt="non-virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>variableType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariableSettings_1a93ead6417aadfc5ba47e87cf38d89997" prot="public" virt="virtual"><scope>tudat::propagators::AccelerationPartialWrtStateSaveSettings</scope><name>~VariableSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

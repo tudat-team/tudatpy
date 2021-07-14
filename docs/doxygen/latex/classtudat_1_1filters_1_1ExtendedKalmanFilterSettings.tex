@@ -1,0 +1,86 @@
+\hypertarget{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings}{}\doxysection{tudat\+::filters\+::Extended\+Kalman\+Filter\+Settings$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$ Class Template Reference}
+\label{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings}\index{tudat::filters::ExtendedKalmanFilterSettings$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::ExtendedKalmanFilterSettings$<$ IndependentVariableType, DependentVariableType $>$}}
+
+
+Extended Kalman filter settings.  
+
+
+
+
+{\ttfamily \#include $<$create\+Filter.\+h$>$}
+
+Inheritance diagram for tudat\+::filters\+::Extended\+Kalman\+Filter\+Settings$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.961471cm]{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_a0586067da6b7323263d88830595a0011}\label{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_a0586067da6b7323263d88830595a0011}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1FilterSettings}{Filter\+Settings}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_a0586067da6b7323263d88830595a0011}{Dependent\+Vector}} \mbox{\hyperlink{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_a0586067da6b7323263d88830595a0011}{Dependent\+Vector}}
+\begin{DoxyCompactList}\small\item\em Inherit typedefs from base class. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_a9dca15b4015e9a397da974d76518a0f3}\label{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_a9dca15b4015e9a397da974d76518a0f3}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1FilterSettings}{Filter\+Settings}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::Dependent\+Matrix {\bfseries Dependent\+Matrix}
+\item 
+\mbox{\Hypertarget{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_af3a276892be72f3870663c297d8c2e6b}\label{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_af3a276892be72f3870663c297d8c2e6b}} 
+typedef \mbox{\hyperlink{classtudat_1_1filters_1_1FilterSettings}{Filter\+Settings}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{Integrator\+Settings}} {\bfseries Integrator\+Settings}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_ae5678bfdb1a46fed2ba57f4a126ba8bc}{Extended\+Kalman\+Filter\+Settings}} (const Dependent\+Matrix \&system\+Uncertainty, const Dependent\+Matrix \&measurement\+Uncertainty, const Independent\+Variable\+Type filtering\+Step\+Size, const Independent\+Variable\+Type initial\+Time, const \mbox{\hyperlink{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_a0586067da6b7323263d88830595a0011}{Dependent\+Vector}} \&initial\+State\+Vector, const Dependent\+Matrix \&initial\+Covariance\+Matrix, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{Integrator\+Settings}} $>$ integrator\+Settings=nullptr)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type = double, typename Dependent\+Variable\+Type = double$>$\newline
+class tudat\+::filters\+::\+Extended\+Kalman\+Filter\+Settings$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}
+
+Extended Kalman filter settings. 
+
+Extended Kalman filter settings. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Independent\+Variable\+Type} & Type of independent variable. Default is double. \\
+\hline
+{\em Dependent\+Variable\+Type} & Type of dependent variable. Default is double. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_ae5678bfdb1a46fed2ba57f4a126ba8bc}\label{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_ae5678bfdb1a46fed2ba57f4a126ba8bc}} 
+\index{tudat::filters::ExtendedKalmanFilterSettings$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::ExtendedKalmanFilterSettings$<$ IndependentVariableType, DependentVariableType $>$}!ExtendedKalmanFilterSettings@{ExtendedKalmanFilterSettings}}
+\index{ExtendedKalmanFilterSettings@{ExtendedKalmanFilterSettings}!tudat::filters::ExtendedKalmanFilterSettings$<$ IndependentVariableType, DependentVariableType $>$@{tudat::filters::ExtendedKalmanFilterSettings$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{ExtendedKalmanFilterSettings()}{ExtendedKalmanFilterSettings()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename Dependent\+Variable\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings}{tudat\+::filters\+::\+Extended\+Kalman\+Filter\+Settings}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings}{Extended\+Kalman\+Filter\+Settings}} (\begin{DoxyParamCaption}\item[{const Dependent\+Matrix \&}]{system\+Uncertainty,  }\item[{const Dependent\+Matrix \&}]{measurement\+Uncertainty,  }\item[{const Independent\+Variable\+Type}]{filtering\+Step\+Size,  }\item[{const Independent\+Variable\+Type}]{initial\+Time,  }\item[{const \mbox{\hyperlink{classtudat_1_1filters_1_1ExtendedKalmanFilterSettings_a0586067da6b7323263d88830595a0011}{Dependent\+Vector}} \&}]{initial\+State\+Vector,  }\item[{const Dependent\+Matrix \&}]{initial\+Covariance\+Matrix,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{Integrator\+Settings}} $>$}]{integrator\+Settings = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor. This constructor takes state and measurement functions and their respective Jacobian functions as inputs. These functions can be a function of time, state and (for state) control vector. 
+\begin{DoxyParams}{Parameters}
+{\em system\+Uncertainty} & Matrix defining the uncertainty in modeling of the system. \\
+\hline
+{\em measurement\+Uncertainty} & Matrix defining the uncertainty in modeling of the measurements. \\
+\hline
+{\em filtering\+Step\+Size} & Scalar representing the value of the constant filtering time step. \\
+\hline
+{\em initial\+Time} & Scalar representing the value of the initial time. \\
+\hline
+{\em initial\+State\+Vector} & Vector representing the initial (estimated) state of the system. It is used as first a-\/priori estimate of the state vector. \\
+\hline
+{\em initial\+Covariance\+Matrix} & Matrix representing the initial (estimated) covariance of the system. It is used as first a-\/priori estimate of the covariance matrix. \\
+\hline
+{\em integrator\+Settings} & Pointer to integration settings defining the integrator to be used to propagate the state. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/filters/create\+Filter.\+h\end{DoxyCompactItemize}

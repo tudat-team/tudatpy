@@ -1,0 +1,366 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::OneWayDifferencedRangeObservationModel</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationModel" prot="public" virt="non-virtual">tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</basecompoundref>
+    <includes refid="oneWayDifferencedRangeRateObservationModel_8h" local="no">oneWayDifferencedRangeRateObservationModel.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ObservationScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a564f200f60d102e01bce6f1d2dbefc9e" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::StateType</definition>
+        <argsstring></argsstring>
+        <name>StateType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="43" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1ab2c077a86d9a34f4c4b09f4a18e0152f" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::PositionType</definition>
+        <argsstring></argsstring>
+        <name>PositionType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="44" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a749f48e6b4e9781214726f070d4ae2ca" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::arcStartLightTimeCalculator_</definition>
+        <argsstring></argsstring>
+        <name>arcStartLightTimeCalculator_</name>
+        <briefdescription>
+<para>Light time calculator to compute light time at the beginning of the integration time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="222" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="222" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a4b1cdd71b3f69b6e2db7b26bfa1da6c8" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::arcEndLightTimeCalculator_</definition>
+        <argsstring></argsstring>
+        <name>arcEndLightTimeCalculator_</name>
+        <briefdescription>
+<para>Light time calculator to compute light time at the end of the integration time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="226" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="226" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1ac9976bff99a577dc2619bd3993f42633" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::integrationTimeFunction_</definition>
+        <argsstring></argsstring>
+        <name>integrationTimeFunction_</name>
+        <briefdescription>
+<para>Function returning the integration time of the observable as a function of the current observation time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="229" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="229" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1ac118150ac76848c387d6d2fd8053ac7b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::OneWayDifferencedRangeObservationModel</definition>
+        <argsstring>(const std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; arcStartLightTimeCalculator, const std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; arcEndLightTimeCalculator, std::function&lt; double(const double) &gt; integrationTimeFunction, const std::shared_ptr&lt; ObservationBias&lt; 1 &gt; &gt; observationBiasCalculator=nullptr)</argsstring>
+        <name>OneWayDifferencedRangeObservationModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+          <declname>arcStartLightTimeCalculator</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+          <declname>arcEndLightTimeCalculator</declname>
+        </param>
+        <param>
+          <type>std::function&lt; double(const double) &gt;</type>
+          <declname>integrationTimeFunction</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBias" kindref="compound">ObservationBias</ref>&lt; 1 &gt; &gt;</type>
+          <declname>observationBiasCalculator</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>arcStartLightTimeCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to compute the light-time (including any corrections w.r.t. Euclidean case) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arcEndLightTimeCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to compute the light-time (including any corrections w.r.t. Euclidean case) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observationBiasCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object for calculating system-dependent errors in the observable, i.e. deviations from the physically ideal observable between reference points (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integrationTimeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the integration time of the observable as a function of the current observation time. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="57" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="57" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a450780b7c776419f905b46d4086f6045" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::~OneWayDifferencedRangeObservationModel</definition>
+        <argsstring>()</argsstring>
+        <name>~OneWayDifferencedRangeObservationModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="72" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="72" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a63370f85a9755cff6a893730b66a60d9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservations</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime)</argsstring>
+        <name>computeIdealObservations</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute ideal one-way differenced range observation without any corrections at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function compute ideal one-way differenced range without any corrections at a given time. The time argument can be either the reception or transmission time (defined by linkEndAssociatedWithTime input). It does not include system-dependent measurement errors, such as biases or clock errors. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observation is to be simulated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid, i.e. link end for which associated time is kept constant (to input value) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calculated observed one-way differenced range </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="85" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="85" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a5098f4d37277c0d3a00c60a4b82ee72c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 1, 1 &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservationsWithLinkEndData</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime, std::vector&lt; double &gt; &amp;linkEndTimes, std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)</argsstring>
+        <name>computeIdealObservationsWithLinkEndData</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute one-way differenced range observable without any corrections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute one-way differenced range observable without any corrections, i.e. the true physical differenced range as computed from the defined link ends. It does not include system-dependent measurement errors, such as biases or clock errors. The times and states of the link ends are also returned in double precision. These states and times are returned by reference. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observable is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid, i.e. link end for which associated time is kept constant (to input value) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Ideal one-way differenced range observable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="141" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="141" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a26c7a8fdda5fafdf3aec98d7c76e674f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::getArcStartLightTimeCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getArcStartLightTimeCalculator</name>
+        <briefdescription>
+<para>Light time calculator to compute light time at the beginning of the integration time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="207" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="207" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1abecb85aed3ceaca2fea866a7d37b1230" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;::getArcEndLightTimeCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getArcEndLightTimeCalculator</name>
+        <briefdescription>
+<para>Light time calculator to compute light time at the end of the integration time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="213" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="213" bodyend="216"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable. The observable is obtained by subtracting the range at two time intervals, and dividing by the time difference. It represents the time-averages value of the range-rate over this integration time. The user may add observation biases to model system-dependent deviations between measured and true observation. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::observation_models::OneWayDifferencedRangeObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 1, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/oneWayDifferencedRangeRateObservationModel.h" bodystart="40" bodyend="231"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a4b1cdd71b3f69b6e2db7b26bfa1da6c8" prot="private" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>arcEndLightTimeCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a749f48e6b4e9781214726f070d4ae2ca" prot="private" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>arcStartLightTimeCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a63370f85a9755cff6a893730b66a60d9" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1acc309e12a1396f0245d5faa48d2f6e13" prot="public" virt="virtual" ambiguityscope="ObservationModel&lt; 1, double, double &gt;::"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a5098f4d37277c0d3a00c60a4b82ee72c" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9ecd10a922744f259f842d4b6a411347" prot="public" virt="pure-virtual" ambiguityscope="ObservationModel&lt; 1, double, double &gt;::"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a199cabb55653815809a71ae266c4a428" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>computeObservationEntry</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9b9246a44342f0c05f6b0b49c269de2c" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>computeObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1aa40d89c3432581dad61a0893b4a1bd07" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>computeObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1abecb85aed3ceaca2fea866a7d37b1230" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>getArcEndLightTimeCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a26c7a8fdda5fafdf3aec98d7c76e674f" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>getArcStartLightTimeCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a02a719feded8289f8f90c8d5080f1f8f" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>getObservableType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1af7bb363bb98b710155dd585a9a6fada2" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>getObservationBiasCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ae819c04040cf0dcdd4617d49592ce33e" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1ac9976bff99a577dc2619bd3993f42633" prot="private" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>integrationTimeFunction_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ad22ad8c1f124d042c0110246da92fe24" prot="protected" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>isBiasnullptr_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ac5e15b533fd970380b801078b822e66d" prot="protected" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>linkEndStates_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a4e166ee91d8e8d52a4625d1daad99fd3" prot="protected" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>linkEndTimes_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a0117fc5ab1859bdad1124ddd12be3620" prot="protected" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>observableType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a18d177b43452e3d1af4de8fa876b6df7" prot="protected" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>observationBiasCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a2e356049328b9044bf8f1d05ad094802" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>ObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1ac118150ac76848c387d6d2fd8053ac7b" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>OneWayDifferencedRangeObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1ab2c077a86d9a34f4c4b09f4a18e0152f" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>PositionType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a564f200f60d102e01bce6f1d2dbefc9e" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>StateType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a4b72c0c9d2d8ea5221bc7cf8fe64dda7" prot="public" virt="virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>~ObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDifferencedRangeObservationModel_1a450780b7c776419f905b46d4086f6045" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDifferencedRangeObservationModel</scope><name>~OneWayDifferencedRangeObservationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
