@@ -45,8 +45,9 @@ install_manifest.txt
 # Build and doxygen related
 #
 Documentation/
-doc/doxygen/html/
-doc/doxygen/latex/
+docs/doxygen/html/
+docs/doxygen/latex/
+docs/doxygen/xml/
 build*/
 bin/
 lib/
