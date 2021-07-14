@@ -425,16 +425,16 @@ public:
     //! Constructor from separate magnitude and diretion settings.
     /*!
      * Constructor from separate magnitude and diretion settings.
-     * \param thrustDirectionGuidanceSettings Settings for the direction of the thrust
+     * \param thrustDirectionSettings Settings for the direction of the thrust
      * \param thrustMagnitudeSettings Settings for the magnitude of the thrust
      */
     ThrustAccelerationSettings(
-            const std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
+            const std::shared_ptr< ThrustDirectionSettings > thrustDirectionSettings,
             const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings ):
-        AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
-        thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
-        thrustMagnitudeSettings_( thrustMagnitudeSettings ),
-        thrustFrame_( unspecified_thrust_frame ){ }
+            AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
+            thrustDirectionSettings_(thrustDirectionSettings ),
+            thrustMagnitudeSettings_( thrustMagnitudeSettings ),
+            thrustFrame_( unspecified_thrust_frame ){ }
 
     //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
     //! variable specific impulse
@@ -459,7 +459,7 @@ public:
     {
         interpolatorInterface_ = std::make_shared< FullThrustInterpolationInterface >(
                     interpolators::createOneDimensionalInterpolator( dataInterpolationSettings ) );
-        thrustDirectionGuidanceSettings_ = std::make_shared< CustomThrustDirectionSettings >(
+        thrustDirectionSettings_ = std::make_shared< CustomThrustDirectionSettings >(
                     std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, std::placeholders::_1 ) );
         thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustMagnitudeSettings >(
                     std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
@@ -499,7 +499,7 @@ public:
 
 
     //! Settings for the direction of the thrust
-    std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;
+    std::shared_ptr< ThrustDirectionSettings > thrustDirectionSettings_;
 
     //! Settings for the magnitude of the thrust
     std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings_;
@@ -539,7 +539,7 @@ inline Eigen::Vector3d applyAccelerationScalingFunction(
 }
 
 
-inline std::shared_ptr< AccelerationSettings > thrustAcceleration( const std::shared_ptr< ThrustDirectionGuidanceSettings >
+inline std::shared_ptr< AccelerationSettings > thrustAcceleration( const std::shared_ptr< ThrustDirectionSettings >
         thrustDirectionGuidanceSettings,
 		const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings )
 {
