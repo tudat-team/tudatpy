@@ -1,0 +1,166 @@
+\hypertarget{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}{}\doxysection{tudat\+::propagators\+::NBody\+Encke\+State\+Derivative$<$ State\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}\index{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}}
+
+
+Class for computing the state derivative of translational motion of N bodies, using an Encke propagator.  
+
+
+
+
+{\ttfamily \#include $<$n\+Body\+Encke\+State\+Derivative.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::NBody\+Encke\+State\+Derivative$<$ State\+Scalar\+Type, Time\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a07afce59c4ac62ac1b22c88b58ff87b9}{NBody\+Encke\+State\+Derivative}} (const basic\+\_\+astrodynamics\+::\+Acceleration\+Map \&acceleration\+Models\+Per\+Body, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData}{Central\+Body\+Data}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ central\+Body\+Data, const std\+::vector$<$ std\+::string $>$ \&bodies\+To\+Integrate, const std\+::vector$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$ $>$ \&initial\+Kepler\+Elements, const Time\+Type \&initial\+Time)
+\begin{DoxyCompactList}\small\item\em Constructor, computes required reference quantities, and removes central gravity from acceleration list. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a02845b9e47c1bc44fe5aeb4fcee3bcf1}{clear\+Derived\+State\+Derivative\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Function to clear reference values of Encke state derivative model. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a4e919b4ac2c5314fa628a696904e3567}{calculate\+System\+State\+Derivative}} (const Time\+Type time, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&state\+Of\+System\+To\+Be\+Integrated, Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$ state\+Derivative)
+\begin{DoxyCompactList}\small\item\em Calculates the state derivative of the translational motion of the system, using the Encke algorithm. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_ae452f6473f5d4ec89e7c8b64b6962bd9}{convert\+From\+Output\+Solution}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&cartesian\+Solution, const Time\+Type \&time)
+\begin{DoxyCompactList}\small\item\em Function to convert the state in the conventional form to the Encke-\/propagator-\/specific form. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a25e159a87de0078f39a1b15842ac5062}{convert\+To\+Output\+Solution}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&internal\+Solution, const Time\+Type \&time, Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ current\+Cartesian\+Local\+Soluton)
+\begin{DoxyCompactList}\small\item\em Function to convert the Encke-\/propagator-\/specific form of the state to the conventional form. \end{DoxyCompactList}\item 
+basic\+\_\+astrodynamics\+::\+Acceleration\+Map \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_aa08f372eed53077155c3572d0db36e57}{get\+Full\+Accelerations\+Map}} ()
+\begin{DoxyCompactList}\small\item\em Function to get map containing the list of accelerations acting on each body,. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::propagators\+::\+NBody\+Encke\+State\+Derivative$<$ State\+Scalar\+Type, Time\+Type $>$}
+
+Class for computing the state derivative of translational motion of N bodies, using an Encke propagator. 
+
+Class for computing the state derivative of translational motion of N bodies, using an Encke propagator. The Encke propagator propagates the Cartesian deviation from an ideal (pre-\/defined) Keplerian orbit. See e.\+g. Wakker, astro II for mathematical details. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a07afce59c4ac62ac1b22c88b58ff87b9}\label{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a07afce59c4ac62ac1b22c88b58ff87b9}} 
+\index{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}!NBodyEnckeStateDerivative@{NBodyEnckeStateDerivative}}
+\index{NBodyEnckeStateDerivative@{NBodyEnckeStateDerivative}!tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{NBodyEnckeStateDerivative()}{NBodyEnckeStateDerivative()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}{tudat\+::propagators\+::\+NBody\+Encke\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}{NBody\+Encke\+State\+Derivative}} (\begin{DoxyParamCaption}\item[{const basic\+\_\+astrodynamics\+::\+Acceleration\+Map \&}]{acceleration\+Models\+Per\+Body,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData}{Central\+Body\+Data}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$}]{central\+Body\+Data,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{bodies\+To\+Integrate,  }\item[{const std\+::vector$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$ $>$ \&}]{initial\+Kepler\+Elements,  }\item[{const Time\+Type \&}]{initial\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, computes required reference quantities, and removes central gravity from acceleration list. 
+
+Constructor, computes required reference quantities, and removes central gravity from acceleration list. For a spherical harmonic central gravity, the C(0,0) coefficient is set to zero. 
+\begin{DoxyParams}{Parameters}
+{\em acceleration\+Models\+Per\+Body} & A map containing the list of accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-\/value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. \\
+\hline
+{\em central\+Body\+Data} & Object responsible for providing the current integration origins from the global origins. \\
+\hline
+{\em bodies\+To\+Integrate} & List of names of bodies that are to be integrated numerically. \\
+\hline
+{\em initial\+Kepler\+Elements} & Kepler elements of bodies\+To\+Integrate, valid at initial\+Time. \\
+\hline
+{\em initial\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which the initial\+Kepler\+Elements provide the orbital state. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a4e919b4ac2c5314fa628a696904e3567}\label{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a4e919b4ac2c5314fa628a696904e3567}} 
+\index{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}!calculateSystemStateDerivative@{calculateSystemStateDerivative}}
+\index{calculateSystemStateDerivative@{calculateSystemStateDerivative}!tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{calculateSystemStateDerivative()}{calculateSystemStateDerivative()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}{tudat\+::propagators\+::\+NBody\+Encke\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::calculate\+System\+State\+Derivative (\begin{DoxyParamCaption}\item[{const Time\+Type}]{time,  }\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&}]{state\+Of\+System\+To\+Be\+Integrated,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$}]{state\+Derivative }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calculates the state derivative of the translational motion of the system, using the Encke algorithm. 
+
+Calculates the state derivative the translational motion of the system at the given time and state of bodies. The velocity and acceleration of each body w.\+r.\+t. their reference Kepler orbits are computed by this function, i.\+e. the derivative of the Encke state. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} (TDB seconds since J2000) at which the system is to be updated. \\
+\hline
+{\em state\+Of\+System\+To\+Be\+Integrated} & List of 6 $\ast$ bodies\+To\+Be\+Integrated\+Numerically\+\_\+.\+size( ), containing Cartesian position/velocity deviations from the reference Kepler orbits of the bodies being integrated. The order of the values is defined by the order of bodies in bodies\+To\+Be\+Integrated\+Numerically\+\_\+ \\
+\hline
+{\em state\+Derivative} & Current derivative of Encke state (velocity + acceleration w.\+r.\+t. reference Kepler orbit) of system of bodies integrated numerically (returned by reference). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a02845b9e47c1bc44fe5aeb4fcee3bcf1}\label{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a02845b9e47c1bc44fe5aeb4fcee3bcf1}} 
+\index{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}!clearDerivedStateDerivativeModel@{clearDerivedStateDerivativeModel}}
+\index{clearDerivedStateDerivativeModel@{clearDerivedStateDerivativeModel}!tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{clearDerivedStateDerivativeModel()}{clearDerivedStateDerivativeModel()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}{tudat\+::propagators\+::\+NBody\+Encke\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::clear\+Derived\+State\+Derivative\+Model (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to clear reference values of Encke state derivative model. 
+
+Function to clear reference values of Encke state derivative model, in addition to those performed in the clear\+Translational\+State\+Derivative\+Model function. It resets the current\+Kepler\+Orbit\+Time\+\_\+ to ensure that the reference orbit is recomputed. \mbox{\Hypertarget{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_ae452f6473f5d4ec89e7c8b64b6962bd9}\label{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_ae452f6473f5d4ec89e7c8b64b6962bd9}} 
+\index{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}!convertFromOutputSolution@{convertFromOutputSolution}}
+\index{convertFromOutputSolution@{convertFromOutputSolution}!tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{convertFromOutputSolution()}{convertFromOutputSolution()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}{tudat\+::propagators\+::\+NBody\+Encke\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::convert\+From\+Output\+Solution (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&}]{cartesian\+Solution,  }\item[{const Time\+Type \&}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to convert the state in the conventional form to the Encke-\/propagator-\/specific form. 
+
+Function to convert the state in the conventional form to the propagator-\/specific form. For the Encke propagator, this transforms the Cartesian state w.\+r.\+t. the central body (conventional form) to the Cartesian deviation from the Kepler orbit w.\+r.\+t. this central body (Encke form). 
+\begin{DoxyParams}{Parameters}
+{\em cartesian\+Solution} & State in \textquotesingle{}conventional form\textquotesingle{} \\
+\hline
+{\em time} & Current time at which the state is valid, used to computed Kepler orbits \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State (output\+Solution), converted to the Encke-\/propagator-\/specific form 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a25e159a87de0078f39a1b15842ac5062}\label{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_a25e159a87de0078f39a1b15842ac5062}} 
+\index{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}!convertToOutputSolution@{convertToOutputSolution}}
+\index{convertToOutputSolution@{convertToOutputSolution}!tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{convertToOutputSolution()}{convertToOutputSolution()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}{tudat\+::propagators\+::\+NBody\+Encke\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::convert\+To\+Output\+Solution (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&}]{internal\+Solution,  }\item[{const Time\+Type \&}]{time,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$}]{current\+Cartesian\+Local\+Soluton }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to convert the Encke-\/propagator-\/specific form of the state to the conventional form. 
+
+Function to convert the Encle-\/propagator-\/specific form of the state to the conventional form. For the Encke propagator, this transforms the Cartesian deviation from the Kepler orbit w.\+r.\+t. this central body (Encke form) to Cartesian state w.\+r.\+t. the central body (conventional form). In contrast to the convert\+Current\+State\+To\+Global\+Representation function, this function does not provide the state in the inertial frame, but instead provides it in the frame in which it is propagated. 
+\begin{DoxyParams}{Parameters}
+{\em internal\+Solution} & State in Encke-\/propagator-\/specific form (i.\+e. form that is used in numerical integration)/ \\
+\hline
+{\em time} & Current time at which the state is valid \\
+\hline
+{\em current\+Cartesian\+Local\+Soluton} & State (internal\+Solution, which is Encke-\/formulation), converted to the \textquotesingle{}conventional form\textquotesingle{}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_aa08f372eed53077155c3572d0db36e57}\label{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative_aa08f372eed53077155c3572d0db36e57}} 
+\index{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}!getFullAccelerationsMap@{getFullAccelerationsMap}}
+\index{getFullAccelerationsMap@{getFullAccelerationsMap}!tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::NBodyEnckeStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getFullAccelerationsMap()}{getFullAccelerationsMap()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+basic\+\_\+astrodynamics\+::\+Acceleration\+Map \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyEnckeStateDerivative}{tudat\+::propagators\+::\+NBody\+Encke\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Full\+Accelerations\+Map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to get map containing the list of accelerations acting on each body,. 
+
+Function to get map containing the list of accelerations acting on each body, \begin{DoxyReturn}{Returns}
+A map containing the list of accelerations acting on each body, 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1propagators_1_1NBodyStateDerivative_ace7b03eeaa9a2571af87d578d3b747c7}{tudat\+::propagators\+::\+NBody\+State\+Derivative$<$ double, double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propagators/n\+Body\+Encke\+State\+Derivative.\+h\end{DoxyCompactItemize}

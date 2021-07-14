@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_ded976fdf2f4356c1a1b4b1251e9d904" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust</compoundname>
+    <innerdir refid="dir_142717b73a663a62cd205fa471a07a22">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based</innerdir>
+    <innerfile refid="hybridMethod_8h">hybridMethod.h</innerfile>
+    <innerfile refid="hybridMethodModel_8h">hybridMethodModel.h</innerfile>
+    <innerfile refid="hybridOptimisationSetup_8h">hybridOptimisationSetup.h</innerfile>
+    <innerfile refid="lowThrustLeg_8h">lowThrustLeg.h</innerfile>
+    <innerfile refid="lowThrustLegSettings_8h">lowThrustLegSettings.h</innerfile>
+    <innerfile refid="lowThrustOptimisationSetup_8h">lowThrustOptimisationSetup.h</innerfile>
+    <innerfile refid="simsFlanagan_8h">simsFlanagan.h</innerfile>
+    <innerfile refid="simsFlanaganModel_8h">simsFlanaganModel.h</innerfile>
+    <innerfile refid="simsFlanaganOptimisationSetup_8h">simsFlanaganOptimisationSetup.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,101 @@
+\hypertarget{classtudat_1_1json__interface_1_1ValueAccessError}{}\doxysection{tudat\+::json\+\_\+interface\+::Value\+Access\+Error Class Reference}
+\label{classtudat_1_1json__interface_1_1ValueAccessError}\index{tudat::json\_interface::ValueAccessError@{tudat::json\_interface::ValueAccessError}}
+
+
+Class for errors generated during the retrieval of a value from a {\ttfamily json} object.  
+
+
+
+
+{\ttfamily \#include $<$error\+Handling.\+h$>$}
+
+Inheritance diagram for tudat\+::json\+\_\+interface\+::Value\+Access\+Error\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.739130cm]{classtudat_1_1json__interface_1_1ValueAccessError}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_ad5b977b784d331045866a2297797b26b}{Value\+Access\+Error}} (const std\+::string \&error\+Message, const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&\mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_aa2034325482fe4f045241bc10b8c6e91}{key\+Path}})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ValueAccessError_aced7d7a7f25f005ece96b9bb292e5abd}\label{classtudat_1_1json__interface_1_1ValueAccessError_aced7d7a7f25f005ece96b9bb292e5abd}} 
+virtual const char $\ast$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_aced7d7a7f25f005ece96b9bb292e5abd}{what}} () const  throw ( )
+\begin{DoxyCompactList}\small\item\em Full error message. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_a6be213a9c515c0fc077329aff67093bc}{was\+Triggered\+By\+Missing\+Value\+At}} (const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&\mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_aa2034325482fe4f045241bc10b8c6e91}{key\+Path}}) const
+\begin{DoxyCompactList}\small\item\em Whether {\ttfamily this} was generated when trying to access {\ttfamily key\+Path}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_aefc7176e812c975eb1e5ab6f00738e8a}{rethrow\+If\+Not\+Triggered\+By\+Missing\+Value\+At}} (const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&\mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_aa2034325482fe4f045241bc10b8c6e91}{key\+Path}}) const
+\begin{DoxyCompactList}\small\item\em Rethrow {\ttfamily this} if {\ttfamily this} was not generated when trying to access {\ttfamily key\+Path}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ValueAccessError_aa2034325482fe4f045241bc10b8c6e91}\label{classtudat_1_1json__interface_1_1ValueAccessError_aa2034325482fe4f045241bc10b8c6e91}} 
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_aa2034325482fe4f045241bc10b8c6e91}{key\+Path}}
+\begin{DoxyCompactList}\small\item\em Key path trying to access / accessed when the error was generated. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for errors generated during the retrieval of a value from a {\ttfamily json} object. 
+
+Class for errors generated during the retrieval of a value from a {\ttfamily json} object. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ValueAccessError_ad5b977b784d331045866a2297797b26b}\label{classtudat_1_1json__interface_1_1ValueAccessError_ad5b977b784d331045866a2297797b26b}} 
+\index{tudat::json\_interface::ValueAccessError@{tudat::json\_interface::ValueAccessError}!ValueAccessError@{ValueAccessError}}
+\index{ValueAccessError@{ValueAccessError}!tudat::json\_interface::ValueAccessError@{tudat::json\_interface::ValueAccessError}}
+\doxysubsubsection{\texorpdfstring{ValueAccessError()}{ValueAccessError()}}
+{\footnotesize\ttfamily tudat\+::json\+\_\+interface\+::\+Value\+Access\+Error\+::\+Value\+Access\+Error (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{error\+Message,  }\item[{const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&}]{key\+Path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em error\+Message} & The first part of the message to be printed. \\
+\hline
+{\em key\+Path} & Key path trying to access / accessed when the error was generated. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ValueAccessError_aefc7176e812c975eb1e5ab6f00738e8a}\label{classtudat_1_1json__interface_1_1ValueAccessError_aefc7176e812c975eb1e5ab6f00738e8a}} 
+\index{tudat::json\_interface::ValueAccessError@{tudat::json\_interface::ValueAccessError}!rethrowIfNotTriggeredByMissingValueAt@{rethrowIfNotTriggeredByMissingValueAt}}
+\index{rethrowIfNotTriggeredByMissingValueAt@{rethrowIfNotTriggeredByMissingValueAt}!tudat::json\_interface::ValueAccessError@{tudat::json\_interface::ValueAccessError}}
+\doxysubsubsection{\texorpdfstring{rethrowIfNotTriggeredByMissingValueAt()}{rethrowIfNotTriggeredByMissingValueAt()}}
+{\footnotesize\ttfamily void tudat\+::json\+\_\+interface\+::\+Value\+Access\+Error\+::rethrow\+If\+Not\+Triggered\+By\+Missing\+Value\+At (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&}]{key\+Path }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Rethrow {\ttfamily this} if {\ttfamily this} was not generated when trying to access {\ttfamily key\+Path}. 
+
+Rethrow {\ttfamily this} if {\ttfamily this} was not generated when trying to access {\ttfamily key\+Path}. 
+\begin{DoxyParams}{Parameters}
+{\em key\+Path} & The key path to which the instance\textquotesingle{}s key path is to be compared. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1ValueAccessError_a6be213a9c515c0fc077329aff67093bc}\label{classtudat_1_1json__interface_1_1ValueAccessError_a6be213a9c515c0fc077329aff67093bc}} 
+\index{tudat::json\_interface::ValueAccessError@{tudat::json\_interface::ValueAccessError}!wasTriggeredByMissingValueAt@{wasTriggeredByMissingValueAt}}
+\index{wasTriggeredByMissingValueAt@{wasTriggeredByMissingValueAt}!tudat::json\_interface::ValueAccessError@{tudat::json\_interface::ValueAccessError}}
+\doxysubsubsection{\texorpdfstring{wasTriggeredByMissingValueAt()}{wasTriggeredByMissingValueAt()}}
+{\footnotesize\ttfamily bool tudat\+::json\+\_\+interface\+::\+Value\+Access\+Error\+::was\+Triggered\+By\+Missing\+Value\+At (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&}]{key\+Path }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Whether {\ttfamily this} was generated when trying to access {\ttfamily key\+Path}. 
+
+Whether {\ttfamily this} was generated when trying to access {\ttfamily key\+Path}. 
+\begin{DoxyParams}{Parameters}
+{\em key\+Path} & The key path to which the instance\textquotesingle{}s key path is to be compared. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Whether {\ttfamily this} was generated when trying to access {\ttfamily key\+Path}. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/interface/json/support/error\+Handling.\+h\end{DoxyCompactItemize}

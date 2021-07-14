@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1SurfaceGeometry" kind="class" language="C++" prot="public">
+    <compoundname>tudat::SurfaceGeometry</compoundname>
+    <derivedcompoundref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry" prot="public" virt="non-virtual">tudat::geometric_shapes::CompositeSurfaceGeometry</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" prot="public" virt="non-virtual">tudat::geometric_shapes::SingleSurfaceGeometry</derivedcompoundref>
+    <includes refid="surfaceGeometry_8h" local="no">surfaceGeometry.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1SurfaceGeometry_1ab579812c998e712c009cbe455c0e5692" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::SurfaceGeometry::~SurfaceGeometry</definition>
+        <argsstring>()</argsstring>
+        <name>~SurfaceGeometry</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/surfaceGeometry.h" line="35" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/surfaceGeometry.h" bodystart="35" bodyend="35"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Surface geometry base class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for surface geometry representations in terms of two parameterizing variables 1 and 2. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::SurfaceGeometry</label>
+        <link refid="classtudat_1_1SurfaceGeometry"/>
+      </node>
+      <node id="6">
+        <label>tudat::geometric_shapes::QuadrilateralMeshedSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat::geometric_shapes::LawgsPartGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::geometric_shapes::ConicalFrustum</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1ConicalFrustum"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::geometric_shapes::CompositeSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>tudat::geometric_shapes::Torus</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1Torus"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::geometric_shapes::Capsule</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1Capsule"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::geometric_shapes::SingleSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat::geometric_shapes::SphereSegment</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1SphereSegment"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/surfaceGeometry.h" line="27" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/surfaceGeometry.h" bodystart="28" bodyend="40"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1SurfaceGeometry_1ab579812c998e712c009cbe455c0e5692" prot="public" virt="virtual"><scope>tudat::SurfaceGeometry</scope><name>~SurfaceGeometry</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

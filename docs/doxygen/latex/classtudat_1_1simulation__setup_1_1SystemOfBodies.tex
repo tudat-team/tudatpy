@@ -1,0 +1,46 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies}{}\doxysection{tudat\+::simulation\+\_\+setup\+::System\+Of\+Bodies Class Reference}
+\label{classtudat_1_1simulation__setup_1_1SystemOfBodies}\index{tudat::simulation\_setup::SystemOfBodies@{tudat::simulation\_setup::SystemOfBodies}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_ade5169524a9d83fa38c3ce5cbb8e5536}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_ade5169524a9d83fa38c3ce5cbb8e5536}} 
+{\bfseries System\+Of\+Bodies} (const std\+::string frame\+Origin=\char`\"{}SSB\char`\"{}, const std\+::string frame\+Orientation=\char`\"{}ECLIPJ2000\char`\"{}, const std\+::unordered\+\_\+map$<$ std\+::string, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} $>$ $>$ \&body\+Map=std\+::unordered\+\_\+map$<$ std\+::string, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} $>$ $>$())
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_aaa7320ba0720cc07c9327041208fa436}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_aaa7320ba0720cc07c9327041208fa436}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} $>$ {\bfseries at} (const std\+::string \&body\+Name) const
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a97dc499fa8b37c9326ce8462f501ee02}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a97dc499fa8b37c9326ce8462f501ee02}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} $>$ {\bfseries get\+Body} (const std\+::string \&body\+Name) const
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a6a90233c8585acc70795212a5364e136}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a6a90233c8585acc70795212a5364e136}} 
+int {\bfseries count} (const std\+::string \&body\+Name) const
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a4cacf7ca94389bcbcc20c2778685f5ab}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a4cacf7ca94389bcbcc20c2778685f5ab}} 
+void {\bfseries create\+Empty\+Body} (const std\+::string body\+Name, const bool process\+Body=true)
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a74f7c40830f47281c8486d1e145962ec}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a74f7c40830f47281c8486d1e145962ec}} 
+void {\bfseries add\+Body} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} $>$ body\+To\+Add, const std\+::string body\+Name, const bool process\+Body=true)
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a472b4186d032619dee8b7e714fad6ff8}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a472b4186d032619dee8b7e714fad6ff8}} 
+const std\+::unordered\+\_\+map$<$ std\+::string, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} $>$ $>$ \& {\bfseries get\+Map} () const
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a6e0b8e1fbc7c8d1cba1110f33b700c12}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a6e0b8e1fbc7c8d1cba1110f33b700c12}} 
+void {\bfseries process\+Body\+Frame\+Definitions} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a8d4f5f3214016c0dfed4758396a3ad49}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a8d4f5f3214016c0dfed4758396a3ad49}} 
+std\+::string {\bfseries get\+Frame\+Origin} () const
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a8621f548c8583e65908c5dbab837ee6f}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a8621f548c8583e65908c5dbab837ee6f}} 
+std\+::string {\bfseries get\+Frame\+Orientation} () const
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_abea0146ca4d0ce3c0a18e64645123284}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_abea0146ca4d0ce3c0a18e64645123284}} 
+std\+::unordered\+\_\+map$<$ std\+::string, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} $>$ $>$ {\bfseries get\+Map} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SystemOfBodies_a7bf4054e2b1755c87cff7aea7532654f}\label{classtudat_1_1simulation__setup_1_1SystemOfBodies_a7bf4054e2b1755c87cff7aea7532654f}} 
+void {\bfseries delete\+Body} (const std\+::string body\+Name)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/body.\+h\end{DoxyCompactItemize}

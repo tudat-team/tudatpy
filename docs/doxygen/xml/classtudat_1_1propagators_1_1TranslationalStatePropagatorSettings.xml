@@ -1,0 +1,750 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::TranslationalStatePropagatorSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings" prot="public" virt="non-virtual">tudat::propagators::SingleArcPropagatorSettings&lt; double &gt;</basecompoundref>
+    <includes refid="propagationSettings_8h" local="no">propagationSettings.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a7ef1b42d37f93e969bb1680991f16358" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::centralBodies_</definition>
+        <argsstring></argsstring>
+        <name>centralBodies_</name>
+        <briefdescription>
+<para>List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="751" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="751" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1aa5b9afdbcbc04292756abe448798037a" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::bodiesToIntegrate_</definition>
+        <argsstring></argsstring>
+        <name>bodiesToIntegrate_</name>
+        <briefdescription>
+<para>List of bodies for which the translational state is to be propagated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="754" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="754" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a5d5b921fb25985f835926c8998c0bdc1" prot="public" static="no" mutable="no">
+        <type>TranslationalPropagatorType</type>
+        <definition>TranslationalPropagatorType tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::propagator_</definition>
+        <argsstring></argsstring>
+        <name>propagator_</name>
+        <briefdescription>
+<para>Type of translational state propagator to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="757" column="33" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="757" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1ad3d3ac51b32ddd117b20898be2b6cd54" prot="private" static="no" mutable="no">
+        <type>simulation_setup::SelectedAccelerationMap</type>
+        <definition>simulation_setup::SelectedAccelerationMap tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::accelerationSettingsMap_</definition>
+        <argsstring></argsstring>
+        <name>accelerationSettingsMap_</name>
+        <briefdescription>
+<para>A map containing the list of settings for the accelerations acting on each body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A map containing the list of settings for the accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration settings object. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="821" column="47" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="821" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a2c77c941e83de803bb29c4aa6ffc9090" prot="private" static="no" mutable="no">
+        <type>basic_astrodynamics::AccelerationMap</type>
+        <definition>basic_astrodynamics::AccelerationMap tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::accelerationsMap_</definition>
+        <argsstring></argsstring>
+        <name>accelerationsMap_</name>
+        <briefdescription>
+<para>A map containing the list of accelerations acting on each body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A map containing the list of accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="831" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="831" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1ab66af0d8f0dcfc115cfaa96a14e5ac55" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::TranslationalStatePropagatorSettings</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; &amp;centralBodies, const basic_astrodynamics::AccelerationMap &amp;accelerationsMap, const std::vector&lt; std::string &gt; &amp;bodiesToIntegrate, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;initialBodyStates, const std::shared_ptr&lt; PropagationTerminationSettings &gt; terminationSettings, const TranslationalPropagatorType propagator=cowell, const std::shared_ptr&lt; DependentVariableSaveSettings &gt; dependentVariablesToSave=std::shared_ptr&lt; DependentVariableSaveSettings &gt;(), const double printInterval=TUDAT_NAN)</argsstring>
+        <name>TranslationalStatePropagatorSettings</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>centralBodies</declname>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::AccelerationMap &amp;</type>
+          <declname>accelerationsMap</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToIntegrate</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialBodyStates</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagationTerminationSettings" kindref="compound">PropagationTerminationSettings</ref> &gt;</type>
+          <declname>terminationSettings</declname>
+        </param>
+        <param>
+          <type>const TranslationalPropagatorType</type>
+          <declname>propagator</declname>
+          <defval>cowell</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;</type>
+          <declname>dependentVariablesToSave</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>printInterval</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for generic stopping conditions, providing an alreay-created accelerations map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for generic stopping conditions, providing an alreay-created accelerations map. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>centralBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationsMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A map containing the list of accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToIntegrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the translational state is to be propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialBodyStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state used as input for numerical integration </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terminationSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for creating the object that checks whether the propagation is finished. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of translational state propagator to be used </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariablesToSave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the dependent variables that are to be saved during propagation (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printInterval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="627" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="627" bodyend="641"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a5cbf33fa1725f37f4411fe0753ac478f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::TranslationalStatePropagatorSettings</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; &amp;centralBodies, const simulation_setup::SelectedAccelerationMap &amp;accelerationSettingsMap, const std::vector&lt; std::string &gt; &amp;bodiesToIntegrate, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;initialBodyStates, const std::shared_ptr&lt; PropagationTerminationSettings &gt; terminationSettings, const TranslationalPropagatorType propagator=cowell, const std::shared_ptr&lt; DependentVariableSaveSettings &gt; dependentVariablesToSave=std::shared_ptr&lt; DependentVariableSaveSettings &gt;(), const double printInterval=TUDAT_NAN)</argsstring>
+        <name>TranslationalStatePropagatorSettings</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>centralBodies</declname>
+        </param>
+        <param>
+          <type>const simulation_setup::SelectedAccelerationMap &amp;</type>
+          <declname>accelerationSettingsMap</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToIntegrate</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialBodyStates</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagationTerminationSettings" kindref="compound">PropagationTerminationSettings</ref> &gt;</type>
+          <declname>terminationSettings</declname>
+        </param>
+        <param>
+          <type>const TranslationalPropagatorType</type>
+          <declname>propagator</declname>
+          <defval>cowell</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;</type>
+          <declname>dependentVariablesToSave</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>printInterval</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for generic stopping conditions, providing settings to create accelerations map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for generic stopping conditions, providing settings to create accelerations map. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>centralBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationSettingsMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A map containing settings for the accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToIntegrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the translational state is to be propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialBodyStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state used as input for numerical integration </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terminationSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for creating the object that checks whether the propagation is finished. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of translational state propagator to be used </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariablesToSave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the dependent variables that are to be saved during propagation (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printInterval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="661" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="661" bodyend="675"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a1355cf1c3c36c0df3ba4be6b9dece894" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::TranslationalStatePropagatorSettings</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; &amp;centralBodies, const basic_astrodynamics::AccelerationMap &amp;accelerationsMap, const std::vector&lt; std::string &gt; &amp;bodiesToIntegrate, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;initialBodyStates, const double endTime, const TranslationalPropagatorType propagator=cowell, const std::shared_ptr&lt; DependentVariableSaveSettings &gt; dependentVariablesToSave=std::shared_ptr&lt; DependentVariableSaveSettings &gt;(), const double printInterval=TUDAT_NAN)</argsstring>
+        <name>TranslationalStatePropagatorSettings</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>centralBodies</declname>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::AccelerationMap &amp;</type>
+          <declname>accelerationsMap</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToIntegrate</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialBodyStates</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>endTime</declname>
+        </param>
+        <param>
+          <type>const TranslationalPropagatorType</type>
+          <declname>propagator</declname>
+          <defval>cowell</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;</type>
+          <declname>dependentVariablesToSave</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>printInterval</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>centralBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationsMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A map containing the list of accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToIntegrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the translational state is to be propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialBodyStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state used as input for numerical integration </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>endTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which to stop the numerical propagation </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of translational state propagator to be used </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariablesToSave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the dependent variables that are to be saved during propagation (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printInterval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="695" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="695" bodyend="710"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1adf8e4cd7dd625bb0b3d1342050359653" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::TranslationalStatePropagatorSettings</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; &amp;centralBodies, const simulation_setup::SelectedAccelerationMap &amp;accelerationSettingsMap, const std::vector&lt; std::string &gt; &amp;bodiesToIntegrate, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;initialBodyStates, const double endTime, const TranslationalPropagatorType propagator=cowell, const std::shared_ptr&lt; DependentVariableSaveSettings &gt; dependentVariablesToSave=std::shared_ptr&lt; DependentVariableSaveSettings &gt;(), const double printInterval=TUDAT_NAN)</argsstring>
+        <name>TranslationalStatePropagatorSettings</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>centralBodies</declname>
+        </param>
+        <param>
+          <type>const simulation_setup::SelectedAccelerationMap &amp;</type>
+          <declname>accelerationSettingsMap</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToIntegrate</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialBodyStates</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>endTime</declname>
+        </param>
+        <param>
+          <type>const TranslationalPropagatorType</type>
+          <declname>propagator</declname>
+          <defval>cowell</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;</type>
+          <declname>dependentVariablesToSave</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>printInterval</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>centralBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationSettingsMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A map containing settings for the accelerations acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToIntegrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the translational state is to be propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialBodyStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state used as input for numerical integration </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>endTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which to stop the numerical propagation </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of translational state propagator to be used </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariablesToSave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the dependent variables that are to be saved during propagation (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printInterval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="730" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="730" bodyend="745"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a4c352939e8125405eb00e900d434f12e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::~TranslationalStatePropagatorSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~TranslationalStatePropagatorSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="748" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="748" bodyend="748"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a737a5567863d1b339f0e990391474179" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::resetIntegratedStateModels</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies)</argsstring>
+        <name>resetIntegratedStateModels</name>
+        <reimplements refid="classtudat_1_1propagators_1_1PropagatorSettings_1a18182c016d4f3bfd0229485425f9c395">resetIntegratedStateModels</reimplements>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <briefdescription>
+<para>Function to create the acceleration models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create the acceleration models. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of bodies in the propagation, with keys the names of the bodies. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="764" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="764" bodyend="768"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a4a64187896be56b708d51432855ae886" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::resetAccelerationModelsMap</definition>
+        <argsstring>(const simulation_setup::SelectedAccelerationMap accelerationSettingsMap, const simulation_setup::SystemOfBodies &amp;bodies)</argsstring>
+        <name>resetAccelerationModelsMap</name>
+        <param>
+          <type>const simulation_setup::SelectedAccelerationMap</type>
+          <declname>accelerationSettingsMap</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="770" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="770" bodyend="777"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a051ee12c98ee60e32be301ccda149154" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>simulation_setup::SelectedAccelerationMap</type>
+        <definition>simulation_setup::SelectedAccelerationMap tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::getAccelerationSettingsMap</definition>
+        <argsstring>() const</argsstring>
+        <name>getAccelerationSettingsMap</name>
+        <briefdescription>
+<para>Function to get the acceleration settings map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the acceleration settings map. <simplesect kind="return"><para>The acceleration settings map. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="784" column="47" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="784" bodyend="787"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1acf86e111ac7fbaea7a38125dcaf069fd" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>basic_astrodynamics::AccelerationMap</type>
+        <definition>basic_astrodynamics::AccelerationMap tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::getAccelerationsMap</definition>
+        <argsstring>() const</argsstring>
+        <name>getAccelerationsMap</name>
+        <briefdescription>
+<para>Function to get the accelerations map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the accelerations map. <simplesect kind="return"><para>The accelerations map. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="794" column="42" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="794" bodyend="802"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a94adbc841474554926d0e6eb75f4c379" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;::getPropagatedStateSize</definition>
+        <argsstring>()</argsstring>
+        <name>getPropagatedStateSize</name>
+        <reimplements refid="classtudat_1_1propagators_1_1PropagatorSettings_1a128271c27a3fe5ca34ac1a58634a181b">getPropagatedStateSize</reimplements>
+        <briefdescription>
+<para>Get total size of the propagated state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get total size of the propagated state. <simplesect kind="return"><para>Total size of the propagated state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="804" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="804" bodyend="809"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for defining settings for propagating translational dynamics. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for defining settings for propagating translational dynamics. The propagator defines the form of the equations of motion (i.e. Cowell, Encke, Gauss etc.). This base class can be used for Cowell propagator. Other propagators have dedicated derived class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::propagators::PropagatorSettings&lt; double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1PropagatorSettings"/>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleArcPropagatorSettings&lt; double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::propagators::PropagatorSettings&lt; double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1PropagatorSettings"/>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleArcPropagatorSettings&lt; double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::TranslationalStatePropagatorSettings&lt; StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="605" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="606" bodyend="833"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1ad3d3ac51b32ddd117b20898be2b6cd54" prot="private" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>accelerationSettingsMap_</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a2c77c941e83de803bb29c4aa6ffc9090" prot="private" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>accelerationsMap_</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1aa5b9afdbcbc04292756abe448798037a" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>bodiesToIntegrate_</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a7ef1b42d37f93e969bb1680991f16358" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>centralBodies_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a9dd65fe2bf4a7c627e579bd72c8f0561" prot="protected" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>dependentVariablesToSave_</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a051ee12c98ee60e32be301ccda149154" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getAccelerationSettingsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1acf86e111ac7fbaea7a38125dcaf069fd" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getAccelerationsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a987e539af258fd0548128478ceb1f1b6" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getConventionalStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a7d351d858e2042536fe838c3cd2570f3" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getDependentVariablesToSave</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a6db4b4a3a34bad2ef3b9e9789a2853e4" prot="public" virt="virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getInitialStates</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a446e5dd179a72f27aa5df54e8d491a92" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getIsMultiArc</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a134d7c5ef645d93c24eb5207d140b9c3" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getPrintInterval</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a94adbc841474554926d0e6eb75f4c379" prot="public" virt="virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getPropagatedStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1adf9a0194f420a4eb6c949ef3400eaf5f" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getStateType</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1ab52769df71f2c289a575df9457c711c7" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>getTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a76fe3605ffe32130c5343601125188b4" prot="protected" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>initialStates_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a571feace38f16b87d7e50e56c3e4425f" prot="protected" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>isMultiArc_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a4a186ce31f706e1d054035dacb8ee2bd" prot="protected" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>printInterval_</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a5d5b921fb25985f835926c8998c0bdc1" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>propagator_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a5540555103ae40e91c02a412268c9d67" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>PropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a4a64187896be56b708d51432855ae886" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>resetAccelerationModelsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a5aaa9e6eca4fb6ba7650293762df42af" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>resetDependentVariablesToSave</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a372bd085a2032236531536f5d8c46fb3" prot="public" virt="virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>resetInitialStates</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a737a5567863d1b339f0e990391474179" prot="public" virt="virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>resetIntegratedStateModels</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1ad60d725357ae418dd6c785a371b8213b" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>resetTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a26029ffd00ed5cf58a12f2ad33208211" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>setTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a4c6a35e5406aa71ea132e0a25f179b4d" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>SingleArcPropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a7325c41d712d7bbeeb12ef8969b235c3" prot="protected" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>stateSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a09efbe053ab9fdd928989c81fd3e7d1d" prot="protected" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>stateType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a4840694cc192b5e09eef2af31cc24185" prot="protected" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>terminationSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1ab66af0d8f0dcfc115cfaa96a14e5ac55" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>TranslationalStatePropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a5cbf33fa1725f37f4411fe0753ac478f" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>TranslationalStatePropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a1355cf1c3c36c0df3ba4be6b9dece894" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>TranslationalStatePropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1adf8e4cd7dd625bb0b3d1342050359653" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>TranslationalStatePropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a65e44fea8537b9cc68d1e3d9b1fee714" prot="public" virt="virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>~PropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a9627bc630c195255a9d8e7e55bdd4471" prot="public" virt="virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>~SingleArcPropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1TranslationalStatePropagatorSettings_1a4c352939e8125405eb00e900d434f12e" prot="public" virt="non-virtual"><scope>tudat::propagators::TranslationalStatePropagatorSettings</scope><name>~TranslationalStatePropagatorSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

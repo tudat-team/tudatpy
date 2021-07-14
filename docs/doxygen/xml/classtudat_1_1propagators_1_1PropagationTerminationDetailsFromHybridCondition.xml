@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1PropagationTerminationDetails" prot="public" virt="non-virtual">tudat::propagators::PropagationTerminationDetails</basecompoundref>
+    <includes refid="propagationTermination_8h" local="no">propagationTermination.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition_1ae8d9cd9398c94bee65e0b71b5d998630" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; bool &gt;</type>
+        <definition>std::vector&lt; bool &gt; tudat::propagators::PropagationTerminationDetailsFromHybridCondition::isConditionMetWhenStopping_</definition>
+        <argsstring></argsstring>
+        <name>isConditionMetWhenStopping_</name>
+        <briefdescription>
+<para>List of booleans, denoting for each of the constituent stopping conditions whether or not is was met. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="498" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="498" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition_1aecee4f3bfce8c9398e0b36db6e91ebfb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::PropagationTerminationDetailsFromHybridCondition::PropagationTerminationDetailsFromHybridCondition</definition>
+        <argsstring>(const bool terminationOnExactCondition, const std::shared_ptr&lt; HybridPropagationTerminationCondition &gt; terminationCondition)</argsstring>
+        <name>PropagationTerminationDetailsFromHybridCondition</name>
+        <param>
+          <type>const bool</type>
+          <declname>terminationOnExactCondition</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1HybridPropagationTerminationCondition" kindref="compound">HybridPropagationTerminationCondition</ref> &gt;</type>
+          <declname>terminationCondition</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>terminationOnExactCondition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if exact termination condition is used, false if not. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terminationCondition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hybrid termination conditions that were used </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="470" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="470" bodyend="474"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition_1a6fe02531796402258b18240f802035aa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::PropagationTerminationDetailsFromHybridCondition::~PropagationTerminationDetailsFromHybridCondition</definition>
+        <argsstring>()</argsstring>
+        <name>~PropagationTerminationDetailsFromHybridCondition</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="477" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="477" bodyend="477"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition_1a1eea628bdc9fec42d16d0ef0d1df7e5a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; bool &gt;</type>
+        <definition>std::vector&lt; bool &gt; tudat::propagators::PropagationTerminationDetailsFromHybridCondition::getWasConditionMetWhenStopping</definition>
+        <argsstring>()</argsstring>
+        <name>getWasConditionMetWhenStopping</name>
+        <briefdescription>
+<para>Function to retrieve list of booleans, denoting for each of the constituent stopping conditions whether or not is was met. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve list of booleans, denoting for each of the constituent stopping conditions whether or not is was met. <simplesect kind="return"><para>List of booleans, denoting for each of the constituent stopping conditions whether or not is was met. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="484" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="484" bodyend="493"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for storing details on the propagation termination when using hybrid termination conditions. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationDetails</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationDetails"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationDetails</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationDetails"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="460" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="461" bodyend="500"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a37a193e85c45b62afea680fcfb0361d7" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>getPropagationTerminationReason</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a6c54a1bb1e7af412b1b03516f1ddffb4" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>getTerminationOnExactCondition</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition_1a1eea628bdc9fec42d16d0ef0d1df7e5a" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>getWasConditionMetWhenStopping</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition_1ae8d9cd9398c94bee65e0b71b5d998630" prot="private" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>isConditionMetWhenStopping_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a47927de010a18b3b632fb6db90f1efe5" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>PropagationTerminationDetails</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition_1aecee4f3bfce8c9398e0b36db6e91ebfb" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>PropagationTerminationDetailsFromHybridCondition</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1aa5c1a82ec15f9d5d5f53be975f3ccce0" prot="protected" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>propagationTerminationReason_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a81baaf86e71af2086033ca94bda50240" prot="protected" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>terminationOnExactCondition_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a0f2eed4e5197a60cd8d6ad3bf0f7c2e0" prot="public" virt="virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>~PropagationTerminationDetails</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition_1a6fe02531796402258b18240f802035aa" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</scope><name>~PropagationTerminationDetailsFromHybridCondition</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,244 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1NWayRangeScaling" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_partials::NWayRangeScaling</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__partials_1_1PositionPartialScaling" prot="public" virt="non-virtual">tudat::observation_partials::PositionPartialScaling</basecompoundref>
+    <includes refid="nWayRangePartial_8h" local="no">nWayRangePartial.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1NWayRangeScaling_1aef5ad8c81bec0bbb856b967b3bcf2740" prot="private" static="no" mutable="no">
+        <type>std::map&lt; int, std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayRangeScaling" kindref="compound">OneWayRangeScaling</ref> &gt; &gt;</type>
+        <definition>std::map&lt; int, std::shared_ptr&lt; OneWayRangeScaling &gt; &gt; tudat::observation_partials::NWayRangeScaling::constituentRangeScalings_</definition>
+        <argsstring></argsstring>
+        <name>constituentRangeScalings_</name>
+        <briefdescription>
+<para>Map of consitutent one-way range scaling objects, with link index as map key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" line="84" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1NWayRangeScaling_1acbecc86f3aee9a249e352557b894d35b" prot="private" static="no" mutable="no">
+        <type>std::map&lt; int, std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayRangeScaling" kindref="compound">OneWayRangeScaling</ref> &gt; &gt;::iterator</type>
+        <definition>std::map&lt; int, std::shared_ptr&lt; OneWayRangeScaling &gt; &gt;::iterator tudat::observation_partials::NWayRangeScaling::constituentRangeScalingIterator_</definition>
+        <argsstring></argsstring>
+        <name>constituentRangeScalingIterator_</name>
+        <briefdescription>
+<para>Predeclared iterator (for efficiencty) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" line="87" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1NWayRangeScaling_1ae993833c2b10348dadb0cc594f6a92ca" prot="private" static="no" mutable="no">
+        <type>std::map&lt; int, double &gt;</type>
+        <definition>std::map&lt; int, double &gt; tudat::observation_partials::NWayRangeScaling::projectedRelativeVelocityRatios_</definition>
+        <argsstring></argsstring>
+        <name>projectedRelativeVelocityRatios_</name>
+        <briefdescription>
+<para>List of values by which to scale constituent one-way ranges partials for it to be put into n-way range partial. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" line="90" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1NWayRangeScaling_1aa6061c80e581db161eb381e00717a6df" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::observation_partials::NWayRangeScaling::numberOfLinkEnds_</definition>
+        <argsstring></argsstring>
+        <name>numberOfLinkEnds_</name>
+        <briefdescription>
+<para>Number of link ends in observation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" line="93" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1NWayRangeScaling_1aaa9ee2c66ac5f4b98b1a77e38498daf2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::NWayRangeScaling::NWayRangeScaling</definition>
+        <argsstring>(const std::map&lt; int, std::shared_ptr&lt; OneWayRangeScaling &gt; &gt; &amp;constituentRangeScalings, const int numberOfLinkEnds)</argsstring>
+        <name>NWayRangeScaling</name>
+        <param>
+          <type>const std::map&lt; int, std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayRangeScaling" kindref="compound">OneWayRangeScaling</ref> &gt; &gt; &amp;</type>
+          <declname>constituentRangeScalings</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfLinkEnds</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>constituentRangeScalings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of consitutent one-way range scaling objects, with link end index as map key </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfLinkEnds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of link ends in observable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" line="49" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" bodystart="49" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1NWayRangeScaling_1a9c70d01e0348fd9809ea32b0a78208bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::observation_partials::NWayRangeScaling::update</definition>
+        <argsstring>(const std::vector&lt; Eigen::Vector6d &gt; &amp;linkEndStates, const std::vector&lt; double &gt; &amp;times, const observation_models::LinkEndType fixedLinkEnd, const Eigen::VectorXd currentObservation)</argsstring>
+        <name>update</name>
+        <reimplements refid="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a7bf12506127c4527eacae23c6a9cf469">update</reimplements>
+        <param>
+          <type>const std::vector&lt; Eigen::Vector6d &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>times</declname>
+        </param>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>fixedLinkEnd</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>currentObservation</declname>
+        </param>
+        <briefdescription>
+<para>Update the scaling object to the current times and states. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update the scaling object to the current times and states <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation Index of vector maps to link end for a given ObsevableType through getLinkEndIndex function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>times</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fixedLinkEnd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which observation time is defined, i.e. link end for which associated time is kept constant when computing observable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of observation for which partial scaling is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" line="64" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/nWayRangePartial.cpp" bodystart="21" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1NWayRangeScaling_1a471508e0d6843971894321b1e98ac860" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::observation_partials::NWayRangeScaling::getProjectedRelativeVelocityRatio</definition>
+        <argsstring>(const int linkIndex)</argsstring>
+        <name>getProjectedRelativeVelocityRatio</name>
+        <param>
+          <type>const int</type>
+          <declname>linkIndex</declname>
+        </param>
+        <briefdescription>
+<para>Function to get value by which to scale a constituent one-way ranges partial for it to be put into n-way range partial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get value by which to scale a constituent one-way ranges partial for it to be put into n-way range partial, for a single constituent one-way range (as compiuuted by last call to update function). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of link for which scaling is to be returned. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value by which to scale a constituent one-way ranges partial for it to be put into n-way range partial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" line="76" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" bodystart="76" bodyend="79"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Derived class for scaling three-dimensional position partial to n-way range observable partial. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Derived class for scaling three-dimensional position partial to n-way range observable partial. Implementation is taken from Moyer(2000) for constituent one-way ranges, whicha re scaled (at O(v/c)) to n-way range implementation </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_partials::PositionPartialScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionPartialScaling"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::NWayRangeScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1NWayRangeScaling"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_partials::PositionPartialScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionPartialScaling"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_partials::NWayRangeScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1NWayRangeScaling"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h" bodystart="40" bodyend="95"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1NWayRangeScaling_1acbecc86f3aee9a249e352557b894d35b" prot="private" virt="non-virtual"><scope>tudat::observation_partials::NWayRangeScaling</scope><name>constituentRangeScalingIterator_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1NWayRangeScaling_1aef5ad8c81bec0bbb856b967b3bcf2740" prot="private" virt="non-virtual"><scope>tudat::observation_partials::NWayRangeScaling</scope><name>constituentRangeScalings_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1NWayRangeScaling_1a471508e0d6843971894321b1e98ac860" prot="public" virt="non-virtual"><scope>tudat::observation_partials::NWayRangeScaling</scope><name>getProjectedRelativeVelocityRatio</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1NWayRangeScaling_1aa6061c80e581db161eb381e00717a6df" prot="private" virt="non-virtual"><scope>tudat::observation_partials::NWayRangeScaling</scope><name>numberOfLinkEnds_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1NWayRangeScaling_1aaa9ee2c66ac5f4b98b1a77e38498daf2" prot="public" virt="non-virtual"><scope>tudat::observation_partials::NWayRangeScaling</scope><name>NWayRangeScaling</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1NWayRangeScaling_1ae993833c2b10348dadb0cc594f6a92ca" prot="private" virt="non-virtual"><scope>tudat::observation_partials::NWayRangeScaling</scope><name>projectedRelativeVelocityRatios_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1NWayRangeScaling_1a9c70d01e0348fd9809ea32b0a78208bb" prot="public" virt="virtual"><scope>tudat::observation_partials::NWayRangeScaling</scope><name>update</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a434c37b9140a2f1c0c916ab1eb332564" prot="public" virt="virtual"><scope>tudat::observation_partials::NWayRangeScaling</scope><name>~PositionPartialScaling</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

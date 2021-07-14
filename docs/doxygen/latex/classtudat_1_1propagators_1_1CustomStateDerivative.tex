@@ -1,0 +1,134 @@
+\hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative}{}\doxysection{tudat\+::propagators\+::Custom\+State\+Derivative$<$ State\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1CustomStateDerivative}\index{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}}
+
+
+{\ttfamily \#include $<$custom\+State\+Derivative.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Custom\+State\+Derivative$<$ State\+Scalar\+Type, Time\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1CustomStateDerivative}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_aeb6762568373f2ab6235d4c04e6881ff}\label{classtudat_1_1propagators_1_1CustomStateDerivative_aeb6762568373f2ab6235d4c04e6881ff}} 
+typedef Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ {\bfseries State\+Vector\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative_a20a3fef1eb9434450f02ef1f14600a94}{Custom\+State\+Derivative}} (const std\+::function$<$ State\+Vector\+Type(const Time\+Type, const State\+Vector\+Type \&)$>$ state\+Derivative\+Model, const int state\+Size)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative_afdf99d87ec97710ebf94b58785c33378}{calculate\+System\+State\+Derivative}} (const Time\+Type time, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&state\+Of\+System\+To\+Be\+Integrated, Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$ state\+Derivative)
+\begin{DoxyCompactList}\small\item\em Calculates the custom state derivative. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_a7b2ebdcc6f42cfb1cbb46291d6e80ffe}\label{classtudat_1_1propagators_1_1CustomStateDerivative_a7b2ebdcc6f42cfb1cbb46291d6e80ffe}} 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative_a7b2ebdcc6f42cfb1cbb46291d6e80ffe}{clear\+State\+Derivative\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Function included for consistency, not used in this derived class. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_ae23ee87ceb17b4d8e2ce8e14ac65028b}\label{classtudat_1_1propagators_1_1CustomStateDerivative_ae23ee87ceb17b4d8e2ce8e14ac65028b}} 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative_ae23ee87ceb17b4d8e2ce8e14ac65028b}{update\+State\+Derivative\+Model}} (const Time\+Type current\+Time)
+\begin{DoxyCompactList}\small\item\em Function included for consistency, not used in this derived class. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative_a0ac8d9b628761a6077cf280d1dbe6b5e}{convert\+Current\+State\+To\+Global\+Representation}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&internal\+Solution, const Time\+Type \&time, Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ current\+Local\+Solution)
+\item 
+virtual Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative_a6361733845c6c55305f326dbea40f5a1}{convert\+From\+Output\+Solution}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&output\+Solution, const Time\+Type \&time)
+\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative_a22dbfcc73c2922a4368b27841e0471de}{convert\+To\+Output\+Solution}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&internal\+Solution, const Time\+Type \&time, Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ current\+Local\+Solution)
+\item 
+virtual int \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative_a27d518eeac4fdf756514479b4d8a58cd}{get\+Conventional\+State\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the total size of the state of propagated masses. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::propagators\+::\+Custom\+State\+Derivative$<$ State\+Scalar\+Type, Time\+Type $>$}
+
+Model to compute the derivative of a custom state (i.\+e. a state for which the physical significance is not \textquotesingle{}known\textquotesingle{} to the rest of the code 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_a20a3fef1eb9434450f02ef1f14600a94}\label{classtudat_1_1propagators_1_1CustomStateDerivative_a20a3fef1eb9434450f02ef1f14600a94}} 
+\index{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}!CustomStateDerivative@{CustomStateDerivative}}
+\index{CustomStateDerivative@{CustomStateDerivative}!tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{CustomStateDerivative()}{CustomStateDerivative()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative}{tudat\+::propagators\+::\+Custom\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative}{Custom\+State\+Derivative}} (\begin{DoxyParamCaption}\item[{const std\+::function$<$ State\+Vector\+Type(const Time\+Type, const State\+Vector\+Type \&)$>$}]{state\+Derivative\+Model,  }\item[{const int}]{state\+Size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em state\+Derivative\+Model} & Function to compute the state derivative, as a function of current time and state. \\
+\hline
+{\em state\+Size} & Size of the custom state that is propagated. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_afdf99d87ec97710ebf94b58785c33378}\label{classtudat_1_1propagators_1_1CustomStateDerivative_afdf99d87ec97710ebf94b58785c33378}} 
+\index{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}!calculateSystemStateDerivative@{calculateSystemStateDerivative}}
+\index{calculateSystemStateDerivative@{calculateSystemStateDerivative}!tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{calculateSystemStateDerivative()}{calculateSystemStateDerivative()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative}{tudat\+::propagators\+::\+Custom\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::calculate\+System\+State\+Derivative (\begin{DoxyParamCaption}\item[{const Time\+Type}]{time,  }\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&}]{state\+Of\+System\+To\+Be\+Integrated,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$}]{state\+Derivative }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calculates the custom state derivative. 
+
+Calculates the custom state derivative 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which the state derivative is to be calculated. \\
+\hline
+{\em state\+Of\+System\+To\+Be\+Integrated} & Current custom states \\
+\hline
+{\em state\+Derivative} & State derivative of custom states (returned by reference). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_a0ac8d9b628761a6077cf280d1dbe6b5e}\label{classtudat_1_1propagators_1_1CustomStateDerivative_a0ac8d9b628761a6077cf280d1dbe6b5e}} 
+\index{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}!convertCurrentStateToGlobalRepresentation@{convertCurrentStateToGlobalRepresentation}}
+\index{convertCurrentStateToGlobalRepresentation@{convertCurrentStateToGlobalRepresentation}!tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{convertCurrentStateToGlobalRepresentation()}{convertCurrentStateToGlobalRepresentation()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative}{tudat\+::propagators\+::\+Custom\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::convert\+Current\+State\+To\+Global\+Representation (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&}]{internal\+Solution,  }\item[{const Time\+Type \&}]{time,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$}]{current\+Local\+Solution }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Function included for compatibility purposes with base class, local and global representation is equal for custom model. Function returns (by reference) input internal\+Solution. \mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_a6361733845c6c55305f326dbea40f5a1}\label{classtudat_1_1propagators_1_1CustomStateDerivative_a6361733845c6c55305f326dbea40f5a1}} 
+\index{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}!convertFromOutputSolution@{convertFromOutputSolution}}
+\index{convertFromOutputSolution@{convertFromOutputSolution}!tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{convertFromOutputSolution()}{convertFromOutputSolution()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative}{tudat\+::propagators\+::\+Custom\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::convert\+From\+Output\+Solution (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&}]{output\+Solution,  }\item[{const Time\+Type \&}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Function included for compatibility purposes with base class, input and output representation is equal for custom model. Function returns input output\+Solution. \mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_a22dbfcc73c2922a4368b27841e0471de}\label{classtudat_1_1propagators_1_1CustomStateDerivative_a22dbfcc73c2922a4368b27841e0471de}} 
+\index{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}!convertToOutputSolution@{convertToOutputSolution}}
+\index{convertToOutputSolution@{convertToOutputSolution}!tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{convertToOutputSolution()}{convertToOutputSolution()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative}{tudat\+::propagators\+::\+Custom\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::convert\+To\+Output\+Solution (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&}]{internal\+Solution,  }\item[{const Time\+Type \&}]{time,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$}]{current\+Local\+Solution }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Function included for compatibility purposes with base class, input and output representation is equal for custom model. Function returns (by reference) input internal\+Solution. \mbox{\Hypertarget{classtudat_1_1propagators_1_1CustomStateDerivative_a27d518eeac4fdf756514479b4d8a58cd}\label{classtudat_1_1propagators_1_1CustomStateDerivative_a27d518eeac4fdf756514479b4d8a58cd}} 
+\index{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}!getConventionalStateSize@{getConventionalStateSize}}
+\index{getConventionalStateSize@{getConventionalStateSize}!tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$@{tudat::propagators::CustomStateDerivative$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getConventionalStateSize()}{getConventionalStateSize()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual int \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomStateDerivative}{tudat\+::propagators\+::\+Custom\+State\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Conventional\+State\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to get the total size of the state of propagated masses. 
+
+Function to get the total size of the state of propagated masses. \begin{DoxyReturn}{Returns}
+Size of propagated custom state. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative_aa593f86baeb911ebaf24f849faad1867}{tudat\+::propagators\+::\+Single\+State\+Type\+Derivative$<$ double, double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propagators/custom\+State\+Derivative.\+h\end{DoxyCompactItemize}

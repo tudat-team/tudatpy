@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1is__direct__gravity__acceleration_3_01gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_01_4" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::is_direct_gravity_acceleration&lt; gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel &gt;</compoundname>
+    <templateparamlist>
+    </templateparamlist>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1is__direct__gravity__acceleration_3_01gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_01_4_1a684741f748c5c0e50c364a556b7c4d1a" prot="public" static="yes" mutable="no">
+        <type>const bool</type>
+        <definition>const bool tudat::is_direct_gravity_acceleration&lt; gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel &gt;::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <initializer>= true</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="158" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" line="157" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/tudatTypeTraits.h" bodystart="157" bodyend="159"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1is__direct__gravity__acceleration_3_01gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_01_4_1a684741f748c5c0e50c364a556b7c4d1a" prot="public" virt="non-virtual"><scope>tudat::is_direct_gravity_acceleration&lt; gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel &gt;</scope><name>value</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

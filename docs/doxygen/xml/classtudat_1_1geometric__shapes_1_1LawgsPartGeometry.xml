@@ -1,0 +1,536 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kind="class" language="C++" prot="public">
+    <compoundname>tudat::geometric_shapes::LawgsPartGeometry</compoundname>
+    <basecompoundref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry" prot="public" virt="non-virtual">tudat::geometric_shapes::QuadrilateralMeshedSurfaceGeometry</basecompoundref>
+    <includes refid="lawgsPartGeometry_8h" local="no">lawgsPartGeometry.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a45a1463a81f989e428f955686ab986c9" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::geometric_shapes::LawgsPartGeometry::name_</definition>
+        <argsstring></argsstring>
+        <name>name_</name>
+        <briefdescription>
+<para>Part name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Part name. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="148" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1ad94fc244be9691996b9ee1703b66925d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::geometric_shapes::LawgsPartGeometry::LawgsPartGeometry</definition>
+        <argsstring>()</argsstring>
+        <name>LawgsPartGeometry</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="44" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1aab069c9b07682f09943011c3a653113c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::geometric_shapes::LawgsPartGeometry::~LawgsPartGeometry</definition>
+        <argsstring>()</argsstring>
+        <name>~LawgsPartGeometry</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="50" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" bodystart="50" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1ad1a9eb1da6d44f6d8fd595ca35832280" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::geometric_shapes::LawgsPartGeometry::setMesh</definition>
+        <argsstring>(std::shared_ptr&lt; SingleSurfaceGeometry &gt; originalSurface, int numberOfLines, int numberOfPoints)</argsstring>
+        <name>setMesh</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry" kindref="compound">SingleSurfaceGeometry</ref> &gt;</type>
+          <declname>originalSurface</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>numberOfLines</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>numberOfPoints</declname>
+        </param>
+        <briefdescription>
+<para>Create a mesh surface on a single-surface geometry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor from surface geometry (i.e., geometry type conversion).</para>
+<para>Creates a mesh surface on a single-surface geometry. A meshed surface based on the given surface geometry is created. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originalSurface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>surface from which a mesh is to be created. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfLines</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of points to be sampled from 1st independent variable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfPoints</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of points to be sampled from 2nd independent variable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="62" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" bodystart="25" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a2cd980840078ea65ecad3d6768c8b82d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::geometric_shapes::LawgsPartGeometry::LawgsPartGeometry</definition>
+        <argsstring>(const LawgsPartGeometry &amp;partToCopy)</argsstring>
+        <name>LawgsPartGeometry</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kindref="compound">LawgsPartGeometry</ref> &amp;</type>
+          <declname>partToCopy</declname>
+        </param>
+        <briefdescription>
+<para>Copy constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Copy constructor to deep-copy contents of a LawgsPartGeomtry object to a new one. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partToCopy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kindref="compound">LawgsPartGeometry</ref> to copy </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="70" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" bodystart="76" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a7076f2fc68b8df7032c191805a41ac57" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::geometric_shapes::LawgsPartGeometry::getSurfacePoint</definition>
+        <argsstring>(const double independentVariable1, const double independentVariable2)</argsstring>
+        <name>getSurfacePoint</name>
+        <reimplements refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aec5c9957aa261662b34ddb0acf5eac40">getSurfacePoint</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable1</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable2</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve surface point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get surface point.</para>
+<para>This function retrieves a surface point from on a panel. Because four points define a panel in this mesh format, the collection of panels will not be necessarilly watertight, making this function non-trivial, since the four points defining the panel will not necessarily lie in the same plane. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariable1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variable indicating on (or between) which lines to retrieve a point. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariable2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variable indicating on (or between) which points to retrieve a point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>point on mesh panel. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="85" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" bodystart="93" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a1f1cb867a6612ee3bb9dffa30e4f5755" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::geometric_shapes::LawgsPartGeometry::getSurfaceDerivative</definition>
+        <argsstring>(const double u, const double v, const int uDerivative, const int vDerivative)</argsstring>
+        <name>getSurfaceDerivative</name>
+        <reimplements refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad5d412eff63b46b71cc774d222131795">getSurfaceDerivative</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>u</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>uDerivative</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>vDerivative</declname>
+        </param>
+        <briefdescription>
+<para>Get surface derivative (currently not implemented). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Currently unavailable function to return surface derivative. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>u</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NOTE: Function unavailable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NOTE: Function unavailable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>uDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NOTE: Function unavailable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NOTE: Function unavailable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>NOTE: Function unavailable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="97" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" bodystart="127" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a2ef6186379526cc3bc090ee3225dd7bf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::geometric_shapes::LawgsPartGeometry::setName</definition>
+        <argsstring>(const std::string &amp;name)</argsstring>
+        <name>setName</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Set name of a Lawgs part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the name of a Lawgs part. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New name of a Lawgs part. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="105" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" bodystart="105" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1af7846a5393045d590ba4d1fb58e30fb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::geometric_shapes::LawgsPartGeometry::getParameter</definition>
+        <argsstring>(const int i)</argsstring>
+        <name>getParameter</name>
+        <reimplements refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a17437a185d1bc67dd7dc3cdfb43d92a6">getParameter</reimplements>
+        <param>
+          <type>const int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Get parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function not currently impemented for Lawgs. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function not currently impemented for Lawgs. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Function not currently impemented for Lawgs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="113" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" bodystart="141" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1ac10cdea82268f795ebd1f95e994317c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::geometric_shapes::LawgsPartGeometry::setParameter</definition>
+        <argsstring>(const int parameterIndex, const double value)</argsstring>
+        <name>setParameter</name>
+        <param>
+          <type>const int</type>
+          <declname>parameterIndex</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Set parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets parameter. Function not currently impemented for Lawgs. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function not currently impemented for Lawgs. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function not currently impemented for Lawgs. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Function not currently impemented for Lawgs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="123" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" bodystart="151" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1ab5d086fe776b2e09918fa12e2ecf1d0f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::geometric_shapes::LawgsPartGeometry::getName</definition>
+        <argsstring>()</argsstring>
+        <name>getName</name>
+        <briefdescription>
+<para>Get part name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns part name. <simplesect kind="return"><para>Part name. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="130" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" bodystart="130" bodyend="130"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a4f16202de16c8bf7ed8f9c15208f8fcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, LawgsPartGeometry &amp;lawgsPartGeometry)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kindref="compound">LawgsPartGeometry</ref> &amp;</type>
+          <declname>lawgsPartGeometry</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the number of lines and points, and the name of the part. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lawgsPartGeometry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lawgs part geometry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="140" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/lawgsPartGeometry.cpp" bodystart="159" bodyend="171"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define a mesh accoring to Lawgs standards. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to define a surface mesh accoring to the Langley Wireframe Geometry standard, seet reference. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="4">
+        <label>tudat::SurfaceGeometry</label>
+        <link refid="classtudat_1_1SurfaceGeometry"/>
+      </node>
+      <node id="2">
+        <label>tudat::geometric_shapes::QuadrilateralMeshedSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::geometric_shapes::LawgsPartGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::geometric_shapes::SingleSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5">
+        <label>string</label>
+      </node>
+      <node id="4">
+        <label>tudat::SurfaceGeometry</label>
+        <link refid="classtudat_1_1SurfaceGeometry"/>
+      </node>
+      <node id="2">
+        <label>tudat::geometric_shapes::QuadrilateralMeshedSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::geometric_shapes::LawgsPartGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>name_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::geometric_shapes::SingleSurfaceGeometry</label>
+        <link refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" line="36" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/lawgsPartGeometry.h" bodystart="37" bodyend="151"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa23bba50be6214d1621308761d8e3bb1" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>cartesianPositionVector_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66aefdc4fe0743bd110904521975886b51b" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>firstIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a0c27b60cd7bb0dabd008c8512b9329b0" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getMaximumIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a41d3852659958f92057e07fddff2a840" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getMeshPoint</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a9ea7f7fafe1ce0eecc0c0ad3e07871a7" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getMeshPoints</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1afd3d72e02db05e1ccb8702e73b42be01" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getMinimumIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1ab5d086fe776b2e09918fa12e2ecf1d0f" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getName</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ad70047cbce7abca955b2fe67fde9b911" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getNumberOfLines</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a1f04acd06c7e81d3cbfa745248ccbc93" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getNumberOfPoints</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a64b41f34c562915f6b2842d460298d1d" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getOffset</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a6beee24198f83eb120f55783d05934bf" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getPanelArea</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a3fa483fe82cdf7093065bed466a08721" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getPanelCentroid</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ab9fac1c5932536f6103f77cc35c772d9" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getPanelCentroids</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa04536ce64c5916fc8d6407242747bd" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getPanelSurfaceNormal</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a2efcfca924e3fce1ee2ae65c12e289b9" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getPanelSurfaceNormals</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1af7846a5393045d590ba4d1fb58e30fb0" prot="public" virt="virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getParameter</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aa780bc0a12d1936cde32809c44e697a7" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getReversalOperator</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaf75807f06b998e8c8aaa3f6ef537f85" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getRotationMatrix</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1adcfa4b03a384ce4982b62136c018f91f" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getScalingMatrix</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a1f1cb867a6612ee3bb9dffa30e4f5755" prot="public" virt="virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getSurfaceDerivative</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a7076f2fc68b8df7032c191805a41ac57" prot="public" virt="virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getSurfacePoint</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a40114785d7836b099bf0e99374205cc7" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>getTotalArea</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8f811cfd5b699c23341a79e271bb3cb2" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>independentVariable_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>IndependentVariables</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1ad94fc244be9691996b9ee1703b66925d" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>LawgsPartGeometry</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a2cd980840078ea65ecad3d6768c8b82d" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>LawgsPartGeometry</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ad293722bccd5fd354b37d392278272ab" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>maximumIndependentVariable1_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a351c28e0101e03b52804290ef28c64f5" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>maximumIndependentVariable2_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>meshPoints_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a47690cfd9b5f3aabfd411f5ac561b153" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>minimumIndependentVariable1_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a8bb8a8501f7095d4fc92b04b557c2f13" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>minimumIndependentVariable2_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a45a1463a81f989e428f955686ab986c9" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>name_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a1eeb4e61e296455cf92a869f043f5341" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>numberOfLines_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a8d2057019d4b46515e48dfa196ac4af0" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>numberOfPoints_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a221abc0887c99ceb7368bf0bcfbcee98" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>offset_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a4f16202de16c8bf7ed8f9c15208f8fcc" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a9da840716adb5449b740250976e3111c" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>panelAreas_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a715ff3e3943b8c60fe5bcd0f64163a67" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>panelCentroids_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ad4ce6acf3444f33b85e4835d9288bf26" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>panelSurfaceNormals_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a801c01c437b48a0066cda10f5f2fc896" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>parameter_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a76af62d5ebe8603a4712b5992ae30a90" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>performPanelCalculations</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a2f7ff3d50469568067a7655183d9b115" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>QuadrilateralMeshedSurfaceGeometry</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ac5de108458e15b4f1884c6e3ad2a1043" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>reversalOperator_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a61a1d7b8952fb3d283ad409a2a5c4bd1" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>rotationMatrix_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ade223ab8cae98c7c90ad339e47e2fae8" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>scalingMatrix_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a555570aa0102647f40d122b82029fc66a9cdae6dae5faa4dc8b7d64e7725ba86a" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>secondIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaefc36efe1b4f165628a1e6bcd5ce8b0" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setMaximumIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1ad1a9eb1da6d44f6d8fd595ca35832280" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setMesh</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aec4e218b11c994b5bfc451dace813b6c" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setMinimumIndependentVariable</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1a2ef6186379526cc3bc090ee3225dd7bf" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setName</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a97575d937668eb0079cce753ce08fabf" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setOffset</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1ac10cdea82268f795ebd1f95e994317c4" prot="public" virt="virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setParameter</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a6061bf3b165f5aa1fe9dd0678da3ab2f" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setReversalOperator</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aa47f4c3453f2d5365f41c23c6c1cf2e5" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setRotationMatrix</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a7c8b995d50fa752ec0447d2bd18cd6b7" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>setScalingMatrix</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1a84a7a555f2d51bbf05417aa696e18a20" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>SingleSurfaceGeometry</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a976236e69019a26244beecb29b650112" prot="protected" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>totalArea_</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1aaa8631cc37a83c042e39fc2ebc87fc91" prot="public" virt="non-virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>transformPoint</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry_1aab069c9b07682f09943011c3a653113c" prot="public" virt="virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>~LawgsPartGeometry</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aee32ab94bdba6e333c6e66b01c134522" prot="public" virt="virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>~QuadrilateralMeshedSurfaceGeometry</name></member>
+      <member refid="classtudat_1_1geometric__shapes_1_1SingleSurfaceGeometry_1ac276f4deb7405652e3e0521218910996" prot="public" virt="virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>~SingleSurfaceGeometry</name></member>
+      <member refid="classtudat_1_1SurfaceGeometry_1ab579812c998e712c009cbe455c0e5692" prot="public" virt="virtual"><scope>tudat::geometric_shapes::LawgsPartGeometry</scope><name>~SurfaceGeometry</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

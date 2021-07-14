@@ -1,0 +1,304 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1earth__orientation_1_1EOPReader" kind="class" language="C++" prot="public">
+    <compoundname>tudat::earth_orientation::EOPReader</compoundname>
+    <includes refid="eopReader_8h" local="no">eopReader.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1EOPReader_1a114f68dfb7dbd68061a1e42f941b8421" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, Eigen::Vector2d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector2d &gt; tudat::earth_orientation::EOPReader::cipInItrs</definition>
+        <argsstring></argsstring>
+        <name>cipInItrs</name>
+        <briefdescription>
+<para>Terrestrial pole position corrections (CIP in ITRS; polar motion), read from file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="153" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1EOPReader_1a23b977ca123cf3a3a23d6cf02a196c10" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, Eigen::Vector2d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector2d &gt; tudat::earth_orientation::EOPReader::cipInGcrsCorrection</definition>
+        <argsstring></argsstring>
+        <name>cipInGcrsCorrection</name>
+        <briefdescription>
+<para>Celestial pole position corrections (CIP in GCRS; nutation), read from file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="156" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1EOPReader_1a333251e62b5d67bdf558cefa5996e1a2" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, double &gt;</type>
+        <definition>std::map&lt; double, double &gt; tudat::earth_orientation::EOPReader::ut1MinusUtc</definition>
+        <argsstring></argsstring>
+        <name>ut1MinusUtc</name>
+        <briefdescription>
+<para>Corrections to UT1 - UTC, read from file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="159" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1EOPReader_1a73cd1a26b1d47f3ac8c455d6e7d3f610" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, double &gt;</type>
+        <definition>std::map&lt; double, double &gt; tudat::earth_orientation::EOPReader::lengthOfDayOffset</definition>
+        <argsstring></argsstring>
+        <name>lengthOfDayOffset</name>
+        <briefdescription>
+<para>Corrections to LOD, read from file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="162" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1a686b46588cff2f7e23528b441bc57162" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::earth_orientation::EOPReader::EOPReader</definition>
+        <argsstring>(const std::string &amp;eopFile=tudat::paths::getEarthOrientationDataFilesPath()+&quot;/eopc04_08_IAU2000.62-now.txt&quot;, const std::string &amp;format=&quot;C04&quot;, const basic_astrodynamics::IAUConventions nutationTheory=basic_astrodynamics::iau_2006)</argsstring>
+        <name>EOPReader</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>eopFile</declname>
+          <defval>tudat::paths::getEarthOrientationDataFilesPath()+&quot;/eopc04_08_IAU2000.62-now.txt&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>format</declname>
+          <defval>&quot;C04&quot;</defval>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::IAUConventions</type>
+          <declname>nutationTheory</declname>
+          <defval>basic_astrodynamics::iau_2006</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eopFile</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of EOP file that is to be used </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier for file format that is provied </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nutationTheory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Nutation theory w.r.t. which the EOP data is given. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="50" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/eopReader.cpp" bodystart="22" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1a94f2eaf664241b89e4afb9743e38fb79" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, double &gt;</type>
+        <definition>std::map&lt; double, double &gt; tudat::earth_orientation::EOPReader::getUt1MinusUtcMapRaw</definition>
+        <argsstring>()</argsstring>
+        <name>getUt1MinusUtcMapRaw</name>
+        <briefdescription>
+<para>Function to retrieve the data of UT1-UTC, as provided in the EOP file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="56" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="56" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1a560aeb54f286691894774990f33b14e9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, double &gt;</type>
+        <definition>std::map&lt; double, double &gt; tudat::earth_orientation::EOPReader::getUt1MinusUtcMapInSecondsSinceJ2000</definition>
+        <argsstring>()</argsstring>
+        <name>getUt1MinusUtcMapInSecondsSinceJ2000</name>
+        <briefdescription>
+<para>Function to retrieve the data of UT1-UTC, with map key seconds since J2000. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="62" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="62" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1ab4348c29aca15eb4a7387b26b2ec5c60" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, double &gt;</type>
+        <definition>std::map&lt; double, double &gt; tudat::earth_orientation::EOPReader::getLengthOfDayMapRaw</definition>
+        <argsstring>()</argsstring>
+        <name>getLengthOfDayMapRaw</name>
+        <briefdescription>
+<para>Function to retrieve the data of LOD offset, as provided in the EOP file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the data of LOD offset, as provided in the EOP file. <simplesect kind="return"><para>Data of LOD offset, as provided in the EOP file. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="76" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="76" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1a8722a8b2ae226a61a7c9f0199baaa65c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, double &gt;</type>
+        <definition>std::map&lt; double, double &gt; tudat::earth_orientation::EOPReader::getLengthOfDayMapInSecondsSinceJ2000</definition>
+        <argsstring>()</argsstring>
+        <name>getLengthOfDayMapInSecondsSinceJ2000</name>
+        <briefdescription>
+<para>Function to retrieve the data of LOD offset, with map key seconds since J2000. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the data of LOD offset, with map key seconds since J2000 <simplesect kind="return"><para>Data of LOD offset, with map key seconds since J2000 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="86" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="86" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1acf6b01457e955273369cdcd89cd326e7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::Vector2d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector2d &gt; tudat::earth_orientation::EOPReader::getCipInItrsMapRaw</definition>
+        <argsstring>()</argsstring>
+        <name>getCipInItrsMapRaw</name>
+        <briefdescription>
+<para>Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file. <simplesect kind="return"><para>Data of CIP in ITRS correction (polar motion), as provided in the EOP file. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="100" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1a815d77514f402870ae8cefb324df0f37" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::Vector2d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector2d &gt; tudat::earth_orientation::EOPReader::getCipInItrsMapInSecondsSinceJ2000</definition>
+        <argsstring>()</argsstring>
+        <name>getCipInItrsMapInSecondsSinceJ2000</name>
+        <briefdescription>
+<para>Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000 <simplesect kind="return"><para>Data of CIP in ITRS correction (polar motion), with map key seconds since J2000 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="110" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="110" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1a76af62436b54d158b3d3dbdf66cf2095" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::Vector2d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector2d &gt; tudat::earth_orientation::EOPReader::getCipInGcrsCorrectionMapRaw</definition>
+        <argsstring>()</argsstring>
+        <name>getCipInGcrsCorrectionMapRaw</name>
+        <briefdescription>
+<para>Function to retrieve the data of CIP in GCRS correction (nutation), as provided in the EOP file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the data of CIP in GCRS correction (nutation), as provided in the EOP file. <simplesect kind="return"><para>Data of CIP in GCRS correction (nutation), as provided in the EOP file. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="124" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="124" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1ac5e0e8670b92c977cfb5ed42234bda67" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::Vector2d &gt;</type>
+        <definition>std::map&lt; double, Eigen::Vector2d &gt; tudat::earth_orientation::EOPReader::getCipInGcrsCorrectionMapInSecondsSinceJ2000</definition>
+        <argsstring>()</argsstring>
+        <name>getCipInGcrsCorrectionMapInSecondsSinceJ2000</name>
+        <briefdescription>
+<para>Function to retrieve the data of CIP in GCRS correction (nutation), with map key seconds since J2000. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the data of CIP in GCRS correction (nutation), with map key seconds since J2000 <simplesect kind="return"><para>Data of CIP in GCRS correction (nutation), with map key seconds since J2000 </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="134" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="134" bodyend="141"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EOPReader_1ad974f4f16b137c711b8a4101f07dde0f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::earth_orientation::EOPReader::readEopFile</definition>
+        <argsstring>(const std::string &amp;fileName)</argsstring>
+        <name>readEopFile</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Function to read EOP file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to read EOP file <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>EOP file name. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="150" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/eopReader.cpp" bodystart="38" bodyend="111"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used to read Earth Orientation Parameters (EOP) from file. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/eopReader.h" bodystart="40" bodyend="164"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a23b977ca123cf3a3a23d6cf02a196c10" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>cipInGcrsCorrection</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a114f68dfb7dbd68061a1e42f941b8421" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>cipInItrs</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a686b46588cff2f7e23528b441bc57162" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>EOPReader</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1ac5e0e8670b92c977cfb5ed42234bda67" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>getCipInGcrsCorrectionMapInSecondsSinceJ2000</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a76af62436b54d158b3d3dbdf66cf2095" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>getCipInGcrsCorrectionMapRaw</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a815d77514f402870ae8cefb324df0f37" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>getCipInItrsMapInSecondsSinceJ2000</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1acf6b01457e955273369cdcd89cd326e7" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>getCipInItrsMapRaw</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a8722a8b2ae226a61a7c9f0199baaa65c" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>getLengthOfDayMapInSecondsSinceJ2000</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1ab4348c29aca15eb4a7387b26b2ec5c60" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>getLengthOfDayMapRaw</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a560aeb54f286691894774990f33b14e9" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>getUt1MinusUtcMapInSecondsSinceJ2000</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a94f2eaf664241b89e4afb9743e38fb79" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>getUt1MinusUtcMapRaw</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a73cd1a26b1d47f3ac8c455d6e7d3f610" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>lengthOfDayOffset</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1ad974f4f16b137c711b8a4101f07dde0f" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>readEopFile</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EOPReader_1a333251e62b5d67bdf558cefa5996e1a2" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::EOPReader</scope><name>ut1MinusUtc</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

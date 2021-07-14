@@ -1,0 +1,831 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1MissileDatcomData" kind="class" language="C++" prot="public">
+    <compoundname>tudat::input_output::MissileDatcomData</compoundname>
+    <includes refid="missileDatcomData_8h" local="no">missileDatcomData.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805" prot="public" static="no" strong="no">
+        <type></type>
+        <name>StaticCoefficientNames</name>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a06264d565455e2224a79206796d003ac" prot="public">
+          <name>cn</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805ad14cb40e47c743eaab9cb6612f6a958e" prot="public">
+          <name>cm</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a46e7f913a879083a86fe6e6230c6d89a" prot="public">
+          <name>ca</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a2b31f2b925f556e23a28077769e05972" prot="public">
+          <name>cy</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a2489d9a7974e7e9d36db261d7d2521fc" prot="public">
+          <name>cln</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805aedab3005c08263378c7beb8c8e444491" prot="public">
+          <name>cll</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a98a962f6a0e3616c88188fb3c0129ba4" prot="public">
+          <name>cna</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a391e6d093e53763d50c8b1ef66334f25" prot="public">
+          <name>cma</name>
+          <initializer>= 7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a86bd383c086b33f664b91d339fd7d3f5" prot="public">
+          <name>cyb</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805abfe5e163873ab9f54bd3ebe720c090cd" prot="public">
+          <name>cnb</name>
+          <initializer>= 9</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a1b30a32c18f0f2100dca5a1a6662f09f" prot="public">
+          <name>clb</name>
+          <initializer>= 10</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum of static coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Enum of static coefficients available via Missile Datcom output. See documentation for details. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="46" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="enum" id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70" prot="public" static="no" strong="no">
+        <type></type>
+        <name>DynamicCoefficientNames</name>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70ad67390579685612519b5c03d2d48ceae" prot="public">
+          <name>cnq</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70adf390b38b32b1b7934004cccaaae8a35" prot="public">
+          <name>cmq</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70af34ae731d9759d3ee6850247a4e2ac74" prot="public">
+          <name>caq</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a4e4fe46f560177a2aa03fe18fcaa9d75" prot="public">
+          <name>cyq</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a8be1f09ea0cf93035e9eb83881918936" prot="public">
+          <name>clnq</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70ab120b5070e7d53c30b126b5a98636f86" prot="public">
+          <name>cllq</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a3517a4deaa4656b89bd99b9e6d9d6f45" prot="public">
+          <name>cnr</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a50d8ea484e8d3fb61c33b017d95adebb" prot="public">
+          <name>cmr</name>
+          <initializer>= 7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70abb08818102f660d3d4a5b1e4caf43b69" prot="public">
+          <name>car</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a700f91a23e32037827e475b0c43f8926" prot="public">
+          <name>cyr</name>
+          <initializer>= 9</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a3374b7582a9061ae61d4c8ac0921b256" prot="public">
+          <name>clnr</name>
+          <initializer>= 10</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a909e8c2f337f7d682b22ecd05eaa3cc2" prot="public">
+          <name>cllr</name>
+          <initializer>= 11</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a49ac06e12156fbcfe00e22f466af338e" prot="public">
+          <name>cnp</name>
+          <initializer>= 12</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a91ff6f078ed397289520d0eb8a70f8f0" prot="public">
+          <name>cmp</name>
+          <initializer>= 13</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a485dfedf918c65f079873bae25b9fed5" prot="public">
+          <name>cap</name>
+          <initializer>= 14</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70aa431f4c24bae397183f3b402f66f292b" prot="public">
+          <name>cyp</name>
+          <initializer>= 15</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a5d16a772da1861e26d7df014aaec828f" prot="public">
+          <name>clnp</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a146b8ea1d93a2dd0b3990b1cf8cefbd8" prot="public">
+          <name>cllp</name>
+          <initializer>= 17</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70ab255fb2bfd9241bca535d2ce94f26a72" prot="public">
+          <name>cnad</name>
+          <initializer>= 18</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a019f564a65aa890bbc1d6cf6bf238884" prot="public">
+          <name>cmad</name>
+          <initializer>= 19</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum of dynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Enum of dynamic coefficients available via Missile Datcom output. See documentation for details. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="65" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="66" bodyend="87"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1a0fc60b89c3adcae1df30c2bce78e0204" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::MissileDatcomData::staticCoefficients_[20][20][11]</definition>
+        <argsstring>[20][20][11]</argsstring>
+        <name>staticCoefficients_</name>
+        <briefdescription>
+<para>Sorted data array with the static coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The first index is the Mach number, the second index is the angle of attack. Third index are the coefficients. <simplesect kind="see"><para><ref refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805" kindref="member">StaticCoefficientNames</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="178" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1a9dd79c9e7d4e4375ef38e5ee98480eab" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::MissileDatcomData::dynamicCoefficients_[20][20][20]</definition>
+        <argsstring>[20][20][20]</argsstring>
+        <name>dynamicCoefficients_</name>
+        <briefdescription>
+<para>Sorted data array with the dynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The first index is the Machnumber, the second index is the angle of attack. the third index are the coefficients <simplesect kind="see"><para><ref refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70" kindref="member">DynamicCoefficientNames</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="186" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1aff14bebb7da64912b00f210399cb09cc" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::input_output::MissileDatcomData::numberOfAnglesOfAttack_</definition>
+        <argsstring></argsstring>
+        <name>numberOfAnglesOfAttack_</name>
+        <briefdescription>
+<para>The number of angles of attack angles. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="189" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1ac0299567eb204f2ef2d7a9510f199689" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::angleOfAttack_</definition>
+        <argsstring></argsstring>
+        <name>angleOfAttack_</name>
+        <briefdescription>
+<para>Data vector with the different angles of attack. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="192" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="192" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1a66567c0d2ce49db56cd1ea89fd88044b" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::MissileDatcomData::sideslipAngle_</definition>
+        <argsstring></argsstring>
+        <name>sideslipAngle_</name>
+        <briefdescription>
+<para>The sideslip angle of the datcom data file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="195" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1aa4a3f685d22ea03300c7e28fc54f51d8" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::MissileDatcomData::rollAngle_</definition>
+        <argsstring></argsstring>
+        <name>rollAngle_</name>
+        <briefdescription>
+<para>The roll angle of the datcom data file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="198" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1a9155c38395661cd879ed26d73b543f04" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::input_output::MissileDatcomData::numberOfMachNumbers_</definition>
+        <argsstring></argsstring>
+        <name>numberOfMachNumbers_</name>
+        <briefdescription>
+<para>The number of mach numbers. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="201" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="201" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1acb3f4a3a7a118d773051d8e2d3d591a2" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::machNumber_</definition>
+        <argsstring></argsstring>
+        <name>machNumber_</name>
+        <briefdescription>
+<para>Datavector containing the different mach numbers. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="204" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1a661f57fe5ff7a08c0dd7974895a04916" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::altitudes_</definition>
+        <argsstring></argsstring>
+        <name>altitudes_</name>
+        <briefdescription>
+<para>Datavector containing the different altitudes used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="207" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1af624d2ac0c5132e18971d5effebb65b1" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::reynoldsNumbers_</definition>
+        <argsstring></argsstring>
+        <name>reynoldsNumbers_</name>
+        <briefdescription>
+<para>Datavector containing the different Reynold numbers. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="210" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1aacd04422bb84eb4b04a76e023d21022c" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::freeStreamVelocities_</definition>
+        <argsstring></argsstring>
+        <name>freeStreamVelocities_</name>
+        <briefdescription>
+<para>Datavector containing the different free-steam velocities. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="213" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="213" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1ab4d1cb64faab921b74eb80db0f67576a" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::freeStreamStaticTemperatures_</definition>
+        <argsstring></argsstring>
+        <name>freeStreamStaticTemperatures_</name>
+        <briefdescription>
+<para>Datavector containing the different free-steam temperatures. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="216" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1MissileDatcomData_1a6a768a0a2653bd6398b7f8892ff37887" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::freeStreamStaticPressure_</definition>
+        <argsstring></argsstring>
+        <name>freeStreamStaticPressure_</name>
+        <briefdescription>
+<para>Datavector containing the different free-steam pressures. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="219" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1a7818405c9b4f8bdb3302948dcb64513b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::MissileDatcomData::MissileDatcomData</definition>
+        <argsstring>(const std::string &amp;fileNameAndPath)</argsstring>
+        <name>MissileDatcomData</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileNameAndPath</declname>
+        </param>
+        <briefdescription>
+<para>Constructor that reads and processes Missile Datcom output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. Reads Missile Datcom file and sets class member variables from file contents. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileNameAndPath</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the file containg missile datcom output, including the relative path wrt Tudat root path. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="95" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/missileDatcomData.cpp" bodystart="35" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1ac415b9399cc895a2a010826b9432a753" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::input_output::MissileDatcomData::getStaticCoefficient</definition>
+        <argsstring>(int machIndex, int angleOfAttackIndex, StaticCoefficientNames coefficientIndex)</argsstring>
+        <name>getStaticCoefficient</name>
+        <param>
+          <type>int</type>
+          <declname>machIndex</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>angleOfAttackIndex</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805" kindref="member">StaticCoefficientNames</ref></type>
+          <declname>coefficientIndex</declname>
+        </param>
+        <briefdescription>
+<para>Access the static coefficient database. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to access the static coefficient database.</para>
+<para>Accesses the static coefficient database. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>machIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The machnumber index at which the coefficient is accessed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfAttackIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of attack index at which the coefficient is accessed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coefficientIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The index of the coefficient. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The value of the coefficient. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="105" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/missileDatcomData.cpp" bodystart="163" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1a415898448aceb412dcb867b79f1eda19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::input_output::MissileDatcomData::getDynamicCoefficient</definition>
+        <argsstring>(int machIndex, int angleOfAttackIndex, DynamicCoefficientNames coefficientIndex)</argsstring>
+        <name>getDynamicCoefficient</name>
+        <param>
+          <type>int</type>
+          <declname>machIndex</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>angleOfAttackIndex</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70" kindref="member">DynamicCoefficientNames</ref></type>
+          <declname>coefficientIndex</declname>
+        </param>
+        <briefdescription>
+<para>Access the dynamic coefficient database. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to access the dynamic coefficient database.</para>
+<para>Accesses the dynamic coefficient database. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>machIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The machnumber index at which the coefficient is accessed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfAttackIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of attack index at which the coefficient is accessed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coefficientIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The index of the coefficient. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Dynamic coefficient value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="116" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/missileDatcomData.cpp" bodystart="170" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1a78afcae23a03f68ab848e9b4f6a67630" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::getAngleOfAttacks</definition>
+        <argsstring>()</argsstring>
+        <name>getAngleOfAttacks</name>
+        <briefdescription>
+<para>Retrieve the angle of attacks. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the vector with the different angle of attacks. <simplesect kind="return"><para>The vector with the different angles of attack. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="124" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="124" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1af194cf80d0da6f96f5e6c587f206e8b1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::getMachNumbers</definition>
+        <argsstring>()</argsstring>
+        <name>getMachNumbers</name>
+        <briefdescription>
+<para>Retrieve the Mach numbers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the vector with the different angle of attacks. <simplesect kind="return"><para>The vector with the different angles of attack. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="131" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="131" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1afa1d01855c36699eb9e39ab8f883f781" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::input_output::MissileDatcomData::getSideSlipAngle</definition>
+        <argsstring>()</argsstring>
+        <name>getSideSlipAngle</name>
+        <briefdescription>
+<para>Retrieve the side slip angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the vector with the different side slip angles. <simplesect kind="return"><para>The vector with the different side slip angles. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="138" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="138" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1a65edc8773e36bdbe06aa3b2ec54e0d8c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::input_output::MissileDatcomData::getReynoldsNumbers</definition>
+        <argsstring>()</argsstring>
+        <name>getReynoldsNumbers</name>
+        <briefdescription>
+<para>Retrieve the Reynolds Numbers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve the vector with the different Reynolds Numbers. <simplesect kind="return"><para>The vector with the different Reynolds Numbers. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="145" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="145" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1adcc70a61395544f5fde79dd17e40e8c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::input_output::MissileDatcomData::writeCoefficientsToFile</definition>
+        <argsstring>(const std::string &amp;fileNameBase, const int basePrecision=std::numeric_limits&lt; double &gt;::digits10, const int exponentWidth=2)</argsstring>
+        <name>writeCoefficientsToFile</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileNameBase</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>basePrecision</declname>
+          <defval>std::numeric_limits&lt; double &gt;::digits10</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>exponentWidth</declname>
+          <defval>2</defval>
+        </param>
+        <briefdescription>
+<para>Write the database to space-separated files. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Write the database to CSV files.</para>
+<para>Writes the stored data to a file. Per angle of attack a txt file is generated. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileNameBase</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base for the output filename. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>basePrecision</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of digits of precision of the base of the output floating-point numbers in scientific notation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>exponentWidth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of digits used to represent the exponent of the output floating-point numbers in scientific notation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="156" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/missileDatcomData.cpp" bodystart="177" bodyend="224"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MissileDatcomData_1ac9ce6b12603e4de89336d24494a8fa45" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::input_output::MissileDatcomData::convertDatcomData</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;datcomData)</argsstring>
+        <name>convertDatcomData</name>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>datcomData</declname>
+        </param>
+        <briefdescription>
+<para>Convert the <ref refid="classtudat_1_1input__output_1_1MissileDatcomData" kindref="compound">MissileDatcomData</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert the <ref refid="classtudat_1_1input__output_1_1MissileDatcomData" kindref="compound">MissileDatcomData</ref>.</para>
+<para>Converts the <ref refid="classtudat_1_1input__output_1_1MissileDatcomData" kindref="compound">MissileDatcomData</ref> to usable data by categorizing the output into various the coefficients and flight conditions. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>datcomData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of data read from Missile Datcom output file that is to be converted to usable data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="170" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/missileDatcomData.cpp" bodystart="42" bodyend="160"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class which converts and contains the Missile Datcom output aerodynamic data. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class which converts and contains the Missile Datcom output aerodynamic data It is initialized with the data from the <ref refid="classtudat_1_1input__output_1_1MissileDatcomReader" kindref="compound">MissileDatcomReader</ref>. It first converts the vector obtained from the for004.dat file to usable data. Subsequently, coefficients can be retrieved per type. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" line="36" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/missileDatcomData.h" bodystart="37" bodyend="220"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a661f57fe5ff7a08c0dd7974895a04916" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>altitudes_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1ac0299567eb204f2ef2d7a9510f199689" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>angleOfAttack_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a46e7f913a879083a86fe6e6230c6d89a" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>ca</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a485dfedf918c65f079873bae25b9fed5" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cap</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70af34ae731d9759d3ee6850247a4e2ac74" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>caq</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70abb08818102f660d3d4a5b1e4caf43b69" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>car</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a1b30a32c18f0f2100dca5a1a6662f09f" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>clb</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805aedab3005c08263378c7beb8c8e444491" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cll</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a146b8ea1d93a2dd0b3990b1cf8cefbd8" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cllp</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70ab120b5070e7d53c30b126b5a98636f86" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cllq</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a909e8c2f337f7d682b22ecd05eaa3cc2" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cllr</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a2489d9a7974e7e9d36db261d7d2521fc" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cln</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a5d16a772da1861e26d7df014aaec828f" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>clnp</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a8be1f09ea0cf93035e9eb83881918936" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>clnq</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a3374b7582a9061ae61d4c8ac0921b256" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>clnr</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805ad14cb40e47c743eaab9cb6612f6a958e" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cm</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a391e6d093e53763d50c8b1ef66334f25" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cma</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a019f564a65aa890bbc1d6cf6bf238884" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cmad</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a91ff6f078ed397289520d0eb8a70f8f0" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cmp</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70adf390b38b32b1b7934004cccaaae8a35" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cmq</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a50d8ea484e8d3fb61c33b017d95adebb" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cmr</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a06264d565455e2224a79206796d003ac" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cn</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a98a962f6a0e3616c88188fb3c0129ba4" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cna</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70ab255fb2bfd9241bca535d2ce94f26a72" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cnad</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805abfe5e163873ab9f54bd3ebe720c090cd" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cnb</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a49ac06e12156fbcfe00e22f466af338e" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cnp</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70ad67390579685612519b5c03d2d48ceae" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cnq</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a3517a4deaa4656b89bd99b9e6d9d6f45" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cnr</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1ac9ce6b12603e4de89336d24494a8fa45" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>convertDatcomData</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a2b31f2b925f556e23a28077769e05972" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cy</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805a86bd383c086b33f664b91d339fd7d3f5" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cyb</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70aa431f4c24bae397183f3b402f66f292b" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cyp</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a4e4fe46f560177a2aa03fe18fcaa9d75" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cyq</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70a700f91a23e32037827e475b0c43f8926" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>cyr</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a93b8790c7c2d450f94483c2f67dace70" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>DynamicCoefficientNames</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a9dd79c9e7d4e4375ef38e5ee98480eab" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>dynamicCoefficients_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a6a768a0a2653bd6398b7f8892ff37887" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>freeStreamStaticPressure_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1ab4d1cb64faab921b74eb80db0f67576a" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>freeStreamStaticTemperatures_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1aacd04422bb84eb4b04a76e023d21022c" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>freeStreamVelocities_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a78afcae23a03f68ab848e9b4f6a67630" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>getAngleOfAttacks</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a415898448aceb412dcb867b79f1eda19" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>getDynamicCoefficient</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1af194cf80d0da6f96f5e6c587f206e8b1" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>getMachNumbers</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a65edc8773e36bdbe06aa3b2ec54e0d8c" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>getReynoldsNumbers</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1afa1d01855c36699eb9e39ab8f883f781" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>getSideSlipAngle</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1ac415b9399cc895a2a010826b9432a753" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>getStaticCoefficient</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1acb3f4a3a7a118d773051d8e2d3d591a2" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>machNumber_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a7818405c9b4f8bdb3302948dcb64513b" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>MissileDatcomData</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1aff14bebb7da64912b00f210399cb09cc" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>numberOfAnglesOfAttack_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a9155c38395661cd879ed26d73b543f04" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>numberOfMachNumbers_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1af624d2ac0c5132e18971d5effebb65b1" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>reynoldsNumbers_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1aa4a3f685d22ea03300c7e28fc54f51d8" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>rollAngle_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a66567c0d2ce49db56cd1ea89fd88044b" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>sideslipAngle_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a59f58b6a3d2b3eaf142d8dae05aff805" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>StaticCoefficientNames</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1a0fc60b89c3adcae1df30c2bce78e0204" prot="private" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>staticCoefficients_</name></member>
+      <member refid="classtudat_1_1input__output_1_1MissileDatcomData_1adcc70a61395544f5fde79dd17e40e8c0" prot="public" virt="non-virtual"><scope>tudat::input_output::MissileDatcomData</scope><name>writeCoefficientsToFile</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

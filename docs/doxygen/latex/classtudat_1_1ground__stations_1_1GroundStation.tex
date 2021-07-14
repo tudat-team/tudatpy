@@ -1,0 +1,115 @@
+\hypertarget{classtudat_1_1ground__stations_1_1GroundStation}{}\doxysection{tudat\+::ground\+\_\+stations\+::Ground\+Station Class Reference}
+\label{classtudat_1_1ground__stations_1_1GroundStation}\index{tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}}
+
+
+Class to store properties of a ground station (i.\+e. reference point with associated systems on a celestial body)  
+
+
+
+
+{\ttfamily \#include $<$ground\+Station.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStation_a08ca53ff3cabc463f5d4bfd59b254628}{Ground\+Station}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStationState}{Ground\+Station\+State}} $>$ station\+State, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1PointingAnglesCalculator}{Pointing\+Angles\+Calculator}} $>$ pointing\+Angles\+Calculator, const std\+::string \&station\+Id)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename State\+Scalar\+Type , typename Time\+Type $>$ }\\Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStation_a59db63cb3b4693ebedd3a7fa8c340503}{get\+State\+In\+Planet\+Fixed\+Frame}} (const Time\+Type \&time)
+\begin{DoxyCompactList}\small\item\em Function that returns (at reference epoch) the state of the ground station. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStationState}{Ground\+Station\+State}} $>$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStation_ad015d6935d650afc25fb3ea506fc8fe0}{get\+Nominal\+Station\+State}} ()
+\begin{DoxyCompactList}\small\item\em Function to return object to define and compute the state of the ground station. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStation_a00509a759dba9a0470fca4d143c3ccf4}{get\+Station\+Id}} ()
+\begin{DoxyCompactList}\small\item\em Function to return name of the ground station. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1PointingAnglesCalculator}{Pointing\+Angles\+Calculator}} $>$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStation_a4de31f828430af43ac126505e638aed6}{get\+Pointing\+Angles\+Calculator}} ()
+\begin{DoxyCompactList}\small\item\em Function to return object used to computed pointing angles (elevation, azimuth) to a given target from this ground station. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to store properties of a ground station (i.\+e. reference point with associated systems on a celestial body) 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1ground__stations_1_1GroundStation_a08ca53ff3cabc463f5d4bfd59b254628}\label{classtudat_1_1ground__stations_1_1GroundStation_a08ca53ff3cabc463f5d4bfd59b254628}} 
+\index{tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}!GroundStation@{GroundStation}}
+\index{GroundStation@{GroundStation}!tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}}
+\doxysubsubsection{\texorpdfstring{GroundStation()}{GroundStation()}}
+{\footnotesize\ttfamily tudat\+::ground\+\_\+stations\+::\+Ground\+Station\+::\+Ground\+Station (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStationState}{Ground\+Station\+State}} $>$}]{station\+State,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1PointingAnglesCalculator}{Pointing\+Angles\+Calculator}} $>$}]{pointing\+Angles\+Calculator,  }\item[{const std\+::string \&}]{station\+Id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em station\+State} & Object to define and compute the state of the ground station. \\
+\hline
+{\em pointing\+Angles\+Calculator} & Object used to computed pointing angles (elevation, azimuth) to a given target from this ground station. \\
+\hline
+{\em station\+Id} & Name of the ground station \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1ground__stations_1_1GroundStation_ad015d6935d650afc25fb3ea506fc8fe0}\label{classtudat_1_1ground__stations_1_1GroundStation_ad015d6935d650afc25fb3ea506fc8fe0}} 
+\index{tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}!getNominalStationState@{getNominalStationState}}
+\index{getNominalStationState@{getNominalStationState}!tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}}
+\doxysubsubsection{\texorpdfstring{getNominalStationState()}{getNominalStationState()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1GroundStationState}{Ground\+Station\+State}} $>$ tudat\+::ground\+\_\+stations\+::\+Ground\+Station\+::get\+Nominal\+Station\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return object to define and compute the state of the ground station. 
+
+Function to return object to define and compute the state of the ground station. \begin{DoxyReturn}{Returns}
+Object to define and compute the state of the ground station. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1ground__stations_1_1GroundStation_a4de31f828430af43ac126505e638aed6}\label{classtudat_1_1ground__stations_1_1GroundStation_a4de31f828430af43ac126505e638aed6}} 
+\index{tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}!getPointingAnglesCalculator@{getPointingAnglesCalculator}}
+\index{getPointingAnglesCalculator@{getPointingAnglesCalculator}!tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}}
+\doxysubsubsection{\texorpdfstring{getPointingAnglesCalculator()}{getPointingAnglesCalculator()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ground__stations_1_1PointingAnglesCalculator}{Pointing\+Angles\+Calculator}} $>$ tudat\+::ground\+\_\+stations\+::\+Ground\+Station\+::get\+Pointing\+Angles\+Calculator (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return object used to computed pointing angles (elevation, azimuth) to a given target from this ground station. 
+
+Function to object used to computed pointing angles (elevation, azimuth) to a given target from this ground station. \begin{DoxyReturn}{Returns}
+Object used to computed pointing angles (elevation, azimuth) to a given target from this ground station. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1ground__stations_1_1GroundStation_a59db63cb3b4693ebedd3a7fa8c340503}\label{classtudat_1_1ground__stations_1_1GroundStation_a59db63cb3b4693ebedd3a7fa8c340503}} 
+\index{tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}!getStateInPlanetFixedFrame@{getStateInPlanetFixedFrame}}
+\index{getStateInPlanetFixedFrame@{getStateInPlanetFixedFrame}!tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}}
+\doxysubsubsection{\texorpdfstring{getStateInPlanetFixedFrame()}{getStateInPlanetFixedFrame()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type , typename Time\+Type $>$ \\
+Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$ tudat\+::ground\+\_\+stations\+::\+Ground\+Station\+::get\+State\+In\+Planet\+Fixed\+Frame (\begin{DoxyParamCaption}\item[{const Time\+Type \&}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function that returns (at reference epoch) the state of the ground station. 
+
+Function that returns (at reference epoch) the state of the ground station. State is computed by nominal\+Station\+State\+\_\+ and cast to the required format by this function 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} (in seconds since J2000) at which state is to be retrieved \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State at requested time. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1ground__stations_1_1GroundStation_a00509a759dba9a0470fca4d143c3ccf4}\label{classtudat_1_1ground__stations_1_1GroundStation_a00509a759dba9a0470fca4d143c3ccf4}} 
+\index{tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}!getStationId@{getStationId}}
+\index{getStationId@{getStationId}!tudat::ground\_stations::GroundStation@{tudat::ground\_stations::GroundStation}}
+\doxysubsubsection{\texorpdfstring{getStationId()}{getStationId()}}
+{\footnotesize\ttfamily std\+::string tudat\+::ground\+\_\+stations\+::\+Ground\+Station\+::get\+Station\+Id (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return name of the ground station. 
+
+Function to return name of the ground station \begin{DoxyReturn}{Returns}
+Name of the ground station 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/ground\+\_\+stations/ground\+Station.\+h\end{DoxyCompactItemize}

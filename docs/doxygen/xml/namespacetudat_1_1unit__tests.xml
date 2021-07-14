@@ -1,0 +1,284 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1unit__tests" kind="namespace" language="C++">
+    <compoundname>tudat::unit_tests</compoundname>
+    <innerclass refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel" prot="public">tudat::unit_tests::DerivedAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel" prot="public">tudat::unit_tests::AnotherDerivedAccelerationModel</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="testApolloCapsuleCoefficients_8h_1a428bcd5045aa8893c83cffd2b7f59311" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis" kindref="compound">HypersonicLocalInclinationAnalysis</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; HypersonicLocalInclinationAnalysis &gt; tudat::unit_tests::getApolloCoefficientInterface</definition>
+        <argsstring>()</argsstring>
+        <name>getApolloCoefficientInterface</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h" line="27" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h" bodystart="27" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="orbitDeterminationTestCases_8h_1ad6863082ca378ccd073fac281f7461e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::unit_tests::getDefaultInitialParameterPerturbation</definition>
+        <argsstring>()</argsstring>
+        <name>getDefaultInitialParameterPerturbation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/estimation_setup/orbitDeterminationTestCases.cpp" line="9" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/estimation_setup/orbitDeterminationTestCases.cpp" bodystart="9" bodyend="20" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" declline="42" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="orbitDeterminationTestCases_8h_1a7ef06040dbfb48f81f1e76b481b2175c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::pair&lt; std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1PodOutput" kindref="compound">PodOutput</ref>&lt; StateScalarType, TimeType &gt; &gt;, Eigen::VectorXd &gt;</type>
+        <definition>std::pair&lt; std::shared_ptr&lt; PodOutput&lt; StateScalarType, TimeType &gt; &gt;, Eigen::VectorXd &gt; tudat::unit_tests::executePlanetaryParameterEstimation</definition>
+        <argsstring>(const int observableType=1, Eigen::VectorXd parameterPerturbation=getDefaultInitialParameterPerturbation(), Eigen::MatrixXd inverseAPrioriCovariance=Eigen::MatrixXd::Zero(7, 7), const double weight=1.0)</argsstring>
+        <name>executePlanetaryParameterEstimation</name>
+        <param>
+          <type>const int</type>
+          <declname>observableType</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>Eigen::VectorXd</type>
+          <declname>parameterPerturbation</declname>
+          <defval>getDefaultInitialParameterPerturbation()</defval>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd</type>
+          <declname>inverseAPrioriCovariance</declname>
+          <defval>Eigen::MatrixXd::Zero(7, 7)</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>weight</declname>
+          <defval>1.0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" line="45" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" bodystart="45" bodyend="298"/>
+      </memberdef>
+      <memberdef kind="function" id="orbitDeterminationTestCases_8h_1a95610ba425fab8f6340878cbfa8795c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::pair&lt; std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1PodOutput" kindref="compound">PodOutput</ref>&lt; double &gt; &gt;, Eigen::VectorXd &gt;</type>
+        <definition>template std::pair&lt; std::shared_ptr&lt; PodOutput&lt; double &gt; &gt;, Eigen::VectorXd &gt; tudat::unit_tests::executePlanetaryParameterEstimation&lt; double, double &gt;</definition>
+        <argsstring>(const int observableType, Eigen::VectorXd parameterPerturbation, Eigen::MatrixXd inverseAPrioriCovariance, const double weight)</argsstring>
+        <name>executePlanetaryParameterEstimation&lt; double, double &gt;</name>
+        <param>
+          <type>const int</type>
+          <declname>observableType</declname>
+        </param>
+        <param>
+          <type>Eigen::VectorXd</type>
+          <declname>parameterPerturbation</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd</type>
+          <declname>inverseAPrioriCovariance</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>weight</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" line="301" column="8" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" declline="301" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="orbitDeterminationTestCases_8h_1add1b75fcfed733ef4ab0c03b20a81c46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::unit_tests::executeEarthOrbiterParameterEstimation</definition>
+        <argsstring>(std::pair&lt; std::shared_ptr&lt; PodOutput&lt; StateScalarType &gt; &gt;, std::shared_ptr&lt; PodInput&lt; StateScalarType, TimeType &gt; &gt; &gt; &amp;podData, const TimeType startTime=TimeType(1.0E7), const int numberOfDaysOfData=3, const int numberOfIterations=5, const bool useFullParameterSet=true)</argsstring>
+        <name>executeEarthOrbiterParameterEstimation</name>
+        <param>
+          <type>std::pair&lt; std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1PodOutput" kindref="compound">PodOutput</ref>&lt; StateScalarType &gt; &gt;, std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1PodInput" kindref="compound">PodInput</ref>&lt; StateScalarType, TimeType &gt; &gt; &gt; &amp;</type>
+          <declname>podData</declname>
+        </param>
+        <param>
+          <type>const TimeType</type>
+          <declname>startTime</declname>
+          <defval>TimeType(1.0E7)</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfDaysOfData</declname>
+          <defval>3</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfIterations</declname>
+          <defval>5</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useFullParameterSet</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" line="327" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" bodystart="327" bodyend="643"/>
+      </memberdef>
+      <memberdef kind="function" id="orbitDeterminationTestCases_8h_1adc64ddb1f753d052bbfc664f335943ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template Eigen::VectorXd</type>
+        <definition>template Eigen::VectorXd tudat::unit_tests::executeEarthOrbiterParameterEstimation&lt; double, double &gt;</definition>
+        <argsstring>(std::pair&lt; std::shared_ptr&lt; PodOutput&lt; double &gt; &gt;, std::shared_ptr&lt; PodInput&lt; double, double &gt; &gt; &gt; &amp;podData, const double startTime, const int numberOfDaysOfData, const int numberOfIterations, const bool useFullParameterSet)</argsstring>
+        <name>executeEarthOrbiterParameterEstimation&lt; double, double &gt;</name>
+        <param>
+          <type>std::pair&lt; std::shared_ptr&lt; <ref refid="structtudat_1_1simulation__setup_1_1PodOutput" kindref="compound">PodOutput</ref>&lt; double &gt; &gt;, std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1PodInput" kindref="compound">PodInput</ref>&lt; double, double &gt; &gt; &gt; &amp;</type>
+          <declname>podData</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>startTime</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfDaysOfData</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfIterations</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useFullParameterSet</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" line="645" column="17" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" declline="645" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="orbitDeterminationTestCases_8h_1aef984c92a939ca2099c8b0cad144c529" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::pair&lt; Eigen::VectorXd, bool &gt;</type>
+        <definition>std::pair&lt; Eigen::VectorXd, bool &gt; tudat::unit_tests::executeEarthOrbiterBiasEstimation</definition>
+        <argsstring>(const bool estimateRangeBiases=true, const bool estimateTwoWayBiases=false, const bool useSingleBiasModel=true, const bool estimateAbsoluteBiases=true, const bool omitRangeData=false, const bool useMultiArcBiases=false)</argsstring>
+        <name>executeEarthOrbiterBiasEstimation</name>
+        <param>
+          <type>const bool</type>
+          <declname>estimateRangeBiases</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>estimateTwoWayBiases</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useSingleBiasModel</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>estimateAbsoluteBiases</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>omitRangeData</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useMultiArcBiases</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Test the estimation of observation biases. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" line="657" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" bodystart="657" bodyend="1096"/>
+      </memberdef>
+      <memberdef kind="function" id="orbitDeterminationTestCases_8h_1a0f55c28b2e615f3ee88f94af7d188a5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>template std::pair&lt; Eigen::VectorXd, bool &gt;</type>
+        <definition>template std::pair&lt; Eigen::VectorXd, bool &gt; tudat::unit_tests::executeEarthOrbiterBiasEstimation&lt; double, double &gt;</definition>
+        <argsstring>(const bool estimateRangeBiases, const bool estimateTwoWayBiases, const bool useSingleBiasModel, const bool estimateAbsoluteBiases, const bool omitRangeData, const bool useMultiArcBiases)</argsstring>
+        <name>executeEarthOrbiterBiasEstimation&lt; double, double &gt;</name>
+        <param>
+          <type>const bool</type>
+          <declname>estimateRangeBiases</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>estimateTwoWayBiases</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useSingleBiasModel</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>estimateAbsoluteBiases</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>omitRangeData</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useMultiArcBiases</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" line="1098" column="8" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h" declline="1098" declcolumn="8"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h" line="20" column="1"/>
+  </compounddef>
+</doxygen>

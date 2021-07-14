@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_d73d1ee04cc237a5854777ea99c55872" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation</compoundname>
+    <innerdir refid="dir_5707492f47294499ce6ccb14d2a75241">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup</innerdir>
+    <innerdir refid="dir_3848e49b06495c4bcc484f04ece2e644">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/estimation_setup</innerdir>
+    <innerdir refid="dir_65b440661807198d816e7ab3391472d9">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/propagation_setup</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/"/>
+  </compounddef>
+</doxygen>

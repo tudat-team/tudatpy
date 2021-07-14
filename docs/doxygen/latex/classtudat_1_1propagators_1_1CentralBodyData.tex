@@ -1,0 +1,131 @@
+\hypertarget{classtudat_1_1propagators_1_1CentralBodyData}{}\doxysection{tudat\+::propagators\+::Central\+Body\+Data$<$ State\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1CentralBodyData}\index{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}}
+
+
+This class acts as a data container for properties of central bodies in a numerical integration.  
+
+
+
+
+{\ttfamily \#include $<$central\+Body\+Data.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData_a4bc2aee4d0555155b4eaae752fe09a7f}{Central\+Body\+Data}} (const std\+::vector$<$ std\+::string $>$ \&central\+Bodies, const std\+::vector$<$ std\+::string $>$ \&bodies\+To\+Integrate, const std\+::map$<$ std\+::string, std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$(const Time\+Type) $>$ $>$ \&body\+State\+Functions, const std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$(const Time\+Type) $>$ global\+Frame\+Origin\+Barycentric\+State\+Function, const std\+::string global\+Frame\+Origin)
+\begin{DoxyCompactList}\small\item\em Constructor of the central bodies and the integrated bodies. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData_af71145449db77825d62cc1ff9263b5fe}{get\+Reference\+Frame\+Origin\+Inertial\+States}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&internal\+State, const Time\+Type time, std\+::vector$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$ $>$ \&reference\+Frame\+Origin\+States, const bool are\+Input\+State\+Local=true)
+\begin{DoxyCompactList}\small\item\em Function to return the state of the central bodies in an inertial frame. \end{DoxyCompactList}\item 
+std\+::vector$<$ int $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData_ae91f78f87313f86cab510d0061b24207}{get\+Update\+Order}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the order in which the body states are to be called. \end{DoxyCompactList}\item 
+std\+::vector$<$ Origin\+Type $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData_a64c84ff949475898c8a7bf4bb9803cfc}{get\+Body\+Origin\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the type of reference frame origin for each of the propagated bodies. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData_a088730d334bb63d0ce1010a7ef020d95}{get\+Central\+Bodies}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the names of central bodies. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::propagators\+::\+Central\+Body\+Data$<$ State\+Scalar\+Type, Time\+Type $>$}
+
+This class acts as a data container for properties of central bodies in a numerical integration. 
+
+This class acts as a data container for properties of central bodies in a numerical integration. It makes a distinction between central bodies that are integrated and those for which the state is taken from ephemeris The state of the central bodies in an inertial frame can be retrieved from it. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CentralBodyData_a4bc2aee4d0555155b4eaae752fe09a7f}\label{classtudat_1_1propagators_1_1CentralBodyData_a4bc2aee4d0555155b4eaae752fe09a7f}} 
+\index{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}!CentralBodyData@{CentralBodyData}}
+\index{CentralBodyData@{CentralBodyData}!tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{CentralBodyData()}{CentralBodyData()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData}{tudat\+::propagators\+::\+Central\+Body\+Data}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData}{Central\+Body\+Data}} (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::string $>$ \&}]{central\+Bodies,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{bodies\+To\+Integrate,  }\item[{const std\+::map$<$ std\+::string, std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$(const Time\+Type) $>$ $>$ \&}]{body\+State\+Functions,  }\item[{const std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$(const Time\+Type) $>$}]{global\+Frame\+Origin\+Barycentric\+State\+Function,  }\item[{const std\+::string}]{global\+Frame\+Origin }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor of the central bodies and the integrated bodies. 
+
+Constructor, takes the names of the central bodies and the integrated bodies, as well as a list of body objects. Checks which central bodies are integrated bodies and sets the update order of the bodies\textquotesingle{} states accordingly. 
+\begin{DoxyParams}{Parameters}
+{\em central\+Bodies} & Names of central bodies, belonging to the entries in the bodies\+To\+Integrate vector of same index. \\
+\hline
+{\em bodies\+To\+Integrate} & Names of bodies that are to be integrated numerically. \\
+\hline
+{\em body\+State\+Functions} & List of functions for the origins of selected bodies. \\
+\hline
+{\em global\+Frame\+Origin\+Barycentric\+State\+Function} & State function of global frame origin w.\+r.\+t. barycenter \\
+\hline
+{\em global\+Frame\+Origin} & Origin of global frame. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CentralBodyData_a64c84ff949475898c8a7bf4bb9803cfc}\label{classtudat_1_1propagators_1_1CentralBodyData_a64c84ff949475898c8a7bf4bb9803cfc}} 
+\index{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}!getBodyOriginType@{getBodyOriginType}}
+\index{getBodyOriginType@{getBodyOriginType}!tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getBodyOriginType()}{getBodyOriginType()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::vector$<$ Origin\+Type $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData}{tudat\+::propagators\+::\+Central\+Body\+Data}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Body\+Origin\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the type of reference frame origin for each of the propagated bodies. 
+
+Function to get the type of reference frame origin for each of the propagated bodies. \begin{DoxyReturn}{Returns}
+Type of reference frame origin for each of the propagated bodies. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CentralBodyData_a088730d334bb63d0ce1010a7ef020d95}\label{classtudat_1_1propagators_1_1CentralBodyData_a088730d334bb63d0ce1010a7ef020d95}} 
+\index{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}!getCentralBodies@{getCentralBodies}}
+\index{getCentralBodies@{getCentralBodies}!tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getCentralBodies()}{getCentralBodies()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData}{tudat\+::propagators\+::\+Central\+Body\+Data}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Central\+Bodies (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the names of central bodies. 
+
+Function to get the names of central bodies, belonging to the entries in the bodies\+To\+Integrate vector of same index. \begin{DoxyReturn}{Returns}
+Names of central bodies, belonging to the entries in the bodies\+To\+Integrate vector of same index. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CentralBodyData_af71145449db77825d62cc1ff9263b5fe}\label{classtudat_1_1propagators_1_1CentralBodyData_af71145449db77825d62cc1ff9263b5fe}} 
+\index{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}!getReferenceFrameOriginInertialStates@{getReferenceFrameOriginInertialStates}}
+\index{getReferenceFrameOriginInertialStates@{getReferenceFrameOriginInertialStates}!tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getReferenceFrameOriginInertialStates()}{getReferenceFrameOriginInertialStates()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData}{tudat\+::propagators\+::\+Central\+Body\+Data}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Reference\+Frame\+Origin\+Inertial\+States (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&}]{internal\+State,  }\item[{const Time\+Type}]{time,  }\item[{std\+::vector$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, 6, 1 $>$ $>$ \&}]{reference\+Frame\+Origin\+States,  }\item[{const bool}]{are\+Input\+State\+Local = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the state of the central bodies in an inertial frame. 
+
+Function to return the state of the central bodies in an inertial frame. The states of the integrated bodies in either their local frame or the inertial frame, and the current time have to be passed as arguments to this function. 
+\begin{DoxyParams}{Parameters}
+{\em internal\+State} & States of bodies that are numerically integrated, size should be 6 $\ast$ size of bodies\+To\+Integrate, with entries in the order of the bodies in the bodies\+To\+Integrate vector. \\
+\hline
+{\em time} & Current time (used for retrieving states from ephemerides) \\
+\hline
+{\em reference\+Frame\+Origin\+States} & Vector of states of the reference frame origins for each body (returned by reference). \\
+\hline
+{\em are\+Input\+State\+Local} & True if the internal\+State vector is given in the local frames of the integrated bodies, or the global frame. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1CentralBodyData_ae91f78f87313f86cab510d0061b24207}\label{classtudat_1_1propagators_1_1CentralBodyData_ae91f78f87313f86cab510d0061b24207}} 
+\index{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}!getUpdateOrder@{getUpdateOrder}}
+\index{getUpdateOrder@{getUpdateOrder}!tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$@{tudat::propagators::CentralBodyData$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getUpdateOrder()}{getUpdateOrder()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::vector$<$ int $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1CentralBodyData}{tudat\+::propagators\+::\+Central\+Body\+Data}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Update\+Order (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the order in which the body states are to be called. 
+
+Function to get the order in which the body states are to be called when getting global states. \begin{DoxyReturn}{Returns}
+Order in which the body states are to be called when getting global states. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propagators/central\+Body\+Data.\+h\end{DoxyCompactItemize}

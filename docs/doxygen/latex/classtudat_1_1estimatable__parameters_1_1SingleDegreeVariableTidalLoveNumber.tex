@@ -1,0 +1,103 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Single\+Degree\+Variable\+Tidal\+Love\+Number Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber}\index{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber@{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber}}
+
+
+Class for estimating the tidal Love numbers k\+\_\+\{n,m\} at a single degree that may vary for different orders.  
+
+
+
+
+{\ttfamily \#include $<$tidal\+Love\+Number.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Single\+Degree\+Variable\+Tidal\+Love\+Number\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a092192e4ff76c1c89a93c0177c689ce9}{Single\+Degree\+Variable\+Tidal\+Love\+Number}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations}{gravitation\+::\+Basic\+Solid\+Body\+Tide\+Gravity\+Field\+Variations}} $>$ gravity\+Field\+Variation\+Model, const std\+::string \&associated\+Body, const int degree, const std\+::vector$<$ int $>$ orders, const bool \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_af4ea4a13a5b3ac01cb4099d03a8e14b5}{use\+Complex\+Components}}=0)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a9bb507095f70908d1991a9073384f932}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Get values of Love numbers k\+\_\+\{n,m\}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a85b751090ced3f376ec5692c2513b8d8}{set\+Parameter\+Value}} (Eigen\+::\+Vector\+Xd parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Reset value of Love number k\+\_\+\{n,m\}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for estimating the tidal Love numbers k\+\_\+\{n,m\} at a single degree that may vary for different orders. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a092192e4ff76c1c89a93c0177c689ce9}\label{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a092192e4ff76c1c89a93c0177c689ce9}} 
+\index{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber@{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber}!SingleDegreeVariableTidalLoveNumber@{SingleDegreeVariableTidalLoveNumber}}
+\index{SingleDegreeVariableTidalLoveNumber@{SingleDegreeVariableTidalLoveNumber}!tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber@{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber}}
+\doxysubsubsection{\texorpdfstring{SingleDegreeVariableTidalLoveNumber()}{SingleDegreeVariableTidalLoveNumber()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Single\+Degree\+Variable\+Tidal\+Love\+Number\+::\+Single\+Degree\+Variable\+Tidal\+Love\+Number (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations}{gravitation\+::\+Basic\+Solid\+Body\+Tide\+Gravity\+Field\+Variations}} $>$}]{gravity\+Field\+Variation\+Model,  }\item[{const std\+::string \&}]{associated\+Body,  }\item[{const int}]{degree,  }\item[{const std\+::vector$<$ int $>$}]{orders,  }\item[{const bool}]{use\+Complex\+Components = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em gravity\+Field\+Variation\+Model} & Tidal gravity field variation object of which estimated paraemeter is a property \\
+\hline
+{\em associated\+Body} & Deformed body \\
+\hline
+{\em degree} & Degree of Love number that is to be estimated \\
+\hline
+{\em orders} & List of orders at which Love numbers are to be estimated. \\
+\hline
+{\em use\+Complex\+Components} & True if the complex Love number is estimated, false if only the real part is considered \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a9bb507095f70908d1991a9073384f932}\label{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a9bb507095f70908d1991a9073384f932}} 
+\index{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber@{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber@{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::estimatable\+\_\+parameters\+::\+Single\+Degree\+Variable\+Tidal\+Love\+Number\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get values of Love numbers k\+\_\+\{n,m\}. 
+
+Get value of Love number k\+\_\+\{n,m\}.
+
+Get values of Love numbers k\+\_\+\{n,m\}, concatenated by order (complex part as second entry of single k\+\_\+\{n,m\} if complex value is used) \begin{DoxyReturn}{Returns}
+Value of Love number k\+\_\+\{n\} (complex part as second vector entry if complex value is used) 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a85b751090ced3f376ec5692c2513b8d8}\label{classtudat_1_1estimatable__parameters_1_1SingleDegreeVariableTidalLoveNumber_a85b751090ced3f376ec5692c2513b8d8}} 
+\index{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber@{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber@{tudat::estimatable\_parameters::SingleDegreeVariableTidalLoveNumber}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Single\+Degree\+Variable\+Tidal\+Love\+Number\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{Eigen\+::\+Vector\+Xd}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Reset value of Love number k\+\_\+\{n,m\}. 
+
+Reset value of Love number k\+\_\+\{n,m\}, concatenated by order (complex part as second entry of single k\+\_\+\{n,m\} if complex value is used) 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New values of Love numbers k\+\_\+\{n,m\} \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/tidal\+Love\+Number.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/tidal\+Love\+Number.\+cpp\end{DoxyCompactItemize}

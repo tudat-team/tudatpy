@@ -1,0 +1,116 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1GravitationalParameter}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Gravitational\+Parameter Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1GravitationalParameter}\index{tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}}
+
+
+Interface class for the estimation of a gravitational parameter.  
+
+
+
+
+{\ttfamily \#include $<$gravitational\+Parameter.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Gravitational\+Parameter\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1GravitationalParameter}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a48a763082ef806abdc59431aa4a9faae}{Gravitational\+Parameter}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel}{gravitation\+::\+Gravity\+Field\+Model}} $>$ gravity\+Field\+Model, const std\+::string \&associated\+Body)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a542215c55c183555fac8c511b2c7a23e}\label{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a542215c55c183555fac8c511b2c7a23e}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a542215c55c183555fac8c511b2c7a23e}{$\sim$\+Gravitational\+Parameter}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a86a5d5c5cbc0c898525a0cc8385d931e}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the current value of the gravitational parameter that is to be estimated. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_ab1610caa2f08b3b4988d56f60ab9ac89}{set\+Parameter\+Value}} (double parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Function to reset the value of the gravitational parameter that is to be estimated. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a2ba9a012c83544ca802ff58044c6bb78}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter (always 1). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for the estimation of a gravitational parameter. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a48a763082ef806abdc59431aa4a9faae}\label{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a48a763082ef806abdc59431aa4a9faae}} 
+\index{tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}!GravitationalParameter@{GravitationalParameter}}
+\index{GravitationalParameter@{GravitationalParameter}!tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}}
+\doxysubsubsection{\texorpdfstring{GravitationalParameter()}{GravitationalParameter()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Gravitational\+Parameter\+::\+Gravitational\+Parameter (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1GravityFieldModel}{gravitation\+::\+Gravity\+Field\+Model}} $>$}]{gravity\+Field\+Model,  }\item[{const std\+::string \&}]{associated\+Body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em gravity\+Field\+Model} & Gravity field object containing the gravitational parameter to be estimated. \\
+\hline
+{\em associated\+Body} & Name of body containing the gravity\+Field\+Model object \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a2ba9a012c83544ca802ff58044c6bb78}\label{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a2ba9a012c83544ca802ff58044c6bb78}} 
+\index{tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Gravitational\+Parameter\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter (always 1). 
+
+Function to retrieve the size of the parameter (always 1). \begin{DoxyReturn}{Returns}
+Size of parameter value (always 1). 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a86a5d5c5cbc0c898525a0cc8385d931e}\label{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_a86a5d5c5cbc0c898525a0cc8385d931e}} 
+\index{tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily double tudat\+::estimatable\+\_\+parameters\+::\+Gravitational\+Parameter\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to get the current value of the gravitational parameter that is to be estimated. 
+
+Function to get the current value of the gravitational parameter that is to be estimated. \begin{DoxyReturn}{Returns}
+Current value of the gravitational parameter that is to be estimated. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_ab1610caa2f08b3b4988d56f60ab9ac89}\label{classtudat_1_1estimatable__parameters_1_1GravitationalParameter_ab1610caa2f08b3b4988d56f60ab9ac89}} 
+\index{tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::GravitationalParameter@{tudat::estimatable\_parameters::GravitationalParameter}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Gravitational\+Parameter\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{double}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the value of the gravitational parameter that is to be estimated. 
+
+Function to reset the value of the gravitational parameter that is to be estimated. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New value of the gravitational parameter that is to be estimated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/gravitational\+Parameter.\+h\end{DoxyCompactItemize}

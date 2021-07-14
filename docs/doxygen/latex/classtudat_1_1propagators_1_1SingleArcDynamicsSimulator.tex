@@ -1,0 +1,651 @@
+\hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{}\doxysection{tudat\+::propagators\+::Single\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+
+
+Class for performing full numerical integration of a dynamical system in a single arc.  
+
+
+
+
+{\ttfamily \#include $<$dynamics\+Simulator.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Single\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5d3337bb190b3ace9e372acc9fd35bad}{Single\+Arc\+Dynamics\+Simulator}} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ integrator\+Settings, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagatorSettings}{Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ propagator\+Settings, const bool are\+Equations\+Of\+Motion\+To\+Be\+Integrated=true, const bool clear\+Numerical\+Solutions=false, const bool set\+Integrated\+Result=false, const bool print\+Number\+Of\+Function\+Evaluations=false, const std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point initial\+Clock\+Time=std\+::chrono\+::steady\+\_\+clock\+::now(), const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative}{Single\+State\+Type\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ $>$ \&state\+Derivative\+Models=std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative}{Single\+State\+Type\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ $>$(), const bool print\+Dependent\+Variable\+Data=true)
+\begin{DoxyCompactList}\small\item\em Constructor of simulator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a74d74a7db5ab73da055c09246c55489b}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a74d74a7db5ab73da055c09246c55489b}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a74d74a7db5ab73da055c09246c55489b}{$\sim$\+Single\+Arc\+Dynamics\+Simulator}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab08dedc11f3ca6263b29befcde9e69dc}{integrate\+Equations\+Of\+Motion}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&initial\+States)
+\begin{DoxyCompactList}\small\item\em This function numerically (re-\/)integrates the equations of motion. \end{DoxyCompactList}\item 
+const std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \& \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aa1a39d61adaad22b838c273a6fd301a6}{get\+Equations\+Of\+Motion\+Numerical\+Solution}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the map of state history of numerically integrated bodies. \end{DoxyCompactList}\item 
+const std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \& \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6846c63799a6695827f9a192ed10afc0}{get\+Equations\+Of\+Motion\+Numerical\+Solution\+Raw}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the map of state history of numerically integrated bodies, in propagation coordinates. \end{DoxyCompactList}\item 
+const std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ \& \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8bc35db515647824519c306f7083ac3d}{get\+Dependent\+Variable\+History}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the map of dependent variable history that was saved during numerical propagation. \end{DoxyCompactList}\item 
+std\+::map$<$ Time\+Type, double $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af90b25ddcd40603958dd025ccd0640c3}{get\+Cumulative\+Computation\+Time\+History}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the map of cumulative computation time history that was saved during numerical propagation. \end{DoxyCompactList}\item 
+std\+::map$<$ Time\+Type, unsigned int $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5ef7ea8771d28817835763b627b069cf}{get\+Cumulative\+Number\+Of\+Function\+Evaluations}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the map of number of cumulative function evaluations that was saved during numerical propagation. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6a087c4ec70779b901388558f1ad8b0e}{get\+Equations\+Of\+Motion\+Numerical\+Solution\+Base}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the map of state history of numerically integrated bodies (base class interface). \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a1f10218d1d259e7438b8a54026219da1}{get\+Dependent\+Variable\+Numerical\+Solution\+Base}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the map of dependent variable history that was saved during numerical propagation (base class interface) \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::map$<$ Time\+Type, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ac7b3c6c6b3f261c0447205adb108bde4}{get\+Cumulative\+Computation\+Time\+History\+Base}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the map of cumulative computation time history that was saved during numerical propagation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7a3539b29ef71e1fc4274572b74037d8}{manually\+Set\+And\+Process\+Raw\+Numerical\+Equations\+Of\+Motion\+Solution}} (const std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \&equations\+Of\+Motion\+Numerical\+Solution, const std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ \&dependent\+Variable\+History, const bool process\+Solution=true)
+\begin{DoxyCompactList}\small\item\em Function to reset the environment from an externally generated state history. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a25f8d08ad26c5d1b49ac37a80095ac25}{get\+Integrator\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the settings for the numerical integrator. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ const Time\+Type, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8c46ff98e3e7fa62488952ec8ff1a777}{get\+State\+Derivative\+Function}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the function that performs a single state derivative function evaluation. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ const double, const Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a3ba1ac41167667d7fbc01dea3ef0c7f6}{get\+Double\+State\+Derivative\+Function}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the function that performs a single state derivative function evaluation with double precision. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ac3408e9f8bb8b187c3760d98b2a0745d}{get\+Propagator\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the settings for the propagator. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1EnvironmentUpdater}{Environment\+Updater}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aec71f5d4a20b1b6cb29dcbe5de72fab3}{get\+Environment\+Updater}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the object that updates the environment. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsStateDerivativeModel}{Dynamics\+State\+Derivative\+Model}}$<$ Time\+Type, State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aedbc525782e4b4d44d750897177340d0}{get\+Dynamics\+State\+Derivative}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the object that updates and returns state derivative. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition}{Propagation\+Termination\+Condition}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab70c1a955ee87d2757797d4a9e71d79b}{get\+Propagation\+Termination\+Condition}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the object defining when the propagation is to be terminated. \end{DoxyCompactList}\item 
+std\+::map$<$ Integrated\+State\+Type, std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor}{Integrated\+State\+Processor}}$<$ Time\+Type, State\+Scalar\+Type $>$ $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7a029f1d6ac01f5f87bfcc950a21ef76}{get\+Integrated\+State\+Processors}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the list of object that process the integrated numerical solution by updating the environment. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails}{Propagation\+Termination\+Details}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a47664d88ca05c0c6359f7860fc15853f}{get\+Propagation\+Termination\+Reason}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the event that triggered the termination of the last propagation. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5d2f201520cb4b28510714fec059faea}{integration\+Completed\+Successfully}} () const
+\begin{DoxyCompactList}\small\item\em Get whether the integration was completed successfully. \end{DoxyCompactList}\item 
+std\+::map$<$ int, std\+::string $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a2520bf877b946006bf39adf6a99b9027}{get\+Dependent\+Variable\+Ids}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the dependent variables IDs. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a74f0422bbad66a87ae41dc913a06f743}{get\+Initial\+Propagation\+Time}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve initial time of propagation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab7859731f4fca53d00d847e1dfe26e59}{reset\+Initial\+Propagation\+Time}} (const double initial\+Propagation\+Time)
+\begin{DoxyCompactList}\small\item\em Function to reset initial propagation time. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Vector\+Xd() $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ad198d55c53aeffc99ad51faf89b8940f}{get\+Dependent\+Variables\+Functions}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the functions that compute the dependent variables at each time step. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8f6e86e803b8856e9490d3714d5d9964}{reset\+Propagation\+Termination\+Conditions}} ()
+\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a351d3d697039d983a7b6b24b85122f32}{process\+Numerical\+Equations\+Of\+Motion\+Solution}} ()
+\begin{DoxyCompactList}\small\item\em This function updates the environment with the numerical solution of the propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a369e6cb94ba05853fd08717d1a53ec52}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a369e6cb94ba05853fd08717d1a53ec52}} 
+void {\bfseries suppress\+Dependent\+Variable\+Data\+Printing} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a554ec4c09e35e985239fa363afd59614}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a554ec4c09e35e985239fa363afd59614}} 
+void {\bfseries enable\+Dependent\+Variable\+Data\+Printing} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af3feddcb92a05aa0400010d43dcfb47d}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af3feddcb92a05aa0400010d43dcfb47d}} 
+std\+::map$<$ Integrated\+State\+Type, std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor}{Integrated\+State\+Processor}}$<$ Time\+Type, State\+Scalar\+Type $>$ $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af3feddcb92a05aa0400010d43dcfb47d}{integrated\+State\+Processors\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of object (per dynamics type) that process the integrated numerical solution by updating the environment. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1EnvironmentUpdater}{Environment\+Updater}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a9f3b7606115311df3a5925d159551618}{environment\+Updater\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Object responsible for updating the environment based on the current state and time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af33af51d34ae54dfd777524fa5a9f845}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af33af51d34ae54dfd777524fa5a9f845}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsStateDerivativeModel}{Dynamics\+State\+Derivative\+Model}}$<$ Time\+Type, State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af33af51d34ae54dfd777524fa5a9f845}{dynamics\+State\+Derivative\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Interface object that updates current environment and returns state derivative from single function call. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ const Time\+Type, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aa1f7059a36283fb6f9a70bf9b7636caf}{state\+Derivative\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function that performs a single state derivative function evaluation. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ const double, const Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a448db73ca8b2a27ff1038b79be8f0245}{double\+State\+Derivative\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function that performs a single state derivative function evaluation with double precision. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_afdb46f69844415d6e42c5a48b46ab274}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_afdb46f69844415d6e42c5a48b46ab274}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_afdb46f69844415d6e42c5a48b46ab274}{integrator\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Settings for numerical integrator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a714bb2f6f0d5578a8605199da29f412d}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a714bb2f6f0d5578a8605199da29f412d}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a714bb2f6f0d5578a8605199da29f412d}{propagator\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Settings for propagator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af10be12b4a0efc0602a332b4b93b005c}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af10be12b4a0efc0602a332b4b93b005c}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition}{Propagation\+Termination\+Condition}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af10be12b4a0efc0602a332b4b93b005c}{propagation\+Termination\+Condition\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Object defining when the propagation is to be terminated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a81efd7808d848bc79ffddb718df3d31e}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a81efd7808d848bc79ffddb718df3d31e}} 
+std\+::function$<$ Eigen\+::\+Vector\+Xd() $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a81efd7808d848bc79ffddb718df3d31e}{dependent\+Variables\+Functions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function returning dependent variables (during numerical propagation) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af3e6d7559df97dce3dd502a8de4677d5}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af3e6d7559df97dce3dd502a8de4677d5}} 
+std\+::function$<$ void(Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af3e6d7559df97dce3dd502a8de4677d5}{state\+Post\+Processing\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function to post-\/process state (during numerical propagation) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0416f0bf4825f667a199694f3b57e6a4}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0416f0bf4825f667a199694f3b57e6a4}} 
+std\+::map$<$ int, std\+::string $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0416f0bf4825f667a199694f3b57e6a4}{dependent\+Variable\+Ids\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map listing starting entry of dependent variables in output vector, along with associated ID. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a33a703ae8ce8098bdb74fd78bb01ed7a}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a33a703ae8ce8098bdb74fd78bb01ed7a}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1ReferenceFrameManager}{ephemerides\+::\+Reference\+Frame\+Manager}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a33a703ae8ce8098bdb74fd78bb01ed7a}{frame\+Manager\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Object for retrieving ephemerides for transformation of reference frame (origins) \end{DoxyCompactList}\item 
+std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8c3990a00766f47593394f56cc06eede}{equations\+Of\+Motion\+Numerical\+Solution\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of state history of numerically integrated bodies. \end{DoxyCompactList}\item 
+std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a540857e186fbf13fd73aa8956647839e}{equations\+Of\+Motion\+Numerical\+Solution\+Raw\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of state history of numerically integrated bodies. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ad75ba09d254466d72e1d19c83558e148}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ad75ba09d254466d72e1d19c83558e148}} 
+std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ad75ba09d254466d72e1d19c83558e148}{dependent\+Variable\+History\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of dependent variable history that was saved during numerical propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a9814c184e2beb9e1bd17629202c96f3f}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a9814c184e2beb9e1bd17629202c96f3f}} 
+std\+::map$<$ Time\+Type, double $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a9814c184e2beb9e1bd17629202c96f3f}{cumulative\+Computation\+Time\+History\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of cumulative computation time history that was saved during numerical propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7330bd795b64be60b39bbb469df4ee1b}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7330bd795b64be60b39bbb469df4ee1b}} 
+std\+::map$<$ Time\+Type, unsigned int $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7330bd795b64be60b39bbb469df4ee1b}{cumulative\+Number\+Of\+Function\+Evaluations\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Map of cumulative number of function evaluations that was saved during numerical propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0d6f9481732c353c408ad432486d4751}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0d6f9481732c353c408ad432486d4751}} 
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0d6f9481732c353c408ad432486d4751}{initial\+Propagation\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Initial time of propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a2ba0aac7169ad4b705ef2e5725ccbd74}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a2ba0aac7169ad4b705ef2e5725ccbd74}} 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a2ba0aac7169ad4b705ef2e5725ccbd74}{print\+Number\+Of\+Function\+Evaluations\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean denoting whether the number of function evaluations should be printed at the end of propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0e5e68cb1bee57589f370a3d140279ad}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0e5e68cb1bee57589f370a3d140279ad}} 
+std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a0e5e68cb1bee57589f370a3d140279ad}{initial\+Clock\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Initial clock time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6015a92d69772502204f7ba4d9746229}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6015a92d69772502204f7ba4d9746229}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails}{Propagation\+Termination\+Details}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6015a92d69772502204f7ba4d9746229}{propagation\+Termination\+Reason\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Event that triggered the termination of the propagation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a3a4fc1a36fe0a334cc505d4983577278}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a3a4fc1a36fe0a334cc505d4983577278}} 
+bool {\bfseries print\+Dependent\+Variable\+Data\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator$<$ State\+Scalar\+Type, Time\+Type $>$}
+
+Class for performing full numerical integration of a dynamical system in a single arc. 
+
+Class for performing full numerical integration of a dynamical system in a single arc, i.\+e. the equations of motion have a single initial time, and are propagated once for the full prescribed time interval. This is in contrast to multi-\/arc dynamics, where the time interval si cut into pieces. In this class, the governing equations are set once, but can be re-\/integrated for different initial conditions using the same instance of the class. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5d3337bb190b3ace9e372acc9fd35bad}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5d3337bb190b3ace9e372acc9fd35bad}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!SingleArcDynamicsSimulator@{SingleArcDynamicsSimulator}}
+\index{SingleArcDynamicsSimulator@{SingleArcDynamicsSimulator}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{SingleArcDynamicsSimulator()}{SingleArcDynamicsSimulator()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{Single\+Arc\+Dynamics\+Simulator}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&}]{bodies,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$}]{integrator\+Settings,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagatorSettings}{Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$}]{propagator\+Settings,  }\item[{const bool}]{are\+Equations\+Of\+Motion\+To\+Be\+Integrated = {\ttfamily true},  }\item[{const bool}]{clear\+Numerical\+Solutions = {\ttfamily false},  }\item[{const bool}]{set\+Integrated\+Result = {\ttfamily false},  }\item[{const bool}]{print\+Number\+Of\+Function\+Evaluations = {\ttfamily false},  }\item[{const std\+::chrono\+::steady\+\_\+clock\+::time\+\_\+point}]{initial\+Clock\+Time = {\ttfamily std\+:\+:chrono\+:\+:steady\+\_\+clock\+:\+:now(~)},  }\item[{const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative}{Single\+State\+Type\+Derivative}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ $>$ \&}]{state\+Derivative\+Models = {\ttfamily std\+:\+:vector$<$~std\+:\+:shared\+\_\+ptr$<$~\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative}{Single\+State\+Type\+Derivative}}$<$~StateScalarType,~TimeType~$>$~$>$~$>$(~)},  }\item[{const bool}]{print\+Dependent\+Variable\+Data = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor of simulator. 
+
+Constructor of simulator, constructs integrator and object for calculating each time step of integration. 
+\begin{DoxyParams}{Parameters}
+{\em bodies} & Map of bodies (with names) of all bodies in integration. \\
+\hline
+{\em integrator\+Settings} & Settings for numerical integrator. \\
+\hline
+{\em propagator\+Settings} & Settings for propagator. \\
+\hline
+{\em are\+Equations\+Of\+Motion\+To\+Be\+Integrated} & Boolean to denote whether equations of motion should be integrated immediately at the end of the contructor or not (default true). \\
+\hline
+{\em clear\+Numerical\+Solutions} & Boolean to determine whether to clear the raw numerical solution member variables of this class, after propagation and resetting ephemerides (default false). \\
+\hline
+{\em set\+Integrated\+Result} & Boolean to determine whether to automatically use the integrated results to set ephemerides (default false). \\
+\hline
+{\em print\+Number\+Of\+Function\+Evaluations} & Boolean denoting whether the number of function evaluations should be printed at the end of propagation. \\
+\hline
+{\em initial\+Clock\+Time} & Initial clock time from which to determine cumulative computation time. By default now( ), i.\+e. the moment at which this function is called. \\
+\hline
+{\em state\+Derivative\+Models} & List of state derivative models used in the simulation. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af90b25ddcd40603958dd025ccd0640c3}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_af90b25ddcd40603958dd025ccd0640c3}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getCumulativeComputationTimeHistory@{getCumulativeComputationTimeHistory}}
+\index{getCumulativeComputationTimeHistory@{getCumulativeComputationTimeHistory}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getCumulativeComputationTimeHistory()}{getCumulativeComputationTimeHistory()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ Time\+Type, double $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Cumulative\+Computation\+Time\+History (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the map of cumulative computation time history that was saved during numerical propagation. 
+
+Function to return the map of cumulative computation time history that was saved during numerical propagation. \begin{DoxyReturn}{Returns}
+Map of cumulative computation time history that was saved during numerical propagation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ac7b3c6c6b3f261c0447205adb108bde4}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ac7b3c6c6b3f261c0447205adb108bde4}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getCumulativeComputationTimeHistoryBase@{getCumulativeComputationTimeHistoryBase}}
+\index{getCumulativeComputationTimeHistoryBase@{getCumulativeComputationTimeHistoryBase}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getCumulativeComputationTimeHistoryBase()}{getCumulativeComputationTimeHistoryBase()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::vector$<$ std\+::map$<$ Time\+Type, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Cumulative\+Computation\+Time\+History\+Base (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the map of cumulative computation time history that was saved during numerical propagation. 
+
+Function to return the map of cumulative computation time history that was saved during numerical propagation (base class interface). \begin{DoxyReturn}{Returns}
+Vector is size 1, with entry\+: map of cumulative computation time history that was saved during numerical propagation. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{tudat\+::propagators\+::\+Dynamics\+Simulator$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5ef7ea8771d28817835763b627b069cf}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5ef7ea8771d28817835763b627b069cf}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getCumulativeNumberOfFunctionEvaluations@{getCumulativeNumberOfFunctionEvaluations}}
+\index{getCumulativeNumberOfFunctionEvaluations@{getCumulativeNumberOfFunctionEvaluations}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getCumulativeNumberOfFunctionEvaluations()}{getCumulativeNumberOfFunctionEvaluations()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ Time\+Type, unsigned int $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Cumulative\+Number\+Of\+Function\+Evaluations (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the map of number of cumulative function evaluations that was saved during numerical propagation. 
+
+Function to return the map of cumulative number of function evaluations that was saved during numerical propagation. \begin{DoxyReturn}{Returns}
+Map of cumulative number of function evaluations that was saved during numerical propagation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8bc35db515647824519c306f7083ac3d}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8bc35db515647824519c306f7083ac3d}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getDependentVariableHistory@{getDependentVariableHistory}}
+\index{getDependentVariableHistory@{getDependentVariableHistory}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getDependentVariableHistory()}{getDependentVariableHistory()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+const std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$\& \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Dependent\+Variable\+History (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the map of dependent variable history that was saved during numerical propagation. 
+
+Function to return the map of dependent variable history that was saved during numerical propagation. \begin{DoxyReturn}{Returns}
+Map of dependent variable history that was saved during numerical propagation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a2520bf877b946006bf39adf6a99b9027}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a2520bf877b946006bf39adf6a99b9027}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getDependentVariableIds@{getDependentVariableIds}}
+\index{getDependentVariableIds@{getDependentVariableIds}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getDependentVariableIds()}{getDependentVariableIds()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ int, std\+::string $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Dependent\+Variable\+Ids (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the dependent variables IDs. 
+
+Function to retrieve the dependent variables IDs \begin{DoxyReturn}{Returns}
+Map listing starting entry of dependent variables in output vector, along with associated ID 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a1f10218d1d259e7438b8a54026219da1}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a1f10218d1d259e7438b8a54026219da1}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getDependentVariableNumericalSolutionBase@{getDependentVariableNumericalSolutionBase}}
+\index{getDependentVariableNumericalSolutionBase@{getDependentVariableNumericalSolutionBase}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getDependentVariableNumericalSolutionBase()}{getDependentVariableNumericalSolutionBase()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Dependent\+Variable\+Numerical\+Solution\+Base (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the map of dependent variable history that was saved during numerical propagation (base class interface) 
+
+Function to return the map of dependent variable history that was saved during numerical propagation (base class interface) \begin{DoxyReturn}{Returns}
+Vector is size 1, with entry\+: map of dependent variable history that was saved during numerical propagation. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_ac20b41aa54498743b4c8a4fb3019416d}{tudat\+::propagators\+::\+Dynamics\+Simulator$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ad198d55c53aeffc99ad51faf89b8940f}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ad198d55c53aeffc99ad51faf89b8940f}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getDependentVariablesFunctions@{getDependentVariablesFunctions}}
+\index{getDependentVariablesFunctions@{getDependentVariablesFunctions}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getDependentVariablesFunctions()}{getDependentVariablesFunctions()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::function$<$ Eigen\+::\+Vector\+Xd( ) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Dependent\+Variables\+Functions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the functions that compute the dependent variables at each time step. 
+
+Function to retrieve the functions that compute the dependent variables at each time step \begin{DoxyReturn}{Returns}
+Functions that compute the dependent variables at each time step 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a3ba1ac41167667d7fbc01dea3ef0c7f6}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a3ba1ac41167667d7fbc01dea3ef0c7f6}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getDoubleStateDerivativeFunction@{getDoubleStateDerivativeFunction}}
+\index{getDoubleStateDerivativeFunction@{getDoubleStateDerivativeFunction}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getDoubleStateDerivativeFunction()}{getDoubleStateDerivativeFunction()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::function$<$ Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ const double, const Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$\& ) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Double\+State\+Derivative\+Function (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the function that performs a single state derivative function evaluation with double precision. 
+
+Function to get the function that performs a single state derivative function evaluation with double precision, regardless of template arguments. \begin{DoxyReturn}{Returns}
+Function that performs a single state derivative function evaluation with double precision. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aedbc525782e4b4d44d750897177340d0}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aedbc525782e4b4d44d750897177340d0}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getDynamicsStateDerivative@{getDynamicsStateDerivative}}
+\index{getDynamicsStateDerivative@{getDynamicsStateDerivative}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getDynamicsStateDerivative()}{getDynamicsStateDerivative()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsStateDerivativeModel}{Dynamics\+State\+Derivative\+Model}}$<$ Time\+Type, State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Dynamics\+State\+Derivative (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the object that updates and returns state derivative. 
+
+Function to get the object that updates current environment and returns state derivative from single function call \begin{DoxyReturn}{Returns}
+Object that updates current environment and returns state derivative from single function call 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aec71f5d4a20b1b6cb29dcbe5de72fab3}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aec71f5d4a20b1b6cb29dcbe5de72fab3}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getEnvironmentUpdater@{getEnvironmentUpdater}}
+\index{getEnvironmentUpdater@{getEnvironmentUpdater}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getEnvironmentUpdater()}{getEnvironmentUpdater()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1EnvironmentUpdater}{Environment\+Updater}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Environment\+Updater (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the object that updates the environment. 
+
+Function to get the object responsible for updating the environment based on the current state and time. \begin{DoxyReturn}{Returns}
+Object responsible for updating the environment based on the current state and time. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aa1a39d61adaad22b838c273a6fd301a6}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aa1a39d61adaad22b838c273a6fd301a6}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getEquationsOfMotionNumericalSolution@{getEquationsOfMotionNumericalSolution}}
+\index{getEquationsOfMotionNumericalSolution@{getEquationsOfMotionNumericalSolution}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getEquationsOfMotionNumericalSolution()}{getEquationsOfMotionNumericalSolution()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+const std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$\& \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Equations\+Of\+Motion\+Numerical\+Solution (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the map of state history of numerically integrated bodies. 
+
+Function to return the map of state history of numerically integrated bodies. \begin{DoxyReturn}{Returns}
+Map of state history of numerically integrated bodies. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6a087c4ec70779b901388558f1ad8b0e}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6a087c4ec70779b901388558f1ad8b0e}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getEquationsOfMotionNumericalSolutionBase@{getEquationsOfMotionNumericalSolutionBase}}
+\index{getEquationsOfMotionNumericalSolutionBase@{getEquationsOfMotionNumericalSolutionBase}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getEquationsOfMotionNumericalSolutionBase()}{getEquationsOfMotionNumericalSolutionBase()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Equations\+Of\+Motion\+Numerical\+Solution\+Base (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the map of state history of numerically integrated bodies (base class interface). 
+
+Function to return the map of state history of numerically integrated bodies (base class interface). \begin{DoxyReturn}{Returns}
+Vector is size 1, with entry\+: map of state history of numerically integrated bodies. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a63672d5ad32468e2d352f3a145427e01}{tudat\+::propagators\+::\+Dynamics\+Simulator$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6846c63799a6695827f9a192ed10afc0}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a6846c63799a6695827f9a192ed10afc0}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getEquationsOfMotionNumericalSolutionRaw@{getEquationsOfMotionNumericalSolutionRaw}}
+\index{getEquationsOfMotionNumericalSolutionRaw@{getEquationsOfMotionNumericalSolutionRaw}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getEquationsOfMotionNumericalSolutionRaw()}{getEquationsOfMotionNumericalSolutionRaw()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+const std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$\& \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Equations\+Of\+Motion\+Numerical\+Solution\+Raw (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the map of state history of numerically integrated bodies, in propagation coordinates. 
+
+Function to return the map of state history of numerically integrated bodies, in propagation coordinates. \begin{DoxyReturn}{Returns}
+Map of state history of numerically integrated bodies, in propagation coordinates. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a74f0422bbad66a87ae41dc913a06f743}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a74f0422bbad66a87ae41dc913a06f743}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getInitialPropagationTime@{getInitialPropagationTime}}
+\index{getInitialPropagationTime@{getInitialPropagationTime}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getInitialPropagationTime()}{getInitialPropagationTime()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Initial\+Propagation\+Time (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve initial time of propagation. 
+
+Function to retrieve initial time of propagation \begin{DoxyReturn}{Returns}
+Initial time of propagation 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7a029f1d6ac01f5f87bfcc950a21ef76}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7a029f1d6ac01f5f87bfcc950a21ef76}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getIntegratedStateProcessors@{getIntegratedStateProcessors}}
+\index{getIntegratedStateProcessors@{getIntegratedStateProcessors}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getIntegratedStateProcessors()}{getIntegratedStateProcessors()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ Integrated\+State\+Type, std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor}{Integrated\+State\+Processor}}$<$ Time\+Type, State\+Scalar\+Type $>$ $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Integrated\+State\+Processors (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the list of object that process the integrated numerical solution by updating the environment. 
+
+Function to retrieve the List of object (per dynamics type) that process the integrated numerical solution by updating the environment \begin{DoxyReturn}{Returns}
+List of object (per dynamics type) that process the integrated numerical solution by updating the environment 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a25f8d08ad26c5d1b49ac37a80095ac25}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a25f8d08ad26c5d1b49ac37a80095ac25}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getIntegratorSettings@{getIntegratorSettings}}
+\index{getIntegratorSettings@{getIntegratorSettings}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getIntegratorSettings()}{getIntegratorSettings()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Integrator\+Settings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the settings for the numerical integrator. 
+
+Function to get the settings for the numerical integrator. \begin{DoxyReturn}{Returns}
+The settings for the numerical integrator. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab70c1a955ee87d2757797d4a9e71d79b}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab70c1a955ee87d2757797d4a9e71d79b}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getPropagationTerminationCondition@{getPropagationTerminationCondition}}
+\index{getPropagationTerminationCondition@{getPropagationTerminationCondition}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getPropagationTerminationCondition()}{getPropagationTerminationCondition()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition}{Propagation\+Termination\+Condition}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Propagation\+Termination\+Condition (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the object defining when the propagation is to be terminated. 
+
+Function to retrieve the object defining when the propagation is to be terminated. \begin{DoxyReturn}{Returns}
+Object defining when the propagation is to be terminated. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a47664d88ca05c0c6359f7860fc15853f}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a47664d88ca05c0c6359f7860fc15853f}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getPropagationTerminationReason@{getPropagationTerminationReason}}
+\index{getPropagationTerminationReason@{getPropagationTerminationReason}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getPropagationTerminationReason()}{getPropagationTerminationReason()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationDetails}{Propagation\+Termination\+Details}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Propagation\+Termination\+Reason (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the event that triggered the termination of the last propagation. 
+
+Function to retrieve the event that triggered the termination of the last propagation \begin{DoxyReturn}{Returns}
+Event that triggered the termination of the last propagation 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ac3408e9f8bb8b187c3760d98b2a0745d}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ac3408e9f8bb8b187c3760d98b2a0745d}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getPropagatorSettings@{getPropagatorSettings}}
+\index{getPropagatorSettings@{getPropagatorSettings}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getPropagatorSettings()}{getPropagatorSettings()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Propagator\+Settings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the settings for the propagator. 
+
+Function to get the settings for the propagator. \begin{DoxyReturn}{Returns}
+The settings for the propagator. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8c46ff98e3e7fa62488952ec8ff1a777}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8c46ff98e3e7fa62488952ec8ff1a777}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!getStateDerivativeFunction@{getStateDerivativeFunction}}
+\index{getStateDerivativeFunction@{getStateDerivativeFunction}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getStateDerivativeFunction()}{getStateDerivativeFunction()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ const Time\+Type, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$\&) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+State\+Derivative\+Function (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the function that performs a single state derivative function evaluation. 
+
+Function to get the function that performs a single state derivative function evaluation. \begin{DoxyReturn}{Returns}
+Function that performs a single state derivative function evaluation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab08dedc11f3ca6263b29befcde9e69dc}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab08dedc11f3ca6263b29befcde9e69dc}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!integrateEquationsOfMotion@{integrateEquationsOfMotion}}
+\index{integrateEquationsOfMotion@{integrateEquationsOfMotion}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{integrateEquationsOfMotion()}{integrateEquationsOfMotion()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::integrate\+Equations\+Of\+Motion (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&}]{initial\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+This function numerically (re-\/)integrates the equations of motion. 
+
+This function numerically (re-\/)integrates the equations of motion, using the settings set through the constructor and a new initial state vector provided here. The raw results are set in the equations\+Of\+Motion\+Numerical\+Solution\+\_\+ 
+\begin{DoxyParams}{Parameters}
+{\em initial\+States} & Initial state vector that is to be used for numerical integration. Note that this state should be in the correct frame (i.\+e. corresponding to central\+Bodies in propagator\+Settings\+\_\+), but not in the propagator-\/ specific form (i.\+e Encke, Gauss, etc. for translational dynamics) \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative_aeab2b2a9eae937200a5def64dcf18960}{Single\+State\+Type\+Derivative\+::convert\+To\+Output\+Solution}} 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5d2f201520cb4b28510714fec059faea}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a5d2f201520cb4b28510714fec059faea}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!integrationCompletedSuccessfully@{integrationCompletedSuccessfully}}
+\index{integrationCompletedSuccessfully@{integrationCompletedSuccessfully}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{integrationCompletedSuccessfully()}{integrationCompletedSuccessfully()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual bool \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::integration\+Completed\+Successfully (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get whether the integration was completed successfully. 
+
+Get whether the integration was completed successfully. \begin{DoxyReturn}{Returns}
+Whether the integration was completed successfully by reaching the termination condition. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a299c98e9a537ed7f32d9897d033f51b5}{tudat\+::propagators\+::\+Dynamics\+Simulator$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7a3539b29ef71e1fc4274572b74037d8}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a7a3539b29ef71e1fc4274572b74037d8}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!manuallySetAndProcessRawNumericalEquationsOfMotionSolution@{manuallySetAndProcessRawNumericalEquationsOfMotionSolution}}
+\index{manuallySetAndProcessRawNumericalEquationsOfMotionSolution@{manuallySetAndProcessRawNumericalEquationsOfMotionSolution}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{manuallySetAndProcessRawNumericalEquationsOfMotionSolution()}{manuallySetAndProcessRawNumericalEquationsOfMotionSolution()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::manually\+Set\+And\+Process\+Raw\+Numerical\+Equations\+Of\+Motion\+Solution (\begin{DoxyParamCaption}\item[{const std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \&}]{equations\+Of\+Motion\+Numerical\+Solution,  }\item[{const std\+::map$<$ Time\+Type, Eigen\+::\+Vector\+Xd $>$ \&}]{dependent\+Variable\+History,  }\item[{const bool}]{process\+Solution = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the environment from an externally generated state history. 
+
+Function to reset the environment from an externally generated state history, the order of the entries in the state vectors are proscribed by propagator\+Settings 
+\begin{DoxyParams}{Parameters}
+{\em equations\+Of\+Motion\+Numerical\+Solution} & Externally generated state history. \\
+\hline
+{\em process\+Solution} & True if the new solution is to be immediately processed (default true). \\
+\hline
+{\em dependent\+Variable\+History} & Externally generated dependent variable history. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a351d3d697039d983a7b6b24b85122f32}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a351d3d697039d983a7b6b24b85122f32}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!processNumericalEquationsOfMotionSolution@{processNumericalEquationsOfMotionSolution}}
+\index{processNumericalEquationsOfMotionSolution@{processNumericalEquationsOfMotionSolution}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{processNumericalEquationsOfMotionSolution()}{processNumericalEquationsOfMotionSolution()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::process\+Numerical\+Equations\+Of\+Motion\+Solution (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+This function updates the environment with the numerical solution of the propagation. 
+
+This function updates the environment with the numerical solution of the propagation. It sets the propagated translational dynamics solution as the new input for the Ephemeris object of the body that was propagated. 
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a63213c599db30418b794bd9047ff08f1}{tudat\+::propagators\+::\+Dynamics\+Simulator$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab7859731f4fca53d00d847e1dfe26e59}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_ab7859731f4fca53d00d847e1dfe26e59}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!resetInitialPropagationTime@{resetInitialPropagationTime}}
+\index{resetInitialPropagationTime@{resetInitialPropagationTime}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{resetInitialPropagationTime()}{resetInitialPropagationTime()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::reset\+Initial\+Propagation\+Time (\begin{DoxyParamCaption}\item[{const double}]{initial\+Propagation\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset initial propagation time. 
+
+Function to reset initial propagation time 
+\begin{DoxyParams}{Parameters}
+{\em initial\+Propagation\+Time} & New initial propagation time \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8f6e86e803b8856e9490d3714d5d9964}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8f6e86e803b8856e9490d3714d5d9964}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!resetPropagationTerminationConditions@{resetPropagationTerminationConditions}}
+\index{resetPropagationTerminationConditions@{resetPropagationTerminationConditions}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{resetPropagationTerminationConditions()}{resetPropagationTerminationConditions()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::reset\+Propagation\+Termination\+Conditions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Function to reset the object that checks whether the simulation has finished from (newly defined) propagation settings.
+
+Function to reset the object that checks whether the simulation has finished from (newly defined) propagation settings. 
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a448db73ca8b2a27ff1038b79be8f0245}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a448db73ca8b2a27ff1038b79be8f0245}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!doubleStateDerivativeFunction\_@{doubleStateDerivativeFunction\_}}
+\index{doubleStateDerivativeFunction\_@{doubleStateDerivativeFunction\_}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{doubleStateDerivativeFunction\_}{doubleStateDerivativeFunction\_}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::function$<$ Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ const double, const Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$\& ) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::double\+State\+Derivative\+Function\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Function that performs a single state derivative function evaluation with double precision. 
+
+Function that performs a single state derivative function evaluation with double precision. \begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aa1f7059a36283fb6f9a70bf9b7636caf}{state\+Derivative\+Function\+\_\+}} 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a9f3b7606115311df3a5925d159551618}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a9f3b7606115311df3a5925d159551618}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!environmentUpdater\_@{environmentUpdater\_}}
+\index{environmentUpdater\_@{environmentUpdater\_}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{environmentUpdater\_}{environmentUpdater\_}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1EnvironmentUpdater}{Environment\+Updater}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::environment\+Updater\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Object responsible for updating the environment based on the current state and time. 
+
+Object responsible for updating the environment based on the current state and time. Calling the update\+Environment function automatically updates all dependent variables that are needed to calulate the state derivative. \mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8c3990a00766f47593394f56cc06eede}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a8c3990a00766f47593394f56cc06eede}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!equationsOfMotionNumericalSolution\_@{equationsOfMotionNumericalSolution\_}}
+\index{equationsOfMotionNumericalSolution\_@{equationsOfMotionNumericalSolution\_}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{equationsOfMotionNumericalSolution\_}{equationsOfMotionNumericalSolution\_}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::equations\+Of\+Motion\+Numerical\+Solution\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Map of state history of numerically integrated bodies. 
+
+Map of state history of numerically integrated bodies, i.\+e. the result of the numerical integration, transformed into the \textquotesingle{}conventional form\textquotesingle{} (\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative_aeab2b2a9eae937200a5def64dcf18960}{Single\+State\+Type\+Derivative\+::convert\+To\+Output\+Solution}}). Key of map denotes time, values are concatenated vectors of integrated body states (order defined by \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a714bb2f6f0d5578a8605199da29f412d}{propagator\+Settings\+\_\+}}). NOTE\+: this map is empty if \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator_a9bbe7a7134636105ddfe4100fed77518}{clear\+Numerical\+Solutions\+\_\+}} is set to true. 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a540857e186fbf13fd73aa8956647839e}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_a540857e186fbf13fd73aa8956647839e}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!equationsOfMotionNumericalSolutionRaw\_@{equationsOfMotionNumericalSolutionRaw\_}}
+\index{equationsOfMotionNumericalSolutionRaw\_@{equationsOfMotionNumericalSolutionRaw\_}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{equationsOfMotionNumericalSolutionRaw\_}{equationsOfMotionNumericalSolutionRaw\_}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::equations\+Of\+Motion\+Numerical\+Solution\+Raw\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Map of state history of numerically integrated bodies. 
+
+Map of state history of numerically integrated bodies, i.\+e. the result of the numerical integration, in the original propagation coordinates. Key of map denotes time, values are concatenated vectors of integrated body states (order defined by propagator\+Settings\+\_\+). NOTE\+: this map is empty if clear\+Numerical\+Solutions\+\_\+ is set to true. \mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aa1f7059a36283fb6f9a70bf9b7636caf}\label{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator_aa1f7059a36283fb6f9a70bf9b7636caf}} 
+\index{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}!stateDerivativeFunction\_@{stateDerivativeFunction\_}}
+\index{stateDerivativeFunction\_@{stateDerivativeFunction\_}!tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$@{tudat::propagators::SingleArcDynamicsSimulator$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{stateDerivativeFunction\_}{stateDerivativeFunction\_}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ const Time\+Type, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$\& ) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcDynamicsSimulator}{tudat\+::propagators\+::\+Single\+Arc\+Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::state\+Derivative\+Function\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Function that performs a single state derivative function evaluation. 
+
+Function that performs a single state derivative function evaluation, will typically be set to \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsStateDerivativeModel_a21c8ce5580f81720dd6ddce728ec0b48}{Dynamics\+State\+Derivative\+Model$<$ Time\+Type, State\+Scalar\+Type $>$\+::compute\+State\+Derivative}} function. Calling this function will first update the environment (using environment\+Updater\+\_\+) and then calculate the full system state derivative. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/dynamics\+Simulator.\+h\end{DoxyCompactItemize}

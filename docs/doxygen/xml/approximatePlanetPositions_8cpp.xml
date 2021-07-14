@@ -1,0 +1,608 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="approximatePlanetPositions_8cpp" kind="file" language="C++">
+    <compoundname>approximatePlanetPositions.cpp</compoundname>
+    <includes local="no">cmath</includes>
+    <includes refid="orbitalElementConversions_8h" local="yes">tudat/astro/basic_astro/orbitalElementConversions.h</includes>
+    <includes refid="unitConversions_8h" local="yes">tudat/astro/basic_astro/unitConversions.h</includes>
+    <includes refid="timeConversions_8h" local="yes">tudat/astro/basic_astro/timeConversions.h</includes>
+    <includes refid="stateVectorIndices_8h" local="yes">tudat/astro/basic_astro/stateVectorIndices.h</includes>
+    <includes refid="approximatePlanetPositions_8h" local="yes">tudat/astro/ephemerides/approximatePlanetPositions.h</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>functional</label>
+      </node>
+      <node id="6">
+        <label>limits</label>
+      </node>
+      <node id="16">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>boost/math/special_functions/atanh.hpp</label>
+      </node>
+      <node id="41">
+        <label>tudat/astro/ephemerides/approximatePlanetPositionsBase.h</label>
+        <link refid="approximatePlanetPositionsBase_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>boost/date_time/gregorian/gregorian.hpp</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/approximatePlanetPositions.cpp</label>
+        <link refid="approximatePlanetPositions_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="2">
+        <label>cmath</label>
+      </node>
+      <node id="28">
+        <label>tudat/math/root_finders/newtonRaphson.h</label>
+        <link refid="newtonRaphson_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>stdexcept</label>
+      </node>
+      <node id="7">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="40">
+        <label>tudat/astro/ephemerides/approximatePlanetPositions.h</label>
+        <link refid="approximatePlanetPositions_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>string</label>
+      </node>
+      <node id="3">
+        <label>tudat/astro/basic_astro/orbitalElementConversions.h</label>
+        <link refid="orbitalElementConversions_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>map</label>
+      </node>
+      <node id="33">
+        <label>tudat/math/basic/functionProxy.h</label>
+        <link refid="functionProxy_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>tudat/math/root_finders/createRootFinder.h</label>
+        <link refid="createRootFinder_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="36">
+        <label>tudat/astro/basic_astro/unitConversions.h</label>
+        <link refid="unitConversions_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>tudat/math/basic/linearAlgebra.h</label>
+        <link refid="linearAlgebra_8h_source"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>tudat/astro/basic_astro/stateVectorIndices.h</label>
+        <link refid="stateVectorIndices_8h_source"/>
+      </node>
+      <node id="37">
+        <label>tudat/astro/basic_astro/physicalConstants.h</label>
+        <link refid="physicalConstants_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>tudat/math/root_finders/halleyRootFinder.h</label>
+        <link refid="halleyRootFinder_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>tudat/astro/ephemerides/ephemeris.h</label>
+        <link refid="astro_2ephemerides_2ephemeris_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>boost/math/special_functions/asinh.hpp</label>
+      </node>
+      <node id="38">
+        <label>tudat/astro/basic_astro/timeConversions.h</label>
+        <link refid="timeConversions_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>vector</label>
+      </node>
+      <node id="25">
+        <label>tudat/math/root_finders/bisection.h</label>
+        <link refid="bisection_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>tudat/basics/utilityMacros.h</label>
+        <link refid="utilityMacros_8h_source"/>
+      </node>
+      <node id="35">
+        <label>tudat/math/basic/basicFunction.h</label>
+        <link refid="basicFunction_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>tudat/math/basic/convergenceException.h</label>
+        <link refid="convergenceException_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>tudat/astro/ephemerides/approximatePlanetPositionsDataContainer.h</label>
+        <link refid="approximatePlanetPositionsDataContainer_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>iostream</label>
+      </node>
+      <node id="17">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="10">
+        <label>tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h</label>
+        <link refid="convertMeanToEccentricAnomalies_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>Eigen/SVD</label>
+      </node>
+      <node id="30">
+        <label>tudat/math/root_finders/secantRootFinder.h</label>
+        <link refid="secantRootFinder_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="18">
+        <label>complex</label>
+      </node>
+      <node id="48">
+        <label>algorithm</label>
+      </node>
+      <node id="12">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1ephemerides">tudat::ephemerides</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>References</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Standish,<sp/>E.M.<sp/>Keplerian<sp/>Elements<sp/>for<sp/>Approximate<sp/>Positions<sp/>of<sp/>the<sp/>Major<sp/>Planets,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf,<sp/>last<sp/>accessed:<sp/>24<sp/>February,<sp/>2011.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cmath&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/orbitalElementConversions.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/unitConversions.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/timeConversions.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/basic_astro/stateVectorIndices.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/ephemerides/approximatePlanetPositions.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">ephemerides</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal">Eigen::Vector6d<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a9ffa2e6b00aa190385d87266bc6ca091" kindref="member">ApproximatePlanetPositions::getCartesianState</ref>(</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>secondsSinceEpoch)</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>planet<sp/>elements<sp/>in<sp/>Keplerian<sp/>elements<sp/>to<sp/>Cartesian<sp/>elements.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>orbital_element_conversions::</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>convertKeplerianToCartesianElements(</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a28a9f6436a540037f9da7a2d59d2342b" kindref="member">getKeplerianStateFromEphemeris</ref>(<sp/>secondsSinceEpoch<sp/>),</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aebcb97a446b2662b8626e3cecc6fc54f" kindref="member">sunGravitationalParameter_</ref><sp/>+<sp/>planetGravitationalParameter_<sp/>);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">Eigen::Vector6d<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a28a9f6436a540037f9da7a2d59d2342b" kindref="member">ApproximatePlanetPositions::getKeplerianStateFromEphemeris</ref>(</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>secondsSinceEpoch<sp/>)</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/>std::pow;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/>std::sin;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using</highlight><highlight class="normal"><sp/>std::cos;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal">orbital_element_conversions;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a6d6e4fdfb1666474b8e5647bfcf3746f" kindref="member">julianDate_</ref><sp/>=<sp/>basic_astrodynamics::convertSecondsSinceEpochToJulianDay(</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>secondsSinceEpoch,<sp/>basic_astrodynamics::JULIAN_DAY_ON_J2000<sp/>);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>number<sp/>of<sp/>centuries<sp/>past<sp/>J2000.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref><sp/>=<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a6d6e4fdfb1666474b8e5647bfcf3746f" kindref="member">julianDate_</ref><sp/>-<sp/>2451545.0<sp/>)<sp/>/<sp/>36525.0;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>and<sp/>set<sp/>semi-major<sp/>axis<sp/>of<sp/>planet<sp/>at<sp/>given<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>semiMajorAxisIndex<sp/>)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac08c9711d1912974f96721ec8a66f576" kindref="member">semiMajorAxis_</ref></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a1c8272dc9e033bf670258943b159bfed" kindref="member">rateOfChangeOfSemiMajorAxis_</ref><sp/>*<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref><sp/>);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>and<sp/>set<sp/>eccentricity<sp/>of<sp/>planet<sp/>at<sp/>given<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>eccentricityIndex<sp/>)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1af47f7d417c91a106312eae9e86e7c044" kindref="member">eccentricity_</ref></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ad791c01b09d1abc2195ebc421bcb5430" kindref="member">rateOfChangeOfEccentricity_</ref><sp/>*<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref><sp/>);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>and<sp/>set<sp/>inclination<sp/>of<sp/>planet<sp/>at<sp/>given<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>inclinationIndex<sp/>)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1aab4e267bda985e1e9ce56aabffc94246" kindref="member">inclination_</ref></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1addace5b4d9c07f45bf7b468734a3d624" kindref="member">rateOfChangeOfInclination_</ref><sp/>*<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref><sp/>);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>and<sp/>set<sp/>longitude<sp/>of<sp/>ascending<sp/>node<sp/>of<sp/>planet<sp/>at<sp/>given<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>longitudeOfAscendingNodeIndex<sp/>)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1acdc92f2358fb6d9ebbedbd6f694c3bc1" kindref="member">longitudeOfAscendingNode_</ref></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a6ff272075cdadb6cbe5268ace4cfb79b" kindref="member">rateOfChangeOfLongitudeOfAscendingNode_</ref><sp/>*<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref><sp/>);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>longitude<sp/>of<sp/>perihelion<sp/>of<sp/>planet<sp/>at<sp/>given<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>longitudeOfPerihelionAtGivenJulianDate_</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adbbfbfbce7f44d3291c6ea71255f4757" kindref="member">longitudeOfPerihelion_</ref></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a9cc926b0ec785d207bf3dc9b9ac011bd" kindref="member">rateOfChangeOfLongitudeOfPerihelion_</ref></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref><sp/>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>and<sp/>set<sp/>argument<sp/>of<sp/>periapsis<sp/>of<sp/>planet<sp/>at<sp/>given<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>argumentOfPeriapsisIndex<sp/>)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>longitudeOfPerihelionAtGivenJulianDate_</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>longitudeOfAscendingNodeIndex<sp/>);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>mean<sp/>longitude<sp/>of<sp/>planet<sp/>at<sp/>given<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1ad63ef8202dfe8a0a04feb350344ee7e7" kindref="member">meanLongitudeAtGivenJulianDate_</ref><sp/>=<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a825a60052373aa68c2ffd30cb3c07c50" kindref="member">meanLongitude_</ref></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1ac7ea2134ba05e1025d387e637a2fc72b" kindref="member">rateOfChangeOfMeanLongitude_</ref></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref><sp/>);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>mean<sp/>anomaly<sp/>of<sp/>planet<sp/>at<sp/>given<sp/>Julian<sp/>date.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>meanAnomalyAtGivenJulianDate_<sp/>=<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1ad63ef8202dfe8a0a04feb350344ee7e7" kindref="member">meanLongitudeAtGivenJulianDate_</ref></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-<sp/>longitudeOfPerihelionAtGivenJulianDate_</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a447ede4724a8672f110ea685fd8a7ea5" kindref="member">additionalTermB_</ref></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>pow(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref>,<sp/>2.0<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a5b45c04ec7348046da355253127bf936" kindref="member">additionalTermC_</ref></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>cos(<sp/>unit_conversions::convertDegreesToRadians(<ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a66a6e79e153d59f4d2ef1e6e6e7bbd36" kindref="member">additionalTermF_</ref><sp/>*</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref><sp/>))<sp/>)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(<sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1adf8e8ebd02b232dbc34b00a576aec60d" kindref="member">additionalTermS_</ref></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>sin(<sp/>unit_conversions::convertDegreesToRadians(<ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" kindref="member">approximatePlanetPositionsDataContainer_</ref>.<ref refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer_1a66a6e79e153d59f4d2ef1e6e6e7bbd36" kindref="member">additionalTermF_</ref><sp/>*</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" kindref="member">numberOfCenturiesPastJ2000_</ref>)<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>modulo<sp/>of<sp/>mean<sp/>anomaly<sp/>for<sp/>interval<sp/>:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>0<sp/>&lt;=<sp/>meanAnomalyAtGivenJulianDate_<sp/>&lt;<sp/>360.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>meanAnomalyAtGivenJulianDate_<sp/>=<sp/>basic_mathematics::computeModulo(</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>meanAnomalyAtGivenJulianDate_,<sp/>360.0<sp/>);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Translate<sp/>mean<sp/>anomaly<sp/>to:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-180<sp/>&lt;<sp/>meanAnomalyAtGivenJulianDate_<sp/>&lt;=<sp/>180<sp/>bounds.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/>meanAnomalyAtGivenJulianDate_<sp/>&gt;<sp/>180.0<sp/>)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>meanAnomalyAtGivenJulianDate_<sp/>-=<sp/>360.0;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>mean<sp/>anomaly<sp/>to<sp/>eccentric<sp/>anomaly.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>eccentricAnomalyAtGivenJulianDate_<sp/>=<sp/>convertMeanAnomalyToEccentricAnomaly(</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>eccentricityIndex<sp/>),</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unit_conversions::convertDegreesToRadians(</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>meanAnomalyAtGivenJulianDate_<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>eccentric<sp/>anomaly<sp/>to<sp/>true<sp/>anomaly<sp/>and<sp/>set<sp/>in<sp/>planet<sp/>elements.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>trueAnomalyAtGivenJulianData_</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>eccentricAnomalyAtGivenJulianDate_,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>eccentricityIndex<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>trueAnomalyIndex<sp/>)</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>trueAnomalyAtGivenJulianData_;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>Keplerian<sp/>elements<sp/>to<sp/>standard<sp/>units.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>semi-major<sp/>axis<sp/>from<sp/>AU<sp/>to<sp/>meters</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>semiMajorAxisIndex<sp/>)</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>unit_conversions::convertAstronomicalUnitsToMeters(</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>semiMajorAxisIndex<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>inclination<sp/>from<sp/>degrees<sp/>to<sp/>radians.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>inclinationIndex<sp/>)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>unit_conversions::convertDegreesToRadians(</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>inclinationIndex<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>longitude<sp/>of<sp/>ascending<sp/>node<sp/>from<sp/>degrees<sp/>to<sp/>radians.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>longitudeOfAscendingNodeIndex<sp/>)</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>unit_conversions::convertDegreesToRadians(</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>longitudeOfAscendingNodeIndex<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Convert<sp/>argument<sp/>of<sp/>periapsis<sp/>from<sp/>degrees<sp/>to<sp/>radians.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>argumentOfPeriapsisIndex<sp/>)</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>unit_conversions::convertDegreesToRadians(</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>(<sp/>argumentOfPeriapsisIndex<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" kindref="member">planetKeplerianElementsAtGivenJulianDate_</ref>;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>ephemerides</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/approximatePlanetPositions.cpp"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,63 @@
+\hypertarget{classtudat_1_1observation__partials_1_1PositionPartialScaling}{}\doxysection{tudat\+::observation\+\_\+partials\+::Position\+Partial\+Scaling Class Reference}
+\label{classtudat_1_1observation__partials_1_1PositionPartialScaling}\index{tudat::observation\_partials::PositionPartialScaling@{tudat::observation\_partials::PositionPartialScaling}}
+
+
+Base class for scaling position partials to observable partials.  
+
+
+
+
+{\ttfamily \#include $<$observation\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Position\+Partial\+Scaling\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=6.407322cm]{classtudat_1_1observation__partials_1_1PositionPartialScaling}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionPartialScaling_a434c37b9140a2f1c0c916ab1eb332564}\label{classtudat_1_1observation__partials_1_1PositionPartialScaling_a434c37b9140a2f1c0c916ab1eb332564}} 
+virtual \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling_a434c37b9140a2f1c0c916ab1eb332564}{$\sim$\+Position\+Partial\+Scaling}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling_a7bf12506127c4527eacae23c6a9cf469}{update}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&link\+End\+States, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type fixed\+Link\+End, const Eigen\+::\+Vector\+Xd current\+Observation)=0
+\begin{DoxyCompactList}\small\item\em Update the scaling object to the current times and states (pure virtual). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for scaling position partials to observable partials. 
+
+Base class for scaling position partials to observable partials. For observables computed from the three-\/dimensional positions of reference points, the partial derivatives are computed from the partials of these positions. Each observation model requires a specific derived class of \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionPartialScaling}{Position\+Partial\+Scaling}}, that computes how position partials are converted to (\textquotesingle{}scaled to\textquotesingle{}) observable partials 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionPartialScaling_a7bf12506127c4527eacae23c6a9cf469}\label{classtudat_1_1observation__partials_1_1PositionPartialScaling_a7bf12506127c4527eacae23c6a9cf469}} 
+\index{tudat::observation\_partials::PositionPartialScaling@{tudat::observation\_partials::PositionPartialScaling}!update@{update}}
+\index{update@{update}!tudat::observation\_partials::PositionPartialScaling@{tudat::observation\_partials::PositionPartialScaling}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily virtual void tudat\+::observation\+\_\+partials\+::\+Position\+Partial\+Scaling\+::update (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{link\+End\+States,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{fixed\+Link\+End,  }\item[{const Eigen\+::\+Vector\+Xd}]{current\+Observation }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Update the scaling object to the current times and states (pure virtual). 
+
+Update the scaling object to the current times and states (pure virtual). 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+States} & List of states at each link end during observation. \\
+\hline
+{\em times} & List of times at each link end during observation. \\
+\hline
+{\em fixed\+Link\+End} & Link end at which observation time is defined, i.\+e. link end for which associated time is kept constant when computing observable. \\
+\hline
+{\em current\+Observation} & Value of observation for which partial scaling is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeScaling_a35f8d0a80ab2b4445630848cc3aa6bb8}{tudat\+::observation\+\_\+partials\+::\+One\+Way\+Range\+Scaling}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerScaling_a82f4cb66608317633db61e6751812b63}{tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Scaling}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1TwoWayDopplerScaling_a906053c720d7bad94b4ec79f342a7ce7}{tudat\+::observation\+\_\+partials\+::\+Two\+Way\+Doppler\+Scaling}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1VelocityObservationScaling_acbf73e557e5abfc55f83718ab4a016cb}{tudat\+::observation\+\_\+partials\+::\+Velocity\+Observation\+Scaling}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObservationScaling_af962c2216ee7b90f683097082b08e246}{tudat\+::observation\+\_\+partials\+::\+Position\+Observation\+Scaling}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayDopplerDirectFirstOrderProperTimeComponentScaling_a7e6136a4f6630f93be0362656ab17041}{tudat\+::observation\+\_\+partials\+::\+One\+Way\+Doppler\+Direct\+First\+Order\+Proper\+Time\+Component\+Scaling}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1NWayRangeScaling_a9c70d01e0348fd9809ea32b0a78208bb}{tudat\+::observation\+\_\+partials\+::\+NWay\+Range\+Scaling}}, \mbox{\hyperlink{classtudat_1_1observation__partials_1_1OneWayRangeRateScaling_a4cc6c37a9be7228f32d3294060c1cc6c}{tudat\+::observation\+\_\+partials\+::\+One\+Way\+Range\+Rate\+Scaling}}, and \mbox{\hyperlink{classtudat_1_1observation__partials_1_1AngularPositionScaling_ac62b64a319dcbbc3f61752dad343b775}{tudat\+::observation\+\_\+partials\+::\+Angular\+Position\+Scaling}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/observation\+Partial.\+h\end{DoxyCompactItemize}

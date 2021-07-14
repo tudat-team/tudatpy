@@ -1,0 +1,335 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::KeplerEphemerisSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" prot="public" virt="non-virtual">tudat::simulation_setup::EphemerisSettings</basecompoundref>
+    <includes refid="createEphemeris_8h" local="no">createEphemeris.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1ad5409183c59176ef6f001d28e250f1c1" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::simulation_setup::KeplerEphemerisSettings::initialStateInKeplerianElements_</definition>
+        <argsstring></argsstring>
+        <name>initialStateInKeplerianElements_</name>
+        <briefdescription>
+<para>Kepler elements at time epochOfInitialState. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="664" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="664" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1ae9515f463c76797fa1a341235753d878" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::KeplerEphemerisSettings::epochOfInitialState_</definition>
+        <argsstring></argsstring>
+        <name>epochOfInitialState_</name>
+        <briefdescription>
+<para>Initial epoch from which propagation of Kepler orbit is performed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="667" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="667" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1af87deb509cd779f405517802c2d3a6bb" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::KeplerEphemerisSettings::centralBodyGravitationalParameter_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameter_</name>
+        <briefdescription>
+<para>Gravitational parameter of central body about which the Kepler orbit is defined. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="670" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="670" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a3327fbde9445dc486f6ed8e110eb19bd" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::KeplerEphemerisSettings::rootFinderAbsoluteTolerance_</definition>
+        <argsstring></argsstring>
+        <name>rootFinderAbsoluteTolerance_</name>
+        <briefdescription>
+<para>Convergence tolerance for root finder used to convert mean to eccentric anomaly. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="673" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="673" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a12a548697a533538615890999a32f538" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::KeplerEphemerisSettings::rootFinderMaximumNumberOfIterations_</definition>
+        <argsstring></argsstring>
+        <name>rootFinderMaximumNumberOfIterations_</name>
+        <briefdescription>
+<para>Maximum iteration for root finder used to convert mean to eccentric anomaly. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="676" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="676" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1af359ded5cee4bbcf19e226d29a929a37" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::KeplerEphemerisSettings::KeplerEphemerisSettings</definition>
+        <argsstring>(const Eigen::Vector6d &amp;initialStateInKeplerianElements, const double epochOfInitialState, const double centralBodyGravitationalParameter, const std::string &amp;referenceFrameOrigin=&quot;SSB&quot;, const std::string &amp;referenceFrameOrientation=&quot;ECLIPJ2000&quot;, const double rootFinderAbsoluteTolerance=200.0 *std::numeric_limits&lt; double &gt;::epsilon(), const double rootFinderMaximumNumberOfIterations=1000.0)</argsstring>
+        <name>KeplerEphemerisSettings</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>initialStateInKeplerianElements</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>epochOfInitialState</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceFrameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceFrameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>rootFinderAbsoluteTolerance</declname>
+          <defval>200.0 *std::numeric_limits&lt; double &gt;::epsilon()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>rootFinderMaximumNumberOfIterations</declname>
+          <defval>1000.0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialStateInKeplerianElements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kepler elements at time epochOfInitialState. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>epochOfInitialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which initialStateInKeplerianElements represents the Keplerian state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of the central body that is used in the computations. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrigin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Origin of reference frame (string identifier). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceFrameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of reference frame (string identifier) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rootFinderAbsoluteTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Convergence tolerance for root finder used to convert mean to eccentric anomaly on each call to getCartesianState. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rootFinderMaximumNumberOfIterations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum iteration for root finder used to convert mean to eccentric anomaly on each call to getCartesianState. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="589" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="589" bodyend="602"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1ab08e160ca168b5296434fb2f6f36e310" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::simulation_setup::KeplerEphemerisSettings::getInitialStateInKeplerianElements</definition>
+        <argsstring>()</argsstring>
+        <name>getInitialStateInKeplerianElements</name>
+        <briefdescription>
+<para>Function to return the kepler elements at time epochOfInitialState. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the kepler elements at time epochOfInitialState. <simplesect kind="return"><para>Kepler elements at time epochOfInitialState. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="610" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="610" bodyend="613"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a8fbfc310d0b5ceffe29faea308faf5db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::KeplerEphemerisSettings::getEpochOfInitialState</definition>
+        <argsstring>()</argsstring>
+        <name>getEpochOfInitialState</name>
+        <briefdescription>
+<para>Function to return the initial epoch from which propagation of Kepler orbit is performed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the initial epoch from which propagation of Kepler orbit is performed. <simplesect kind="return"><para>Initial epoch from which propagation of Kepler orbit is performed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="620" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="620" bodyend="623"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a33af0e38d1f3cf55bc7f68ff446d96c0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::KeplerEphemerisSettings::getCentralBodyGravitationalParameter</definition>
+        <argsstring>()</argsstring>
+        <name>getCentralBodyGravitationalParameter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the gravitational parameter of central body about which the Kepler orbit is defined.</para>
+<para>Function to return the gravitational parameter of central body about which the Kepler orbit is defined. <simplesect kind="return"><para>Gravitational parameter of central body about which the Kepler orbit is defined. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="632" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="632" bodyend="635"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a214b4611c699ef8d9b2c15395f6a6115" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::KeplerEphemerisSettings::getRootFinderAbsoluteTolerance</definition>
+        <argsstring>()</argsstring>
+        <name>getRootFinderAbsoluteTolerance</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the convergence tolerance for root finder used to convert mean to eccentric anomaly</para>
+<para>Function to return the convergence tolerance for root finder used to convert mean to eccentric anomaly <simplesect kind="return"><para>Convergence tolerance for root finder used to convert mean to eccentric anomaly </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="644" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="644" bodyend="647"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1acb7bc87bb785de555ccdd9bb56d39f6d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::KeplerEphemerisSettings::getRootFinderMaximumNumberOfIterations</definition>
+        <argsstring>()</argsstring>
+        <name>getRootFinderMaximumNumberOfIterations</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the maximum iteration for root finder used to convert mean to eccentric anomaly</para>
+<para>Function to return the maximum iteration for root finder used to convert mean to eccentric anomaly <simplesect kind="return"><para>Maximum iteration for root finder used to convert mean to eccentric anomaly </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="656" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="656" bodyend="659"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>@get_docstring(KeplerEphemerisSettings.__docstring__) </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" kindref="compound">EphemerisSettings</ref> derived class for defining settings of an ephemeris representing an ideal Kepler orbit. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::EphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EphemerisSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::KeplerEphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::EphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EphemerisSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>frameOrientation_</edgelabel>
+          <edgelabel>frameOrigin_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::KeplerEphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="571" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="572" bodyend="677"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1af87deb509cd779f405517802c2d3a6bb" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>centralBodyGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a7a92d768f7e34e35eb6be96f55dddd1b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>EphemerisSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ac988aa57dc2068b67fcc3515489577e6" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>ephemerisType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1ae9515f463c76797fa1a341235753d878" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>epochOfInitialState_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ad492ff71210dd4d1b84275c7864cae6c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>frameOrientation_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a2a15cbc42f0a7fd548e71b05cad51ce7" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>frameOrigin_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a33af0e38d1f3cf55bc7f68ff446d96c0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getCentralBodyGravitationalParameter</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a3256a2c33076cf34e070d269effa660a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getEphemerisType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a8fbfc310d0b5ceffe29faea308faf5db" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getEpochOfInitialState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a02f84b6df414e81a4f72d6a5b2aceb33" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ad944818e2e49e527b955b39e3d09f608" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1ab08e160ca168b5296434fb2f6f36e310" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getInitialStateInKeplerianElements</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a56eef76275cf2922ec2bb45161228fc9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getMakeMultiArcEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a214b4611c699ef8d9b2c15395f6a6115" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getRootFinderAbsoluteTolerance</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1acb7bc87bb785de555ccdd9bb56d39f6d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>getRootFinderMaximumNumberOfIterations</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1ad5409183c59176ef6f001d28e250f1c1" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>initialStateInKeplerianElements_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1af359ded5cee4bbcf19e226d29a929a37" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>KeplerEphemerisSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1af3964a8b9569c0d20b0c241fe40b924c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>makeMultiArcEphemeris_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1adad130efb8ba76972cb24f5787835e45" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>resetFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a2dbcb55a4542b28610c2a389b89c4447" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>resetFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a7c999329ffe7bbe7467bb293114c9305" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>resetMakeMultiArcEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a3327fbde9445dc486f6ed8e110eb19bd" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>rootFinderAbsoluteTolerance_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_1a12a548697a533538615890999a32f538" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>rootFinderMaximumNumberOfIterations_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a5b9ede78f5a09f7abbefe2631bc6f4bc" prot="public" virt="virtual"><scope>tudat::simulation_setup::KeplerEphemerisSettings</scope><name>~EphemerisSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

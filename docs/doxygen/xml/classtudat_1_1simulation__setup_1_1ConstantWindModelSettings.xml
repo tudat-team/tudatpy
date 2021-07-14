@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ConstantWindModelSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1WindModelSettings" prot="public" virt="non-virtual">tudat::simulation_setup::WindModelSettings</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings_1ab7a2907c1dbb8bfdd65edf3a01fe8133" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::ConstantWindModelSettings::constantWindVelocity_</definition>
+        <argsstring></argsstring>
+        <name>constantWindVelocity_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="111" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings_1ac2137f67505929f067048955659ad665" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ConstantWindModelSettings::ConstantWindModelSettings</definition>
+        <argsstring>(const Eigen::Vector3d constantWindVelocity, const reference_frames::AerodynamicsReferenceFrames associatedFrame=reference_frames::vertical_frame)</argsstring>
+        <name>ConstantWindModelSettings</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>constantWindVelocity</declname>
+        </param>
+        <param>
+          <type>const reference_frames::AerodynamicsReferenceFrames</type>
+          <declname>associatedFrame</declname>
+          <defval>reference_frames::vertical_frame</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="98" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="98" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings_1a101874717eef294a1b1699ce95f5dd99" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::ConstantWindModelSettings::getConstantWindVelocity</definition>
+        <argsstring>()</argsstring>
+        <name>getConstantWindVelocity</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="104" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="104" bodyend="107"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::WindModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1WindModelSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ConstantWindModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::WindModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1WindModelSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ConstantWindModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="94" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="95" bodyend="113"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a341089072bbcf1086d628515efe099a8" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>associatedFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings_1ac2137f67505929f067048955659ad665" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>ConstantWindModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings_1ab7a2907c1dbb8bfdd65edf3a01fe8133" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>constantWindVelocity_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a5d75cc484c3cc00433e9385abd1415a4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>getAssociatedFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantWindModelSettings_1a101874717eef294a1b1699ce95f5dd99" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>getConstantWindVelocity</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a1b98ab565b7a0a02dd018dcdd7bca511" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>getWindModelType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a61856d5bd8d10d726afdd36814971c13" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>WindModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1af91c5f7dc6d8950cf591ef9ad86c8466" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>windModelType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1WindModelSettings_1a21f3cb2bf2147286afc1662df50da1af" prot="public" virt="virtual"><scope>tudat::simulation_setup::ConstantWindModelSettings</scope><name>~WindModelSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

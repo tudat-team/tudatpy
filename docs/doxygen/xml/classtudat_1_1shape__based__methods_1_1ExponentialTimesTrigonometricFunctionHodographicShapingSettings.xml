@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" prot="public" virt="non-virtual">tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</basecompoundref>
+    <includes refid="createBaseFunctionHodographicShaping_8h" local="no">createBaseFunctionHodographicShaping.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a75ec496c0fda630c1cec03430a6f8412" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings::exponent_</definition>
+        <argsstring></argsstring>
+        <name>exponent_</name>
+        <briefdescription>
+<para>Exponent of the exponential function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="97" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a52e8cec535ab686d1cb72e697a37b121" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings::frequency_</definition>
+        <argsstring></argsstring>
+        <name>frequency_</name>
+        <briefdescription>
+<para>Frequency of the trigonometric function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="100" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a006c80312425f7740ff0ebbb8c9200b7" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings::scaleFactor_</definition>
+        <argsstring></argsstring>
+        <name>scaleFactor_</name>
+        <briefdescription>
+<para>Scale factor, to be used for a scaled exponential times trigonometric function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="103" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a342698e6cb68e90b8f0dbb85155e6207" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</definition>
+        <argsstring>(const double exponent, const double frequency, const double scaleFactor=1.0)</argsstring>
+        <name>ExponentialTimesTrigonometricFunctionHodographicShapingSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>exponent</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frequency</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>scaleFactor</declname>
+          <defval>1.0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor to set exponent, frequency, and possibly scaling factor for the exponential times sine or cosine function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor to set exponent, frequency, and possibly scaling factor for the exponential times sine or cosine function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>exponent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Exponent of the exponential function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frequency</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frequency of the trigonometric function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scaleFactor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scaling factor for the exponential times trigonometric function. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="91" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="91" bodyend="94"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Settings class for hodographic shaping exponential times trigonometric function. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="80" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="81" bodyend="104"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1ab0b7695f6126237c44e06bda38b7cecc" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</scope><name>BaseFunctionHodographicShapingSettings</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a75ec496c0fda630c1cec03430a6f8412" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</scope><name>exponent_</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a342698e6cb68e90b8f0dbb85155e6207" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</scope><name>ExponentialTimesTrigonometricFunctionHodographicShapingSettings</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a52e8cec535ab686d1cb72e697a37b121" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</scope><name>frequency_</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ExponentialTimesTrigonometricFunctionHodographicShapingSettings_1a006c80312425f7740ff0ebbb8c9200b7" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</scope><name>scaleFactor_</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1af6d1203a4edd1c772949548dbf9590e0" prot="public" virt="virtual"><scope>tudat::shape_based_methods::ExponentialTimesTrigonometricFunctionHodographicShapingSettings</scope><name>~BaseFunctionHodographicShapingSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

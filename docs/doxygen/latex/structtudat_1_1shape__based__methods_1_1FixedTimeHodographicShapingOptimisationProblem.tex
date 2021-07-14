@@ -1,0 +1,38 @@
+\hypertarget{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem}{}\doxysection{tudat\+::shape\+\_\+based\+\_\+methods\+::Fixed\+Time\+Hodographic\+Shaping\+Optimisation\+Problem Struct Reference}
+\label{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem}\index{tudat::shape\_based\_methods::FixedTimeHodographicShapingOptimisationProblem@{tudat::shape\_based\_methods::FixedTimeHodographicShapingOptimisationProblem}}
+
+
+Test function for a new low-\/thrust trajectory class in Tudat.  
+
+
+
+
+{\ttfamily \#include $<$hodographic\+Shaping\+Optimisation\+Setup.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_a92043d1c5823d4bfb6b13fec99da0db0}\label{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_a92043d1c5823d4bfb6b13fec99da0db0}} 
+{\bfseries Fixed\+Time\+Hodographic\+Shaping\+Optimisation\+Problem} (const Eigen\+::\+Vector6d \&initial\+State, const Eigen\+::\+Vector6d \&final\+State, const double time\+Of\+Flight, const double central\+Body\+Gravitational\+Parameter, const int number\+Of\+Revolutions, const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping}{shape\+\_\+based\+\_\+methods\+::\+Base\+Function\+Hodographic\+Shaping}} $>$ $>$ \&radial\+Velocity\+Function\+Components, const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping}{shape\+\_\+based\+\_\+methods\+::\+Base\+Function\+Hodographic\+Shaping}} $>$ $>$ \&normal\+Velocity\+Function\+Components, const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping}{shape\+\_\+based\+\_\+methods\+::\+Base\+Function\+Hodographic\+Shaping}} $>$ $>$ \&axial\+Velocity\+Function\+Components, const std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \&free\+Coefficients\+Bounds)
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_a0a69f3ebd04cba553f241feabaea121f}\label{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_a0a69f3ebd04cba553f241feabaea121f}} 
+std\+::vector$<$ double $>$ {\bfseries fitness} (const std\+::vector$<$ double $>$ \&x) const
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_a6575095f9adec83157a828afa34bf9c8}\label{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_a6575095f9adec83157a828afa34bf9c8}} 
+std\+::pair$<$ std\+::vector$<$ double $>$, std\+::vector$<$ double $>$ $>$ {\bfseries get\+\_\+bounds} () const
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_a6772d38bfcb2692af295d3c34c7220ca}\label{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_a6772d38bfcb2692af295d3c34c7220ca}} 
+{\footnotesize template$<$typename Archive $>$ }\\void {\bfseries serialize} (Archive \&ar)
+\item 
+\mbox{\Hypertarget{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_ad5982742ff6ab0f230b3d4a197e95436}\label{structtudat_1_1shape__based__methods_1_1FixedTimeHodographicShapingOptimisationProblem_ad5982742ff6ab0f230b3d4a197e95436}} 
+vector\+\_\+double\+::size\+\_\+type {\bfseries get\+\_\+nobj} () const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Test function for a new low-\/thrust trajectory class in Tudat. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/shape\+\_\+based/hodographic\+Shaping\+Optimisation\+Setup.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/shape\+\_\+based/hodographic\+Shaping\+Optimisation\+Setup.\+cpp\end{DoxyCompactItemize}

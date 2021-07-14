@@ -1,0 +1,137 @@
+\hypertarget{classtudat_1_1transfer__trajectories_1_1DepartureLeg}{}\doxysection{tudat\+::transfer\+\_\+trajectories\+::Departure\+Leg Class Reference}
+\label{classtudat_1_1transfer__trajectories_1_1DepartureLeg}\index{tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}}
+
+
+Departure Leg base class.  
+
+
+
+
+{\ttfamily \#include $<$departure\+Leg.\+h$>$}
+
+Inheritance diagram for tudat\+::transfer\+\_\+trajectories\+::Departure\+Leg\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.115203cm]{classtudat_1_1transfer__trajectories_1_1DepartureLeg}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a8b98129b301b93cb21c6bd1ffbb88e75}{Departure\+Leg}} (const Eigen\+::\+Vector3d \&departure\+Body\+Position, const Eigen\+::\+Vector3d \&arrival\+Body\+Position, const double time\+Of\+Flight, const Eigen\+::\+Vector3d \&departure\+Body\+Velocity, const double central\+Body\+Gravitational\+Parameter, const double departure\+Body\+Gravitational\+Parameter, const double semi\+Major\+Axis, const double eccentricity, const bool include\+Departure\+DeltaV=true)
+\begin{DoxyCompactList}\small\item\em Constructor with immediate definition of parameters. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLeg_aa794103142c9074af2bba2a617abef2b}{get\+Escape\+DeltaV}} (double \&escape\+DeltaV)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the value of the escape Delta V. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+double \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLeg_ab045339873bf2d497d3c8f2e73c6fb97}{departure\+Body\+Gravitational\+Parameter\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The departure body gravitational parameter. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLeg_aa189acb11fe0ee276e40d40b2452bbb9}{semi\+Major\+Axis\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The semi-\/major axis of the departure orbit. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a8a967b2ed276c13bebad83686a6a649f}{eccentricity\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The eccentricity of the departure orbit. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a134dccd17bd03141652dceb18eebd9df}\label{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a134dccd17bd03141652dceb18eebd9df}} 
+bool \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a134dccd17bd03141652dceb18eebd9df}{include\+Departure\+Delta\+V\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean denoting whether to include the Delta V of arrival. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a4ca4ffe039df93446c853c194ed80889}\label{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a4ca4ffe039df93446c853c194ed80889}} 
+double \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a4ca4ffe039df93446c853c194ed80889}{escape\+Delta\+V\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Double denoting the value of the escape Delta V. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Departure Leg base class. 
+
+A base class that calculates the required impulses for a high-\/thrust, patched-\/conics departure leg. It inherits from the space leg base class. It is inherited by different trajectory models. The basic variables and functions are similar to the interplanetary leg base class and hence this is an empty base class. It is however included to point out the distinction with a swing-\/by leg, which does declare new variables with respect to the interplantary leg base class. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a8b98129b301b93cb21c6bd1ffbb88e75}\label{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a8b98129b301b93cb21c6bd1ffbb88e75}} 
+\index{tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}!DepartureLeg@{DepartureLeg}}
+\index{DepartureLeg@{DepartureLeg}!tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}}
+\doxysubsubsection{\texorpdfstring{DepartureLeg()}{DepartureLeg()}}
+{\footnotesize\ttfamily tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+::\+Departure\+Leg (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{departure\+Body\+Position,  }\item[{const Eigen\+::\+Vector3d \&}]{arrival\+Body\+Position,  }\item[{const double}]{time\+Of\+Flight,  }\item[{const Eigen\+::\+Vector3d \&}]{departure\+Body\+Velocity,  }\item[{const double}]{central\+Body\+Gravitational\+Parameter,  }\item[{const double}]{departure\+Body\+Gravitational\+Parameter,  }\item[{const double}]{semi\+Major\+Axis,  }\item[{const double}]{eccentricity,  }\item[{const bool}]{include\+Departure\+DeltaV = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor with immediate definition of parameters. 
+
+Constructor, sets objects and functions from which relevant environment and state variables are retrieved. 
+\begin{DoxyParams}{Parameters}
+{\em departure\+Body\+Position} & location of the departure body. \\
+\hline
+{\em arrival\+Body\+Position} & position of the target body. \\
+\hline
+{\em time\+Of\+Flight} & Length of the leg. \\
+\hline
+{\em departure\+Body\+Velocity} & velocity of the departure body. \\
+\hline
+{\em central\+Body\+Gravitational\+Parameter} & gravitational parameter of the cebtral body (most cases the Sun). \\
+\hline
+{\em departure\+Body\+Gravitational\+Parameter} & gravitational parameter of the departure body. \\
+\hline
+{\em semi\+Major\+Axis} & semi-\/major axis of the orbit after the capture is performed. \\
+\hline
+{\em eccentricity} & eccentricity of the orbit after the capture is performed. \\
+\hline
+{\em include\+Departure\+DeltaV} & Boolean denoting whether to include the Delta V of departure. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1DepartureLeg_aa794103142c9074af2bba2a617abef2b}\label{classtudat_1_1transfer__trajectories_1_1DepartureLeg_aa794103142c9074af2bba2a617abef2b}} 
+\index{tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}!getEscapeDeltaV@{getEscapeDeltaV}}
+\index{getEscapeDeltaV@{getEscapeDeltaV}!tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}}
+\doxysubsubsection{\texorpdfstring{getEscapeDeltaV()}{getEscapeDeltaV()}}
+{\footnotesize\ttfamily void tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+::get\+Escape\+DeltaV (\begin{DoxyParamCaption}\item[{double \&}]{escape\+DeltaV }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the value of the escape Delta V. 
+
+Function to retrieve the value of the escape Delta V. 
+\begin{DoxyParams}{Parameters}
+{\em escape\+DeltaV} & Double denoting the value of the escape Delta V. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Double denoting the value of the escape Delta V (returned by reference ). 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1DepartureLeg_ab045339873bf2d497d3c8f2e73c6fb97}\label{classtudat_1_1transfer__trajectories_1_1DepartureLeg_ab045339873bf2d497d3c8f2e73c6fb97}} 
+\index{tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}!departureBodyGravitationalParameter\_@{departureBodyGravitationalParameter\_}}
+\index{departureBodyGravitationalParameter\_@{departureBodyGravitationalParameter\_}!tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}}
+\doxysubsubsection{\texorpdfstring{departureBodyGravitationalParameter\_}{departureBodyGravitationalParameter\_}}
+{\footnotesize\ttfamily double tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+::departure\+Body\+Gravitational\+Parameter\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The departure body gravitational parameter. 
+
+The gravitational parameter of the departure body in the leg. \mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a8a967b2ed276c13bebad83686a6a649f}\label{classtudat_1_1transfer__trajectories_1_1DepartureLeg_a8a967b2ed276c13bebad83686a6a649f}} 
+\index{tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}!eccentricity\_@{eccentricity\_}}
+\index{eccentricity\_@{eccentricity\_}!tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}}
+\doxysubsubsection{\texorpdfstring{eccentricity\_}{eccentricity\_}}
+{\footnotesize\ttfamily double tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+::eccentricity\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The eccentricity of the departure orbit. 
+
+The eccentricity of the departure orbit, where the escape maneuver is applied. \mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1DepartureLeg_aa189acb11fe0ee276e40d40b2452bbb9}\label{classtudat_1_1transfer__trajectories_1_1DepartureLeg_aa189acb11fe0ee276e40d40b2452bbb9}} 
+\index{tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}!semiMajorAxis\_@{semiMajorAxis\_}}
+\index{semiMajorAxis\_@{semiMajorAxis\_}!tudat::transfer\_trajectories::DepartureLeg@{tudat::transfer\_trajectories::DepartureLeg}}
+\doxysubsubsection{\texorpdfstring{semiMajorAxis\_}{semiMajorAxis\_}}
+{\footnotesize\ttfamily double tudat\+::transfer\+\_\+trajectories\+::\+Departure\+Leg\+::semi\+Major\+Axis\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The semi-\/major axis of the departure orbit. 
+
+The semi-\/major axis of the departure orbit, where the escape maneuver is applied. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/trajectory\+\_\+design/departure\+Leg.\+h\end{DoxyCompactItemize}

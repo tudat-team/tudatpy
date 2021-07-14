@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings" prot="public" virt="non-virtual">tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</basecompoundref>
+    <includes refid="createBaseFunctionHodographicShaping_8h" local="no">createBaseFunctionHodographicShaping.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1ab8f78104e5ba45d13985e01a9b2cbc39" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings::frequency_</definition>
+        <argsstring></argsstring>
+        <name>frequency_</name>
+        <briefdescription>
+<para>Frequency of the trigonometric function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="52" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1aa4c12c955efcc6c317e9f272127d132d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings::TrigonometricFunctionHodographicShapingSettings</definition>
+        <argsstring>(const double frequency)</argsstring>
+        <name>TrigonometricFunctionHodographicShapingSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>frequency</declname>
+        </param>
+        <briefdescription>
+<para>Constructor to set frequency for a trigonometric function (either sine or cosine). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor to set frequency for a trigonometric function (either sine or cosine). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frequency</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frequency of the trigonometric function. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="48" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="48" bodyend="49"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Settings class for hodographic shaping trigonometric function (either sine or cosine). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h" bodystart="40" bodyend="53"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1ab0b7695f6126237c44e06bda38b7cecc" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</scope><name>BaseFunctionHodographicShapingSettings</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1ab8f78104e5ba45d13985e01a9b2cbc39" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</scope><name>frequency_</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1TrigonometricFunctionHodographicShapingSettings_1aa4c12c955efcc6c317e9f272127d132d" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</scope><name>TrigonometricFunctionHodographicShapingSettings</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShapingSettings_1af6d1203a4edd1c772949548dbf9590e0" prot="public" virt="virtual"><scope>tudat::shape_based_methods::TrigonometricFunctionHodographicShapingSettings</scope><name>~BaseFunctionHodographicShapingSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

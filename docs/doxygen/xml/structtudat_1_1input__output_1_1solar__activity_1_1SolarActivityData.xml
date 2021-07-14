@@ -1,0 +1,373 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::input_output::solar_activity::SolarActivityData</compoundname>
+    <includes refid="solarActivityData_8h" local="no">solarActivityData.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a13211d2b44135da501ac693398d9af21" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::year</definition>
+        <argsstring></argsstring>
+        <name>year</name>
+        <briefdescription>
+<para>Year. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="54" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1ab2c75534b53dc156b99a63b531001222" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::month</definition>
+        <argsstring></argsstring>
+        <name>month</name>
+        <briefdescription>
+<para>Month. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="57" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a1b6205833646438ea2aadd9f791302ff" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::day</definition>
+        <argsstring></argsstring>
+        <name>day</name>
+        <briefdescription>
+<para>Day. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="60" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a97db6a5e772c8ea5aa78bec82d6a7e2d" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::bartelsSolarRotationNumber</definition>
+        <argsstring></argsstring>
+        <name>bartelsSolarRotationNumber</name>
+        <briefdescription>
+<para>Bartels Solar Rotation Number. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="63" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1ace45cf5cc3b82a23136cb05905144c3f" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::dayOfBartelsCycle</definition>
+        <argsstring></argsstring>
+        <name>dayOfBartelsCycle</name>
+        <briefdescription>
+<para>Day within the Bartels 27-day cycle (01-27). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="66" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a1a8c0e785ff7cf19b1f9c48e583fe638" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::planetaryRangeIndexSum</definition>
+        <argsstring></argsstring>
+        <name>planetaryRangeIndexSum</name>
+        <briefdescription>
+<para>Sum of the 8 planetary range indices. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sum of the 8 planetary range indices (Kp) for the day expressed to the nearest third of a unit. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="72" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a7ef8a09c7f02795899ac3c5f01b2e0ab" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::planetaryEquivalentAmplitudeAverage</definition>
+        <argsstring></argsstring>
+        <name>planetaryEquivalentAmplitudeAverage</name>
+        <briefdescription>
+<para>Arithmetic average of the 8 planetary equivalent amplitudes (Ap) indices for the day. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="75" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1ac81a017e90b285c6ecc719f2b6a9d0ef" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::solar_activity::SolarActivityData::planetaryDailyCharacterFigure</definition>
+        <argsstring></argsstring>
+        <name>planetaryDailyCharacterFigure</name>
+        <briefdescription>
+<para>Cp or Planetary Daily Character Figure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A qualitative estimate of overall level of magnetic activity for the day determined from the sum of the 8 Ap indices. planetaryDailyCharacterFigure ranges, in steps of one-tenth, from 0 (quiet) to 2.5 (highly disturbed). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="82" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1aa33e92327423b0d5d5f03446c8c1c6eb" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::planetaryDailyCharacterFigureConverted</definition>
+        <argsstring></argsstring>
+        <name>planetaryDailyCharacterFigureConverted</name>
+        <briefdescription>
+<para>planetaryDailyCharacterFigureConverted. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A conversion of the 0-to-2.5 range of the planetaryDailyCharacterFigure index to one digit between 0 and 9. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="88" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a59da73b162a15946211ee5a8f21f9551" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::internationalSunspotNumber</definition>
+        <argsstring></argsstring>
+        <name>internationalSunspotNumber</name>
+        <briefdescription>
+<para>International sunspot number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>International sunspot number. Records contain the Zurich number through 1980 Dec 31 and the International Brussels number thereafter. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="95" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1aa63a9e4acba47229fced3d67282b3106" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::solar_activity::SolarActivityData::solarRadioFlux107Adjusted</definition>
+        <argsstring></argsstring>
+        <name>solarRadioFlux107Adjusted</name>
+        <briefdescription>
+<para>10.7-cm Solar Radio Flux (F10.7) Adjusted to 1 AU. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>10.7-cm Solar Radio Flux (F10.7) measured at Ottawa at 1700 UT daily from 1947 Feb 14 until 1991 May 31 and measured at Penticton at 2000 UT from 1991 Jun 01 on. Expressed in units of 10-22 W/m2/Hz. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="102" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a4ccc6def146e5a92be41d2ff879c22e0" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::fluxQualifier</definition>
+        <argsstring></argsstring>
+        <name>fluxQualifier</name>
+        <briefdescription>
+<para>Flux Qualifier. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Flux Qualifier with one of following values: 0 indicates flux required no adjustment; 1 indicates flux required adjustment for burst in progress at time of measurement; 2 indicates a flux approximated by either interpolation or extrapolation; 3 indicates no observation; and 4 indicates CSSI interpolation of missing data. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="112" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a48e5d6e13c875574c94d1761f625f8c6" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::solar_activity::SolarActivityData::centered81DaySolarRadioFlux107Adjusted</definition>
+        <argsstring></argsstring>
+        <name>centered81DaySolarRadioFlux107Adjusted</name>
+        <briefdescription>
+<para>Centered 81-day arithmetic average of F10.7 (adjusted). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Centered 81-day arithmetic average of F10.7, adjusted to 1 AU. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="117" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a8dc1de421cb8cb106e7d6f1af9382dec" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::solar_activity::SolarActivityData::last81DaySolarRadioFlux107Adjusted</definition>
+        <argsstring></argsstring>
+        <name>last81DaySolarRadioFlux107Adjusted</name>
+        <briefdescription>
+<para>Last 81-day arithmetic average of F10.7 (adjusted). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last 81-day arithmetic average of F10.7, adjusted to 1 AU. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="122" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a46d31ee5903ef412ae03742044c73401" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::solar_activity::SolarActivityData::solarRadioFlux107Observed</definition>
+        <argsstring></argsstring>
+        <name>solarRadioFlux107Observed</name>
+        <briefdescription>
+<para>Observed (unadjusted) value of F10.7. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="125" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a56ec51136729dfa12c98326ea9df9c32" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::solar_activity::SolarActivityData::centered81DaySolarRadioFlux107Observed</definition>
+        <argsstring></argsstring>
+        <name>centered81DaySolarRadioFlux107Observed</name>
+        <briefdescription>
+<para>Centered 81-day arithmetic average of F10.7 (observed). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="128" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a98b62fb05f07bcf300885312128cb432" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::input_output::solar_activity::SolarActivityData::last81DaySolarRadioFlux107Observed</definition>
+        <argsstring></argsstring>
+        <name>last81DaySolarRadioFlux107Observed</name>
+        <briefdescription>
+<para>Last 81-day arithmetic average of F10.7 (observed). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="131" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1ad7ec64845a94f3ccf034e25ad852d050" prot="public" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::input_output::solar_activity::SolarActivityData::planetaryRangeIndexVector</definition>
+        <argsstring></argsstring>
+        <name>planetaryRangeIndexVector</name>
+        <briefdescription>
+<para>Vector containing 3-hourly planetary range indices (Kp). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of eight 3-hourly planetary range indices. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="136" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1aa07f46cc182b16ce6850aa0d812e731e" prot="public" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::input_output::solar_activity::SolarActivityData::planetaryEquivalentAmplitudeVector</definition>
+        <argsstring></argsstring>
+        <name>planetaryEquivalentAmplitudeVector</name>
+        <briefdescription>
+<para>Vector containing 3-hourly planetary equivalent amplitude indices (Ap). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of eight 3-hourly planetary equivalent amplitude indices. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="141" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a594d19abac77a3fc12581ed2dc3e1610" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::input_output::solar_activity::SolarActivityData::dataType</definition>
+        <argsstring></argsstring>
+        <name>dataType</name>
+        <briefdescription>
+<para>String defining line&apos;s data-type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>1: &quot;Observed&quot; 2: &quot;Daily Predicted&quot; 3: &quot;Monthly Predicted&quot; 4: &quot;Monthly Fit&quot; </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="149" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1aa6689acde3fe363ef92cc6cc825b6ebf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::solar_activity::SolarActivityData::SolarActivityData</definition>
+        <argsstring>()</argsstring>
+        <name>SolarActivityData</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="51" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/solarActivityData.cpp" bodystart="38" bodyend="46"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1af065fc676d746df436db62b6248e333d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, SolarActivityData &amp;solarActivityData)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData" kindref="compound">SolarActivityData</ref> &amp;</type>
+          <declname>solarActivityData</declname>
+        </param>
+        <briefdescription>
+<para>Overloaded ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloaded ostream to print class information; prints all converted Solar Activity variables listed in the <ulink url="http://celestrak.com/SpaceData/sw19571001.txt">http://celestrak.com/SpaceData/sw19571001.txt</ulink> file. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="155" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/solarActivityData.cpp" bodystart="49" bodyend="92"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Solar activity data class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class containing all variables provided in the <ulink url="http://celestrak.com/SpaceData/sw19571001.txt">http://celestrak.com/SpaceData/sw19571001.txt</ulink> file, describing &quot;space weather&quot; on each day since October 1957. See reference for details on variables. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" line="43" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/solarActivityData.h" bodystart="44" bodyend="161"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a97db6a5e772c8ea5aa78bec82d6a7e2d" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>bartelsSolarRotationNumber</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a48e5d6e13c875574c94d1761f625f8c6" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>centered81DaySolarRadioFlux107Adjusted</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a56ec51136729dfa12c98326ea9df9c32" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>centered81DaySolarRadioFlux107Observed</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a594d19abac77a3fc12581ed2dc3e1610" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>dataType</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a1b6205833646438ea2aadd9f791302ff" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>day</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1ace45cf5cc3b82a23136cb05905144c3f" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>dayOfBartelsCycle</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a4ccc6def146e5a92be41d2ff879c22e0" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>fluxQualifier</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a59da73b162a15946211ee5a8f21f9551" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>internationalSunspotNumber</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a8dc1de421cb8cb106e7d6f1af9382dec" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>last81DaySolarRadioFlux107Adjusted</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a98b62fb05f07bcf300885312128cb432" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>last81DaySolarRadioFlux107Observed</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1ab2c75534b53dc156b99a63b531001222" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>month</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1af065fc676d746df436db62b6248e333d" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>operator&lt;&lt;</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1ac81a017e90b285c6ecc719f2b6a9d0ef" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>planetaryDailyCharacterFigure</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1aa33e92327423b0d5d5f03446c8c1c6eb" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>planetaryDailyCharacterFigureConverted</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a7ef8a09c7f02795899ac3c5f01b2e0ab" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>planetaryEquivalentAmplitudeAverage</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1aa07f46cc182b16ce6850aa0d812e731e" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>planetaryEquivalentAmplitudeVector</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a1a8c0e785ff7cf19b1f9c48e583fe638" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>planetaryRangeIndexSum</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1ad7ec64845a94f3ccf034e25ad852d050" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>planetaryRangeIndexVector</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1aa6689acde3fe363ef92cc6cc825b6ebf" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>SolarActivityData</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1aa63a9e4acba47229fced3d67282b3106" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>solarRadioFlux107Adjusted</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a46d31ee5903ef412ae03742044c73401" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>solarRadioFlux107Observed</name></member>
+      <member refid="structtudat_1_1input__output_1_1solar__activity_1_1SolarActivityData_1a13211d2b44135da501ac693398d9af21" prot="public" virt="non-virtual"><scope>tudat::input_output::solar_activity::SolarActivityData</scope><name>year</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

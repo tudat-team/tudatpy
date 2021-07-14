@@ -1,0 +1,117 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Radiation\+Pressure\+Interface\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings}\index{tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}}
+
+
+Base class for radiation pressure interface settings.  
+
+
+
+
+{\ttfamily \#include $<$create\+Radiation\+Pressure\+Interface.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Radiation\+Pressure\+Interface\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.903955cm]{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a0eb8b65046fa6d31c153ec046ae64a34}{Radiation\+Pressure\+Interface\+Settings}} (const Radiation\+Pressure\+Type radiation\+Pressure\+Type, const std\+::string \&source\+Body, const std\+::vector$<$ std\+::string $>$ occulting\+Bodies=std\+::vector$<$ std\+::string $>$())
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a1ee2146986b286987c1e89de0f0874cf}\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a1ee2146986b286987c1e89de0f0874cf}} 
+virtual \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a1ee2146986b286987c1e89de0f0874cf}{$\sim$\+Radiation\+Pressure\+Interface\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Radiation\+Pressure\+Type \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_ab827822c9f9c45051cdc4cc1eaa6c992}{get\+Radiation\+Pressure\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function returning type of radiation pressure interface that is to be made. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a09c4c2f0c8bde51a1920f854debb9d04}{get\+Source\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function returning name of body emitting the radiation. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_ae7f543eb145ddf4bb7ade5c844a6f924}{get\+Occulting\+Bodies}} ()
+\begin{DoxyCompactList}\small\item\em Function returning list of bodies causing (partial) occultation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a68b9103328b192c90d7beb7ce084f998}\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a68b9103328b192c90d7beb7ce084f998}} 
+Radiation\+Pressure\+Type \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a68b9103328b192c90d7beb7ce084f998}{radiation\+Pressure\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of radiation pressure interface that is to be made. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_af442152cd28a6d9aca11490342baca8c}\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_af442152cd28a6d9aca11490342baca8c}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_af442152cd28a6d9aca11490342baca8c}{source\+Body\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Name of body emitting the radiation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a6d6175886647df2f5f990efe1ded7eba}\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a6d6175886647df2f5f990efe1ded7eba}} 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a6d6175886647df2f5f990efe1ded7eba}{occulting\+Bodies\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of bodies causing (partial) occultation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for radiation pressure interface settings. 
+
+Base class for providing settings for automatic radiation pressure properties creation. This is a non-\/functional base class, specific implementations must be defined in derived classes. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a0eb8b65046fa6d31c153ec046ae64a34}\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a0eb8b65046fa6d31c153ec046ae64a34}} 
+\index{tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}!RadiationPressureInterfaceSettings@{RadiationPressureInterfaceSettings}}
+\index{RadiationPressureInterfaceSettings@{RadiationPressureInterfaceSettings}!tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{RadiationPressureInterfaceSettings()}{RadiationPressureInterfaceSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Radiation\+Pressure\+Interface\+Settings\+::\+Radiation\+Pressure\+Interface\+Settings (\begin{DoxyParamCaption}\item[{const Radiation\+Pressure\+Type}]{radiation\+Pressure\+Type,  }\item[{const std\+::string \&}]{source\+Body,  }\item[{const std\+::vector$<$ std\+::string $>$}]{occulting\+Bodies = {\ttfamily std\+:\+:vector$<$~std\+:\+:string~$>$(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em radiation\+Pressure\+Type} & Type of radiation pressure interface that is to be made. \\
+\hline
+{\em source\+Body} & Name of body emitting the radiation. \\
+\hline
+{\em occulting\+Bodies} & List of bodies causing (partial) occultation \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_ae7f543eb145ddf4bb7ade5c844a6f924}\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_ae7f543eb145ddf4bb7ade5c844a6f924}} 
+\index{tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}!getOccultingBodies@{getOccultingBodies}}
+\index{getOccultingBodies@{getOccultingBodies}!tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getOccultingBodies()}{getOccultingBodies()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::string $>$ tudat\+::simulation\+\_\+setup\+::\+Radiation\+Pressure\+Interface\+Settings\+::get\+Occulting\+Bodies (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function returning list of bodies causing (partial) occultation. 
+
+Function returning list of bodies causing (partial) occultation. \begin{DoxyReturn}{Returns}
+List of bodies causing (partial) occultation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_ab827822c9f9c45051cdc4cc1eaa6c992}\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_ab827822c9f9c45051cdc4cc1eaa6c992}} 
+\index{tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}!getRadiationPressureType@{getRadiationPressureType}}
+\index{getRadiationPressureType@{getRadiationPressureType}!tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getRadiationPressureType()}{getRadiationPressureType()}}
+{\footnotesize\ttfamily Radiation\+Pressure\+Type tudat\+::simulation\+\_\+setup\+::\+Radiation\+Pressure\+Interface\+Settings\+::get\+Radiation\+Pressure\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function returning type of radiation pressure interface that is to be made. 
+
+Function returning type of radiation pressure interface that is to be made. \begin{DoxyReturn}{Returns}
+Type of radiation pressure interface that is to be made. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a09c4c2f0c8bde51a1920f854debb9d04}\label{classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_a09c4c2f0c8bde51a1920f854debb9d04}} 
+\index{tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}!getSourceBody@{getSourceBody}}
+\index{getSourceBody@{getSourceBody}!tudat::simulation\_setup::RadiationPressureInterfaceSettings@{tudat::simulation\_setup::RadiationPressureInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getSourceBody()}{getSourceBody()}}
+{\footnotesize\ttfamily std\+::string tudat\+::simulation\+\_\+setup\+::\+Radiation\+Pressure\+Interface\+Settings\+::get\+Source\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function returning name of body emitting the radiation. 
+
+Function returning name of body emitting the radiation. \begin{DoxyReturn}{Returns}
+Name of body emitting the radiation. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Radiation\+Pressure\+Interface.\+h\end{DoxyCompactItemize}

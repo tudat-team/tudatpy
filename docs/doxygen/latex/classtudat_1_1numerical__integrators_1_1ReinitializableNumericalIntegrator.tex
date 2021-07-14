@@ -1,0 +1,71 @@
+\hypertarget{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator}{}\doxysection{tudat\+::numerical\+\_\+integrators\+::Reinitializable\+Numerical\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ Class Template Reference}
+\label{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator}\index{tudat::numerical\_integrators::ReinitializableNumericalIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::ReinitializableNumericalIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+
+
+Base class for reinitializable numerical integrators.  
+
+
+
+
+{\ttfamily \#include $<$reinitializable\+Numerical\+Integrator.\+h$>$}
+
+Inheritance diagram for tudat\+::numerical\+\_\+integrators\+::Reinitializable\+Numerical\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.375921cm]{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_ac48067b658e3213d8cd7c4145dca9338}\label{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_ac48067b658e3213d8cd7c4145dca9338}} 
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_ac48067b658e3213d8cd7c4145dca9338}{Reinitializable\+Numerical\+Integrator}} (const typename \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_ac4a61ecbab0945f9c899808c95bed0b7}{Numerical\+Integrator\+Base\+::\+State\+Derivative\+Function}} \&a\+State\+Derivative\+Function)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_ae5c26328c8f3017f136bb5c4bdb72eef}\label{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_ae5c26328c8f3017f136bb5c4bdb72eef}} 
+virtual \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_ae5c26328c8f3017f136bb5c4bdb72eef}{$\sim$\+Reinitializable\+Numerical\+Integrator}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator}{numerical\+\_\+integrators\+::\+Numerical\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_a156664f177b4a65af665415ed5b7f9e2}{Numerical\+Integrator\+Base}}
+\begin{DoxyCompactList}\small\item\em Typedef of the base class. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type = double, typename State\+Type = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type = Independent\+Variable\+Type$>$\newline
+class tudat\+::numerical\+\_\+integrators\+::\+Reinitializable\+Numerical\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$}
+
+Base class for reinitializable numerical integrators. 
+
+This base class enables derived classes to reinitialize the current state of the numerical integrator. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Independent\+Variable\+Type} & The type of the independent variable. \\
+\hline
+{\em State\+Type} & The type of the state. This type should support addition with State\+Derivative\+Type. \\
+\hline
+{\em State\+Derivative\+Type} & The type of the state derivative. This type should support multiplication with Independent\+Variable\+Type and doubles. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator}{Numerical\+Integrator}}. 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_a156664f177b4a65af665415ed5b7f9e2}\label{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_a156664f177b4a65af665415ed5b7f9e2}} 
+\index{tudat::numerical\_integrators::ReinitializableNumericalIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::ReinitializableNumericalIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!NumericalIntegratorBase@{NumericalIntegratorBase}}
+\index{NumericalIntegratorBase@{NumericalIntegratorBase}!tudat::numerical\_integrators::ReinitializableNumericalIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::ReinitializableNumericalIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{NumericalIntegratorBase}{NumericalIntegratorBase}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+typedef \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator}{numerical\+\_\+integrators\+::\+Numerical\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Reinitializable\+Numerical\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_a156664f177b4a65af665415ed5b7f9e2}{Numerical\+Integrator\+Base}}\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Typedef of the base class. 
+
+Typedef of the base class with all template parameters filled in. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/integrators/reinitializable\+Numerical\+Integrator.\+h\end{DoxyCompactItemize}

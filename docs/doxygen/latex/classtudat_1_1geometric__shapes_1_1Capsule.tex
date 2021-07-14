@@ -1,0 +1,211 @@
+\hypertarget{classtudat_1_1geometric__shapes_1_1Capsule}{}\doxysection{tudat\+::geometric\+\_\+shapes\+::Capsule Class Reference}
+\label{classtudat_1_1geometric__shapes_1_1Capsule}\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+
+
+\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule}{Capsule}} class.  
+
+
+
+
+{\ttfamily \#include $<$capsule.\+h$>$}
+
+Inheritance diagram for tudat\+::geometric\+\_\+shapes\+::Capsule\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1geometric__shapes_1_1Capsule}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a529cff791e66aac5f64aa70f3b186f38}{Capsule}} (const double nose\+Radius, const double middle\+Radius, const double rear\+Length, const double rear\+Angle, const double side\+Radius)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a8300cfbdd73fc688163ea0115f332a16}{get\+Nose\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Get nose radius. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a4a1659bd546cf5ddb3636be2d18f1f29}{get\+Middle\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Get middle radius. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a947cd251361985f91b1e2dbae119eaab}{get\+Rear\+Length}} ()
+\begin{DoxyCompactList}\small\item\em Get rear length. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a287f10b2ce3d889084f7de6f7c969362}{get\+Rear\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Get rear angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a5e1731119ebfe256224cee1c998b2cd2}{get\+Side\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Get side radius. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a1c454669fe31cb47472894ae556e4132}{get\+Volume}} ()
+\begin{DoxyCompactList}\small\item\em Get capsule volume (from analytical expressions). \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_aed6bd50ff3222a39b257d6d427e6f3b0}{get\+Frontal\+Area}} ()
+\begin{DoxyCompactList}\small\item\em Get capsule frontal area (reference area). \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a0b5d56b8899d4d6a9e05e7d25354afdd}{get\+Length}} ()
+\begin{DoxyCompactList}\small\item\em Get capsule length (from tip of nose sphere to tip of rear sphere). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+std\+::ostream \& \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule_a0c1fb05bbdb0ec7b6baebffe664c8f29}{operator$<$$<$}} (std\+::ostream \&stream, \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule}{Capsule}} \&capsule)
+\begin{DoxyCompactList}\small\item\em Overload ostream to print class information. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule}{Capsule}} class. 
+
+Class that defines a \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule}{Capsule}} shape, like that of the Apollo or ARD (Advanced Re-\/entry Demonstrator) capsule. The class derives from the \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry}{Composite\+Surface\+Geometry}} class, its constituent surface geometries are a \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment}{Sphere\+Segment}} object for the nose region, a \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1ConicalFrustum}{Conical\+Frustum}} object for the afterbody, a \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1SphereSegment}{Sphere\+Segment}} object for the rear cap, and a \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Torus}{Torus}} object for the connection between the nose and torus parts. The set\+Capsule( ) function needs to be called after each of the parameters has been set to initialize the capsule. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a529cff791e66aac5f64aa70f3b186f38}\label{classtudat_1_1geometric__shapes_1_1Capsule_a529cff791e66aac5f64aa70f3b186f38}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!Capsule@{Capsule}}
+\index{Capsule@{Capsule}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{Capsule()}{Capsule()}}
+{\footnotesize\ttfamily tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::\+Capsule (\begin{DoxyParamCaption}\item[{const double}]{nose\+Radius,  }\item[{const double}]{middle\+Radius,  }\item[{const double}]{rear\+Length,  }\item[{const double}]{rear\+Angle,  }\item[{const double}]{side\+Radius }\end{DoxyParamCaption})}
+
+
+
+Default constructor. 
+
+Default constructor, initializes single and composite surface lists. 
+\begin{DoxyParams}{Parameters}
+{\em nose\+Radius} & Radius of curvature of capsule nose. \\
+\hline
+{\em middle\+Radius} & Maximum radius of capsule \\
+\hline
+{\em rear\+Length} & Length of frustum section \\
+\hline
+{\em rear\+Angle} & Cone half angle of frustum part \\
+\hline
+{\em side\+Radius} & Radius of curvature of capsule shoulder. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_aed6bd50ff3222a39b257d6d427e6f3b0}\label{classtudat_1_1geometric__shapes_1_1Capsule_aed6bd50ff3222a39b257d6d427e6f3b0}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!getFrontalArea@{getFrontalArea}}
+\index{getFrontalArea@{getFrontalArea}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{getFrontalArea()}{getFrontalArea()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::get\+Frontal\+Area (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get capsule frontal area (reference area). 
+
+Returns the capsule frontal area. \begin{DoxyReturn}{Returns}
+capsule volume. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a0b5d56b8899d4d6a9e05e7d25354afdd}\label{classtudat_1_1geometric__shapes_1_1Capsule_a0b5d56b8899d4d6a9e05e7d25354afdd}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!getLength@{getLength}}
+\index{getLength@{getLength}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{getLength()}{getLength()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::get\+Length (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get capsule length (from tip of nose sphere to tip of rear sphere). 
+
+Returns the total capsule length. \begin{DoxyReturn}{Returns}
+side radius. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a4a1659bd546cf5ddb3636be2d18f1f29}\label{classtudat_1_1geometric__shapes_1_1Capsule_a4a1659bd546cf5ddb3636be2d18f1f29}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!getMiddleRadius@{getMiddleRadius}}
+\index{getMiddleRadius@{getMiddleRadius}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{getMiddleRadius()}{getMiddleRadius()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::get\+Middle\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get middle radius. 
+
+Returns the middle radius of the capsule. \begin{DoxyReturn}{Returns}
+Middle radius. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a8300cfbdd73fc688163ea0115f332a16}\label{classtudat_1_1geometric__shapes_1_1Capsule_a8300cfbdd73fc688163ea0115f332a16}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!getNoseRadius@{getNoseRadius}}
+\index{getNoseRadius@{getNoseRadius}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{getNoseRadius()}{getNoseRadius()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::get\+Nose\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get nose radius. 
+
+Returns the nose radius of the capsule. \begin{DoxyReturn}{Returns}
+Nose radius. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a287f10b2ce3d889084f7de6f7c969362}\label{classtudat_1_1geometric__shapes_1_1Capsule_a287f10b2ce3d889084f7de6f7c969362}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!getRearAngle@{getRearAngle}}
+\index{getRearAngle@{getRearAngle}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{getRearAngle()}{getRearAngle()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::get\+Rear\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get rear angle. 
+
+Returns the rear angle. \begin{DoxyReturn}{Returns}
+Rear angle. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a947cd251361985f91b1e2dbae119eaab}\label{classtudat_1_1geometric__shapes_1_1Capsule_a947cd251361985f91b1e2dbae119eaab}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!getRearLength@{getRearLength}}
+\index{getRearLength@{getRearLength}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{getRearLength()}{getRearLength()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::get\+Rear\+Length (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get rear length. 
+
+Returns the rear length of the capsule. \begin{DoxyReturn}{Returns}
+Rear length. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a5e1731119ebfe256224cee1c998b2cd2}\label{classtudat_1_1geometric__shapes_1_1Capsule_a5e1731119ebfe256224cee1c998b2cd2}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!getSideRadius@{getSideRadius}}
+\index{getSideRadius@{getSideRadius}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{getSideRadius()}{getSideRadius()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::get\+Side\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get side radius. 
+
+Returns the side radius. \begin{DoxyReturn}{Returns}
+side radius. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a1c454669fe31cb47472894ae556e4132}\label{classtudat_1_1geometric__shapes_1_1Capsule_a1c454669fe31cb47472894ae556e4132}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!getVolume@{getVolume}}
+\index{getVolume@{getVolume}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{getVolume()}{getVolume()}}
+{\footnotesize\ttfamily double tudat\+::geometric\+\_\+shapes\+::\+Capsule\+::get\+Volume (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get capsule volume (from analytical expressions). 
+
+Returns the capsule volume. \begin{DoxyReturn}{Returns}
+capsule volume. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1geometric__shapes_1_1Capsule_a0c1fb05bbdb0ec7b6baebffe664c8f29}\label{classtudat_1_1geometric__shapes_1_1Capsule_a0c1fb05bbdb0ec7b6baebffe664c8f29}} 
+\index{tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}!operator$<$$<$@{operator$<$$<$}}
+\index{operator$<$$<$@{operator$<$$<$}!tudat::geometric\_shapes::Capsule@{tudat::geometric\_shapes::Capsule}}
+\doxysubsubsection{\texorpdfstring{operator$<$$<$}{operator<<}}
+{\footnotesize\ttfamily std\+::ostream\& operator$<$$<$ (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{stream,  }\item[{\mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule}{Capsule}} \&}]{capsule }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Overload ostream to print class information. 
+
+Overloads ostream to print class information, prints the class type, and number defining parameters. 
+\begin{DoxyParams}{Parameters}
+{\em stream} & Stream to which info is to be printed. \\
+\hline
+{\em capsule} & \mbox{\hyperlink{classtudat_1_1geometric__shapes_1_1Capsule}{Capsule}} of which info is to be printed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Stream with printed info. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/geometric/capsule.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/math/geometric/capsule.\+cpp\end{DoxyCompactItemize}

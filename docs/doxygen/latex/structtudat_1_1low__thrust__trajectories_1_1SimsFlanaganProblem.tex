@@ -1,0 +1,71 @@
+\hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem}{}\doxysection{tudat\+::low\+\_\+thrust\+\_\+trajectories\+::Sims\+Flanagan\+Problem Struct Reference}
+\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem}\index{tudat::low\_thrust\_trajectories::SimsFlanaganProblem@{tudat::low\_thrust\_trajectories::SimsFlanaganProblem}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a0e9a2dff16293148842e2ef0493686a0}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a0e9a2dff16293148842e2ef0493686a0}} 
+typedef Eigen\+::\+Matrix$<$ double, 6, 1 $>$ {\bfseries State\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a1571751f26b1a22afbc5ba42f4e7c796}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a1571751f26b1a22afbc5ba42f4e7c796}} 
+\mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a1571751f26b1a22afbc5ba42f4e7c796}{Sims\+Flanagan\+Problem}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor, required for Pagmo compatibility. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_aac50da19d3c6c5a94e08deffb2a613e9}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_aac50da19d3c6c5a94e08deffb2a613e9}} 
+\mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_aac50da19d3c6c5a94e08deffb2a613e9}{Sims\+Flanagan\+Problem}} (const Eigen\+::\+Vector6d \&state\+At\+Departure, const Eigen\+::\+Vector6d \&state\+At\+Arrival, const double central\+Body\+Gravitational\+Parameter, const double initial\+Spacecraft\+Mass, const double maximum\+Thrust, const std\+::function$<$ double(const double) $>$ specific\+Impulse\+Function, const int number\+Segments, const double time\+Of\+Flight, const std\+::pair$<$ std\+::vector$<$ double $>$, double $>$ initial\+Guess\+Thrust\+Model, const double relative\+Tolerance\+Constraints=1.\+0e-\/6)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a00cd1b4b8f3879008aeec2b5dfde7101}{fitness}} (const std\+::vector$<$ double $>$ \&x) const
+\begin{DoxyCompactList}\small\item\em Calculate the fitness as a function of the parameter vector x. \end{DoxyCompactList}\item 
+std\+::pair$<$ std\+::vector$<$ double $>$, std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a5fd72d8e552fba82d9be839c482ef4d5}{get\+\_\+bounds}} () const
+\begin{DoxyCompactList}\small\item\em Retrieve the allowable limits of the parameter vector x\+: pair containing minima and maxima of parameter values. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_acfdba010a7ce6b8bdf03eeea089531ff}{get\+\_\+name}} () const
+\begin{DoxyCompactList}\small\item\em Retrieve the name of the problem. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a020474b49fa4c4e795efa4e44db9beb2}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a020474b49fa4c4e795efa4e44db9beb2}} 
+vector\+\_\+double\+::size\+\_\+type \mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a020474b49fa4c4e795efa4e44db9beb2}{get\+\_\+nobj}} () const
+\begin{DoxyCompactList}\small\item\em Retrieve the number of objectives in problem, e.\+g. the size of the vector returned by the fitness function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a75749e07d3a48eb14896a4b2c0f3ceca}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a75749e07d3a48eb14896a4b2c0f3ceca}} 
+vector\+\_\+double\+::size\+\_\+type {\bfseries get\+\_\+nic} () const
+\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_ab65d4e756e2ff6fb3fc71fea7d7fd3f4}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_ab65d4e756e2ff6fb3fc71fea7d7fd3f4}} 
+vector\+\_\+double\+::size\+\_\+type {\bfseries get\+\_\+nec} () const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a00cd1b4b8f3879008aeec2b5dfde7101}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a00cd1b4b8f3879008aeec2b5dfde7101}} 
+\index{tudat::low\_thrust\_trajectories::SimsFlanaganProblem@{tudat::low\_thrust\_trajectories::SimsFlanaganProblem}!fitness@{fitness}}
+\index{fitness@{fitness}!tudat::low\_thrust\_trajectories::SimsFlanaganProblem@{tudat::low\_thrust\_trajectories::SimsFlanaganProblem}}
+\doxysubsubsection{\texorpdfstring{fitness()}{fitness()}}
+{\footnotesize\ttfamily std\+::vector$<$ double $>$ tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Sims\+Flanagan\+Problem\+::fitness (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{x }\end{DoxyParamCaption}) const}
+
+
+
+Calculate the fitness as a function of the parameter vector x. 
+
+Fitness function. \mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a5fd72d8e552fba82d9be839c482ef4d5}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_a5fd72d8e552fba82d9be839c482ef4d5}} 
+\index{tudat::low\_thrust\_trajectories::SimsFlanaganProblem@{tudat::low\_thrust\_trajectories::SimsFlanaganProblem}!get\_bounds@{get\_bounds}}
+\index{get\_bounds@{get\_bounds}!tudat::low\_thrust\_trajectories::SimsFlanaganProblem@{tudat::low\_thrust\_trajectories::SimsFlanaganProblem}}
+\doxysubsubsection{\texorpdfstring{get\_bounds()}{get\_bounds()}}
+{\footnotesize\ttfamily std\+::pair$<$ std\+::vector$<$ double $>$, std\+::vector$<$ double $>$ $>$ tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Sims\+Flanagan\+Problem\+::get\+\_\+bounds (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Retrieve the allowable limits of the parameter vector x\+: pair containing minima and maxima of parameter values. 
+
+Get bounds. \mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_acfdba010a7ce6b8bdf03eeea089531ff}\label{structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_acfdba010a7ce6b8bdf03eeea089531ff}} 
+\index{tudat::low\_thrust\_trajectories::SimsFlanaganProblem@{tudat::low\_thrust\_trajectories::SimsFlanaganProblem}!get\_name@{get\_name}}
+\index{get\_name@{get\_name}!tudat::low\_thrust\_trajectories::SimsFlanaganProblem@{tudat::low\_thrust\_trajectories::SimsFlanaganProblem}}
+\doxysubsubsection{\texorpdfstring{get\_name()}{get\_name()}}
+{\footnotesize\ttfamily std\+::string tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Sims\+Flanagan\+Problem\+::get\+\_\+name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Retrieve the name of the problem. 
+
+Descriptive name of the problem. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/sims\+Flanagan\+Optimisation\+Setup.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/sims\+Flanagan\+Optimisation\+Setup.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,101 @@
+\hypertarget{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{}\doxysection{tudat\+::earth\+\_\+orientation\+::Short\+Period\+Earth\+Orientation\+Correction\+Calculator$<$ Output\+Type $>$ Class Template Reference}
+\label{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}\index{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$@{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$}}
+
+
+Object to calculate the short period variations in Earth orientaion parameters.  
+
+
+
+
+{\ttfamily \#include $<$short\+Period\+Earth\+Orientation\+Correction\+Calculator.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_a15cf721db912d5699e794adaff90317a}{Short\+Period\+Earth\+Orientation\+Correction\+Calculator}} (const double conversion\+Factor, const double minimum\+Amplitude, const std\+::vector$<$ std\+::string $>$ \&amplitudes\+Files, const std\+::vector$<$ std\+::string $>$ \&argument\+Multipliers\+File, const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$ argument\+Function=std\+::bind(\&sofa\+\_\+interface\+::calculate\+Approximate\+Delaunay\+Fundamental\+Arguments\+With\+Gmst, std\+::placeholders\+::\+\_\+1))
+\begin{DoxyCompactList}\small\item\em Constructor, requires files defining the amplitudes and fundamental argument multipliers of the variations. \end{DoxyCompactList}\item 
+Output\+Type \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_aaf80ebf804ce306f3b82b5b1d24e2f0b}{get\+Corrections}} (const double \&ephemeris\+Time)
+\begin{DoxyCompactList}\small\item\em Function to obtain short period corrections. \end{DoxyCompactList}\item 
+Output\+Type \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_a3ae90485b3c51faa7120566e8c88cb4b}{get\+Corrections}} (const Eigen\+::\+Vector6d \&fundamental\+Arguments)
+\begin{DoxyCompactList}\small\item\em Function to obtain short period corrections. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Output\+Type$>$\newline
+class tudat\+::earth\+\_\+orientation\+::\+Short\+Period\+Earth\+Orientation\+Correction\+Calculator$<$ Output\+Type $>$}
+
+Object to calculate the short period variations in Earth orientaion parameters. 
+
+Object to calculate the short period variations in Earth orientaion parameters, e.\+g. taking into account variations due to both libration and ocean tides. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_a15cf721db912d5699e794adaff90317a}\label{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_a15cf721db912d5699e794adaff90317a}} 
+\index{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$@{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$}!ShortPeriodEarthOrientationCorrectionCalculator@{ShortPeriodEarthOrientationCorrectionCalculator}}
+\index{ShortPeriodEarthOrientationCorrectionCalculator@{ShortPeriodEarthOrientationCorrectionCalculator}!tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$@{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$}}
+\doxysubsubsection{\texorpdfstring{ShortPeriodEarthOrientationCorrectionCalculator()}{ShortPeriodEarthOrientationCorrectionCalculator()}}
+{\footnotesize\ttfamily template$<$typename Output\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{tudat\+::earth\+\_\+orientation\+::\+Short\+Period\+Earth\+Orientation\+Correction\+Calculator}}$<$ Output\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{Short\+Period\+Earth\+Orientation\+Correction\+Calculator}} (\begin{DoxyParamCaption}\item[{const double}]{conversion\+Factor,  }\item[{const double}]{minimum\+Amplitude,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{amplitudes\+Files,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{argument\+Multipliers\+File,  }\item[{const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$}]{argument\+Function = {\ttfamily std\+:\+:bind(~\&sofa\+\_\+interface\+:\+:calculateApproximateDelaunayFundamentalArgumentsWithGmst,~std\+:\+:placeholders\+:\+:\+\_\+1~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, requires files defining the amplitudes and fundamental argument multipliers of the variations. 
+
+Constructor, requires files defining the sine and cosine amplitudes and fundamental argument multipliers numbers of the variations for both ocean tide and libration variations. A cut-\/off amplitude (taken as the RSS of the amplitudes) below which amplitudes in the files are ignored can be provided. 
+\begin{DoxyParams}{Parameters}
+{\em conversion\+Factor} & Conversion factor to be used for amplitudes, used to multiply input values, typically for unit conversion purposes. \\
+\hline
+{\em minimum\+Amplitude} & Minimum amplitude that is read from files and considered in calculations. \\
+\hline
+{\em amplitudes\+Files} & List of files with amplitudes for corrections \\
+\hline
+{\em argument\+Multipliers\+File} & Fundamental argument multiplier for corrections \\
+\hline
+{\em argument\+Function} & Fundamental argument functions associated with multipliers, default Delaunay arguments with GMST \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_aaf80ebf804ce306f3b82b5b1d24e2f0b}\label{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_aaf80ebf804ce306f3b82b5b1d24e2f0b}} 
+\index{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$@{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$}!getCorrections@{getCorrections}}
+\index{getCorrections@{getCorrections}!tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$@{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$}}
+\doxysubsubsection{\texorpdfstring{getCorrections()}{getCorrections()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Output\+Type $>$ \\
+Output\+Type \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{tudat\+::earth\+\_\+orientation\+::\+Short\+Period\+Earth\+Orientation\+Correction\+Calculator}}$<$ Output\+Type $>$\+::get\+Corrections (\begin{DoxyParamCaption}\item[{const double \&}]{ephemeris\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to obtain short period corrections. 
+
+Function to obtain short period corrections, using time as input. Fundamental arguments are calculated internally. 
+\begin{DoxyParams}{Parameters}
+{\em ephemeris\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} (TDB seconds since J2000) at which corretions are to be determined \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Short period corrections 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_a3ae90485b3c51faa7120566e8c88cb4b}\label{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_a3ae90485b3c51faa7120566e8c88cb4b}} 
+\index{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$@{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$}!getCorrections@{getCorrections}}
+\index{getCorrections@{getCorrections}!tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$@{tudat::earth\_orientation::ShortPeriodEarthOrientationCorrectionCalculator$<$ OutputType $>$}}
+\doxysubsubsection{\texorpdfstring{getCorrections()}{getCorrections()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Output\+Type $>$ \\
+Output\+Type \mbox{\hyperlink{classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator}{tudat\+::earth\+\_\+orientation\+::\+Short\+Period\+Earth\+Orientation\+Correction\+Calculator}}$<$ Output\+Type $>$\+::get\+Corrections (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector6d \&}]{fundamental\+Arguments }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to obtain short period corrections. 
+
+Function to obtain short period corrections, using fundamental arguments as input. 
+\begin{DoxyParams}{Parameters}
+{\em fundamental\+Arguments} & Fundamental arguments from which corretions are to be determined \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Short period corrections 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/earth\+\_\+orientation/short\+Period\+Earth\+Orientation\+Correction\+Calculator.\+h\end{DoxyCompactItemize}

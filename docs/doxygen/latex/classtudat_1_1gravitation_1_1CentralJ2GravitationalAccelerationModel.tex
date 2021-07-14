@@ -1,0 +1,134 @@
+\hypertarget{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel}{}\doxysection{tudat\+::gravitation\+::Central\+J2\+Gravitational\+Acceleration\+Model Class Reference}
+\label{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel}\index{tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}}
+
+
+Central + J2 gravitational acceleration model class.  
+
+
+
+
+{\ttfamily \#include $<$central\+J2\+Gravity\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::gravitation\+::Central\+J2\+Gravitational\+Acceleration\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.014493cm]{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_ae616042dc89d2bf178a172bd518e47b3}{Central\+J2\+Gravitational\+Acceleration\+Model}} (const \mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_a7f7ae6c4f34211c8e93989ba22350074}{Base\+::\+State\+Function}} position\+Of\+Body\+Subject\+To\+Acceleration\+Function, const double a\+Gravitational\+Parameter, const double an\+Equatorial\+Radius, const double a\+J2\+Gravity\+Coefficient, const \mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_a7f7ae6c4f34211c8e93989ba22350074}{Base\+::\+State\+Function}} position\+Of\+Body\+Exerting\+Acceleration\+Function=\mbox{[}$\,$\mbox{]}()\{ return Eigen\+::\+Vector3d\+::\+Zero();\})
+\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_abd75fb71f44ab8dd56edfcf9458c78eb}{get\+Acceleration}} ()
+\begin{DoxyCompactList}\small\item\em Get gravitational acceleration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a29a5ea148a2db77b0f16809c699d480a}{update\+Members}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Update members. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const double \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a6d026fff91793df3c8160e9f3fc07c1e}{equatorial\+Radius}}
+\begin{DoxyCompactList}\small\item\em Equatorial radius \mbox{[}m\mbox{]}. \end{DoxyCompactList}\item 
+const double \mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a7197466bf1fd2bb185ebfef5660b1d57}{j2\+Gravity\+Coefficient}}
+\begin{DoxyCompactList}\small\item\em J2 gravity coefficient. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Central + J2 gravitational acceleration model class. 
+
+This class implements a gravitational acceleration model that includes the central and J2 (unnormalized coefficient of general spherical harmonics expansion) terms. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_ae616042dc89d2bf178a172bd518e47b3}\label{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_ae616042dc89d2bf178a172bd518e47b3}} 
+\index{tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}!CentralJ2GravitationalAccelerationModel@{CentralJ2GravitationalAccelerationModel}}
+\index{CentralJ2GravitationalAccelerationModel@{CentralJ2GravitationalAccelerationModel}!tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}}
+\doxysubsubsection{\texorpdfstring{CentralJ2GravitationalAccelerationModel()}{CentralJ2GravitationalAccelerationModel()}}
+{\footnotesize\ttfamily tudat\+::gravitation\+::\+Central\+J2\+Gravitational\+Acceleration\+Model\+::\+Central\+J2\+Gravitational\+Acceleration\+Model (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_a7f7ae6c4f34211c8e93989ba22350074}{Base\+::\+State\+Function}}}]{position\+Of\+Body\+Subject\+To\+Acceleration\+Function,  }\item[{const double}]{a\+Gravitational\+Parameter,  }\item[{const double}]{an\+Equatorial\+Radius,  }\item[{const double}]{a\+J2\+Gravity\+Coefficient,  }\item[{const \mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_a7f7ae6c4f34211c8e93989ba22350074}{Base\+::\+State\+Function}}}]{position\+Of\+Body\+Exerting\+Acceleration\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~Eigen\+:\+:Vector3d\+:\+:Zero(~);~\}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Constructor taking position-\/functions for bodies, and constant parameters of spherical harmonics expansion.
+
+Constructor taking a pointer to a function returning the position of the body subject to gravitational acceleration, constant gravitational parameter, J2-\/coefficient, and equatorial radius of the body exerting the acceleration, and a pointer to a function returning the position of the body exerting the gravitational acceleration (typically the central body). This constructor uses the Boost\+::lambda library to create a function on-\/the-\/fly that returns the constant gravitational parameter, J2-\/coefficient, and equatorial radius provided. The constructor also updates all the internal members. The position of the body exerting the gravitational acceleration is an optional parameter; the default position is the origin. 
+\begin{DoxyParams}{Parameters}
+{\em position\+Of\+Body\+Subject\+To\+Acceleration\+Function} & Pointer to function returning position of body subject to gravitational acceleration. \\
+\hline
+{\em a\+Gravitational\+Parameter} & A (constant) gravitational parameter \mbox{[}m$^\wedge$2 s$^\wedge$-\/3\mbox{]}. \\
+\hline
+{\em an\+Equatorial\+Radius} & A (constant) equatorial radius \mbox{[}m\mbox{]}. \\
+\hline
+{\em a\+J2\+Gravity\+Coefficient} & A (constant) J2-\/coefficient. \\
+\hline
+{\em position\+Of\+Body\+Exerting\+Acceleration\+Function} & Pointer to function returning position of body exerting gravitational acceleration (default = (0,0,0)). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_abd75fb71f44ab8dd56edfcf9458c78eb}\label{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_abd75fb71f44ab8dd56edfcf9458c78eb}} 
+\index{tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}!getAcceleration@{getAcceleration}}
+\index{getAcceleration@{getAcceleration}!tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}}
+\doxysubsubsection{\texorpdfstring{getAcceleration()}{getAcceleration()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::gravitation\+::\+Central\+J2\+Gravitational\+Acceleration\+Model\+::get\+Acceleration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get gravitational acceleration. 
+
+Returns the gravitational acceleration computed using the input parameters provided to the class. This function serves as a wrapper for the compute\+Gravitational\+Acceleration() and compute\+Gravitational\+Acceleration\+Due\+To\+J2() functions. \begin{DoxyReturn}{Returns}
+Computed gravitational acceleration vector. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a29a5ea148a2db77b0f16809c699d480a}\label{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a29a5ea148a2db77b0f16809c699d480a}} 
+\index{tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily void tudat\+::gravitation\+::\+Central\+J2\+Gravitational\+Acceleration\+Model\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Update members. 
+
+Updates class members relevant for computing the central gravitational acceleration. In this case the function simply updates the members in the base class. \begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase}{Spherical\+Harmonics\+Gravitational\+Acceleration\+Model\+Base}}. 
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which acceleration model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a6d026fff91793df3c8160e9f3fc07c1e}\label{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a6d026fff91793df3c8160e9f3fc07c1e}} 
+\index{tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}!equatorialRadius@{equatorialRadius}}
+\index{equatorialRadius@{equatorialRadius}!tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}}
+\doxysubsubsection{\texorpdfstring{equatorialRadius}{equatorialRadius}}
+{\footnotesize\ttfamily const double tudat\+::gravitation\+::\+Central\+J2\+Gravitational\+Acceleration\+Model\+::equatorial\+Radius\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Equatorial radius \mbox{[}m\mbox{]}. 
+
+Equatorial radius of unnormalized spherical harmonics gravity field representation \mbox{[}m\mbox{]}. \mbox{\Hypertarget{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a7197466bf1fd2bb185ebfef5660b1d57}\label{classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_a7197466bf1fd2bb185ebfef5660b1d57}} 
+\index{tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}!j2GravityCoefficient@{j2GravityCoefficient}}
+\index{j2GravityCoefficient@{j2GravityCoefficient}!tudat::gravitation::CentralJ2GravitationalAccelerationModel@{tudat::gravitation::CentralJ2GravitationalAccelerationModel}}
+\doxysubsubsection{\texorpdfstring{j2GravityCoefficient}{j2GravityCoefficient}}
+{\footnotesize\ttfamily const double tudat\+::gravitation\+::\+Central\+J2\+Gravitational\+Acceleration\+Model\+::j2\+Gravity\+Coefficient\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+J2 gravity coefficient. 
+
+J2 coefficient of unnormalized spherical harmonics gravity field representation. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/gravitation/central\+J2\+Gravity\+Model.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/gravitation/central\+J2\+Gravity\+Model.\+cpp\end{DoxyCompactItemize}

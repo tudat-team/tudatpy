@@ -1,0 +1,1462 @@
+\hypertarget{classtudat_1_1Time}{}\doxysection{tudat\+::Time Class Reference}
+\label{classtudat_1_1Time}\index{tudat::Time@{tudat::Time}}
+
+
+Class for defining time with a resolution that is sub-\/fs for very long periods of time.  
+
+
+
+
+{\ttfamily \#include $<$time\+Type.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1Time_a0c0c014c20da523f9654b5dcf6be11b4}\label{classtudat_1_1Time_a0c0c014c20da523f9654b5dcf6be11b4}} 
+\mbox{\hyperlink{classtudat_1_1Time_a0c0c014c20da523f9654b5dcf6be11b4}{Time}} ()
+\begin{DoxyCompactList}\small\item\em Constructor, initialize time to 0. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time_afbf3067a4bdb2fb876510c1f0ef55ce1}{Time}} (const int full\+Periods, const long double seconds\+Into\+Full\+Period)
+\begin{DoxyCompactList}\small\item\em Constructor, sets current hour and time into current hour directly. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time_a9c7aa5e82b116e94dab3f825ce257d76}{Time}} (const long double number\+Of\+Seconds)
+\begin{DoxyCompactList}\small\item\em Constructor, sets number of seconds since epoch (with long double representation as input) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time_a624d20b7623b8b740f86f3c996898436}{Time}} (const double seconds\+Into\+Full\+Period)
+\begin{DoxyCompactList}\small\item\em Constructor, sets number of seconds since epoch (with double representation as input) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time_ac7cf36cf588e9da9b781a73502f87624}{Time}} (const int seconds\+Into\+Full\+Period)
+\begin{DoxyCompactList}\small\item\em Constructor, sets number of seconds since epoch (with int representation as input) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time_a0c34007af7e49b34a3a7230f880ac1e5}{Time}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&other\+Time)
+\begin{DoxyCompactList}\small\item\em Copy constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \& \mbox{\hyperlink{classtudat_1_1Time_aedcbd640c627656d49b1184c130c2bd2}{operator=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Copy)
+\begin{DoxyCompactList}\small\item\em Definition of = operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} type. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a9e1836bd588822d997e7c5cbfcc41ff9}{operator+=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Add)
+\begin{DoxyCompactList}\small\item\em Add and assign operator for adding a \mbox{\hyperlink{classtudat_1_1Time}{Time}}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a8569717b396abae3625c090aae733c7e}{operator+=}} (const double time\+To\+Add)
+\begin{DoxyCompactList}\small\item\em Add and assign operator for adding a double. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_ade04ad9e012e3afafd5c00785590b047}{operator+=}} (const long double time\+To\+Add)
+\begin{DoxyCompactList}\small\item\em Add and assign operator for adding a double. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a54a080f4f4d563b402da7b4acf79615f}{operator-\/=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Subtract)
+\begin{DoxyCompactList}\small\item\em Subtract and assign operator for adding a \mbox{\hyperlink{classtudat_1_1Time}{Time}}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a9195c01eca670d09e96c1e3275edf253}{operator-\/=}} (const double time\+To\+Subtract)
+\begin{DoxyCompactList}\small\item\em Subtract and assign operator for adding a double. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a34d475b6c10c7f7700f03c6910806ba7}{operator-\/=}} (const long double time\+To\+Subtract)
+\begin{DoxyCompactList}\small\item\em Subtract and assign operator for adding a long double. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a290598017d980f65668ad7366fa7778b}{operator$\ast$=}} (const double time\+To\+Multiply)
+\begin{DoxyCompactList}\small\item\em Multiply and assign operator for multiplying by double. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a1e7bc3cdaa8761e556379282a76b7e68}{operator$\ast$=}} (const long double time\+To\+Multiply)
+\begin{DoxyCompactList}\small\item\em Multiply and assign operator for multiplying by long double. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a6247f2fadac51a1fe77d0c889b5e7c76}{operator/=}} (const double time\+To\+Divide)
+\begin{DoxyCompactList}\small\item\em Divided and assign operator for dividing by double. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1Time_a323a8df2194a69e1a29a3992490c9b6f}{operator/=}} (const long double time\+To\+Divide)
+\begin{DoxyCompactList}\small\item\em Divided and assign operator for dividing by long double. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename Scalar\+Type $>$ }\\Scalar\+Type \mbox{\hyperlink{classtudat_1_1Time_af63a09cdff7facf0a33e97d4557c5d52}{get\+Seconds}} () const
+\begin{DoxyCompactList}\small\item\em Function to get the total seconds since epoch, in templated precision. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time_abba86a5873a3883816e2cf1cb2708b68}{operator int}} () const
+\begin{DoxyCompactList}\small\item\em Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to int) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time_a7d7c4db665fd64c40ab360f33084230e}{operator double}} () const
+\begin{DoxyCompactList}\small\item\em Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to double) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time_a81d0f85b52c1bafe2c00ea6e92592c3f}{operator long double}} () const
+\begin{DoxyCompactList}\small\item\em Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to long sdouble) \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1Time_a231fa52deea5fe52337c01af04045efb}{get\+Full\+Periods}} () const
+\begin{DoxyCompactList}\small\item\em Function to get the number of full hours since epoch. \end{DoxyCompactList}\item 
+long double \mbox{\hyperlink{classtudat_1_1Time_a13976ba149860b220832421066eeb694}{get\+Seconds\+Into\+Full\+Period}} () const
+\begin{DoxyCompactList}\small\item\em Function to get the number of seconds into current hour. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1Time_a647a6b72c532bbd11b4e819ec15b28f0}\label{classtudat_1_1Time_a647a6b72c532bbd11b4e819ec15b28f0}} 
+void \mbox{\hyperlink{classtudat_1_1Time_a647a6b72c532bbd11b4e819ec15b28f0}{normalize\+Members}} ()
+\begin{DoxyCompactList}\small\item\em Function to renormalize the members of the \mbox{\hyperlink{classtudat_1_1Time}{Time}} object, so that seconds\+Into\+Full\+Period\+\_\+ is between 0 and 3600. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1Time_af615aaf0193f8f4a2b1074c53ca2585c}\label{classtudat_1_1Time_af615aaf0193f8f4a2b1074c53ca2585c}} 
+int \mbox{\hyperlink{classtudat_1_1Time_af615aaf0193f8f4a2b1074c53ca2585c}{days\+To\+Add}}
+\begin{DoxyCompactList}\small\item\em Pre-\/declared variable used in often-\/called normalize\+Members function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1Time_ad7a0e18f0575f228009af6c8f6563c49}\label{classtudat_1_1Time_ad7a0e18f0575f228009af6c8f6563c49}} 
+int \mbox{\hyperlink{classtudat_1_1Time_ad7a0e18f0575f228009af6c8f6563c49}{full\+Periods\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of full hours since epoch. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1Time_a8187f3e83a486eefa45a37f29c186a24}\label{classtudat_1_1Time_a8187f3e83a486eefa45a37f29c186a24}} 
+long double \mbox{\hyperlink{classtudat_1_1Time_a8187f3e83a486eefa45a37f29c186a24}{seconds\+Into\+Full\+Period\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of seconds into current hour. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_ada13ce81f50cca6a7929ecf1e2715111}{operator+}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Add1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Add2)
+\begin{DoxyCompactList}\small\item\em Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a5e9c7ddec18a8c5e909d721386500a35}{operator+}} (const double \&time\+To\+Add1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Add2)
+\begin{DoxyCompactList}\small\item\em Addition operator for double variable with \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a81a49cc250f5d46d8fc652bcb3aa4c89}{operator+}} (const long double \&time\+To\+Add1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Add2)
+\begin{DoxyCompactList}\small\item\em Addition operator for long double variable with \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a139ddbc5e3b4b93a368c404509334feb}{operator+}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Add2, const double \&time\+To\+Add1)
+\begin{DoxyCompactList}\small\item\em Addition operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double variable. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_ad6c6756b57a40443dce02fad7d3e3813}{operator+}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Add2, const long double \&time\+To\+Add1)
+\begin{DoxyCompactList}\small\item\em Addition operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double variable. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a6d55218ba360b4c12999556f0cf6b35f}{operator-\/}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Subtract1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Subtract2)
+\begin{DoxyCompactList}\small\item\em Subtraction operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a5148c9476a8aab1414684dea76346bff}{operator-\/}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Subtract1, const double time\+To\+Subtract2)
+\begin{DoxyCompactList}\small\item\em Subtraction operator for double from \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a9f010abad33c1056d320912f89f7cd48}{operator-\/}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Subtract1, const long double time\+To\+Subtract2)
+\begin{DoxyCompactList}\small\item\em Subtraction operator for double from \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a6ea346d4961ca625df91e4fd81eb9568}{operator-\/}} (const double time\+To\+Subtract1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Subtract2)
+\begin{DoxyCompactList}\small\item\em Subtraction operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object from double. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_ae440cbdce69be6fea0f5f19ffe2a1f13}{operator-\/}} (const long double time\+To\+Subtract1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Subtract2)
+\begin{DoxyCompactList}\small\item\em Subtraction operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object from long double. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a6839a759ce0dc453d0c7ec4fcc64f0c5}{operator$\ast$}} (const long double time\+To\+Multiply1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Multiply2)
+\begin{DoxyCompactList}\small\item\em Multiplication operator of a long double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_afb70b5fc1353e811708613de2fe6de89}{operator$\ast$}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Multiply1, const long double time\+To\+Multiply2)
+\begin{DoxyCompactList}\small\item\em Multiplication operator of a long double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a1957d457097d1513441d737c66175b5d}{operator$\ast$}} (const double time\+To\+Multiply1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Multiply2)
+\begin{DoxyCompactList}\small\item\em Multiplication operator of a double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a5ffc1c1d9c3ba8ad28cde5e1346946fb}{operator$\ast$}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Multiply1, const double time\+To\+Multiply2)
+\begin{DoxyCompactList}\small\item\em Multiplication operator of a double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_a8e86a3cf7414d283552450a04bca61a8}{operator/}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&original, const double double\+To\+Divide\+By)
+\begin{DoxyCompactList}\small\item\em Division operator of a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double (i.\+e. to rescale time) \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \mbox{\hyperlink{classtudat_1_1Time_ad1c3e65f0853debbe42a2f3efda557d0}{operator/}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&original, const long double double\+To\+Divide\+By)
+\begin{DoxyCompactList}\small\item\em Division operator of a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double (i.\+e. to rescale time) \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a553562bc9f249dd59887948475bea35a}{operator==}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Equality operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_aba7aa506d348cfba3bc46b039bbd977b}{operator!=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Inequality operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_af81c84cf88b193a1c58ee101a20f69e8}{operator==}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const int time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with an integer. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_abd8361248210d163e6171ca66a75cdd4}{operator==}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a3318549eba72846e5d558356cbad218c}{operator==}} (const double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_ae5b5c0b139267fb22496536f8d7cf668}{operator!=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a1fcbf4e711d6e6d302cee7e79a16b215}{operator!=}} (const double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_af9a670966fe04d7b51b7239175f264c1}{operator==}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const long double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a4add1bc319981108bbe81d607295cce2}{operator==}} (const long double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a15a040eb084c1f7af77be007cd72257a}{operator!=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const long double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_ad75349422ac4b7e127b5fc666d094f3b}{operator!=}} (const long double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_ac6f91d53abc7e1a2c41eb76bfef56615}{operator$>$}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a072b03ebbf66532a11eaa69d15befc5a}{operator$>$=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than-\/or-\/equal-\/to operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a32d6a4b8c1ea68c754eb1fcdd6624c32}{operator$<$}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_ab1a1027f41db7b2750a0abefacb209a2}{operator$<$=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than-\/or-\/equal-\/to operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_ac204f415f95049f2bece8edf2e539b95}{operator$<$}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a8a87ee3b43ecbab8f7a9e30431a1c866}{operator$<$}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const long double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a6ec7f250c725f03c68a21950a78a7460}{operator$<$=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_abb04b21fae09811cd82a00a98abe2c7e}{operator$<$=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const long double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a8a1453a3f396420c4f23da89d4901095}{operator$>$}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_aaeab0108e0bbde4b8450a12f7ce5dc2b}{operator$>$}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const long double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a355a29cec48bc15fb58e420c0d225cfa}{operator$>$=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a947f0a18e59f3503a284e55150ddde48}{operator$>$=}} (const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare1, const long double time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a627d5807ead9b433124fb76bc6475258}{operator$<$}} (const double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a7d3cf444b5ef2a2a2121b5d63effd297}{operator$<$}} (const long double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a77399f0e8c0e74db527e0b7f3a63a0e1}{operator$<$=}} (const double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a78685d7cd0ceeeef5f3671eec6e22ab8}{operator$<$=}} (const long double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Smaller-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a6f407f276218352fa72931e748e148cf}{operator$>$}} (const double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a784e2a0e9abdc2473ecbad9bc1bb17f7}{operator$>$}} (const long double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a893dc2716b2f92398e51849d6a6bd980}{operator$>$=}} (const double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1Time_a0d9171b54df8bd6b9495a3a1b59b1e70}{operator$>$=}} (const long double time\+To\+Compare1, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Compare2)
+\begin{DoxyCompactList}\small\item\em Greater-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1Time_aac7c1a215af3271486df0efd87d5911d}\label{classtudat_1_1Time_aac7c1a215af3271486df0efd87d5911d}} 
+std\+::ostream \& \mbox{\hyperlink{classtudat_1_1Time_aac7c1a215af3271486df0efd87d5911d}{operator$<$$<$}} (std\+::ostream \&stream, const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&time\+To\+Print)
+\begin{DoxyCompactList}\small\item\em Output operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for defining time with a resolution that is sub-\/fs for very long periods of time. 
+
+Class for defining time with a resolution that is sub-\/fs for very long periods of time. Using double or long double precision as a representation of time, the issue of reduced quality will occur that over long time-\/period. For instance, over a period of 10$^\wedge$8 seconds (about 3 years), double and long double representations have resolution of about 10$^\wedge$-\/8 and 10$^\wedge$-\/11 s respectively, which is insufficient for various applications. This type uses an int to represent the number of hours since an epoch, and long double to represent the number of seconds into the present hour. This provides a resulution of $<$ 1 femtosecond, over a range of 2147483647 hours (about 300,000 years), which is more than sufficient for practical applications. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1Time_afbf3067a4bdb2fb876510c1f0ef55ce1}\label{classtudat_1_1Time_afbf3067a4bdb2fb876510c1f0ef55ce1}} 
+\index{tudat::Time@{tudat::Time}!Time@{Time}}
+\index{Time@{Time}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{Time()}{Time()}\hspace{0.1cm}{\footnotesize\ttfamily [1/5]}}
+{\footnotesize\ttfamily tudat\+::\+Time\+::\+Time (\begin{DoxyParamCaption}\item[{const int}]{full\+Periods,  }\item[{const long double}]{seconds\+Into\+Full\+Period }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets current hour and time into current hour directly. 
+
+Constructor, sets current hour and time into current hour directly 
+\begin{DoxyParams}{Parameters}
+{\em full\+Periods} & Number of full hours since epoch \\
+\hline
+{\em seconds\+Into\+Full\+Period} & Number of seconds into current hour. Note that this value need not be in the range between 0 and 3600\+: the time representation is normalized upon construction to ensure that the internal representation is in this range. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a9c7aa5e82b116e94dab3f825ce257d76}\label{classtudat_1_1Time_a9c7aa5e82b116e94dab3f825ce257d76}} 
+\index{tudat::Time@{tudat::Time}!Time@{Time}}
+\index{Time@{Time}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{Time()}{Time()}\hspace{0.1cm}{\footnotesize\ttfamily [2/5]}}
+{\footnotesize\ttfamily tudat\+::\+Time\+::\+Time (\begin{DoxyParamCaption}\item[{const long double}]{number\+Of\+Seconds }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets number of seconds since epoch (with long double representation as input) 
+
+Constructor, sets number of seconds since epoch (with long double representation as input) 
+\begin{DoxyParams}{Parameters}
+{\em number\+Of\+Seconds} & Number of seconds since epoch. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a624d20b7623b8b740f86f3c996898436}\label{classtudat_1_1Time_a624d20b7623b8b740f86f3c996898436}} 
+\index{tudat::Time@{tudat::Time}!Time@{Time}}
+\index{Time@{Time}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{Time()}{Time()}\hspace{0.1cm}{\footnotesize\ttfamily [3/5]}}
+{\footnotesize\ttfamily tudat\+::\+Time\+::\+Time (\begin{DoxyParamCaption}\item[{const double}]{seconds\+Into\+Full\+Period }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets number of seconds since epoch (with double representation as input) 
+
+Constructor, sets number of seconds since epoch (with double representation as input) 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Into\+Full\+Period} & Number of seconds since epoch. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_ac7cf36cf588e9da9b781a73502f87624}\label{classtudat_1_1Time_ac7cf36cf588e9da9b781a73502f87624}} 
+\index{tudat::Time@{tudat::Time}!Time@{Time}}
+\index{Time@{Time}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{Time()}{Time()}\hspace{0.1cm}{\footnotesize\ttfamily [4/5]}}
+{\footnotesize\ttfamily tudat\+::\+Time\+::\+Time (\begin{DoxyParamCaption}\item[{const int}]{seconds\+Into\+Full\+Period }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets number of seconds since epoch (with int representation as input) 
+
+Constructor, sets number of seconds since epoch (with int representation as input) 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Into\+Full\+Period} & Number of seconds since epoch. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a0c34007af7e49b34a3a7230f880ac1e5}\label{classtudat_1_1Time_a0c34007af7e49b34a3a7230f880ac1e5}} 
+\index{tudat::Time@{tudat::Time}!Time@{Time}}
+\index{Time@{Time}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{Time()}{Time()}\hspace{0.1cm}{\footnotesize\ttfamily [5/5]}}
+{\footnotesize\ttfamily tudat\+::\+Time\+::\+Time (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{other\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Copy constructor. 
+
+Copy constructor 
+\begin{DoxyParams}{Parameters}
+{\em other\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be copied. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1Time_a231fa52deea5fe52337c01af04045efb}\label{classtudat_1_1Time_a231fa52deea5fe52337c01af04045efb}} 
+\index{tudat::Time@{tudat::Time}!getFullPeriods@{getFullPeriods}}
+\index{getFullPeriods@{getFullPeriods}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{getFullPeriods()}{getFullPeriods()}}
+{\footnotesize\ttfamily int tudat\+::\+Time\+::get\+Full\+Periods (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the number of full hours since epoch. 
+
+Function to get the number of full hours since epoch \begin{DoxyReturn}{Returns}
+Number of full hours since epoch 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_af63a09cdff7facf0a33e97d4557c5d52}\label{classtudat_1_1Time_af63a09cdff7facf0a33e97d4557c5d52}} 
+\index{tudat::Time@{tudat::Time}!getSeconds@{getSeconds}}
+\index{getSeconds@{getSeconds}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{getSeconds()}{getSeconds()}}
+{\footnotesize\ttfamily template$<$typename Scalar\+Type $>$ \\
+Scalar\+Type tudat\+::\+Time\+::get\+Seconds (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the total seconds since epoch, in templated precision. 
+
+Function to get the total seconds since epoch, in templated precision \begin{DoxyReturn}{Returns}
+Total seconds since epoch. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a13976ba149860b220832421066eeb694}\label{classtudat_1_1Time_a13976ba149860b220832421066eeb694}} 
+\index{tudat::Time@{tudat::Time}!getSecondsIntoFullPeriod@{getSecondsIntoFullPeriod}}
+\index{getSecondsIntoFullPeriod@{getSecondsIntoFullPeriod}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{getSecondsIntoFullPeriod()}{getSecondsIntoFullPeriod()}}
+{\footnotesize\ttfamily long double tudat\+::\+Time\+::get\+Seconds\+Into\+Full\+Period (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the number of seconds into current hour. 
+
+Function to get the number of seconds into current hour \begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a7d7c4db665fd64c40ab360f33084230e}\label{classtudat_1_1Time_a7d7c4db665fd64c40ab360f33084230e}} 
+\index{tudat::Time@{tudat::Time}!operator double@{operator double}}
+\index{operator double@{operator double}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator double()}{operator double()}}
+{\footnotesize\ttfamily tudat\+::\+Time\+::operator double (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to double) 
+
+Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to double) \begin{DoxyReturn}{Returns}
+Total seconds int epoch. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_abba86a5873a3883816e2cf1cb2708b68}\label{classtudat_1_1Time_abba86a5873a3883816e2cf1cb2708b68}} 
+\index{tudat::Time@{tudat::Time}!operator int@{operator int}}
+\index{operator int@{operator int}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator int()}{operator int()}}
+{\footnotesize\ttfamily tudat\+::\+Time\+::operator int (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to int) 
+
+Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to int) \begin{DoxyReturn}{Returns}
+Total seconds int epoch. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a81d0f85b52c1bafe2c00ea6e92592c3f}\label{classtudat_1_1Time_a81d0f85b52c1bafe2c00ea6e92592c3f}} 
+\index{tudat::Time@{tudat::Time}!operator long double@{operator long double}}
+\index{operator long double@{operator long double}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator long double()}{operator long double()}}
+{\footnotesize\ttfamily tudat\+::\+Time\+::operator long double (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to long sdouble) 
+
+Function to get the total seconds since epoch, in int precision (cast of \mbox{\hyperlink{classtudat_1_1Time}{Time}} to long double) \begin{DoxyReturn}{Returns}
+Total seconds int epoch. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a290598017d980f65668ad7366fa7778b}\label{classtudat_1_1Time_a290598017d980f65668ad7366fa7778b}} 
+\index{tudat::Time@{tudat::Time}!operator$\ast$=@{operator$\ast$=}}
+\index{operator$\ast$=@{operator$\ast$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$\ast$=()}{operator*=()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator$\ast$= (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Multiply }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Multiply and assign operator for multiplying by double. 
+
+Multiply and assign operator for multiplying by a double 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Multiply} & Value by which time is to be multiplied (in double representation) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a1e7bc3cdaa8761e556379282a76b7e68}\label{classtudat_1_1Time_a1e7bc3cdaa8761e556379282a76b7e68}} 
+\index{tudat::Time@{tudat::Time}!operator$\ast$=@{operator$\ast$=}}
+\index{operator$\ast$=@{operator$\ast$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$\ast$=()}{operator*=()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator$\ast$= (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Multiply }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Multiply and assign operator for multiplying by long double. 
+
+Multiply and assign operator for multiplying by a long double 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Multiply} & Value by which time is to be multiplied (in long double representation) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a8569717b396abae3625c090aae733c7e}\label{classtudat_1_1Time_a8569717b396abae3625c090aae733c7e}} 
+\index{tudat::Time@{tudat::Time}!operator+=@{operator+=}}
+\index{operator+=@{operator+=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator+=()}{operator+=()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator+= (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Add }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Add and assign operator for adding a double. 
+
+Add and assign operator for adding a double 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Add} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be added (in double representation) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_ade04ad9e012e3afafd5c00785590b047}\label{classtudat_1_1Time_ade04ad9e012e3afafd5c00785590b047}} 
+\index{tudat::Time@{tudat::Time}!operator+=@{operator+=}}
+\index{operator+=@{operator+=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator+=()}{operator+=()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator+= (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Add }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Add and assign operator for adding a double. 
+
+Add and assign operator for adding a double 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Add} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be added (in long double representation) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a9e1836bd588822d997e7c5cbfcc41ff9}\label{classtudat_1_1Time_a9e1836bd588822d997e7c5cbfcc41ff9}} 
+\index{tudat::Time@{tudat::Time}!operator+=@{operator+=}}
+\index{operator+=@{operator+=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator+=()}{operator+=()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator+= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Add }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Add and assign operator for adding a \mbox{\hyperlink{classtudat_1_1Time}{Time}}. 
+
+Add and assign operator for adding a \mbox{\hyperlink{classtudat_1_1Time}{Time}} 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Add} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be added \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a9195c01eca670d09e96c1e3275edf253}\label{classtudat_1_1Time_a9195c01eca670d09e96c1e3275edf253}} 
+\index{tudat::Time@{tudat::Time}!operator-\/=@{operator-\/=}}
+\index{operator-\/=@{operator-\/=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator-\/=()}{operator-=()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator-\/= (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Subtract }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Subtract and assign operator for adding a double. 
+
+Subtract and assign operator for subtracting a double 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Subtract} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be subtracted (in double representation) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a34d475b6c10c7f7700f03c6910806ba7}\label{classtudat_1_1Time_a34d475b6c10c7f7700f03c6910806ba7}} 
+\index{tudat::Time@{tudat::Time}!operator-\/=@{operator-\/=}}
+\index{operator-\/=@{operator-\/=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator-\/=()}{operator-=()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator-\/= (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Subtract }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Subtract and assign operator for adding a long double. 
+
+Subtract and assign operator for subtracting a long double 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Subtract} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be subtracted (in long double representation) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a54a080f4f4d563b402da7b4acf79615f}\label{classtudat_1_1Time_a54a080f4f4d563b402da7b4acf79615f}} 
+\index{tudat::Time@{tudat::Time}!operator-\/=@{operator-\/=}}
+\index{operator-\/=@{operator-\/=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator-\/=()}{operator-=()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator-\/= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Subtract }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Subtract and assign operator for adding a \mbox{\hyperlink{classtudat_1_1Time}{Time}}. 
+
+Subtract and assign operator for subtracting a \mbox{\hyperlink{classtudat_1_1Time}{Time}} 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Subtract} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be subtracted \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a6247f2fadac51a1fe77d0c889b5e7c76}\label{classtudat_1_1Time_a6247f2fadac51a1fe77d0c889b5e7c76}} 
+\index{tudat::Time@{tudat::Time}!operator/=@{operator/=}}
+\index{operator/=@{operator/=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator/=()}{operator/=()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator/= (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Divide }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Divided and assign operator for dividing by double. 
+
+Divided and assign operator for dividing by double 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Divide} & Value by which time is to be divided (in double representation) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_a323a8df2194a69e1a29a3992490c9b6f}\label{classtudat_1_1Time_a323a8df2194a69e1a29a3992490c9b6f}} 
+\index{tudat::Time@{tudat::Time}!operator/=@{operator/=}}
+\index{operator/=@{operator/=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator/=()}{operator/=()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void tudat\+::\+Time\+::operator/= (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Divide }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Divided and assign operator for dividing by long double. 
+
+Divided and assign operator for dividing by long double 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Divide} & Value by which time is to be divided (in long double representation) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1Time_aedcbd640c627656d49b1184c130c2bd2}\label{classtudat_1_1Time_aedcbd640c627656d49b1184c130c2bd2}} 
+\index{tudat::Time@{tudat::Time}!operator=@{operator=}}
+\index{operator=@{operator=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}}\& tudat\+::\+Time\+::operator= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Copy }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Definition of = operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} type. 
+
+Definition of = operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} type 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Copy} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be copied by operator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Assigned \mbox{\hyperlink{classtudat_1_1Time}{Time}} object 
+\end{DoxyReturn}
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1Time_a1fcbf4e711d6e6d302cee7e79a16b215}\label{classtudat_1_1Time_a1fcbf4e711d6e6d302cee7e79a16b215}} 
+\index{tudat::Time@{tudat::Time}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator"!=}{operator!=}\hspace{0.1cm}{\footnotesize\ttfamily [1/5]}}
+{\footnotesize\ttfamily bool operator!= (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. 
+
+Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. Comparison is performed at double precision (i.\+e. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is cast to double and compared) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (in double precision) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ad75349422ac4b7e127b5fc666d094f3b}\label{classtudat_1_1Time_ad75349422ac4b7e127b5fc666d094f3b}} 
+\index{tudat::Time@{tudat::Time}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator"!=}{operator!=}\hspace{0.1cm}{\footnotesize\ttfamily [2/5]}}
+{\footnotesize\ttfamily bool operator!= (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. 
+
+Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. Comparison is performed at lgon double precision (i.\+e. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is cast to long double and compared) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (in long double precision) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ae5b5c0b139267fb22496536f8d7cf668}\label{classtudat_1_1Time_ae5b5c0b139267fb22496536f8d7cf668}} 
+\index{tudat::Time@{tudat::Time}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator"!=}{operator!=}\hspace{0.1cm}{\footnotesize\ttfamily [3/5]}}
+{\footnotesize\ttfamily bool operator!= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. 
+
+Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. Comparison is performed at double precision (i.\+e. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is cast to double and compared) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (in double precision) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a15a040eb084c1f7af77be007cd72257a}\label{classtudat_1_1Time_a15a040eb084c1f7af77be007cd72257a}} 
+\index{tudat::Time@{tudat::Time}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator"!=}{operator!=}\hspace{0.1cm}{\footnotesize\ttfamily [4/5]}}
+{\footnotesize\ttfamily bool operator!= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const long double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. 
+
+Inequality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. Comparison is performed at lgon double precision (i.\+e. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is cast to long double and compared) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (in long double precision) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_aba7aa506d348cfba3bc46b039bbd977b}\label{classtudat_1_1Time_aba7aa506d348cfba3bc46b039bbd977b}} 
+\index{tudat::Time@{tudat::Time}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator"!=}{operator!=}\hspace{0.1cm}{\footnotesize\ttfamily [5/5]}}
+{\footnotesize\ttfamily bool operator!= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Inequality operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. 
+
+Inqquality operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+False if two times are fully equal; true if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a1957d457097d1513441d737c66175b5d}\label{classtudat_1_1Time_a1957d457097d1513441d737c66175b5d}} 
+\index{tudat::Time@{tudat::Time}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$\ast$}{operator*}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator$\ast$ (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Multiply1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Multiply2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Multiplication operator of a double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) 
+
+Multiplication operator of a double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Multiply1} & Value by which \mbox{\hyperlink{classtudat_1_1Time}{Time}} is to be multiplied \\
+\hline
+{\em time\+To\+Multiply2} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be multiplied by first input argument \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Multiplied \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a6839a759ce0dc453d0c7ec4fcc64f0c5}\label{classtudat_1_1Time_a6839a759ce0dc453d0c7ec4fcc64f0c5}} 
+\index{tudat::Time@{tudat::Time}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$\ast$}{operator*}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator$\ast$ (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Multiply1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Multiply2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Multiplication operator of a long double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) 
+
+Multiplication operator of a long double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Multiply1} & Value by which \mbox{\hyperlink{classtudat_1_1Time}{Time}} is to be multiplied \\
+\hline
+{\em time\+To\+Multiply2} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be multiplied by first input argument \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Multiplied \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a5ffc1c1d9c3ba8ad28cde5e1346946fb}\label{classtudat_1_1Time_a5ffc1c1d9c3ba8ad28cde5e1346946fb}} 
+\index{tudat::Time@{tudat::Time}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$\ast$}{operator*}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator$\ast$ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Multiply1,  }\item[{const double}]{time\+To\+Multiply2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Multiplication operator of a double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) 
+
+Multiplication operator of a double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Multiply1} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be multiplied by second input argument \\
+\hline
+{\em time\+To\+Multiply2} & Value by which \mbox{\hyperlink{classtudat_1_1Time}{Time}} is to be multiplied \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Multiplied \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_afb70b5fc1353e811708613de2fe6de89}\label{classtudat_1_1Time_afb70b5fc1353e811708613de2fe6de89}} 
+\index{tudat::Time@{tudat::Time}!operator$\ast$@{operator$\ast$}}
+\index{operator$\ast$@{operator$\ast$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$\ast$}{operator*}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator$\ast$ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Multiply1,  }\item[{const long double}]{time\+To\+Multiply2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Multiplication operator of a long double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) 
+
+Multiplication operator of a long double with a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object (i.\+e. to rescale time) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Multiply1} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be multiplied by second input argument \\
+\hline
+{\em time\+To\+Multiply2} & Value by which \mbox{\hyperlink{classtudat_1_1Time}{Time}} is to be multiplied \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Multiplied \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a5e9c7ddec18a8c5e909d721386500a35}\label{classtudat_1_1Time_a5e9c7ddec18a8c5e909d721386500a35}} 
+\index{tudat::Time@{tudat::Time}!operator+@{operator+}}
+\index{operator+@{operator+}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator+}{operator+}\hspace{0.1cm}{\footnotesize\ttfamily [1/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator+ (\begin{DoxyParamCaption}\item[{const double \&}]{time\+To\+Add1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Add2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Addition operator for double variable with \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Add1} & First time that is to be added (as a double). \\
+\hline
+{\em time\+To\+Add2} & Second time that is to be added (as a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, added together as \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a81a49cc250f5d46d8fc652bcb3aa4c89}\label{classtudat_1_1Time_a81a49cc250f5d46d8fc652bcb3aa4c89}} 
+\index{tudat::Time@{tudat::Time}!operator+@{operator+}}
+\index{operator+@{operator+}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator+}{operator+}\hspace{0.1cm}{\footnotesize\ttfamily [2/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator+ (\begin{DoxyParamCaption}\item[{const long double \&}]{time\+To\+Add1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Add2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Addition operator for long double variable with \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Add1} & First time that is to be added (as a long double). \\
+\hline
+{\em time\+To\+Add2} & Second time that is to be added (as a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, added together as \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ada13ce81f50cca6a7929ecf1e2715111}\label{classtudat_1_1Time_ada13ce81f50cca6a7929ecf1e2715111}} 
+\index{tudat::Time@{tudat::Time}!operator+@{operator+}}
+\index{operator+@{operator+}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator+}{operator+}\hspace{0.1cm}{\footnotesize\ttfamily [3/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator+ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Add1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Add2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Add1} & First time that is to be added. \\
+\hline
+{\em time\+To\+Add2} & Second time that is to be added. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, added together 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a139ddbc5e3b4b93a368c404509334feb}\label{classtudat_1_1Time_a139ddbc5e3b4b93a368c404509334feb}} 
+\index{tudat::Time@{tudat::Time}!operator+@{operator+}}
+\index{operator+@{operator+}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator+}{operator+}\hspace{0.1cm}{\footnotesize\ttfamily [4/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator+ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Add2,  }\item[{const double \&}]{time\+To\+Add1 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Addition operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double variable. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Add1} & First time that is to be added (as \mbox{\hyperlink{classtudat_1_1Time}{Time}} object). \\
+\hline
+{\em time\+To\+Add2} & Second time that is to be added (as a double). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, added together as \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ad6c6756b57a40443dce02fad7d3e3813}\label{classtudat_1_1Time_ad6c6756b57a40443dce02fad7d3e3813}} 
+\index{tudat::Time@{tudat::Time}!operator+@{operator+}}
+\index{operator+@{operator+}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator+}{operator+}\hspace{0.1cm}{\footnotesize\ttfamily [5/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator+ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Add2,  }\item[{const long double \&}]{time\+To\+Add1 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Addition operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double variable. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Add1} & First time that is to be added (as \mbox{\hyperlink{classtudat_1_1Time}{Time}} object). \\
+\hline
+{\em time\+To\+Add2} & Second time that is to be added (as a long double). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, added together as \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a6ea346d4961ca625df91e4fd81eb9568}\label{classtudat_1_1Time_a6ea346d4961ca625df91e4fd81eb9568}} 
+\index{tudat::Time@{tudat::Time}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator-\/}{operator-}\hspace{0.1cm}{\footnotesize\ttfamily [1/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator-\/ (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Subtract1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Subtract2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Subtraction operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object from double. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Subtract1} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} from which second time is to be subtracted (as a double) \\
+\hline
+{\em time\+To\+Subtract2} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be subtracted from first input (as a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, subtracted from one another 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ae440cbdce69be6fea0f5f19ffe2a1f13}\label{classtudat_1_1Time_ae440cbdce69be6fea0f5f19ffe2a1f13}} 
+\index{tudat::Time@{tudat::Time}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator-\/}{operator-}\hspace{0.1cm}{\footnotesize\ttfamily [2/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator-\/ (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Subtract1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Subtract2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Subtraction operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object from long double. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Subtract1} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} from which second time is to be subtracted (as a long double) \\
+\hline
+{\em time\+To\+Subtract2} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be subtracted from first input (as a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, subtracted from one another 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a5148c9476a8aab1414684dea76346bff}\label{classtudat_1_1Time_a5148c9476a8aab1414684dea76346bff}} 
+\index{tudat::Time@{tudat::Time}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator-\/}{operator-}\hspace{0.1cm}{\footnotesize\ttfamily [3/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator-\/ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Subtract1,  }\item[{const double}]{time\+To\+Subtract2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Subtraction operator for double from \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Subtract1} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} from which second time is to be subtracted (as a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object) \\
+\hline
+{\em time\+To\+Subtract2} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be subtracted from first input (as a double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, subtracted from one another 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a9f010abad33c1056d320912f89f7cd48}\label{classtudat_1_1Time_a9f010abad33c1056d320912f89f7cd48}} 
+\index{tudat::Time@{tudat::Time}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator-\/}{operator-}\hspace{0.1cm}{\footnotesize\ttfamily [4/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator-\/ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Subtract1,  }\item[{const long double}]{time\+To\+Subtract2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Subtraction operator for double from \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Subtract1} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} from which second time is to be subtracted (as a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object) \\
+\hline
+{\em time\+To\+Subtract2} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be subtracted from first input (as a long double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, subtracted from one another 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a6d55218ba360b4c12999556f0cf6b35f}\label{classtudat_1_1Time_a6d55218ba360b4c12999556f0cf6b35f}} 
+\index{tudat::Time@{tudat::Time}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator-\/}{operator-}\hspace{0.1cm}{\footnotesize\ttfamily [5/5]}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator-\/ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Subtract1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Subtract2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Subtraction operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. 
+
+Addition operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Subtract1} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} from which second time is to be subtracted \\
+\hline
+{\em time\+To\+Subtract2} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be subtracted from first input \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Input arguments, subtracted from one another 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a8e86a3cf7414d283552450a04bca61a8}\label{classtudat_1_1Time_a8e86a3cf7414d283552450a04bca61a8}} 
+\index{tudat::Time@{tudat::Time}!operator/@{operator/}}
+\index{operator/@{operator/}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator/}{operator/}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator/ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{original,  }\item[{const double}]{double\+To\+Divide\+By }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Division operator of a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double (i.\+e. to rescale time) 
+
+Division operator of a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double (i.\+e. to rescale time) 
+\begin{DoxyParams}{Parameters}
+{\em original} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be divided by second input argument \\
+\hline
+{\em double\+To\+Divide\+By} & Value by which first argument is to be divided. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Divided \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ad1c3e65f0853debbe42a2f3efda557d0}\label{classtudat_1_1Time_ad1c3e65f0853debbe42a2f3efda557d0}} 
+\index{tudat::Time@{tudat::Time}!operator/@{operator/}}
+\index{operator/@{operator/}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator/}{operator/}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{classtudat_1_1Time}{Time}} operator/ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{original,  }\item[{const long double}]{double\+To\+Divide\+By }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Division operator of a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double (i.\+e. to rescale time) 
+
+Division operator of a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double (i.\+e. to rescale time) 
+\begin{DoxyParams}{Parameters}
+{\em original} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} that is to be divided by second input argument \\
+\hline
+{\em double\+To\+Divide\+By} & Value by which first argument is to be divided. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Divided \mbox{\hyperlink{classtudat_1_1Time}{Time}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a627d5807ead9b433124fb76bc6475258}\label{classtudat_1_1Time_a627d5807ead9b433124fb76bc6475258}} 
+\index{tudat::Time@{tudat::Time}!operator$<$@{operator$<$}}
+\index{operator$<$@{operator$<$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$}{operator<}\hspace{0.1cm}{\footnotesize\ttfamily [1/5]}}
+{\footnotesize\ttfamily bool operator$<$ (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. 
+
+Smaller-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (as double) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a7d3cf444b5ef2a2a2121b5d63effd297}\label{classtudat_1_1Time_a7d3cf444b5ef2a2a2121b5d63effd297}} 
+\index{tudat::Time@{tudat::Time}!operator$<$@{operator$<$}}
+\index{operator$<$@{operator$<$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$}{operator<}\hspace{0.1cm}{\footnotesize\ttfamily [2/5]}}
+{\footnotesize\ttfamily bool operator$<$ (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. 
+
+Smaller-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (as long double) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ac204f415f95049f2bece8edf2e539b95}\label{classtudat_1_1Time_ac204f415f95049f2bece8edf2e539b95}} 
+\index{tudat::Time@{tudat::Time}!operator$<$@{operator$<$}}
+\index{operator$<$@{operator$<$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$}{operator<}\hspace{0.1cm}{\footnotesize\ttfamily [3/5]}}
+{\footnotesize\ttfamily bool operator$<$ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. 
+
+Smaller-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (as double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a8a87ee3b43ecbab8f7a9e30431a1c866}\label{classtudat_1_1Time_a8a87ee3b43ecbab8f7a9e30431a1c866}} 
+\index{tudat::Time@{tudat::Time}!operator$<$@{operator$<$}}
+\index{operator$<$@{operator$<$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$}{operator<}\hspace{0.1cm}{\footnotesize\ttfamily [4/5]}}
+{\footnotesize\ttfamily bool operator$<$ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const long double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. 
+
+Smaller-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (as double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a32d6a4b8c1ea68c754eb1fcdd6624c32}\label{classtudat_1_1Time_a32d6a4b8c1ea68c754eb1fcdd6624c32}} 
+\index{tudat::Time@{tudat::Time}!operator$<$@{operator$<$}}
+\index{operator$<$@{operator$<$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$}{operator<}\hspace{0.1cm}{\footnotesize\ttfamily [5/5]}}
+{\footnotesize\ttfamily bool operator$<$ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. 
+
+Smaller-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a77399f0e8c0e74db527e0b7f3a63a0e1}\label{classtudat_1_1Time_a77399f0e8c0e74db527e0b7f3a63a0e1}} 
+\index{tudat::Time@{tudat::Time}!operator$<$=@{operator$<$=}}
+\index{operator$<$=@{operator$<$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$=}{operator<=}\hspace{0.1cm}{\footnotesize\ttfamily [1/5]}}
+{\footnotesize\ttfamily bool operator$<$= (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. 
+
+Smaller-\/than-\/or-\/equal operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (as double) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a78685d7cd0ceeeef5f3671eec6e22ab8}\label{classtudat_1_1Time_a78685d7cd0ceeeef5f3671eec6e22ab8}} 
+\index{tudat::Time@{tudat::Time}!operator$<$=@{operator$<$=}}
+\index{operator$<$=@{operator$<$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$=}{operator<=}\hspace{0.1cm}{\footnotesize\ttfamily [2/5]}}
+{\footnotesize\ttfamily bool operator$<$= (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. 
+
+Smaller-\/than-\/or-\/equal operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (as long double) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a6ec7f250c725f03c68a21950a78a7460}\label{classtudat_1_1Time_a6ec7f250c725f03c68a21950a78a7460}} 
+\index{tudat::Time@{tudat::Time}!operator$<$=@{operator$<$=}}
+\index{operator$<$=@{operator$<$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$=}{operator<=}\hspace{0.1cm}{\footnotesize\ttfamily [3/5]}}
+{\footnotesize\ttfamily bool operator$<$= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. 
+
+Smaller-\/than-\/or-\/equal operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (as double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_abb04b21fae09811cd82a00a98abe2c7e}\label{classtudat_1_1Time_abb04b21fae09811cd82a00a98abe2c7e}} 
+\index{tudat::Time@{tudat::Time}!operator$<$=@{operator$<$=}}
+\index{operator$<$=@{operator$<$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$=}{operator<=}\hspace{0.1cm}{\footnotesize\ttfamily [4/5]}}
+{\footnotesize\ttfamily bool operator$<$= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const long double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. 
+
+Smaller-\/than-\/or-\/equal operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (as double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ab1a1027f41db7b2750a0abefacb209a2}\label{classtudat_1_1Time_ab1a1027f41db7b2750a0abefacb209a2}} 
+\index{tudat::Time@{tudat::Time}!operator$<$=@{operator$<$=}}
+\index{operator$<$=@{operator$<$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$<$=}{operator<=}\hspace{0.1cm}{\footnotesize\ttfamily [5/5]}}
+{\footnotesize\ttfamily bool operator$<$= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Smaller-\/than-\/or-\/equal-\/to operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. 
+
+Smaller-\/than-\/or-\/equal-\/to-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is smaller than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a3318549eba72846e5d558356cbad218c}\label{classtudat_1_1Time_a3318549eba72846e5d558356cbad218c}} 
+\index{tudat::Time@{tudat::Time}!operator==@{operator==}}
+\index{operator==@{operator==}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator==}{operator==}\hspace{0.1cm}{\footnotesize\ttfamily [1/6]}}
+{\footnotesize\ttfamily bool operator== (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. 
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. Comparison is performed at double precision (i.\+e. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is cast to double and compared) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (in double precision) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a4add1bc319981108bbe81d607295cce2}\label{classtudat_1_1Time_a4add1bc319981108bbe81d607295cce2}} 
+\index{tudat::Time@{tudat::Time}!operator==@{operator==}}
+\index{operator==@{operator==}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator==}{operator==}\hspace{0.1cm}{\footnotesize\ttfamily [2/6]}}
+{\footnotesize\ttfamily bool operator== (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. 
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. Comparison is performed at lgon double precision (i.\+e. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is cast to long double and compared) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (in long double precision) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_abd8361248210d163e6171ca66a75cdd4}\label{classtudat_1_1Time_abd8361248210d163e6171ca66a75cdd4}} 
+\index{tudat::Time@{tudat::Time}!operator==@{operator==}}
+\index{operator==@{operator==}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator==}{operator==}\hspace{0.1cm}{\footnotesize\ttfamily [3/6]}}
+{\footnotesize\ttfamily bool operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. 
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a double. Comparison is performed at double precision (i.\+e. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is cast to double and compared) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (in double precision) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_af81c84cf88b193a1c58ee101a20f69e8}\label{classtudat_1_1Time_af81c84cf88b193a1c58ee101a20f69e8}} 
+\index{tudat::Time@{tudat::Time}!operator==@{operator==}}
+\index{operator==@{operator==}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator==}{operator==}\hspace{0.1cm}{\footnotesize\ttfamily [4/6]}}
+{\footnotesize\ttfamily bool operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const int}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with an integer. 
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with an integer. Comparison is performed at double precision (i.\+e. integer is cast to double and compared). 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (in integer precision) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_af9a670966fe04d7b51b7239175f264c1}\label{classtudat_1_1Time_af9a670966fe04d7b51b7239175f264c1}} 
+\index{tudat::Time@{tudat::Time}!operator==@{operator==}}
+\index{operator==@{operator==}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator==}{operator==}\hspace{0.1cm}{\footnotesize\ttfamily [5/6]}}
+{\footnotesize\ttfamily bool operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const long double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. 
+
+Equality operator for a \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with a long double. Comparison is performed at lgon double precision (i.\+e. \mbox{\hyperlink{classtudat_1_1Time}{Time}} is cast to long double and compared) 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (in long double precision) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a553562bc9f249dd59887948475bea35a}\label{classtudat_1_1Time_a553562bc9f249dd59887948475bea35a}} 
+\index{tudat::Time@{tudat::Time}!operator==@{operator==}}
+\index{operator==@{operator==}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator==}{operator==}\hspace{0.1cm}{\footnotesize\ttfamily [6/6]}}
+{\footnotesize\ttfamily bool operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Equality operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. 
+
+Equality operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if two times are fully equal; false if not. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a6f407f276218352fa72931e748e148cf}\label{classtudat_1_1Time_a6f407f276218352fa72931e748e148cf}} 
+\index{tudat::Time@{tudat::Time}!operator$>$@{operator$>$}}
+\index{operator$>$@{operator$>$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$}{operator>}\hspace{0.1cm}{\footnotesize\ttfamily [1/5]}}
+{\footnotesize\ttfamily bool operator$>$ (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. 
+
+Greater-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (as double) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a784e2a0e9abdc2473ecbad9bc1bb17f7}\label{classtudat_1_1Time_a784e2a0e9abdc2473ecbad9bc1bb17f7}} 
+\index{tudat::Time@{tudat::Time}!operator$>$@{operator$>$}}
+\index{operator$>$@{operator$>$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$}{operator>}\hspace{0.1cm}{\footnotesize\ttfamily [2/5]}}
+{\footnotesize\ttfamily bool operator$>$ (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. 
+
+Greater-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (as long double) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a8a1453a3f396420c4f23da89d4901095}\label{classtudat_1_1Time_a8a1453a3f396420c4f23da89d4901095}} 
+\index{tudat::Time@{tudat::Time}!operator$>$@{operator$>$}}
+\index{operator$>$@{operator$>$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$}{operator>}\hspace{0.1cm}{\footnotesize\ttfamily [3/5]}}
+{\footnotesize\ttfamily bool operator$>$ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. 
+
+Greater-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (as double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_aaeab0108e0bbde4b8450a12f7ce5dc2b}\label{classtudat_1_1Time_aaeab0108e0bbde4b8450a12f7ce5dc2b}} 
+\index{tudat::Time@{tudat::Time}!operator$>$@{operator$>$}}
+\index{operator$>$@{operator$>$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$}{operator>}\hspace{0.1cm}{\footnotesize\ttfamily [4/5]}}
+{\footnotesize\ttfamily bool operator$>$ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const long double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. 
+
+Greater-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (as double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_ac6f91d53abc7e1a2c41eb76bfef56615}\label{classtudat_1_1Time_ac6f91d53abc7e1a2c41eb76bfef56615}} 
+\index{tudat::Time@{tudat::Time}!operator$>$@{operator$>$}}
+\index{operator$>$@{operator$>$}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$}{operator>}\hspace{0.1cm}{\footnotesize\ttfamily [5/5]}}
+{\footnotesize\ttfamily bool operator$>$ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. 
+
+Greater-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a893dc2716b2f92398e51849d6a6bd980}\label{classtudat_1_1Time_a893dc2716b2f92398e51849d6a6bd980}} 
+\index{tudat::Time@{tudat::Time}!operator$>$=@{operator$>$=}}
+\index{operator$>$=@{operator$>$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$=}{operator>=}\hspace{0.1cm}{\footnotesize\ttfamily [1/5]}}
+{\footnotesize\ttfamily bool operator$>$= (\begin{DoxyParamCaption}\item[{const double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. 
+
+Greater-\/than-\/or-\/equal operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (as double) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a0d9171b54df8bd6b9495a3a1b59b1e70}\label{classtudat_1_1Time_a0d9171b54df8bd6b9495a3a1b59b1e70}} 
+\index{tudat::Time@{tudat::Time}!operator$>$=@{operator$>$=}}
+\index{operator$>$=@{operator$>$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$=}{operator>=}\hspace{0.1cm}{\footnotesize\ttfamily [2/5]}}
+{\footnotesize\ttfamily bool operator$>$= (\begin{DoxyParamCaption}\item[{const long double}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. 
+
+Greater-\/than-\/or-\/equal operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare (as long double) \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a355a29cec48bc15fb58e420c0d225cfa}\label{classtudat_1_1Time_a355a29cec48bc15fb58e420c0d225cfa}} 
+\index{tudat::Time@{tudat::Time}!operator$>$=@{operator$>$=}}
+\index{operator$>$=@{operator$>$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$=}{operator>=}\hspace{0.1cm}{\footnotesize\ttfamily [3/5]}}
+{\footnotesize\ttfamily bool operator$>$= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with double. 
+
+Greater-\/than-\/or-\/equal operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (as double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a947f0a18e59f3503a284e55150ddde48}\label{classtudat_1_1Time_a947f0a18e59f3503a284e55150ddde48}} 
+\index{tudat::Time@{tudat::Time}!operator$>$=@{operator$>$=}}
+\index{operator$>$=@{operator$>$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$=}{operator>=}\hspace{0.1cm}{\footnotesize\ttfamily [4/5]}}
+{\footnotesize\ttfamily bool operator$>$= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const long double}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than-\/or-\/equal operator for \mbox{\hyperlink{classtudat_1_1Time}{Time}} object with long double. 
+
+Greater-\/than-\/or-\/equal operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare (as double) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1Time_a072b03ebbf66532a11eaa69d15befc5a}\label{classtudat_1_1Time_a072b03ebbf66532a11eaa69d15befc5a}} 
+\index{tudat::Time@{tudat::Time}!operator$>$=@{operator$>$=}}
+\index{operator$>$=@{operator$>$=}!tudat::Time@{tudat::Time}}
+\doxysubsubsection{\texorpdfstring{operator$>$=}{operator>=}\hspace{0.1cm}{\footnotesize\ttfamily [5/5]}}
+{\footnotesize\ttfamily bool operator$>$= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare1,  }\item[{const \mbox{\hyperlink{classtudat_1_1Time}{Time}} \&}]{time\+To\+Compare2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Greater-\/than-\/or-\/equal-\/to operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects. 
+
+Greater-\/than-\/or-\/equal-\/to-\/than operator for two \mbox{\hyperlink{classtudat_1_1Time}{Time}} objects 
+\begin{DoxyParams}{Parameters}
+{\em time\+To\+Compare1} & First time to compare \\
+\hline
+{\em time\+To\+Compare2} & Second time to compare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if time\+To\+Compare1 is larger than or equal to time\+To\+Compare2, false otherwise. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/basics/time\+Type.\+h\end{DoxyCompactItemize}

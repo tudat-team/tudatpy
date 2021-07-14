@@ -1,0 +1,314 @@
+\hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{}\doxysection{tudat\+::propagators\+::Hybrid\+Arc\+Variational\+Equations\+Solver$<$ State\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+
+
+{\ttfamily \#include $<$variational\+Equations\+Solver.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Hybrid\+Arc\+Variational\+Equations\+Solver$<$ State\+Scalar\+Type, Time\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ae2d0ef9b714be3844353b41ae226e94d}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ae2d0ef9b714be3844353b41ae226e94d}} 
+typedef Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ {\bfseries Matrix\+Type}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_afa78db3662f1ea0a6382800f3b7261a4}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_afa78db3662f1ea0a6382800f3b7261a4}} 
+typedef Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ {\bfseries Vector\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a84ccd75515abfd47000e536a02490eb3}{Hybrid\+Arc\+Variational\+Equations\+Solver}} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ integrator\+Settings, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagatorSettings}{Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ propagator\+Settings, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter\+Set}}$<$ State\+Scalar\+Type $>$ $>$ parameters\+To\+Estimate, const std\+::vector$<$ double $>$ arc\+Start\+Times, const bool integrate\+Dynamical\+And\+Variational\+Equations\+Concurrently=true, const bool clear\+Numerical\+Solution=true, const bool integrate\+Equations\+On\+Creation=false)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a23507a51d4c216c97a71c573f1cd4ed2}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a23507a51d4c216c97a71c573f1cd4ed2}} 
+{\bfseries Hybrid\+Arc\+Variational\+Equations\+Solver} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ single\+Arc\+Integrator\+Settings, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ multi\+Arc\+Integrator\+Settings, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagatorSettings}{Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ propagator\+Settings, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter\+Set}}$<$ State\+Scalar\+Type $>$ $>$ parameters\+To\+Estimate, const std\+::vector$<$ double $>$ arc\+Start\+Times, const bool integrate\+Dynamical\+And\+Variational\+Equations\+Concurrently=true, const bool clear\+Numerical\+Solution=true, const bool integrate\+Equations\+On\+Creation=false)
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a210049a52e768935e4452d0d03c765bf}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a210049a52e768935e4452d0d03c765bf}} 
+void {\bfseries initialize\+Hybrid\+Arc\+Variational\+Equations\+Solver} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&bodies, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagatorSettings}{Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ propagator\+Settings, const bool integrate\+Dynamical\+And\+Variational\+Equations\+Concurrently, const bool integrate\+Equations\+On\+Creation)
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ae01eca3955668704cf301b7646b70f98}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ae01eca3955668704cf301b7646b70f98}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ae01eca3955668704cf301b7646b70f98}{$\sim$\+Hybrid\+Arc\+Variational\+Equations\+Solver}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a7c7f5f85669faabefab1364196e46732}{integrate\+Variational\+And\+Dynamical\+Equations}} (const Vector\+Type \&initial\+State\+Estimate, const bool integrate\+Equations\+Concurrently)
+\begin{DoxyCompactList}\small\item\em Function to integrate variational equations and equations of motion. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa41b4b27f3aea2d0dad1fa07778927c8}{integrate\+Dynamical\+Equations\+Of\+Motion\+Only}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&initial\+State\+Estimate)
+\begin{DoxyCompactList}\small\item\em Function to integrate equations of motion only. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab6e11360502123cc74c49ce1742b60b6}{reset\+Parameter\+Estimate}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ new\+Parameter\+Estimate, const bool are\+Variational\+Equations\+To\+Be\+Integrated=true)
+\begin{DoxyCompactList}\small\item\em Function to reset parameter estimate and re-\/integrate equations of motion and, if desired, variational equations. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcPropagatorSettings}{Hybrid\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a643621da61de02ce4fa637992001066e}{get\+Propagator\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve propagator settings used for equations of motion. \end{DoxyCompactList}\item 
+virtual std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a109d3989fcf56ebe09460feb1027120d}{get\+Dynamics\+Simulator\+Base}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the dynamics simulator object (as base-\/class pointer) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a90e78ae3c71786bd5bc2c0b707a0a13c}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a90e78ae3c71786bd5bc2c0b707a0a13c}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcVariationalEquationsSolver}{Multi\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ {\bfseries get\+Multi\+Arc\+Solver} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_af400c82ec6a4770d91cc86ef2647a323}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_af400c82ec6a4770d91cc86ef2647a323}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcVariationalEquationsSolver}{Single\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_af400c82ec6a4770d91cc86ef2647a323}{get\+Single\+Arc\+Solver}} ()
+\begin{DoxyCompactList}\small\item\em Object to solve single-\/arc variational equations. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa08c84e52aba14f45e9ca31faaaa76a7}{set\+Extended\+Multi\+Arc\+Parameters}} (const std\+::vector$<$ double $>$ \&arc\+Start\+Times)
+\begin{DoxyCompactList}\small\item\em Function to set and process the arc start times of the multi-\/arc propagation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa67da8220bc43332275987e0539b6754}{reset\+Multi\+Arc\+Initial\+States}} (const Vector\+Type \&manual\+Multi\+Arc\+States)
+\begin{DoxyCompactList}\small\item\em Function to reset the initial multi-\/arc states. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa25296a0473782588df6519cc98aeb60}{remove\+Single\+Arc\+Bodies\+From\+Multi\+Arc\+Solultion}} (std\+::vector$<$ std\+::map$<$ Time\+Type, Vector\+Type $>$ $>$ \&numerical\+Multi\+Arc\+Solution)
+\begin{DoxyCompactList}\small\item\em Function that removes the single-\/arc body data from propagation results before processing data. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a9c4ca9bce54c3b885cdb44c665876ca8}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a9c4ca9bce54c3b885cdb44c665876ca8}} 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a9c4ca9bce54c3b885cdb44c665876ca8}{copy\+Extended\+Multi\+Arc\+Initial\+States\+To\+Original\+Settins}} ()
+\begin{DoxyCompactList}\small\item\em Update original propagator settings. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a5d6912aee505402865cf0172979a962d}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a5d6912aee505402865cf0172979a962d}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcVariationalEquationsSolver}{Multi\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a5d6912aee505402865cf0172979a962d}{original\+Multi\+Arc\+Solver\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Object to solve multi-\/arc variational equations (multi-\/arc bodies only). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a167aa4f894c4caff8c80dec575de10ee}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a167aa4f894c4caff8c80dec575de10ee}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcVariationalEquationsSolver}{Single\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a167aa4f894c4caff8c80dec575de10ee}{single\+Arc\+Solver\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Object to solve single-\/arc variational equations. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_adc12e9a8d9dc51d7fac7ff3aca0be005}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_adc12e9a8d9dc51d7fac7ff3aca0be005}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcVariationalEquationsSolver}{Multi\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_adc12e9a8d9dc51d7fac7ff3aca0be005}{multi\+Arc\+Solver\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Object to solve multi-\/arc variational equations (single-\/ and multi-\/arc bodies). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a3f00abfdc4855c0d3f08981b48f00b16}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a3f00abfdc4855c0d3f08981b48f00b16}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcPropagatorSettings}{Hybrid\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a3f00abfdc4855c0d3f08981b48f00b16}{original\+Popagator\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Propagator settings, with single-\/ and multi-\/arc separately. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_af35135e6be3fbfe145fcbb90ac8ce1db}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_af35135e6be3fbfe145fcbb90ac8ce1db}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcPropagatorSettings}{Hybrid\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_af35135e6be3fbfe145fcbb90ac8ce1db}{propagator\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Propagator settings, with single-\/arc bodies added to multi-\/arc list. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a74252cbfc3543be38532e77ed6465278}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a74252cbfc3543be38532e77ed6465278}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a74252cbfc3543be38532e77ed6465278}{single\+Arc\+Integrator\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Settings to be used for integrator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_abceef88e486e46b6fc5db62745f67f56}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_abceef88e486e46b6fc5db62745f67f56}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$ {\bfseries multi\+Arc\+Integrator\+Settings\+\_\+}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab0d3e469eb0dbb25caf181be28a3403c}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab0d3e469eb0dbb25caf181be28a3403c}} 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab0d3e469eb0dbb25caf181be28a3403c}{single\+Arc\+Dynamics\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Size of estimated single-\/arc dynamical parameters. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_abc2ae34e29885ce01889112455aff576}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_abc2ae34e29885ce01889112455aff576}} 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_abc2ae34e29885ce01889112455aff576}{original\+Multi\+Arc\+Dynamics\+Single\+Arc\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Size of single arc of original estimated multi-\/arc dynamical parameters. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_afe8d2b2d39ace7084ca3da37acd2bc16}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_afe8d2b2d39ace7084ca3da37acd2bc16}} 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_afe8d2b2d39ace7084ca3da37acd2bc16}{original\+Multi\+Arc\+Dynamics\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Total size of original estimated multi-\/arc dynamical parameters. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab329f701a1873d2e924dadb1cb857136}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab329f701a1873d2e924dadb1cb857136}} 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab329f701a1873d2e924dadb1cb857136}{multi\+Arc\+Dynamics\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Size of single arc of extended estimated multi-\/arc dynamical parameters. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a96ac2ba32fb83d5eb95583db910c6cf8}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a96ac2ba32fb83d5eb95583db910c6cf8}} 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a96ac2ba32fb83d5eb95583db910c6cf8}{multi\+Arc\+Dynamics\+Single\+Arc\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Total size of extended estimated multi-\/arc dynamical parameters. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a92620372e0a2900b22d0e7d5ff3ed92a}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a92620372e0a2900b22d0e7d5ff3ed92a}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter\+Set}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a92620372e0a2900b22d0e7d5ff3ed92a}{single\+Arc\+Parameters\+To\+Estimate\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Estimated parameter set with single-\/arc dynamical parameters only. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a248d6f485a4b66c045189af7f9d43aae}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a248d6f485a4b66c045189af7f9d43aae}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter\+Set}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a248d6f485a4b66c045189af7f9d43aae}{original\+Multi\+Arc\+Parameters\+To\+Estimate\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Estimated parameter set with original multi-\/arc dynamical parameters only. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a84395f425d1798320e31e251130593c7}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a84395f425d1798320e31e251130593c7}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter\+Set}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a84395f425d1798320e31e251130593c7}{multi\+Arc\+Parameters\+To\+Estimate\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Estimated parameter set with extended multi-\/arc dynamical parameters only. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a65b29f963e58a1970030880b81dc0a2e}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a65b29f963e58a1970030880b81dc0a2e}} 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a65b29f963e58a1970030880b81dc0a2e}{arc\+Start\+Times\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Times at which arcs for multi-\/arc solution start. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ const double) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ad35541340176646c076260a4e5e77b3d}{initial\+States\+From\+Single\+Arc\+Propagation\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function that retrieves the single-\/arc bodies\textquotesingle{} initial states as a function of time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a0965a5608bfcbcfe0195f42a52f755b9}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a0965a5608bfcbcfe0195f42a52f755b9}} 
+double {\bfseries single\+Arc\+Initial\+Time\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver$<$ State\+Scalar\+Type, Time\+Type $>$}
+
+Class to manage and execute the numerical integration of variational equations of a dynamical system in a combination of single and multiple arcs
+
+Class to manage and execute the numerical integration of variational equations of a dynamical system, in addition to the dynamics itself, in a combination of single and multiple arcs. In this class, the governing equations are set once, but can be re-\/integrated for different initial conditions using the same instance of the class. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a84ccd75515abfd47000e536a02490eb3}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a84ccd75515abfd47000e536a02490eb3}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!HybridArcVariationalEquationsSolver@{HybridArcVariationalEquationsSolver}}
+\index{HybridArcVariationalEquationsSolver@{HybridArcVariationalEquationsSolver}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{HybridArcVariationalEquationsSolver()}{HybridArcVariationalEquationsSolver()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{Hybrid\+Arc\+Variational\+Equations\+Solver}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{simulation\+\_\+setup\+::\+System\+Of\+Bodies}} \&}]{bodies,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1IntegratorSettings}{numerical\+\_\+integrators\+::\+Integrator\+Settings}}$<$ Time\+Type $>$ $>$}]{integrator\+Settings,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagatorSettings}{Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$}]{propagator\+Settings,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter\+Set}}$<$ State\+Scalar\+Type $>$ $>$}]{parameters\+To\+Estimate,  }\item[{const std\+::vector$<$ double $>$}]{arc\+Start\+Times,  }\item[{const bool}]{integrate\+Dynamical\+And\+Variational\+Equations\+Concurrently = {\ttfamily true},  }\item[{const bool}]{clear\+Numerical\+Solution = {\ttfamily true},  }\item[{const bool}]{integrate\+Equations\+On\+Creation = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion. 
+\begin{DoxyParams}{Parameters}
+{\em bodies} & Map of bodies (with names) of all bodies in integration. \\
+\hline
+{\em integrator\+Settings} & Settings for numerical integrator. \\
+\hline
+{\em propagator\+Settings} & Settings for propagator. \\
+\hline
+{\em parameters\+To\+Estimate} & Object containing all parameters that are to be estimated and their current settings and values. \\
+\hline
+{\em arc\+Start\+Times} & Start times for separate arcs \\
+\hline
+{\em integrate\+Dynamical\+And\+Variational\+Equations\+Concurrently} & Boolean defining whether variational and dynamical equations are to be propagated concurrently (if true) or sequentially (of false) \\
+\hline
+{\em clear\+Numerical\+Solution} & Boolean to determine whether to clear the raw numerical solution member variables (default true) after propagation and resetting of state transition interface. \\
+\hline
+{\em integrate\+Equations\+On\+Creation} & Boolean to denote whether equations should be integrated immediately at the end of this contructor. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a109d3989fcf56ebe09460feb1027120d}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a109d3989fcf56ebe09460feb1027120d}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!getDynamicsSimulatorBase@{getDynamicsSimulatorBase}}
+\index{getDynamicsSimulatorBase@{getDynamicsSimulatorBase}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getDynamicsSimulatorBase()}{getDynamicsSimulatorBase()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+virtual std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{Dynamics\+Simulator}}$<$ State\+Scalar\+Type, Time\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Dynamics\+Simulator\+Base (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the dynamics simulator object (as base-\/class pointer) 
+
+Function to retrieve the dynamics simulator object (as base-\/class pointer). This function is not yet implemented in hybric-\/arc model, as no single \mbox{\hyperlink{classtudat_1_1propagators_1_1DynamicsSimulator}{Dynamics\+Simulator}} model is used. Calling this function throws an error \begin{DoxyReturn}{Returns}
+Dynamics simulator object (as base-\/class pointer) 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquationsSolver_a12eab59633236f8c5ff85ad49f15c4d1}{tudat\+::propagators\+::\+Variational\+Equations\+Solver$<$ double, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a643621da61de02ce4fa637992001066e}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a643621da61de02ce4fa637992001066e}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!getPropagatorSettings@{getPropagatorSettings}}
+\index{getPropagatorSettings@{getPropagatorSettings}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getPropagatorSettings()}{getPropagatorSettings()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcPropagatorSettings}{Hybrid\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::get\+Propagator\+Settings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve propagator settings used for equations of motion. 
+
+Function to retrieve propagator settings used for equations of motion \begin{DoxyReturn}{Returns}
+Propagator settings used for equations of motion 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa41b4b27f3aea2d0dad1fa07778927c8}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa41b4b27f3aea2d0dad1fa07778927c8}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!integrateDynamicalEquationsOfMotionOnly@{integrateDynamicalEquationsOfMotionOnly}}
+\index{integrateDynamicalEquationsOfMotionOnly@{integrateDynamicalEquationsOfMotionOnly}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{integrateDynamicalEquationsOfMotionOnly()}{integrateDynamicalEquationsOfMotionOnly()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::integrate\+Dynamical\+Equations\+Of\+Motion\+Only (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \&}]{initial\+State\+Estimate }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to integrate equations of motion only. 
+
+Function to integrate equations of motion only. If dynamical solution is to be processed, the environment is also updated to the new solution. 
+\begin{DoxyParams}{Parameters}
+{\em initial\+State\+Estimate} & Initial state of the equations of motion that is to be used (in same order as in parameters\+To\+Estimate\+\_\+). The initial states of single and multi-\/arcs propagations are concatenated into a single vector. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a7c7f5f85669faabefab1364196e46732}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_a7c7f5f85669faabefab1364196e46732}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!integrateVariationalAndDynamicalEquations@{integrateVariationalAndDynamicalEquations}}
+\index{integrateVariationalAndDynamicalEquations@{integrateVariationalAndDynamicalEquations}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{integrateVariationalAndDynamicalEquations()}{integrateVariationalAndDynamicalEquations()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::integrate\+Variational\+And\+Dynamical\+Equations (\begin{DoxyParamCaption}\item[{const Vector\+Type \&}]{initial\+State\+Estimate,  }\item[{const bool}]{integrate\+Equations\+Concurrently }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to integrate variational equations and equations of motion. 
+
+Function to integrate variational equations and equations of motion. At the end of this function, the state\+Transition\+Interface\+\_\+ is reset with the new state transition and sensitivity matrices. If dynamical solution is to be processed, the environment is also updated to the new solution. 
+\begin{DoxyParams}{Parameters}
+{\em initial\+State\+Estimate} & Initial statez of the equations of motion that is to be used (in same order as in parameters\+To\+Estimate\+\_\+). The initial states of single and multi-\/arcs propagations are concatenated into a single vector. \\
+\hline
+{\em integrate\+Equations\+Concurrently} & Variable determining whether the equations of motion are to be propagated concurrently with variational equations of motion (if true), or before variational equations (if false). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa25296a0473782588df6519cc98aeb60}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa25296a0473782588df6519cc98aeb60}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!removeSingleArcBodiesFromMultiArcSolultion@{removeSingleArcBodiesFromMultiArcSolultion}}
+\index{removeSingleArcBodiesFromMultiArcSolultion@{removeSingleArcBodiesFromMultiArcSolultion}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{removeSingleArcBodiesFromMultiArcSolultion()}{removeSingleArcBodiesFromMultiArcSolultion()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::remove\+Single\+Arc\+Bodies\+From\+Multi\+Arc\+Solultion (\begin{DoxyParamCaption}\item[{std\+::vector$<$ std\+::map$<$ Time\+Type, Vector\+Type $>$ $>$ \&}]{numerical\+Multi\+Arc\+Solution }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Function that removes the single-\/arc body data from propagation results before processing data. 
+
+Function that removes the single-\/arc body data from propagation results before processing data 
+\begin{DoxyParams}{Parameters}
+{\em numerical\+Multi\+Arc\+Solution} & Full numerical solution of single and multi-\/arc bodies. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa67da8220bc43332275987e0539b6754}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa67da8220bc43332275987e0539b6754}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!resetMultiArcInitialStates@{resetMultiArcInitialStates}}
+\index{resetMultiArcInitialStates@{resetMultiArcInitialStates}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{resetMultiArcInitialStates()}{resetMultiArcInitialStates()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::reset\+Multi\+Arc\+Initial\+States (\begin{DoxyParamCaption}\item[{const Vector\+Type \&}]{manual\+Multi\+Arc\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Function to reset the initial multi-\/arc states. 
+
+Function to reset the initial multi-\/arc states 
+\begin{DoxyParams}{Parameters}
+{\em manual\+Multi\+Arc\+States} & New multi-\/arc states \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab6e11360502123cc74c49ce1742b60b6}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ab6e11360502123cc74c49ce1742b60b6}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!resetParameterEstimate@{resetParameterEstimate}}
+\index{resetParameterEstimate@{resetParameterEstimate}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{resetParameterEstimate()}{resetParameterEstimate()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::reset\+Parameter\+Estimate (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$}]{new\+Parameter\+Estimate,  }\item[{const bool}]{are\+Variational\+Equations\+To\+Be\+Integrated = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset parameter estimate and re-\/integrate equations of motion and, if desired, variational equations. 
+
+Function to reset parameter estimate and re-\/integrate equations of motion and, if desired, variational equations using the new physical parameters/body initial states. 
+\begin{DoxyParams}{Parameters}
+{\em new\+Parameter\+Estimate} & New estimate of parameters that are to be estimated, in same order as defined in parameters\+To\+Estimate\+\_\+ member. \\
+\hline
+{\em are\+Variational\+Equations\+To\+Be\+Integrated} & Boolean defining whether the variational equations are to be reintegrated with the new parameter values. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa08c84e52aba14f45e9ca31faaaa76a7}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_aa08c84e52aba14f45e9ca31faaaa76a7}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!setExtendedMultiArcParameters@{setExtendedMultiArcParameters}}
+\index{setExtendedMultiArcParameters@{setExtendedMultiArcParameters}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{setExtendedMultiArcParameters()}{setExtendedMultiArcParameters()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::set\+Extended\+Multi\+Arc\+Parameters (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{arc\+Start\+Times }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Function to set and process the arc start times of the multi-\/arc propagation. 
+
+Function to set and process the arc start times of the multi-\/arc propagation 
+\begin{DoxyParams}{Parameters}
+{\em arc\+Start\+Times} & Arc start times of the multi-\/arc propagation \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ad35541340176646c076260a4e5e77b3d}\label{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_ad35541340176646c076260a4e5e77b3d}} 
+\index{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}!initialStatesFromSingleArcPropagation\_@{initialStatesFromSingleArcPropagation\_}}
+\index{initialStatesFromSingleArcPropagation\_@{initialStatesFromSingleArcPropagation\_}!tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$@{tudat::propagators::HybridArcVariationalEquationsSolver$<$ StateScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{initialStatesFromSingleArcPropagation\_}{initialStatesFromSingleArcPropagation\_}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::function$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ const double ) $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{tudat\+::propagators\+::\+Hybrid\+Arc\+Variational\+Equations\+Solver}}$<$ State\+Scalar\+Type, Time\+Type $>$\+::initial\+States\+From\+Single\+Arc\+Propagation\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Function that retrieves the single-\/arc bodies\textquotesingle{} initial states as a function of time. 
+
+Function that retrieves the single-\/arc bodies\textquotesingle{} initial states as a function of time, is used to update the multi-\/arc initial states after the single-\/arc propagation 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/estimation\+\_\+setup/variational\+Equations\+Solver.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_c20fcb78849ef3078f6210adce8f88f4" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics</compoundname>
+    <innerfile refid="basicTypedefs_8h">basicTypedefs.h</innerfile>
+    <innerfile refid="identityElements_8h">identityElements.h</innerfile>
+    <innerfile refid="testMacros_8h">testMacros.h</innerfile>
+    <innerfile refid="timeType_8h">timeType.h</innerfile>
+    <innerfile refid="tudatTypeTraits_8h">tudatTypeTraits.h</innerfile>
+    <innerfile refid="basics_2utilities_8h">utilities.h</innerfile>
+    <innerfile refid="utilityMacros_8h">utilityMacros.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics/"/>
+  </compounddef>
+</doxygen>

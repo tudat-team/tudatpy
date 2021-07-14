@@ -1,0 +1,281 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</compoundname>
+    <includes refid="shortPeriodEarthOrientationCorrectionCalculator_8h" local="no">shortPeriodEarthOrientationCorrectionCalculator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename OutputType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1ae0607e72c1c544f61c6d1cfb8ceb63c4" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; Eigen::MatrixXd &gt;</type>
+        <definition>std::vector&lt; Eigen::MatrixXd &gt; tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; OutputType &gt;::argumentAmplitudes_</definition>
+        <argsstring></argsstring>
+        <name>argumentAmplitudes_</name>
+        <briefdescription>
+<para>Amplitudes of libration-induced variations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" line="120" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a52c1e1de3d41e72cfe46849c8f80b49b" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; Eigen::MatrixXd &gt;</type>
+        <definition>std::vector&lt; Eigen::MatrixXd &gt; tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; OutputType &gt;::argumentMultipliers_</definition>
+        <argsstring></argsstring>
+        <name>argumentMultipliers_</name>
+        <briefdescription>
+<para>Fundamental argument multipliers of libration-induced variations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" line="123" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1ae54b696405d804bc39f206d9f2998e3a" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector6d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector6d( const double ) &gt; tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; OutputType &gt;::argumentFunction_</definition>
+        <argsstring></argsstring>
+        <name>argumentFunction_</name>
+        <briefdescription>
+<para>Fundamental argument functions associated with multipliers. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" line="126" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a15cf721db912d5699e794adaff90317a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; OutputType &gt;::ShortPeriodEarthOrientationCorrectionCalculator</definition>
+        <argsstring>(const double conversionFactor, const double minimumAmplitude, const std::vector&lt; std::string &gt; &amp;amplitudesFiles, const std::vector&lt; std::string &gt; &amp;argumentMultipliersFile, const std::function&lt; Eigen::Vector6d(const double) &gt; argumentFunction=std::bind(&amp;sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1))</argsstring>
+        <name>ShortPeriodEarthOrientationCorrectionCalculator</name>
+        <param>
+          <type>const double</type>
+          <declname>conversionFactor</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumAmplitude</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>amplitudesFiles</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>argumentMultipliersFile</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d(const double) &gt;</type>
+          <declname>argumentFunction</declname>
+          <defval>std::bind(&amp;sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1)</defval>
+        </param>
+        <briefdescription>
+<para>Constructor, requires files defining the amplitudes and fundamental argument multipliers of the variations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, requires files defining the sine and cosine amplitudes and fundamental argument multipliers numbers of the variations for both ocean tide and libration variations. A cut-off amplitude (taken as the RSS of the amplitudes) below which amplitudes in the files are ignored can be provided. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>conversionFactor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Conversion factor to be used for amplitudes, used to multiply input values, typically for unit conversion purposes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumAmplitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum amplitude that is read from files and considered in calculations. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>amplitudesFiles</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of files with amplitudes for corrections </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>argumentMultipliersFile</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fundamental argument multiplier for corrections </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>argumentFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fundamental argument functions associated with multipliers, default Delaunay arguments with GMST </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" line="62" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" bodystart="62" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1aaf80ebf804ce306f3b82b5b1d24e2f0b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>OutputType</type>
+        <definition>OutputType tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; OutputType &gt;::getCorrections</definition>
+        <argsstring>(const double &amp;ephemerisTime)</argsstring>
+        <name>getCorrections</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to obtain short period corrections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to obtain short period corrections, using time as input. Fundamental arguments are calculated internally. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemerisTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> (TDB seconds since J2000) at which corretions are to be determined </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Short period corrections </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" line="93" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" bodystart="93" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a3ae90485b3c51faa7120566e8c88cb4b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>OutputType</type>
+        <definition>OutputType tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; OutputType &gt;::getCorrections</definition>
+        <argsstring>(const Eigen::Vector6d &amp;fundamentalArguments)</argsstring>
+        <name>getCorrections</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>fundamentalArguments</declname>
+        </param>
+        <briefdescription>
+<para>Function to obtain short period corrections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to obtain short period corrections, using fundamental arguments as input. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fundamentalArguments</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fundamental arguments from which corretions are to be determined </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Short period corrections </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" line="104" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" bodystart="104" bodyend="107"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a526e87739d388b0a0a2c30638b5b797c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>OutputType</type>
+        <definition>OutputType tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; OutputType &gt;::sumCorrectionTerms</definition>
+        <argsstring>(const Eigen::Vector6d &amp;arguments)</argsstring>
+        <name>sumCorrectionTerms</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>arguments</declname>
+        </param>
+        <briefdescription>
+<para>Function to sum all the corrcetion terms. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to sum all the corrcetion terms. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>arguments</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of fundamental arguments </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total correction at current fundamental arguments </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" line="117" column="16"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a2e24424f37780992f29f12ba164788bb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; double &gt;::sumCorrectionTerms</definition>
+        <argsstring>(const Eigen::Vector6d &amp;arguments)</argsstring>
+        <name>sumCorrectionTerms</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>arguments</declname>
+        </param>
+        <briefdescription>
+<para>Function to sum all the corrcetion terms. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.cpp" line="22" column="56" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.cpp" bodystart="22" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1aeb80c87e3d6f8f508312646a9e811b3a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector2d</type>
+        <definition>Eigen::Vector2d tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator&lt; Eigen::Vector2d &gt;::sumCorrectionTerms</definition>
+        <argsstring>(const Eigen::Vector6d &amp;arguments)</argsstring>
+        <name>sumCorrectionTerms</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>arguments</declname>
+        </param>
+        <briefdescription>
+<para>Function to sum all the corrcetion terms. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.cpp" line="58" column="65" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.cpp" bodystart="58" bodyend="94"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Object to calculate the short period variations in Earth orientaion parameters. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Object to calculate the short period variations in Earth orientaion parameters, e.g. taking into account variations due to both libration and ocean tides. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" line="47" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h" bodystart="48" bodyend="129"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1ae0607e72c1c544f61c6d1cfb8ceb63c4" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>argumentAmplitudes_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1ae54b696405d804bc39f206d9f2998e3a" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>argumentFunction_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a52c1e1de3d41e72cfe46849c8f80b49b" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>argumentMultipliers_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1aaf80ebf804ce306f3b82b5b1d24e2f0b" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>getCorrections</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a3ae90485b3c51faa7120566e8c88cb4b" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>getCorrections</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a15cf721db912d5699e794adaff90317a" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>ShortPeriodEarthOrientationCorrectionCalculator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a526e87739d388b0a0a2c30638b5b797c" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>sumCorrectionTerms</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1a2e24424f37780992f29f12ba164788bb" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>sumCorrectionTerms</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator_1aeb80c87e3d6f8f508312646a9e811b3a" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator</scope><name>sumCorrectionTerms</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

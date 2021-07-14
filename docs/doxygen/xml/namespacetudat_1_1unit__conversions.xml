@@ -1,0 +1,805 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1unit__conversions" kind="namespace" language="C++">
+    <compoundname>tudat::unit_conversions</compoundname>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="unitConversions_8h_1a133bf5f3896a71040116bddd82f77657" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertRadiansToDegrees</definition>
+        <argsstring>(T angleInRadians)</argsstring>
+        <name>convertRadiansToDegrees</name>
+        <param>
+          <type>T</type>
+          <declname>angleInRadians</declname>
+        </param>
+        <briefdescription>
+<para>Convert angle in radians to degrees. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts angle given in radians to degrees. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleInRadians</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle in radians. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Angle in degrees. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="42" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="42" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a1dccecbd0e8a486da05f8494ae7a85b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertDegreesToRadians</definition>
+        <argsstring>(T angleInDegrees)</argsstring>
+        <name>convertDegreesToRadians</name>
+        <param>
+          <type>T</type>
+          <declname>angleInDegrees</declname>
+        </param>
+        <briefdescription>
+<para>Convert angle in degrees to radians. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts angle given in degrees to radians. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleInDegrees</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle in degrees. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Angle in radians. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="52" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="52" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a9b750cf095238c95b4c3d515d506d9b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertDegreesToArcminutes</definition>
+        <argsstring>(T angleInDegrees)</argsstring>
+        <name>convertDegreesToArcminutes</name>
+        <param>
+          <type>T</type>
+          <declname>angleInDegrees</declname>
+        </param>
+        <briefdescription>
+<para>Convert angle in degrees to arcminutes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts angle given in degrees to arcminutes. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleInDegrees</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle in degrees. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Angle in arcminutes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="62" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="62" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a7f0453bdb0fdcbb499e4ab4dbf27d946" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertArcSecondsToRadians</definition>
+        <argsstring>(T angleInArcSeconds)</argsstring>
+        <name>convertArcSecondsToRadians</name>
+        <param>
+          <type>T</type>
+          <declname>angleInArcSeconds</declname>
+        </param>
+        <briefdescription>
+<para>Convert arc seconds to degrees. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert arc seconds to degrees <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleInArcSeconds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle in arc seconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Angle in degrees. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="72" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="72" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a96358d3415f2735ebf5acb09f427d010" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertRadiansToArcSeconds</definition>
+        <argsstring>(T angleInRadians)</argsstring>
+        <name>convertRadiansToArcSeconds</name>
+        <param>
+          <type>T</type>
+          <declname>angleInRadians</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="76" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="76" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a4bb5304a3a9ee4c052693eba0fb5c874" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertArcminutesToArcseconds</definition>
+        <argsstring>(T angleInArcminutes)</argsstring>
+        <name>convertArcminutesToArcseconds</name>
+        <param>
+          <type>T</type>
+          <declname>angleInArcminutes</declname>
+        </param>
+        <briefdescription>
+<para>Convert angle in arcminutes to arcseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts angle given in arcminutes to arcseconds. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleInArcminutes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle in arcminutes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Angle in arcseconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="88" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="88" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a1a18de55572a2884d0585f325e13d173" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertMetersToKilometers</definition>
+        <argsstring>(T distanceInMeters)</argsstring>
+        <name>convertMetersToKilometers</name>
+        <param>
+          <type>T</type>
+          <declname>distanceInMeters</declname>
+        </param>
+        <briefdescription>
+<para>Convert distance in meters to kilometers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts distance given in meters to kilometers. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>distanceInMeters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance in meters. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Distance in kilometers. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="98" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="98" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a374bd5d95f996efb90cff1343f3b31ea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertKilometersToMeters</definition>
+        <argsstring>(T distanceInKilometers)</argsstring>
+        <name>convertKilometersToMeters</name>
+        <param>
+          <type>T</type>
+          <declname>distanceInKilometers</declname>
+        </param>
+        <briefdescription>
+<para>Convert distance in kilometers to meters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts distance given in kilometers to meters. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>distanceInKilometers</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance in kilometers. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Distance in meters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="108" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="108" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1ab1c338268096138fb27b904b56ccda04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertMetersToAstronomicalUnits</definition>
+        <argsstring>(T distanceInMeters)</argsstring>
+        <name>convertMetersToAstronomicalUnits</name>
+        <param>
+          <type>T</type>
+          <declname>distanceInMeters</declname>
+        </param>
+        <briefdescription>
+<para>Convert distance in meters to astronomical units. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts distance given in meters to astronomical units. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>distanceInMeters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance in meters. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Distance in astronomical units. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="118" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="118" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a025a5227c2e0ec27e1e833460d9bd747" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertAstronomicalUnitsToMeters</definition>
+        <argsstring>(T distanceInAstronomicalUnits)</argsstring>
+        <name>convertAstronomicalUnitsToMeters</name>
+        <param>
+          <type>T</type>
+          <declname>distanceInAstronomicalUnits</declname>
+        </param>
+        <briefdescription>
+<para>Convert distance in astronomical units to meters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts distance given in astronomical units to meters. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>distanceInAstronomicalUnits</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance in astronomical units. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Distance in meters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="128" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="128" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a899205f8b66ebceed444fce70bc62a68" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertSecondsToMinutes</definition>
+        <argsstring>(T timeInSeconds)</argsstring>
+        <name>convertSecondsToMinutes</name>
+        <param>
+          <type>T</type>
+          <declname>timeInSeconds</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in seconds to minutes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in seconds to minutes. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInSeconds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in seconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in minutes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="138" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="138" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a5e4c9975adb66f49f2a9d52d410b47de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertMinutesToSeconds</definition>
+        <argsstring>(T timeInMinutes)</argsstring>
+        <name>convertMinutesToSeconds</name>
+        <param>
+          <type>T</type>
+          <declname>timeInMinutes</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in minutes to seconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in minutes to seconds. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInMinutes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in minutes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in seconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="148" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="148" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a735de85f8dfc9f7e4a78eba73f23bb73" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertSecondsToHours</definition>
+        <argsstring>(T timeInSeconds)</argsstring>
+        <name>convertSecondsToHours</name>
+        <param>
+          <type>T</type>
+          <declname>timeInSeconds</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in seconds to hours. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in seconds to hours. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInSeconds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in seconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in hours. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="158" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="158" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1ada27634be781794dbbece3bd94c4daf3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertHoursToSeconds</definition>
+        <argsstring>(T timeInHours)</argsstring>
+        <name>convertHoursToSeconds</name>
+        <param>
+          <type>T</type>
+          <declname>timeInHours</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in hours to seconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in hours to seconds. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInHours</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in hours. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in seconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="168" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="168" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1aef6f32f1803c5080dd0ef4877eca8da7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertSecondsToJulianDays</definition>
+        <argsstring>(T timeInSeconds)</argsstring>
+        <name>convertSecondsToJulianDays</name>
+        <param>
+          <type>T</type>
+          <declname>timeInSeconds</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in seconds to Julian days. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in seconds to Julian days. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInSeconds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in seconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in Julian days. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="178" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="178" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a3e626e28629de5911b229fd6bdb059dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertJulianDaysToSeconds</definition>
+        <argsstring>(T timeInJulianDays)</argsstring>
+        <name>convertJulianDaysToSeconds</name>
+        <param>
+          <type>T</type>
+          <declname>timeInJulianDays</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in Julian days to seconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in Julian days to seconds. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInJulianDays</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in Julian days. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in seconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="188" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="188" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1ac6494c78bdd8c8fe09209a4c46f29115" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertSecondsToSiderealDays</definition>
+        <argsstring>(T timeInSeconds)</argsstring>
+        <name>convertSecondsToSiderealDays</name>
+        <param>
+          <type>T</type>
+          <declname>timeInSeconds</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in seconds to sidereal days. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in seconds to sidereal days. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInSeconds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in seconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in sidereal days. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="198" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="198" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1aa146db02b88b61ac5addfbe4307443c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertSiderealDaysToSeconds</definition>
+        <argsstring>(T timeInSiderealDays)</argsstring>
+        <name>convertSiderealDaysToSeconds</name>
+        <param>
+          <type>T</type>
+          <declname>timeInSiderealDays</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in sidereal days to seconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in sidereal days to seconds. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInSiderealDays</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in sidereal days. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in seconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="208" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="208" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a8747e20f91f33a0ca6c237c547d70256" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertJulianDaysToJulianYears</definition>
+        <argsstring>(T timeInJulianDays)</argsstring>
+        <name>convertJulianDaysToJulianYears</name>
+        <param>
+          <type>T</type>
+          <declname>timeInJulianDays</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in Julian days to Julian years. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in Julian days to Julian years. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInJulianDays</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in Julian days. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in Julian years. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="218" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="218" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1aabef7b11f26a09e247669fbdf823730f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertJulianYearsToJulianDays</definition>
+        <argsstring>(T timeInJulianYears)</argsstring>
+        <name>convertJulianYearsToJulianDays</name>
+        <param>
+          <type>T</type>
+          <declname>timeInJulianYears</declname>
+        </param>
+        <briefdescription>
+<para>Convert time in Julian years to Julian days. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts time given in Julian years to Julian days. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInJulianYears</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in Julian years. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in Julian days. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="228" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="228" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1a0aa30b2f177202d1c0369c3e1d695131" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertRankineToKelvin</definition>
+        <argsstring>(T temperatureInRankine)</argsstring>
+        <name>convertRankineToKelvin</name>
+        <param>
+          <type>T</type>
+          <declname>temperatureInRankine</declname>
+        </param>
+        <briefdescription>
+<para>Convert temperature in Rankine to Kelvin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts temperature given in Rankine to Kelvin (Wikipedia, 2012a). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>temperatureInRankine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Temperature in Rankine. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Temperature in Kelvin. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="238" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="238" bodyend="239"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1ab61ce796c1d602956e67bcce5229efc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertFeetToMeter</definition>
+        <argsstring>(T distanceInFeet)</argsstring>
+        <name>convertFeetToMeter</name>
+        <param>
+          <type>T</type>
+          <declname>distanceInFeet</declname>
+        </param>
+        <briefdescription>
+<para>Convert distance in feet to meters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts distance given in feet to meters (Wikipedia, 2012b). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>distanceInFeet</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance in feet. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Distance in meters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="248" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="248" bodyend="249"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversions_8h_1aff9c39b1b716e9e686893b809e0da226" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>T</type>
+        <definition>T tudat::unit_conversions::convertPoundPerSquareFeetToPascal</definition>
+        <argsstring>(T pressureInPoundPerSquareFeet)</argsstring>
+        <name>convertPoundPerSquareFeetToPascal</name>
+        <param>
+          <type>T</type>
+          <declname>pressureInPoundPerSquareFeet</declname>
+        </param>
+        <briefdescription>
+<para>Convert pressure in pound per square feet to Newton per square meter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts pressure given in pound per square feet to Newton per square meter (Pascal) (Wikipedia, 2012c). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pressureInPoundPerSquareFeet</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pressure in pound per square feet. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pressure in Newton per square meter (Pascal). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="259" column="3" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" bodystart="259" bodyend="260"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/unitConversions.h" line="32" column="1"/>
+  </compounddef>
+</doxygen>

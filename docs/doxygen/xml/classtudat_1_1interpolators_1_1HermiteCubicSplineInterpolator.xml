@@ -1,0 +1,363 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::interpolators::HermiteCubicSplineInterpolator</compoundname>
+    <basecompoundref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" prot="public" virt="non-virtual">tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</basecompoundref>
+    <includes refid="hermiteCubicSplineInterpolator_8h" local="no">hermiteCubicSplineInterpolator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+      <param>
+        <type>typename DependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1ad50e07e901be982e453156107514a62c" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; DependentVariableType &gt;</type>
+        <definition>std::vector&lt; DependentVariableType &gt; tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::derivativeValues_</definition>
+        <argsstring></argsstring>
+        <name>derivativeValues_</name>
+        <briefdescription>
+<para>Derivatives of dependent variable to independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="224" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="224" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1af9bad4d1b627180188a3271f4e71e927" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::vector&lt; DependentVariableType &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; DependentVariableType &gt; &gt; tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::coefficients_</definition>
+        <argsstring></argsstring>
+        <name>coefficients_</name>
+        <briefdescription>
+<para>Coefficients of splines. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="227" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a231d2f1479003eade4ca1f66bbd83b7d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::HermiteCubicSplineInterpolator</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; &amp;independentValues, const std::vector&lt; DependentVariableType &gt; &amp;dependentValues, const std::vector&lt; DependentVariableType &gt; &amp;derivativeValues, const AvailableLookupScheme selectedLookupScheme=huntingAlgorithm, const BoundaryInterpolationType boundaryHandling=extrapolate_at_boundary, const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;defaultExtrapolationValue=std::make_pair(IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;(), IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;()))</argsstring>
+        <name>HermiteCubicSplineInterpolator</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentValues</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>dependentValues</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>derivativeValues</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+          <defval>huntingAlgorithm</defval>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+          <defval>extrapolate_at_boundary</defval>
+        </param>
+        <param>
+          <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval>std::make_pair(<ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;(), <ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;())</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for the hermite cubic spline interpolator with (in)dependent data defined in a vector. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with the independent variable values, must be sorted in ascending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with the dependent variable values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>derivativeValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with the derivative values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Look-up scheme that is to be used when finding interval of requested independent variable value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method, in case the independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of default values to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="53" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="53" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1ab61fc3bdbd0c50e828a1eaba2a91e874" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::HermiteCubicSplineInterpolator</definition>
+        <argsstring>(const std::map&lt; IndependentVariableType, DependentVariableType &gt; &amp;dataMap, const std::vector&lt; DependentVariableType &gt; &amp;derivativeValues, const AvailableLookupScheme selectedLookupScheme=huntingAlgorithm, const BoundaryInterpolationType boundaryHandling=extrapolate_at_boundary, const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;defaultExtrapolationValue=std::make_pair(IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;(), IdentityElement::getAdditionIdentity&lt; DependentVariableType &gt;()))</argsstring>
+        <name>HermiteCubicSplineInterpolator</name>
+        <param>
+          <type>const std::map&lt; IndependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>dataMap</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; DependentVariableType &gt; &amp;</type>
+          <declname>derivativeValues</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a31d6dcb244ab2e3055371ab377027bb1" kindref="member">AvailableLookupScheme</ref></type>
+          <declname>selectedLookupScheme</declname>
+          <defval>huntingAlgorithm</defval>
+        </param>
+        <param>
+          <type>const <ref refid="namespacetudat_1_1interpolators_1a2a462da4b91afdc785987bc35a2325e8" kindref="member">BoundaryInterpolationType</ref></type>
+          <declname>boundaryHandling</declname>
+          <defval>extrapolate_at_boundary</defval>
+        </param>
+        <param>
+          <type>const std::pair&lt; DependentVariableType, DependentVariableType &gt; &amp;</type>
+          <declname>defaultExtrapolationValue</declname>
+          <defval>std::make_pair(<ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;(), <ref refid="classtudat_1_1IdentityElement_1ab3bf500034128c13c2a34fdad21de2b1" kindref="member">IdentityElement::getAdditionIdentity</ref>&lt; DependentVariableType &gt;())</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for the hermite cubic spline interpolator with (in)dependent data defined in a map. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map with the independent variable values as keys and corresponding dependent variable values as values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>derivativeValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedLookupScheme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Look-up scheme that is to be used when finding interval of requested independent variable value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boundaryHandling</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boundary handling method, in case the independent variable is outside the specified range. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultExtrapolationValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pair of default values to be used for extrapolation, in case of use_default_value or use_default_value_with_warning as methods for boundaryHandling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="108" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="108" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a5b0bba307773a7a60a5d0f92cc886d77" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::~HermiteCubicSplineInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>~HermiteCubicSplineInterpolator</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="143" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="143" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a4d03b7ea0c2b5df565be79160b091134" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::vector&lt; DependentVariableType &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; DependentVariableType &gt; &gt; tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::GetCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>GetCoefficients</name>
+        <briefdescription>
+<para>Get coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="149" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="149" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a3f82bb48c7218d7c7ed53ea86ad4e679" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>DependentVariableType</type>
+        <definition>DependentVariableType tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::interpolate</definition>
+        <argsstring>(const IndependentVariableType targetIndependentVariableValue)</argsstring>
+        <name>interpolate</name>
+        <reimplements refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1756cce160465357493e18221aa49dee">interpolate</reimplements>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>targetIndependentVariableValue</declname>
+        </param>
+        <briefdescription>
+<para>Function interpolates dependent variable value at given independent variable value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function interpolates dependent variable value at given independent variable value. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>targetIndependentVariableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable at which interpolation is to take place. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value of interpolated dependent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="161" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="161" bodyend="185"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a1776c11d272dbe912c7dcc1cdd177538" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;::computeCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>computeCoefficients</name>
+        <briefdescription>
+<para>Compute coefficients of the splines. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="190" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="190" bodyend="219"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Hermite Cubic Spline <ref refid="classtudat_1_1interpolators_1_1Interpolator" kindref="compound">Interpolator</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::interpolators::HermiteCubicSplineInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::interpolators::Interpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1Interpolator"/>
+      </node>
+      <node id="2">
+        <label>tudat::interpolators::OneDimensionalInterpolator&lt; IndependentVariableType, DependentVariableType &gt;</label>
+        <link refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" line="30" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/interpolators/hermiteCubicSplineInterpolator.h" bodystart="31" bodyend="229"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a5667535e45f5768ae46dd3b7d8895434" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>boundaryHandling_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae6db7b6475e9c91eeaa00a0d3e546977" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>checkBoundaryCase</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad81400f48dbbc749680975d4ba4ae0de" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>checkInterpolationBoundary</name></member>
+      <member refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1af9bad4d1b627180188a3271f4e71e927" prot="private" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>coefficients_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a1776c11d272dbe912c7dcc1cdd177538" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>computeCoefficients</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a0cf25b829669d7e1bede2ea4f0677bcd" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>defaultExtrapolationValue_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aabbc1fda1543131d0e6bf62bcd377839" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>dependentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1ad50e07e901be982e453156107514a62c" prot="private" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>derivativeValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a4d03b7ea0c2b5df565be79160b091134" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>GetCoefficients</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad0b73292c984422f5dd2164d3dbda3ff" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>getDependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ab6b15e16220ddf2f5896c37afb1d1e05" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>getIndependentValues</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ae2f2a3c4a9838b33add5dac14f69f86f" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>getLookUpScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a149d4201dc4869276bd2961d17e5acdd" prot="public" virt="virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>getNumberOfDimensions</name></member>
+      <member refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a231d2f1479003eade4ca1f66bbd83b7d" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>HermiteCubicSplineInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1ab61fc3bdbd0c50e828a1eaba2a91e874" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>HermiteCubicSplineInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a283eacac87aef562273161b6d42c77f6" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>independentValues_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a3f82bb48c7218d7c7ed53ea86ad4e679" prot="public" virt="virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1aaf340e39d13f8b31cab6887b48427918" prot="public" virt="virtual" ambiguityscope="tudat::interpolators::OneDimensionalInterpolator::"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>interpolate</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1c2938974e40dd7b48bc6fd42cc7a1cb" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>interpolateNonConst</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a1f1471fffc3f6f0b33f8ca44108e9dec" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>lookUpScheme_</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1abc218f1803c7f54fad3e0e71d625c764" prot="protected" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>makeLookupScheme</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a49ff8a3d4870f4651d576abe48654ed2" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1a83cc44f27902300df59e43ad9bb04e37" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>OneDimensionalInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1HermiteCubicSplineInterpolator_1a5b0bba307773a7a60a5d0f92cc886d77" prot="public" virt="non-virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>~HermiteCubicSplineInterpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1Interpolator_1ac6359fc3104b07fb6cac0b3b3221cc3d" prot="public" virt="virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>~Interpolator</name></member>
+      <member refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator_1ad359d0d7a6f229fb9f65260cb3bd2779" prot="public" virt="virtual"><scope>tudat::interpolators::HermiteCubicSplineInterpolator</scope><name>~OneDimensionalInterpolator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

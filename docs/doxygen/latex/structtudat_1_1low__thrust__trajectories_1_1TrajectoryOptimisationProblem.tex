@@ -1,0 +1,83 @@
+\hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem}{}\doxysection{tudat\+::low\+\_\+thrust\+\_\+trajectories\+::Trajectory\+Optimisation\+Problem Struct Reference}
+\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem}\index{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem@{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem}}
+
+
+Definition optimisation problem to minimise the total deltaV required by the trajectory.  
+
+
+
+
+{\ttfamily \#include $<$low\+Thrust\+Optimisation\+Setup.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a084d3655cdc15f2dac3c6f7b28a33c92}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a084d3655cdc15f2dac3c6f7b28a33c92}} 
+typedef Eigen\+::\+Matrix$<$ double, 6, 1 $>$ {\bfseries State\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_ac3153f4647203583f0704518d46eeb3a}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_ac3153f4647203583f0704518d46eeb3a}} 
+\mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_ac3153f4647203583f0704518d46eeb3a}{Trajectory\+Optimisation\+Problem}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor, required for Pagmo compatibility. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_aaed7ddd4f02bc171895c88d9099a056a}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_aaed7ddd4f02bc171895c88d9099a056a}} 
+\mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_aaed7ddd4f02bc171895c88d9099a056a}{Trajectory\+Optimisation\+Problem}} (std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$ departure\+State\+Function, std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$ arrival\+State\+Function, std\+::pair$<$ double, double $>$ departure\+Time\+Bounds, std\+::pair$<$ double, double $>$ time\+Of\+Flight\+Bounds, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings}{low\+\_\+thrust\+\_\+trajectories\+::\+Low\+Thrust\+Leg\+Settings}} $>$ \&low\+Thrust\+Leg\+Settings)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_aa5bc516d4c80474051a22d0a543ce6f5}{fitness}} (const std\+::vector$<$ double $>$ \&x) const
+\begin{DoxyCompactList}\small\item\em Calculate the fitness as a function of the parameter vector x. \end{DoxyCompactList}\item 
+std\+::pair$<$ std\+::vector$<$ double $>$, std\+::vector$<$ double $>$ $>$ \mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a5640664b4415a4f6fbe70715b884486e}{get\+\_\+bounds}} () const
+\begin{DoxyCompactList}\small\item\em Retrieve the allowable limits of the parameter vector x\+: pair containing minima and maxima of parameter values. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a599476d8c60dcc53ca136e8da276f963}{get\+\_\+name}} () const
+\begin{DoxyCompactList}\small\item\em Retrieve the name of the problem. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a84679a76cac75cd452819b956a684ca5}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a84679a76cac75cd452819b956a684ca5}} 
+vector\+\_\+double\+::size\+\_\+type \mbox{\hyperlink{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a84679a76cac75cd452819b956a684ca5}{get\+\_\+nobj}} () const
+\begin{DoxyCompactList}\small\item\em Retrieve the number of objectives in problem, e.\+g. the size of the vector returned by the fitness function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a64ef36f6607404d919ae0482d6e6b3f2}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a64ef36f6607404d919ae0482d6e6b3f2}} 
+vector\+\_\+double\+::size\+\_\+type {\bfseries get\+\_\+nic} () const
+\item 
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a2ead49c5630538f994022025f3abc140}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a2ead49c5630538f994022025f3abc140}} 
+vector\+\_\+double\+::size\+\_\+type {\bfseries get\+\_\+nec} () const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Definition optimisation problem to minimise the total deltaV required by the trajectory. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_aa5bc516d4c80474051a22d0a543ce6f5}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_aa5bc516d4c80474051a22d0a543ce6f5}} 
+\index{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem@{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem}!fitness@{fitness}}
+\index{fitness@{fitness}!tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem@{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem}}
+\doxysubsubsection{\texorpdfstring{fitness()}{fitness()}}
+{\footnotesize\ttfamily std\+::vector$<$ double $>$ tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Trajectory\+Optimisation\+Problem\+::fitness (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{x }\end{DoxyParamCaption}) const}
+
+
+
+Calculate the fitness as a function of the parameter vector x. 
+
+Fitness function. \mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a5640664b4415a4f6fbe70715b884486e}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a5640664b4415a4f6fbe70715b884486e}} 
+\index{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem@{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem}!get\_bounds@{get\_bounds}}
+\index{get\_bounds@{get\_bounds}!tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem@{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem}}
+\doxysubsubsection{\texorpdfstring{get\_bounds()}{get\_bounds()}}
+{\footnotesize\ttfamily std\+::pair$<$ std\+::vector$<$ double $>$, std\+::vector$<$ double $>$ $>$ tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Trajectory\+Optimisation\+Problem\+::get\+\_\+bounds (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Retrieve the allowable limits of the parameter vector x\+: pair containing minima and maxima of parameter values. 
+
+Get bounds. \mbox{\Hypertarget{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a599476d8c60dcc53ca136e8da276f963}\label{structtudat_1_1low__thrust__trajectories_1_1TrajectoryOptimisationProblem_a599476d8c60dcc53ca136e8da276f963}} 
+\index{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem@{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem}!get\_name@{get\_name}}
+\index{get\_name@{get\_name}!tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem@{tudat::low\_thrust\_trajectories::TrajectoryOptimisationProblem}}
+\doxysubsubsection{\texorpdfstring{get\_name()}{get\_name()}}
+{\footnotesize\ttfamily std\+::string tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Trajectory\+Optimisation\+Problem\+::get\+\_\+name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+Retrieve the name of the problem. 
+
+Descriptive name of the problem. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/low\+Thrust\+Optimisation\+Setup.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/low\+Thrust\+Optimisation\+Setup.\+cpp\end{DoxyCompactItemize}

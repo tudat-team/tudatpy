@@ -1,0 +1,254 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::propulsion::BodyFixedForceDirectionGuidance</compoundname>
+    <basecompoundref refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator" prot="public" virt="non-virtual">tudat::reference_frames::DependentOrientationCalculator</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1propulsion_1_1DirectionBasedForceGuidance" prot="public" virt="non-virtual">tudat::propulsion::DirectionBasedForceGuidance</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propulsion_1_1MeeCostateBasedThrustGuidance" prot="public" virt="non-virtual">tudat::propulsion::MeeCostateBasedThrustGuidance</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1propulsion_1_1OrientationBasedForceGuidance" prot="public" virt="non-virtual">tudat::propulsion::OrientationBasedForceGuidance</derivedcompoundref>
+    <includes refid="thrustGuidance_8h" local="no">thrustGuidance.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a726bb194ee7ed0d800ead3b1449779da" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::propulsion::BodyFixedForceDirectionGuidance::bodyFixedForceDirection_</definition>
+        <argsstring></argsstring>
+        <name>bodyFixedForceDirection_</name>
+        <briefdescription>
+<para>Function returning the direction of the force in the body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="95" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1ab5201df1ef26337c7ec386489e6a5cec" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::propulsion::BodyFixedForceDirectionGuidance::currentBodyFixedForceDirection_</definition>
+        <argsstring></argsstring>
+        <name>currentBodyFixedForceDirection_</name>
+        <briefdescription>
+<para>Current direction of the force in the body-fixed frame as set by last call to updateCalculator function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="98" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1ad6935329963c8c162a25b187e44479e6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::BodyFixedForceDirectionGuidance::BodyFixedForceDirectionGuidance</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d() &gt; bodyFixedForceDirection)</argsstring>
+        <name>BodyFixedForceDirectionGuidance</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>bodyFixedForceDirection</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets the direction of the force in the body-fixed frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedForceDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the direction of the force in the body-fixed frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" bodystart="45" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a34c738a626dced8c464072c23cd272d8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::propulsion::BodyFixedForceDirectionGuidance::~BodyFixedForceDirectionGuidance</definition>
+        <argsstring>()</argsstring>
+        <name>~BodyFixedForceDirectionGuidance</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="50" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" bodystart="50" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a4284988acc53bfac7681ebd44c876e74" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>virtual Eigen::Vector3d tudat::propulsion::BodyFixedForceDirectionGuidance::getCurrentForceDirectionInPropagationFrame</definition>
+        <argsstring>()=0</argsstring>
+        <name>getCurrentForceDirectionInPropagationFrame</name>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1MeeCostateBasedThrustGuidance_1a2719c7715e866b93665e0c1f78da5f53">getCurrentForceDirectionInPropagationFrame</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1DirectionBasedForceGuidance_1a38bb2a2a0f9dbe4779f2c41572a4fc58">getCurrentForceDirectionInPropagationFrame</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1OrientationBasedForceGuidance_1a9072ced143f8661246542216f41c5858">getCurrentForceDirectionInPropagationFrame</reimplementedby>
+        <briefdescription>
+<para>Function to get the force/acceleration direction in the propagation frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the force/acceleration direction in the propagation frame. Function is pure virtual and to be implemented in derived class. <simplesect kind="return"><para>Direction of force (as unit vector) expressed in propagation frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="58" column="29"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a4d00bda9b8e058f61be0589e0808989a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::propulsion::BodyFixedForceDirectionGuidance::getRotationToLocalFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getRotationToLocalFrame</name>
+        <reimplements refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1ae55893820994179e02ec6189cd9fb00b">getRotationToLocalFrame</reimplements>
+        <briefdescription>
+<para>Function to compute the rotation from the propagation frame to the body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the rotation from the propagation frame to the body-fixed frame using the algorithm implemented in the derived class. The derived class must implement the function for the inverse rotation (getRotationToGlobalFrame). <simplesect kind="return"><para>Quaternion that provides the rotation from the propagation frame to the body-fixed frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="67" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" bodystart="67" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a9c68637d16f973b22f5b06ee3aea1031" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propulsion::BodyFixedForceDirectionGuidance::updateCalculator</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>updateCalculator</name>
+        <reimplements refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1a801bc21f0df6beecea976cf5728c79ce">updateCalculator</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to update the object to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the object to the current time. This function updates only this base class, derived class must implement the updateForceDirection function that obdates the full object. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which object is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="78" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" bodystart="78" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1abac6943fd9ca3925e7228ac7d40db8f0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::propulsion::BodyFixedForceDirectionGuidance::updateForceDirection</definition>
+        <argsstring>(const double time)=0</argsstring>
+        <name>updateForceDirection</name>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1MeeCostateBasedThrustGuidance_1af0b4c70c4903a025306e6f005b5f8b92">updateForceDirection</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1DirectionBasedForceGuidance_1a4051907f746166d8d7fc9814b3e82192">updateForceDirection</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1OrientationBasedForceGuidance_1a4cd7dfac54b8948ecceb14a4565a1160">updateForceDirection</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function to update the force/acceleration direction to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the force/acceleration direction to the current time. This function is to be implemented in the derived class. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which object is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="92" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for computing the direction of a given force/acceleration. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for computing the direction of a given force/acceleration. The computation is done directly from some a priori imposed rule, possibly as a function of dependent, independent or state variables. A derived class for using the current orientation of the vehicle (as computed by some other method and retrieved from the body class) may be set using the <ref refid="classtudat_1_1propulsion_1_1OrientationBasedForceGuidance" kindref="compound">OrientationBasedForceGuidance</ref> class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::reference_frames::DependentOrientationCalculator</label>
+        <link refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator"/>
+      </node>
+      <node id="4">
+        <label>tudat::propulsion::MeeCostateBasedThrustGuidance</label>
+        <link refid="classtudat_1_1propulsion_1_1MeeCostateBasedThrustGuidance"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::propulsion::BodyFixedForceDirectionGuidance</label>
+        <link refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::propulsion::OrientationBasedForceGuidance</label>
+        <link refid="classtudat_1_1propulsion_1_1OrientationBasedForceGuidance"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::propulsion::DirectionBasedForceGuidance</label>
+        <link refid="classtudat_1_1propulsion_1_1DirectionBasedForceGuidance"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::reference_frames::DependentOrientationCalculator</label>
+        <link refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator"/>
+      </node>
+      <node id="1">
+        <label>tudat::propulsion::BodyFixedForceDirectionGuidance</label>
+        <link refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" line="36" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" bodystart="37" bodyend="99"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a726bb194ee7ed0d800ead3b1449779da" prot="protected" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>bodyFixedForceDirection_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1ad6935329963c8c162a25b187e44479e6" prot="public" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>BodyFixedForceDirectionGuidance</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1a35657f88248dcd967407407683ae0c3b" prot="public" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>computeAndGetRotationToLocalFrame</name></member>
+      <member refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1ab5201df1ef26337c7ec386489e6a5cec" prot="protected" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>currentBodyFixedForceDirection_</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1a0db024b775687211d42a35f004522d98" prot="protected" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1a412b359df31e4a698f7b8163fcfd917c" prot="public" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>DependentOrientationCalculator</name></member>
+      <member refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a4284988acc53bfac7681ebd44c876e74" prot="public" virt="pure-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>getCurrentForceDirectionInPropagationFrame</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1ac03e98cfae11d58bca82653b4efa569c" prot="public" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>getRotationMatrixToGlobalFrame</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1acfce5f24e3b395cfb907cff85723ce34" prot="public" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>getRotationMatrixToLocalFrame</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1a1b34033b2b7a0a65fa88482b3cbb46af" prot="public" virt="pure-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>getRotationToGlobalFrame</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1adc0c3adf1fa3997907446579de013a95" prot="public" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>getRotationToGlobalFrame</name></member>
+      <member refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a4d00bda9b8e058f61be0589e0808989a" prot="public" virt="virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>getRotationToLocalFrame</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1ab6633244ee25cfb6b24335ea899ec145" prot="public" virt="non-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>resetCurrentTime</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1adc03930adf46bdc8cb9702d0f62055c1" prot="public" virt="virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>resetDerivedClassTime</name></member>
+      <member refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a9c68637d16f973b22f5b06ee3aea1031" prot="public" virt="virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>updateCalculator</name></member>
+      <member refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1abac6943fd9ca3925e7228ac7d40db8f0" prot="protected" virt="pure-virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>updateForceDirection</name></member>
+      <member refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance_1a34c738a626dced8c464072c23cd272d8" prot="public" virt="virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>~BodyFixedForceDirectionGuidance</name></member>
+      <member refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator_1aea8faf33883c339c4a9542e330d4bde2" prot="public" virt="virtual"><scope>tudat::propulsion::BodyFixedForceDirectionGuidance</scope><name>~DependentOrientationCalculator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

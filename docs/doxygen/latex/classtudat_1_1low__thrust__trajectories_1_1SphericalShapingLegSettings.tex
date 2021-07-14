@@ -1,0 +1,77 @@
+\hypertarget{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings}{}\doxysection{tudat\+::low\+\_\+thrust\+\_\+trajectories\+::Spherical\+Shaping\+Leg\+Settings Class Reference}
+\label{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings}\index{tudat::low\_thrust\_trajectories::SphericalShapingLegSettings@{tudat::low\_thrust\_trajectories::SphericalShapingLegSettings}}
+
+
+Low-\/thrust leg settings for spherical shaping method.  
+
+
+
+
+{\ttfamily \#include $<$low\+Thrust\+Leg\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::low\+\_\+thrust\+\_\+trajectories\+::Spherical\+Shaping\+Leg\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_adfbf53a56eea6ce1b513d7468ea7daa3}{Spherical\+Shaping\+Leg\+Settings}} (const int number\+Of\+Revolutions, const double central\+Body\+Gravitational\+Parameter, const double initial\+Value\+Free\+Coefficient, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ root\+Finder\+Settings, const std\+::pair$<$ double, double $>$ bounds\+Free\+Coefficient=std\+::make\+\_\+pair(TUDAT\+\_\+\+NAN, TUDAT\+\_\+\+NAN))
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_a7f815cff01f4992875fa314446c8b47b}\label{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_a7f815cff01f4992875fa314446c8b47b}} 
+\mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_a7f815cff01f4992875fa314446c8b47b}{$\sim$\+Spherical\+Shaping\+Leg\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_aa5364b1c6176630251e607b31436c817}\label{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_aa5364b1c6176630251e607b31436c817}} 
+int \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_aa5364b1c6176630251e607b31436c817}{number\+Of\+Revolutions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of revolutions for the shape-\/based trajectory. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_ae9f1a18c3559a47cf07ea1609f5f0cdf}\label{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_ae9f1a18c3559a47cf07ea1609f5f0cdf}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_ae9f1a18c3559a47cf07ea1609f5f0cdf}{central\+Body\+Gravitational\+Parameter\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Gravitational parameter of the central body. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_a7a5bdd059e714c5136fecd3ae729f79c}\label{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_a7a5bdd059e714c5136fecd3ae729f79c}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_a7a5bdd059e714c5136fecd3ae729f79c}{initial\+Value\+Free\+Coefficient\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Initial guess for the free coefficient (i.\+e. coefficient of the second order component of the radial inverse polynomial). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_ad860b99e847c7a626a41f80bfe0e23f8}\label{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_ad860b99e847c7a626a41f80bfe0e23f8}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_ad860b99e847c7a626a41f80bfe0e23f8}{root\+Finder\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Root finder settings, to be used to find the free coefficient value that ensures the time of flight is correct. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_aa29e6680806d3aed264a2f649ba38c32}\label{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_aa29e6680806d3aed264a2f649ba38c32}} 
+std\+::pair$<$ double, double $>$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_aa29e6680806d3aed264a2f649ba38c32}{bounds\+Free\+Coefficient\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Bounds for the free coefficient, to be used when trying to match the required time of flight. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Low-\/thrust leg settings for spherical shaping method. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_adfbf53a56eea6ce1b513d7468ea7daa3}\label{classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings_adfbf53a56eea6ce1b513d7468ea7daa3}} 
+\index{tudat::low\_thrust\_trajectories::SphericalShapingLegSettings@{tudat::low\_thrust\_trajectories::SphericalShapingLegSettings}!SphericalShapingLegSettings@{SphericalShapingLegSettings}}
+\index{SphericalShapingLegSettings@{SphericalShapingLegSettings}!tudat::low\_thrust\_trajectories::SphericalShapingLegSettings@{tudat::low\_thrust\_trajectories::SphericalShapingLegSettings}}
+\doxysubsubsection{\texorpdfstring{SphericalShapingLegSettings()}{SphericalShapingLegSettings()}}
+{\footnotesize\ttfamily tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Spherical\+Shaping\+Leg\+Settings\+::\+Spherical\+Shaping\+Leg\+Settings (\begin{DoxyParamCaption}\item[{const int}]{number\+Of\+Revolutions,  }\item[{const double}]{central\+Body\+Gravitational\+Parameter,  }\item[{const double}]{initial\+Value\+Free\+Coefficient,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$}]{root\+Finder\+Settings,  }\item[{const std\+::pair$<$ double, double $>$}]{bounds\+Free\+Coefficient = {\ttfamily std\+:\+:make\+\_\+pair(~TUDAT\+\_\+NAN,~TUDAT\+\_\+NAN~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em number\+Of\+Revolutions} & Number of revolutions of the shape-\/based trajectory. \\
+\hline
+{\em central\+Body\+Gravitational\+Parameter} & Gravitational parameter of the central body. \\
+\hline
+{\em initial\+Value\+Free\+Coefficient} & Initial guess for the free coefficient. \\
+\hline
+{\em root\+Finder\+Settings} & Root finder settings to match the required time of flight. \\
+\hline
+{\em bounds\+Free\+Coefficient} & Boundary values for the free coefficient. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/low\+Thrust\+Leg\+Settings.\+h\end{DoxyCompactItemize}

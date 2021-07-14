@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber" prot="public" virt="non-virtual">tudat::estimatable_parameters::TidalLoveNumber&lt; Eigen::VectorXd &gt;</basecompoundref>
+    <includes refid="tidalLoveNumber_8h" local="no">tidalLoveNumber.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1ad37269bd00e4b019933ae6c1baa54ec3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::FullDegreeTidalLoveNumber::FullDegreeTidalLoveNumber</definition>
+        <argsstring>(const std::shared_ptr&lt; gravitation::BasicSolidBodyTideGravityFieldVariations &gt; gravityFieldVariationModel, const std::string &amp;associatedBody, const int degree, const bool useComplexComponents=0)</argsstring>
+        <name>FullDegreeTidalLoveNumber</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations" kindref="compound">gravitation::BasicSolidBodyTideGravityFieldVariations</ref> &gt;</type>
+          <declname>gravityFieldVariationModel</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useComplexComponents</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravityFieldVariationModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tidal gravity field variation object of which estimated paraemeter is a property </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Deformed body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of Love number that is to be estimateds </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useComplexComponents</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if the complex Love number is estimated, false if only the real part is considered </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h" line="170" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h" bodystart="170" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1a2e8a0ea3fb367c4d2c8811fbf9527a32" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::estimatable_parameters::FullDegreeTidalLoveNumber::getParameterValue</definition>
+        <argsstring>()</argsstring>
+        <name>getParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a63413b914f9e8b68705aba7048780200">getParameterValue</reimplements>
+        <briefdescription>
+<para>Get value of Love number k_{n}. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get value of Love number k_{n} (complex part as second vector entry if complex value is used) <simplesect kind="return"><para>Value of Love number k_{n} (complex part as second vector entry if complex value is used) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h" line="195" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.cpp" bodystart="20" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1afbc1e32c0ba9c2a096ed5e4d599484cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::estimatable_parameters::FullDegreeTidalLoveNumber::setParameterValue</definition>
+        <argsstring>(Eigen::VectorXd parameterValue)</argsstring>
+        <name>setParameterValue</name>
+        <reimplements refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5df35bde257a6db401ca3c3613056554">setParameterValue</reimplements>
+        <param>
+          <type>Eigen::VectorXd</type>
+          <declname>parameterValue</declname>
+        </param>
+        <briefdescription>
+<para>Reset value of Love number k_{n}. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reset value of Love number k_{n} (complex part as second vector entry if complex value is used) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New value of Love number k_{n} (complex part as second vector entry if complex value is used) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h" line="202" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.cpp" bodystart="42" bodyend="76"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for estimating the tidal Love number k_{n} at a single degree that is constant for all orders. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::TidalLoveNumber&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::TidalLoveNumber&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h" line="158" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h" bodystart="159" bodyend="204"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab4c6cbd84d2294fd1fda37ccdd42ba62" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>degree_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a4012bde7f5f26c5c590c0a149283dd4d" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1ad37269bd00e4b019933ae6c1baa54ec3" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>FullDegreeTidalLoveNumber</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1adc670898ad79d02d23cfcf82b5578ed0" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getConstraintRightHandSide</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1af7db7b4da27ca2787b0090c409087cd7" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getConstraintSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a9c6c6514f75b2efdbd30cc2292fa3d0f" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getConstraintStateMultipler</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1abd7ccee9153a7f69611739e0e3eac1d8" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getDeformingBodies</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a49859987fdf80fbd2fa0a5202a8a7708" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getDegree</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ab48fd6e320c28aadb95ad8b8603ef051" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getOrders</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a5c264285d7e3ce9ce1452928ad8e7425" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getParameterDescription</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a23de3d6116f1414d5bb905f1b523cfdc" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getParameterName</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a2759cf3ed2b33dffd603dc7db24f5419" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getParameterSize</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1a2e8a0ea3fb367c4d2c8811fbf9527a32" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1ae97f1a8ef867dcaf72ceeb5050e64629" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad2658db5b2d4ce8d380563a6d3d2a71f" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>getSumOrders</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a453189c04edbcd857fdcfedbe17a294c" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>gravityFieldVariationModel_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1ad74df68b8181bead0c87e2dd9dcf3266" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>orders_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a3d43d2db730c707b789768dad4de5ae6" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>parameterName_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a2954107f9c7c8a70c99d13b04d5d0a9c" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>parameterSize_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1FullDegreeTidalLoveNumber_1afbc1e32c0ba9c2a096ed5e4d599484cf" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>setParameterValue</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1acf1884bd1401871d7ccce169252e0302" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>sumOrders_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a267e27cfb6d3601e45b70dc2d951eb58" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>TidalLoveNumber</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1af4ea4a13a5b3ac01cb4099d03a8e14b5" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>useComplexComponents</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1adbc27edb25308e42626cc9fd28337385" prot="protected" virt="non-virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>useComplexComponents_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter_1a211a379e14476e36a7693f43be29cb11" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>~EstimatableParameter</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1TidalLoveNumber_1a2fc561a509261a00a68d7a52124658b6" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::FullDegreeTidalLoveNumber</scope><name>~TidalLoveNumber</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

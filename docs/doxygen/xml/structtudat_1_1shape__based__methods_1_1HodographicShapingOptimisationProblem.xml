@@ -1,0 +1,278 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::shape_based_methods::HodographicShapingOptimisationProblem</compoundname>
+    <includes refid="hodographicShapingOptimisationSetup_8h" local="no">hodographicShapingOptimisationSetup.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a37c7c78b8f74ad01d56dcca86f48e79c" prot="public" static="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionHodographicShaping" kindref="compound">shape_based_methods::BaseFunctionHodographicShaping</ref> &gt; &gt;</type>
+        <definition>typedef std::vector&lt; std::shared_ptr&lt; shape_based_methods::BaseFunctionHodographicShaping &gt; &gt; tudat::shape_based_methods::HodographicShapingOptimisationProblem::BaseFunctionVector</definition>
+        <argsstring></argsstring>
+        <name>BaseFunctionVector</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="126" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1ada09eff0337b17c2f899f041e410e1b3" prot="private" static="no" mutable="no">
+        <type>const std::function&lt; Eigen::Vector6d(const double) &gt;</type>
+        <definition>const std::function&lt; Eigen::Vector6d( const double ) &gt; tudat::shape_based_methods::HodographicShapingOptimisationProblem::initialStateFunction_</definition>
+        <argsstring></argsstring>
+        <name>initialStateFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="172" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a3da64fbdaf5cad6014c7e17b38514f11" prot="private" static="no" mutable="no">
+        <type>const std::function&lt; Eigen::Vector6d(const double) &gt;</type>
+        <definition>const std::function&lt; Eigen::Vector6d( const double ) &gt; tudat::shape_based_methods::HodographicShapingOptimisationProblem::finalStateFunction_</definition>
+        <argsstring></argsstring>
+        <name>finalStateFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="174" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="174" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a1366354fa4ecf004788f998025d1af5b" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::HodographicShapingOptimisationProblem::centralBodyGravitationalParameter_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameter_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="176" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a5283538a7dcc99ba1e313227f8ae632f" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::shape_based_methods::HodographicShapingOptimisationProblem::numberOfRevolutions_</definition>
+        <argsstring></argsstring>
+        <name>numberOfRevolutions_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="178" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1acedcdfb0d1b31faba5367c2765258ff8" prot="private" static="no" mutable="no">
+        <type>std::function&lt; std::vector&lt; BaseFunctionVector &gt; const double) &gt;</type>
+        <definition>std::function&lt; std::vector&lt; BaseFunctionVector &gt; const double ) &gt; tudat::shape_based_methods::HodographicShapingOptimisationProblem::basisFunctionsFunction_</definition>
+        <argsstring></argsstring>
+        <name>basisFunctionsFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="180" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a34796539a4647b67ff0135829593aee2" prot="private" static="no" mutable="no">
+        <type>const std::vector&lt; std::vector&lt; double &gt; &gt;</type>
+        <definition>const std::vector&lt; std::vector&lt; double &gt; &gt; tudat::shape_based_methods::HodographicShapingOptimisationProblem::problemBounds_</definition>
+        <argsstring></argsstring>
+        <name>problemBounds_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="182" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="182" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a3eb5baa7d1fe3950bbc227407b10630e" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::shape_based_methods::HodographicShapingOptimisationProblem::minimizeMaximumThrust_</definition>
+        <argsstring></argsstring>
+        <name>minimizeMaximumThrust_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="184" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a5637158a4db0d981aa3eda806bcabcbc" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::HodographicShapingOptimisationProblem::initialMass_</definition>
+        <argsstring></argsstring>
+        <name>initialMass_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="186" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1ad78f871a0ab176e7bef89addc3dfe947" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::HodographicShapingOptimisationProblem::HodographicShapingOptimisationProblem</definition>
+        <argsstring>()</argsstring>
+        <name>HodographicShapingOptimisationProblem</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="128" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="128" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1ab003dbdadfce89d3cc81bd85813eb4e6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::HodographicShapingOptimisationProblem::HodographicShapingOptimisationProblem</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector6d(const double) &gt; &amp;initialStateFunction, const std::function&lt; Eigen::Vector6d(const double) &gt; &amp;finalStateFunction, const double centralBodyGravitationalParameter, const int numberOfRevolutions, const std::function&lt; std::vector&lt; BaseFunctionVector &gt;(const double) &gt; basisFunctionsFunction, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;freeCoefficientsBounds, const bool minimizeMaximumThrust=false, const double initialMass=TUDAT_NAN)</argsstring>
+        <name>HodographicShapingOptimisationProblem</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d(const double) &gt; &amp;</type>
+          <declname>initialStateFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d(const double) &gt; &amp;</type>
+          <declname>finalStateFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfRevolutions</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; std::vector&lt; BaseFunctionVector &gt;(const double) &gt;</type>
+          <declname>basisFunctionsFunction</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;</type>
+          <declname>freeCoefficientsBounds</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>minimizeMaximumThrust</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>initialMass</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="130" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="130" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1abad9021bd110fd9d2dbde3ce554027bf" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::shape_based_methods::HodographicShapingOptimisationProblem::fitness</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;x) const</argsstring>
+        <name>fitness</name>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="150" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.cpp" bodystart="72" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1ad4d007eb751a10b5d80354fd311c600d" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::pair&lt; std::vector&lt; double &gt;, std::vector&lt; double &gt; &gt;</type>
+        <definition>std::pair&lt; std::vector&lt; double &gt;, std::vector&lt; double &gt; &gt; tudat::shape_based_methods::HodographicShapingOptimisationProblem::get_bounds</definition>
+        <argsstring>() const</argsstring>
+        <name>get_bounds</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="152" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="152" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a282c1ea50a7785945afeba90a6f2e4bc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename Archive</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::shape_based_methods::HodographicShapingOptimisationProblem::serialize</definition>
+        <argsstring>(Archive &amp;ar)</argsstring>
+        <name>serialize</name>
+        <param>
+          <type>Archive &amp;</type>
+          <declname>ar</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="158" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="158" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a7a9082e37bf5763ab198f00106177378" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>vector_double::size_type</type>
+        <definition>vector_double::size_type tudat::shape_based_methods::HodographicShapingOptimisationProblem::get_nobj</definition>
+        <argsstring>() const</argsstring>
+        <name>get_nobj</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="163" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="163" bodyend="166"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Test function for a new low-thrust trajectory class in Tudat. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" line="124" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h" bodystart="125" bodyend="188"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a37c7c78b8f74ad01d56dcca86f48e79c" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>BaseFunctionVector</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1acedcdfb0d1b31faba5367c2765258ff8" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>basisFunctionsFunction_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a1366354fa4ecf004788f998025d1af5b" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>centralBodyGravitationalParameter_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a3da64fbdaf5cad6014c7e17b38514f11" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>finalStateFunction_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1abad9021bd110fd9d2dbde3ce554027bf" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>fitness</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1ad4d007eb751a10b5d80354fd311c600d" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>get_bounds</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a7a9082e37bf5763ab198f00106177378" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>get_nobj</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1ad78f871a0ab176e7bef89addc3dfe947" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>HodographicShapingOptimisationProblem</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1ab003dbdadfce89d3cc81bd85813eb4e6" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>HodographicShapingOptimisationProblem</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a5637158a4db0d981aa3eda806bcabcbc" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>initialMass_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1ada09eff0337b17c2f899f041e410e1b3" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>initialStateFunction_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a3eb5baa7d1fe3950bbc227407b10630e" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>minimizeMaximumThrust_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a5283538a7dcc99ba1e313227f8ae632f" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>numberOfRevolutions_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a34796539a4647b67ff0135829593aee2" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>problemBounds_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1HodographicShapingOptimisationProblem_1a282c1ea50a7785945afeba90a6f2e4bc" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::HodographicShapingOptimisationProblem</scope><name>serialize</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

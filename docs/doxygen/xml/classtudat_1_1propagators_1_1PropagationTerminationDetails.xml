@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1PropagationTerminationDetails" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::PropagationTerminationDetails</compoundname>
+    <derivedcompoundref refid="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition" prot="public" virt="non-virtual">tudat::propagators::PropagationTerminationDetailsFromHybridCondition</derivedcompoundref>
+    <includes refid="propagationTermination_8h" local="no">propagationTermination.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1PropagationTerminationDetails_1aa5c1a82ec15f9d5d5f53be975f3ccce0" prot="protected" static="no" mutable="no">
+        <type>PropagationTerminationReason</type>
+        <definition>PropagationTerminationReason tudat::propagators::PropagationTerminationDetails::propagationTerminationReason_</definition>
+        <argsstring></argsstring>
+        <name>propagationTerminationReason_</name>
+        <briefdescription>
+<para>Reason for termination. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="448" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="448" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a81baaf86e71af2086033ca94bda50240" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::propagators::PropagationTerminationDetails::terminationOnExactCondition_</definition>
+        <argsstring></argsstring>
+        <name>terminationOnExactCondition_</name>
+        <briefdescription>
+<para>Boolean to denote whether exact termination conditions are used. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean to denote whether exact termination conditions are used. True if exact termination condition is used, false if not, -1 if neither is relevant. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="455" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="455" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a47927de010a18b3b632fb6db90f1efe5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::PropagationTerminationDetails::PropagationTerminationDetails</definition>
+        <argsstring>(const PropagationTerminationReason propagationTerminationReason, const bool terminationOnExactCondition=-1)</argsstring>
+        <name>PropagationTerminationDetails</name>
+        <param>
+          <type>const PropagationTerminationReason</type>
+          <declname>propagationTerminationReason</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>terminationOnExactCondition</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>propagationTerminationReason</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reason for termination </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terminationOnExactCondition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if exact termination condition is used, false if not, -1 if neither is relevant </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="417" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="417" bodyend="420"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a0f2eed4e5197a60cd8d6ad3bf0f7c2e0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::propagators::PropagationTerminationDetails::~PropagationTerminationDetails</definition>
+        <argsstring>()</argsstring>
+        <name>~PropagationTerminationDetails</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="423" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="423" bodyend="423"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a37a193e85c45b62afea680fcfb0361d7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>PropagationTerminationReason</type>
+        <definition>PropagationTerminationReason tudat::propagators::PropagationTerminationDetails::getPropagationTerminationReason</definition>
+        <argsstring>()</argsstring>
+        <name>getPropagationTerminationReason</name>
+        <briefdescription>
+<para>Function to retrieve reason for termination. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve reason for termination <simplesect kind="return"><para>Reason for termination </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="430" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="430" bodyend="433"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a6c54a1bb1e7af412b1b03516f1ddffb4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::propagators::PropagationTerminationDetails::getTerminationOnExactCondition</definition>
+        <argsstring>()</argsstring>
+        <name>getTerminationOnExactCondition</name>
+        <briefdescription>
+<para>Function to retrieve boolean to denote whether exact termination conditions are used. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve boolean to denote whether exact termination conditions are used. <simplesect kind="return"><para>Boolean to denote whether exact termination conditions are used. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="440" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="440" bodyend="443"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for storing details on the propagation termination. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::propagators::PropagationTerminationDetails</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationDetails"/>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationDetailsFromHybridCondition</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationDetailsFromHybridCondition"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="407" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="408" bodyend="457"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a37a193e85c45b62afea680fcfb0361d7" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetails</scope><name>getPropagationTerminationReason</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a6c54a1bb1e7af412b1b03516f1ddffb4" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetails</scope><name>getTerminationOnExactCondition</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a47927de010a18b3b632fb6db90f1efe5" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetails</scope><name>PropagationTerminationDetails</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1aa5c1a82ec15f9d5d5f53be975f3ccce0" prot="protected" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetails</scope><name>propagationTerminationReason_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a81baaf86e71af2086033ca94bda50240" prot="protected" virt="non-virtual"><scope>tudat::propagators::PropagationTerminationDetails</scope><name>terminationOnExactCondition_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationDetails_1a0f2eed4e5197a60cd8d6ad3bf0f7c2e0" prot="public" virt="virtual"><scope>tudat::propagators::PropagationTerminationDetails</scope><name>~PropagationTerminationDetails</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

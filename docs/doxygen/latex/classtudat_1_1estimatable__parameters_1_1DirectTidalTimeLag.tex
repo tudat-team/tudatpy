@@ -1,0 +1,147 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Direct\+Tidal\+Time\+Lag Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag}\index{tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}}
+
+
+Interface class for estimation the tidal time lag in a direct tidal acceleration model.  
+
+
+
+
+{\ttfamily \#include $<$direct\+Tidal\+Time\+Lag.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Direct\+Tidal\+Time\+Lag\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_adff9220539e4b12b17c374f798ec4cf8}{Direct\+Tidal\+Time\+Lag}} (const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration}{gravitation\+::\+Direct\+Tidal\+Dissipation\+Acceleration}} $>$ $>$ tidal\+Acceleration\+Models, const std\+::string \&deformed\+Body, const std\+::vector$<$ std\+::string $>$ bodies\+Causing\+Deformation=std\+::vector$<$ std\+::string $>$())
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a3d8c1778af68733e619c2d48fe60878d}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the tidal time lag value. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a0ae0156463bb15faa2fbec0297d03ca6}{set\+Parameter\+Value}} (double parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Function to reset the tidal time lag value. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a25a7399c3ff4d7f09b4bf0cdf2f514f5}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration}{gravitation\+::\+Direct\+Tidal\+Dissipation\+Acceleration}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a6dee7f2d6b928169400d08f7eec070f5}{get\+Tidal\+Acceleration\+Models}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the list of acceleration models of which the tidal time lag is to be estimated. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_ac909af7d34cf0a2637ed1dce4c543705}{get\+Bodies\+Causing\+Deformation}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the list of bodies causing tidal deformation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for estimation the tidal time lag in a direct tidal acceleration model. 
+
+Interface class for estimation the tidal time lag in a direct tidal acceleration modell (e.\+g. without modification of deformed body\textquotesingle{}s gravity field. Modifies the tidal time lag parameter of a (set of) Direct\+Tidal\+Dissipation\+Acceleration objects 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_adff9220539e4b12b17c374f798ec4cf8}\label{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_adff9220539e4b12b17c374f798ec4cf8}} 
+\index{tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}!DirectTidalTimeLag@{DirectTidalTimeLag}}
+\index{DirectTidalTimeLag@{DirectTidalTimeLag}!tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}}
+\doxysubsubsection{\texorpdfstring{DirectTidalTimeLag()}{DirectTidalTimeLag()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag\+::\+Direct\+Tidal\+Time\+Lag (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration}{gravitation\+::\+Direct\+Tidal\+Dissipation\+Acceleration}} $>$ $>$}]{tidal\+Acceleration\+Models,  }\item[{const std\+::string \&}]{deformed\+Body,  }\item[{const std\+::vector$<$ std\+::string $>$}]{bodies\+Causing\+Deformation = {\ttfamily std\+:\+:vector$<$~std\+:\+:string~$>$(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em tidal\+Acceleration\+Models} & List of acceleration models of which the tidal time lag is to be estimated \\
+\hline
+{\em deformed\+Body} & Name of body being tidally deformed \\
+\hline
+{\em bodies\+Causing\+Deformation} & List of bodies causing tidal deformation (empty if all bodies causing deformation in Acceleration\+Map are used) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_ac909af7d34cf0a2637ed1dce4c543705}\label{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_ac909af7d34cf0a2637ed1dce4c543705}} 
+\index{tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}!getBodiesCausingDeformation@{getBodiesCausingDeformation}}
+\index{getBodiesCausingDeformation@{getBodiesCausingDeformation}!tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}}
+\doxysubsubsection{\texorpdfstring{getBodiesCausingDeformation()}{getBodiesCausingDeformation()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::string $>$ tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag\+::get\+Bodies\+Causing\+Deformation (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the list of bodies causing tidal deformation. 
+
+Function to retrieve list of bodies causing tidal deformation \begin{DoxyReturn}{Returns}
+List ofbodies causing tidal deformation 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a25a7399c3ff4d7f09b4bf0cdf2f514f5}\label{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a25a7399c3ff4d7f09b4bf0cdf2f514f5}} 
+\index{tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter. 
+
+Function to retrieve the size of the parameter \begin{DoxyReturn}{Returns}
+Size of parameter value, 1 for this parameter 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a3d8c1778af68733e619c2d48fe60878d}\label{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a3d8c1778af68733e619c2d48fe60878d}} 
+\index{tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily double tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the tidal time lag value. 
+
+Function to retrieve the tidal time lag value \begin{DoxyReturn}{Returns}
+Current tidal time lag value 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a6dee7f2d6b928169400d08f7eec070f5}\label{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a6dee7f2d6b928169400d08f7eec070f5}} 
+\index{tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}!getTidalAccelerationModels@{getTidalAccelerationModels}}
+\index{getTidalAccelerationModels@{getTidalAccelerationModels}!tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}}
+\doxysubsubsection{\texorpdfstring{getTidalAccelerationModels()}{getTidalAccelerationModels()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration}{gravitation\+::\+Direct\+Tidal\+Dissipation\+Acceleration}} $>$ $>$ tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag\+::get\+Tidal\+Acceleration\+Models (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the list of acceleration models of which the tidal time lag is to be estimated. 
+
+Function to retrieve list of acceleration models of which the tidal time lag is to be estimated \begin{DoxyReturn}{Returns}
+List of acceleration models of which the tidal time lag is to be estimated 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a0ae0156463bb15faa2fbec0297d03ca6}\label{classtudat_1_1estimatable__parameters_1_1DirectTidalTimeLag_a0ae0156463bb15faa2fbec0297d03ca6}} 
+\index{tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::DirectTidalTimeLag@{tudat::estimatable\_parameters::DirectTidalTimeLag}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Direct\+Tidal\+Time\+Lag\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{double}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the tidal time lag value. 
+
+Function to reset the tidal time lag value 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New tidal time lag value \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/direct\+Tidal\+Time\+Lag.\+h\end{DoxyCompactItemize}

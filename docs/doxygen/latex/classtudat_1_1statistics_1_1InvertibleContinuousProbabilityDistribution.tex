@@ -1,0 +1,62 @@
+\hypertarget{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution}{}\doxysection{tudat\+::statistics\+::Invertible\+Continuous\+Probability\+Distribution$<$ Independent\+Variable\+Type $>$ Class Template Reference}
+\label{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution}\index{tudat::statistics::InvertibleContinuousProbabilityDistribution$<$ IndependentVariableType $>$@{tudat::statistics::InvertibleContinuousProbabilityDistribution$<$ IndependentVariableType $>$}}
+
+
+Derived class of \mbox{\hyperlink{classtudat_1_1statistics_1_1ContinuousProbabilityDistribution}{Continuous\+Probability\+Distribution}} that includes inverse cdf computation.  
+
+
+
+
+{\ttfamily \#include $<$continuous\+Probability\+Distributions.\+h$>$}
+
+Inheritance diagram for tudat\+::statistics\+::Invertible\+Continuous\+Probability\+Distribution$<$ Independent\+Variable\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution_a805f591ad936812ec626c9fbe1dcb2ab}\label{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution_a805f591ad936812ec626c9fbe1dcb2ab}} 
+virtual \mbox{\hyperlink{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution_a805f591ad936812ec626c9fbe1dcb2ab}{$\sim$\+Invertible\+Continuous\+Probability\+Distribution}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution_a0c0afc377db1343a9d97c6b8153dbb54}{evaluate\+Inverse\+Cdf}} (const Independent\+Variable\+Type independent\+Variable)=0
+\begin{DoxyCompactList}\small\item\em Function to evaluate inverse cdf of distribution. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type$>$\newline
+class tudat\+::statistics\+::\+Invertible\+Continuous\+Probability\+Distribution$<$ Independent\+Variable\+Type $>$}
+
+Derived class of \mbox{\hyperlink{classtudat_1_1statistics_1_1ContinuousProbabilityDistribution}{Continuous\+Probability\+Distribution}} that includes inverse cdf computation. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution_a0c0afc377db1343a9d97c6b8153dbb54}\label{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution_a0c0afc377db1343a9d97c6b8153dbb54}} 
+\index{tudat::statistics::InvertibleContinuousProbabilityDistribution$<$ IndependentVariableType $>$@{tudat::statistics::InvertibleContinuousProbabilityDistribution$<$ IndependentVariableType $>$}!evaluateInverseCdf@{evaluateInverseCdf}}
+\index{evaluateInverseCdf@{evaluateInverseCdf}!tudat::statistics::InvertibleContinuousProbabilityDistribution$<$ IndependentVariableType $>$@{tudat::statistics::InvertibleContinuousProbabilityDistribution$<$ IndependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{evaluateInverseCdf()}{evaluateInverseCdf()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type $>$ \\
+virtual double \mbox{\hyperlink{classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution}{tudat\+::statistics\+::\+Invertible\+Continuous\+Probability\+Distribution}}$<$ Independent\+Variable\+Type $>$\+::evaluate\+Inverse\+Cdf (\begin{DoxyParamCaption}\item[{const Independent\+Variable\+Type}]{independent\+Variable }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function to evaluate inverse cdf of distribution. 
+
+Function to evaluate inverse cumulative distribution function at given probability value 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variable} & Value of probability at which inverse cdf is to be computed (must be in the domain \mbox{[}0,1\mbox{]}). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Evaluated inverse cdf 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1statistics_1_1BoostContinuousProbabilityDistribution_a37b9839a1ea5dd3c71a1f10b5ea65fbb}{tudat\+::statistics\+::\+Boost\+Continuous\+Probability\+Distribution$<$ Boost\+Distribution\+Type $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/statistics/continuous\+Probability\+Distributions.\+h\end{DoxyCompactItemize}

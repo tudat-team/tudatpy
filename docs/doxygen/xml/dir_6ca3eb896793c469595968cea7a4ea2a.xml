@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_6ca3eb896793c469595968cea7a4ea2a" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials</compoundname>
+    <innerfile refid="angularPositionPartial_8cpp">angularPositionPartial.cpp</innerfile>
+    <innerfile refid="differencedOneWayRangeRatePartial_8cpp">differencedOneWayRangeRatePartial.cpp</innerfile>
+    <innerfile refid="firstOrderRelativisticPartial_8cpp">firstOrderRelativisticPartial.cpp</innerfile>
+    <innerfile refid="lightTimeCorrectionPartial_8cpp">lightTimeCorrectionPartial.cpp</innerfile>
+    <innerfile refid="nWayRangePartial_8cpp">nWayRangePartial.cpp</innerfile>
+    <innerfile refid="observationPartial_8cpp">observationPartial.cpp</innerfile>
+    <innerfile refid="oneWayDopplerPartial_8cpp">oneWayDopplerPartial.cpp</innerfile>
+    <innerfile refid="oneWayRangePartial_8cpp">oneWayRangePartial.cpp</innerfile>
+    <innerfile refid="positionPartials_8cpp">positionPartials.cpp</innerfile>
+    <innerfile refid="rotationMatrixPartial_8cpp">rotationMatrixPartial.cpp</innerfile>
+    <innerfile refid="twoWayDopplerPartial_8cpp">twoWayDopplerPartial.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/"/>
+  </compounddef>
+</doxygen>

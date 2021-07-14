@@ -1,0 +1,374 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1propulsion" kind="namespace" language="C++">
+    <compoundname>tudat::propulsion</compoundname>
+    <innerclass refid="classtudat_1_1propulsion_1_1MeeCostateBasedThrustGuidance" prot="public">tudat::propulsion::MeeCostateBasedThrustGuidance</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1FromThrustMassRateModel" prot="public">tudat::propulsion::FromThrustMassRateModel</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1ThrustAcceleration" prot="public">tudat::propulsion::ThrustAcceleration</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1MomentumWheelDesaturationThrustAcceleration" prot="public">tudat::propulsion::MomentumWheelDesaturationThrustAcceleration</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1BodyFixedForceDirectionGuidance" prot="public">tudat::propulsion::BodyFixedForceDirectionGuidance</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1DirectionBasedForceGuidance" prot="public">tudat::propulsion::DirectionBasedForceGuidance</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1OrientationBasedForceGuidance" prot="public">tudat::propulsion::OrientationBasedForceGuidance</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper" prot="public">tudat::propulsion::ThrustMagnitudeWrapper</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper" prot="public">tudat::propulsion::CustomThrustMagnitudeWrapper</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1MeeCostatesBangBangThrustMagnitudeWrapper" prot="public">tudat::propulsion::MeeCostatesBangBangThrustMagnitudeWrapper</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1ThrustMagnitudeFromEngineWrapper" prot="public">tudat::propulsion::ThrustMagnitudeFromEngineWrapper</innerclass>
+    <innerclass refid="classtudat_1_1propulsion_1_1ParameterizedThrustMagnitudeWrapper" prot="public">tudat::propulsion::ParameterizedThrustMagnitudeWrapper</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="thrustMagnitudeWrapper_8h_1a9d722dbe7222d6831e295128d3f2e6f3" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ThrustIndependentVariables</name>
+        <enumvalue id="thrustMagnitudeWrapper_8h_1a9d722dbe7222d6831e295128d3f2e6f3a0f9d56f48370b6ef4edf0761c14b509a" prot="public">
+          <name>mach_number_dependent_thrust</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="thrustMagnitudeWrapper_8h_1a9d722dbe7222d6831e295128d3f2e6f3a961e626cda2ed0e70a0104612e162ced" prot="public">
+          <name>altitude_dependent_thrust</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="thrustMagnitudeWrapper_8h_1a9d722dbe7222d6831e295128d3f2e6f3a88e2d6b9784ab8b4572d1a9a6b0ceb35" prot="public">
+          <name>density_dependent_thrust</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="thrustMagnitudeWrapper_8h_1a9d722dbe7222d6831e295128d3f2e6f3aac5a741b8b031ace666895b57f235cc9" prot="public">
+          <name>dynamic_pressure_dependent_thrust</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="thrustMagnitudeWrapper_8h_1a9d722dbe7222d6831e295128d3f2e6f3acd45385fafd8260090bd5ee79eab221c" prot="public">
+          <name>pressure_dependent_thrust</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="thrustMagnitudeWrapper_8h_1a9d722dbe7222d6831e295128d3f2e6f3a3bce6e15e32abe9e6347b660b5a26647" prot="public">
+          <name>guidance_input_dependent_thrust</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="thrustMagnitudeWrapper_8h_1a9d722dbe7222d6831e295128d3f2e6f3a87fe9cc006e15179a5b643fc0f325427" prot="public">
+          <name>throttle_dependent_thrust</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Variables on which parameterized thrust can depend. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" line="528" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustMagnitudeWrapper.h" bodystart="529" bodyend="537"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="thrustAccelerationModel_8h_1a38245cdddad5ff8451699be0e0592821" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propulsion::mergeUpdateFunctions</definition>
+        <argsstring>(const std::function&lt; void(const double) &gt; updateFunction1, const std::function&lt; void(const double) &gt; updateFunction2, const double time)</argsstring>
+        <name>mergeUpdateFunctions</name>
+        <param>
+          <type>const std::function&lt; void(const double) &gt;</type>
+          <declname>updateFunction1</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; void(const double) &gt;</type>
+          <declname>updateFunction2</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function used as interface to merge two update functions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function used as interface to merge two update functions. Calling this function will update the two update functions (in order) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>updateFunction1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First update function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>updateFunction2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second update function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which both functions are to be updated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustAccelerationModel.h" line="39" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustAccelerationModel.h" bodystart="39" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="thrustFunctions_8h_1a5ba4fbb3c1631ac3c019c32a125937b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::propulsion::computeThrustFromSpecificImpulse</definition>
+        <argsstring>(const double propellantMassRate, const double specificImpulse)</argsstring>
+        <name>computeThrustFromSpecificImpulse</name>
+        <param>
+          <type>const double</type>
+          <declname>propellantMassRate</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specificImpulse</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute engine thrust from propellant mass rate and specific impulse. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute engine thrust from propellant mass rate and specific impulse <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>propellantMassRate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Propellant mass rate </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulse</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Specific impulse (normalized with g0 from physical_constants namespace) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total engine thrust </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustFunctions.cpp" line="22" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustFunctions.cpp" bodystart="22" bodyend="26" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustFunctions.h" declline="27" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="thrustFunctions_8h_1a45a4d2a009cc7583b59d35d861ac0637" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::propulsion::computePropellantMassRateFromSpecificImpulse</definition>
+        <argsstring>(const double thrustMagnitude, const double specificImpulse)</argsstring>
+        <name>computePropellantMassRateFromSpecificImpulse</name>
+        <param>
+          <type>const double</type>
+          <declname>thrustMagnitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specificImpulse</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute propellant mass rate from engine thrust and specific impulse. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute propellant mass rate from engine thrust and specific impulse <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustMagnitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total engine thrust </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificImpulse</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Specific impulse (normalized with g0 from physical_constants namespace) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Propellant mass rate </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustFunctions.cpp" line="29" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustFunctions.cpp" bodystart="29" bodyend="33" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustFunctions.h" declline="37" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="thrustGuidance_8h_1a26332d30966ef60314aa2be51f426e4d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::propulsion::getForceDirectionColinearWithVelocity</definition>
+        <argsstring>(const std::function&lt; void(Eigen::Vector6d &amp;) &gt; currentStateFunction, const double currentTime, const bool putForceInOppositeDirection)</argsstring>
+        <name>getForceDirectionColinearWithVelocity</name>
+        <param>
+          <type>const std::function&lt; void(Eigen::Vector6d &amp;) &gt;</type>
+          <declname>currentStateFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>putForceInOppositeDirection</declname>
+        </param>
+        <briefdescription>
+<para>Function to get the unit vector colinear with velocity segment of a translational state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the unit vector colinear with velocity segment of a translational state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning (by reference) translational Cartesian state from which the unit velocity vector is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which computation is to be done (not used here; included for interface compatibility). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>putForceInOppositeDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the output vector should be in opposite (if true) or same direction (if false) as velocity segment of currentState </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unit vector colinear with velocity segment of currentState. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustGuidance.cpp" line="20" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustGuidance.cpp" bodystart="20" bodyend="27" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" declline="112" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="thrustGuidance_8h_1a58e2bafcdebcd931b3d9e36e5ee35ba6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::propulsion::getForceDirectionColinearWithPosition</definition>
+        <argsstring>(const std::function&lt; void(Eigen::Vector6d &amp;) &gt; currentStateFunction, const double currentTime, const bool putForceInOppositeDirection)</argsstring>
+        <name>getForceDirectionColinearWithPosition</name>
+        <param>
+          <type>const std::function&lt; void(Eigen::Vector6d &amp;) &gt;</type>
+          <declname>currentStateFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>putForceInOppositeDirection</declname>
+        </param>
+        <briefdescription>
+<para>Function to get the unit vector colinear with position segment of a translational state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the unit vector colinear with position segment of a translational state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning (by reference) translational Cartesian state from which the unit position vector is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which computation is to be done (not used here; included for interface compatibility). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>putForceInOppositeDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the output vector should be in opposite (if true) or same direction (if false) as position segment of current state </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unit vector colinear with position segment of current state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustGuidance.cpp" line="30" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustGuidance.cpp" bodystart="30" bodyend="37" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" declline="126" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="thrustGuidance_8h_1a90760ddd4b647763213312e67d1e056d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::propulsion::getForceDirectionFromTimeOnlyFunction</definition>
+        <argsstring>(const double currentTime, const std::function&lt; Eigen::Vector3d(const double) &gt; timeOnlyFunction)</argsstring>
+        <name>getForceDirectionFromTimeOnlyFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>timeOnlyFunction</declname>
+        </param>
+        <briefdescription>
+<para>Function to get the force direction from a time-only function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the force direction from a time-only function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeOnlyFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning unit vector (thrust direction) as a funtion of time. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Thrust direction. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustGuidance.cpp" line="40" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propulsion/thrustGuidance.cpp" bodystart="40" bodyend="45" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/thrustGuidance.h" declline="137" declcolumn="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/costateBasedThrustGuidance.h" line="33" column="1"/>
+  </compounddef>
+</doxygen>

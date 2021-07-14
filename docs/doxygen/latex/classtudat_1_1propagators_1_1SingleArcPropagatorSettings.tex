@@ -1,0 +1,197 @@
+\hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{}\doxysection{tudat\+::propagators\+::Single\+Arc\+Propagator\+Settings$<$ State\+Scalar\+Type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+
+
+Base class for defining setting of a propagator for single-\/arc dynamics.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Single\+Arc\+Propagator\+Settings$<$ State\+Scalar\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4c6a35e5406aa71ea132e0a25f179b4d}{Single\+Arc\+Propagator\+Settings}} (const Integrated\+State\+Type state\+Type, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ initial\+Body\+States, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ termination\+Settings, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$ dependent\+Variables\+To\+Save=std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$(), const double print\+Interval=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a9627bc630c195255a9d8e7e55bdd4471}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a9627bc630c195255a9d8e7e55bdd4471}} 
+virtual \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a9627bc630c195255a9d8e7e55bdd4471}{$\sim$\+Single\+Arc\+Propagator\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_adf9a0194f420a4eb6c949ef3400eaf5f}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_adf9a0194f420a4eb6c949ef3400eaf5f}} 
+Integrated\+State\+Type \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_adf9a0194f420a4eb6c949ef3400eaf5f}{get\+State\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Type of state being propagated. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_ab52769df71f2c289a575df9457c711c7}{get\+Termination\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve settings for creating the object that checks whether the propagation is finished. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_ad60d725357ae418dd6c785a371b8213b}{reset\+Termination\+Settings}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ termination\+Settings)
+\begin{DoxyCompactList}\small\item\em Function to reset settings for creating the object that checks whether the propagation is finished. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a7d351d858e2042536fe838c3cd2570f3}{get\+Dependent\+Variables\+To\+Save}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve settings for the dependent variables that are to be saved during propagation (default none). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a5aaa9e6eca4fb6ba7650293762df42af}{reset\+Dependent\+Variables\+To\+Save}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$ \&dependent\+Variables\+To\+Save)
+\begin{DoxyCompactList}\small\item\em Function to reset settings for the dependent variables that are to be saved during propagation. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a134d7c5ef645d93c24eb5207d140b9c3}{get\+Print\+Interval}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve how often the current state and time are to be printed to console. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a26029ffd00ed5cf58a12f2ad33208211}{set\+Termination\+Settings}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ termination\+Settings)
+\begin{DoxyCompactList}\small\item\em Function to modify settings for creating the object that checks whether the propagation is finished. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a09efbe053ab9fdd928989c81fd3e7d1d}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a09efbe053ab9fdd928989c81fd3e7d1d}} 
+Integrated\+State\+Type \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a09efbe053ab9fdd928989c81fd3e7d1d}{state\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of state being propagated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4840694cc192b5e09eef2af31cc24185}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4840694cc192b5e09eef2af31cc24185}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4840694cc192b5e09eef2af31cc24185}{termination\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Settings for creating the object that checks whether the propagation is finished. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a9dd65fe2bf4a7c627e579bd72c8f0561}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a9dd65fe2bf4a7c627e579bd72c8f0561}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a9dd65fe2bf4a7c627e579bd72c8f0561}{dependent\+Variables\+To\+Save\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Settings for the dependent variables that are to be saved during propagation (default none). \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4a186ce31f706e1d054035dacb8ee2bd}{print\+Interval\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename State\+Scalar\+Type = double$>$\newline
+class tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings$<$ State\+Scalar\+Type $>$}
+
+Base class for defining setting of a propagator for single-\/arc dynamics. 
+
+Base class for defining setting of a propagator for single-\/arc dynamics. This class is non-\/functional, and each state type requires its own derived class (which may have multiple derived classes of its own). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4c6a35e5406aa71ea132e0a25f179b4d}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4c6a35e5406aa71ea132e0a25f179b4d}} 
+\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}!SingleArcPropagatorSettings@{SingleArcPropagatorSettings}}
+\index{SingleArcPropagatorSettings@{SingleArcPropagatorSettings}!tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{SingleArcPropagatorSettings()}{SingleArcPropagatorSettings()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{Single\+Arc\+Propagator\+Settings}} (\begin{DoxyParamCaption}\item[{const Integrated\+State\+Type}]{state\+Type,  }\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$}]{initial\+Body\+States,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$}]{termination\+Settings,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$}]{dependent\+Variables\+To\+Save = {\ttfamily std\+:\+:shared\+\_\+ptr$<$~\mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}}~$>$(~)},  }\item[{const double}]{print\+Interval = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em state\+Type} & Type of state being propagated \\
+\hline
+{\em initial\+Body\+States} & Initial state used as input for numerical integration \\
+\hline
+{\em termination\+Settings} & Settings for creating the object that checks whether the propagation is finished. \\
+\hline
+{\em dependent\+Variables\+To\+Save} & Settings for the dependent variables that are to be saved during propagation (default none). \\
+\hline
+{\em print\+Interval} & Variable indicating how often (once per print\+Interval\+\_\+ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a7d351d858e2042536fe838c3cd2570f3}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a7d351d858e2042536fe838c3cd2570f3}} 
+\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}!getDependentVariablesToSave@{getDependentVariablesToSave}}
+\index{getDependentVariablesToSave@{getDependentVariablesToSave}!tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getDependentVariablesToSave()}{getDependentVariablesToSave()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::get\+Dependent\+Variables\+To\+Save (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve settings for the dependent variables that are to be saved during propagation (default none). 
+
+Function to retrieve settings for the dependent variables that are to be saved during propagation (default none). \begin{DoxyReturn}{Returns}
+Settings for the dependent variables that are to be saved during propagation (default none). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a134d7c5ef645d93c24eb5207d140b9c3}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a134d7c5ef645d93c24eb5207d140b9c3}} 
+\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}!getPrintInterval@{getPrintInterval}}
+\index{getPrintInterval@{getPrintInterval}!tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getPrintInterval()}{getPrintInterval()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::get\+Print\+Interval (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve how often the current state and time are to be printed to console. 
+
+Function to retrieve how often the current state and time are to be printed to console \begin{DoxyReturn}{Returns}
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} intercal with which the current state and time are to be printed to console (default NaN, meaning never). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_ab52769df71f2c289a575df9457c711c7}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_ab52769df71f2c289a575df9457c711c7}} 
+\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}!getTerminationSettings@{getTerminationSettings}}
+\index{getTerminationSettings@{getTerminationSettings}!tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{getTerminationSettings()}{getTerminationSettings()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::get\+Termination\+Settings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve settings for creating the object that checks whether the propagation is finished. 
+
+Function to retrieve settings for creating the object that checks whether the propagation is finished. \begin{DoxyReturn}{Returns}
+Settings for creating the object that checks whether the propagation is finished. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a5aaa9e6eca4fb6ba7650293762df42af}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a5aaa9e6eca4fb6ba7650293762df42af}} 
+\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}!resetDependentVariablesToSave@{resetDependentVariablesToSave}}
+\index{resetDependentVariablesToSave@{resetDependentVariablesToSave}!tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetDependentVariablesToSave()}{resetDependentVariablesToSave()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::reset\+Dependent\+Variables\+To\+Save (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1DependentVariableSaveSettings}{Dependent\+Variable\+Save\+Settings}} $>$ \&}]{dependent\+Variables\+To\+Save }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset settings for the dependent variables that are to be saved during propagation. 
+
+Function to reset settings for the dependent variables that are to be saved during propagation. 
+\begin{DoxyParams}{Parameters}
+{\em dependent\+Variables\+To\+Save} & Settings for the dependent variables that are to be saved during propagation. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_ad60d725357ae418dd6c785a371b8213b}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_ad60d725357ae418dd6c785a371b8213b}} 
+\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}!resetTerminationSettings@{resetTerminationSettings}}
+\index{resetTerminationSettings@{resetTerminationSettings}!tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{resetTerminationSettings()}{resetTerminationSettings()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::reset\+Termination\+Settings (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$}]{termination\+Settings }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset settings for creating the object that checks whether the propagation is finished. 
+
+Function to reset settings for creating the object that checks whether the propagation is finished. 
+\begin{DoxyParams}{Parameters}
+{\em termination\+Settings} & New settings for creating the object that checks whether the propagation is finished. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a26029ffd00ed5cf58a12f2ad33208211}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a26029ffd00ed5cf58a12f2ad33208211}} 
+\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}!setTerminationSettings@{setTerminationSettings}}
+\index{setTerminationSettings@{setTerminationSettings}!tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{setTerminationSettings()}{setTerminationSettings()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::set\+Termination\+Settings (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationSettings}{Propagation\+Termination\+Settings}} $>$}]{termination\+Settings }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to modify settings for creating the object that checks whether the propagation is finished. 
+
+Function to modify settings for creating the object that checks whether the propagation is finished. 
+\begin{DoxyParams}{Parameters}
+{\em termination\+Settings} & new settings for creating the object that checks whether the propagation is finished. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4a186ce31f706e1d054035dacb8ee2bd}\label{classtudat_1_1propagators_1_1SingleArcPropagatorSettings_a4a186ce31f706e1d054035dacb8ee2bd}} 
+\index{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}!printInterval\_@{printInterval\_}}
+\index{printInterval\_@{printInterval\_}!tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$@{tudat::propagators::SingleArcPropagatorSettings$<$ StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{printInterval\_}{printInterval\_}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type  = double$>$ \\
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcPropagatorSettings}{tudat\+::propagators\+::\+Single\+Arc\+Propagator\+Settings}}$<$ State\+Scalar\+Type $>$\+::print\+Interval\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+Variable indicating how often (once per print\+Interval\+\_\+ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Settings.\+h\end{DoxyCompactItemize}

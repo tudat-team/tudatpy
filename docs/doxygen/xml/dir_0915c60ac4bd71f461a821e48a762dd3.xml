@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_0915c60ac4bd71f461a821e48a762dd3" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric</compoundname>
+    <innerfile refid="capsule_8h">capsule.h</innerfile>
+    <innerfile refid="compositeSurfaceGeometry_8h">compositeSurfaceGeometry.h</innerfile>
+    <innerfile refid="conicalFrustum_8h">conicalFrustum.h</innerfile>
+    <innerfile refid="geometricShapesToFile_8h">geometricShapesToFile.h</innerfile>
+    <innerfile refid="lawgsPartGeometry_8h">lawgsPartGeometry.h</innerfile>
+    <innerfile refid="quadrilateralMeshedSurfaceGeometry_8h">quadrilateralMeshedSurfaceGeometry.h</innerfile>
+    <innerfile refid="singleSurfaceGeometry_8h">singleSurfaceGeometry.h</innerfile>
+    <innerfile refid="sphereSegment_8h">sphereSegment.h</innerfile>
+    <innerfile refid="surfaceGeometry_8h">surfaceGeometry.h</innerfile>
+    <innerfile refid="torus_8h">torus.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/"/>
+  </compounddef>
+</doxygen>

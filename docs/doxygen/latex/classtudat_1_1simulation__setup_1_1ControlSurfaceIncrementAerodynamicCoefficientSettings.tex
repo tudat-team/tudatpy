@@ -1,0 +1,97 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings}\index{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings@{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings}}
+
+
+Class for providing settings for aerodynamic coefficient model of control surfaces.  
+
+
+
+
+{\ttfamily \#include $<$create\+Aerodynamic\+Control\+Surfaces.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.664190cm]{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a97d037ad3dce6fcc57800d6287679182}{Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}} (const Aerodynamic\+Coefficient\+Types aerodynamic\+Coefficient\+Type, const std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$ independent\+Variable\+Names)
+\begin{DoxyCompactList}\small\item\em Constructor, sets type of aerodynamic coefficient model. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a6beb2ad3f82e5b0babb625885717c66b}\label{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a6beb2ad3f82e5b0babb625885717c66b}} 
+virtual \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a6beb2ad3f82e5b0babb625885717c66b}{$\sim$\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Aerodynamic\+Coefficient\+Types \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a3301cfb6ed27265686a12d4da18a990d}{get\+Aerodynamic\+Coefficient\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to return type of aerodynamic coefficient model that is to be created. \end{DoxyCompactList}\item 
+std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a6c3effe7bf5971c3194fd749df45a9c4}{get\+Independent\+Variable\+Names}} ()
+\begin{DoxyCompactList}\small\item\em Function to return identifiers of physical meaning of independent variables. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_ad5d0fc09b99daeb12b2fd469caea0fa8}\label{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_ad5d0fc09b99daeb12b2fd469caea0fa8}} 
+Aerodynamic\+Coefficient\+Types \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_ad5d0fc09b99daeb12b2fd469caea0fa8}{aerodynamic\+Coefficient\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of aerodynamic coefficient model that is to be created. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a1045014102e0796a6864d8c624be813b}\label{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a1045014102e0796a6864d8c624be813b}} 
+std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a1045014102e0796a6864d8c624be813b}{independent\+Variable\+Names\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Identifiers of physical meaning of independent variables. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for providing settings for aerodynamic coefficient model of control surfaces. 
+
+Class for providing settings for automatic control surfaces aerodynamic coefficient model creation. This class is a functional (base) class for settings of aerodynamic coefficient models that require no information in addition to their type. Aerodynamic coefficient model classes defining requiring additional information must be created using an object derived from this class. The aerodynamic reference quantities of this interface are not stored here, but are instead implicitly assumed to be equal to the \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings}{Aerodynamic\+Coefficient\+Settings}} hosting it. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a97d037ad3dce6fcc57800d6287679182}\label{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a97d037ad3dce6fcc57800d6287679182}} 
+\index{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings@{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings}!ControlSurfaceIncrementAerodynamicCoefficientSettings@{ControlSurfaceIncrementAerodynamicCoefficientSettings}}
+\index{ControlSurfaceIncrementAerodynamicCoefficientSettings@{ControlSurfaceIncrementAerodynamicCoefficientSettings}!tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings@{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings}}
+\doxysubsubsection{\texorpdfstring{ControlSurfaceIncrementAerodynamicCoefficientSettings()}{ControlSurfaceIncrementAerodynamicCoefficientSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings\+::\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings (\begin{DoxyParamCaption}\item[{const Aerodynamic\+Coefficient\+Types}]{aerodynamic\+Coefficient\+Type,  }\item[{const std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$}]{independent\+Variable\+Names }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, sets type of aerodynamic coefficient model. 
+
+Constructor, sets type of aerodynamic coefficient model. Settings for aerodynamic coefficient models requiring additional information should be defined in a derived class. 
+\begin{DoxyParams}{Parameters}
+{\em aerodynamic\+Coefficient\+Type} & Type of aerodynamic coefficient model that is to be created. \\
+\hline
+{\em independent\+Variable\+Names} & Vector with identifiers the physical meaning of each independent variable of the aerodynamic coefficients (must contain exactly one entry of control\+\_\+surface\+\_\+deflection\+\_\+dependent). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a3301cfb6ed27265686a12d4da18a990d}\label{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a3301cfb6ed27265686a12d4da18a990d}} 
+\index{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings@{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings}!getAerodynamicCoefficientType@{getAerodynamicCoefficientType}}
+\index{getAerodynamicCoefficientType@{getAerodynamicCoefficientType}!tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings@{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings}}
+\doxysubsubsection{\texorpdfstring{getAerodynamicCoefficientType()}{getAerodynamicCoefficientType()}}
+{\footnotesize\ttfamily Aerodynamic\+Coefficient\+Types tudat\+::simulation\+\_\+setup\+::\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings\+::get\+Aerodynamic\+Coefficient\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return type of aerodynamic coefficient model that is to be created. 
+
+Function to return type of aerodynamic coefficient model that is to be created. \begin{DoxyReturn}{Returns}
+Type of aerodynamic coefficient model that is to be created. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a6c3effe7bf5971c3194fd749df45a9c4}\label{classtudat_1_1simulation__setup_1_1ControlSurfaceIncrementAerodynamicCoefficientSettings_a6c3effe7bf5971c3194fd749df45a9c4}} 
+\index{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings@{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings}!getIndependentVariableNames@{getIndependentVariableNames}}
+\index{getIndependentVariableNames@{getIndependentVariableNames}!tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings@{tudat::simulation\_setup::ControlSurfaceIncrementAerodynamicCoefficientSettings}}
+\doxysubsubsection{\texorpdfstring{getIndependentVariableNames()}{getIndependentVariableNames()}}
+{\footnotesize\ttfamily std\+::vector$<$ aerodynamics\+::\+Aerodynamic\+Coefficients\+Independent\+Variables $>$ tudat\+::simulation\+\_\+setup\+::\+Control\+Surface\+Increment\+Aerodynamic\+Coefficient\+Settings\+::get\+Independent\+Variable\+Names (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return identifiers of physical meaning of independent variables. 
+
+Function to return identifiers of physical meaning of independent variables. \begin{DoxyReturn}{Returns}
+Identifiers of physical meaning of independent variables. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Aerodynamic\+Control\+Surfaces.\+h\end{DoxyCompactItemize}

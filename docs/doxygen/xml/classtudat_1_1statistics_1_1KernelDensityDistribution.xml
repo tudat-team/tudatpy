@@ -1,0 +1,934 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1statistics_1_1KernelDensityDistribution" kind="class" language="C++" prot="public">
+    <compoundname>tudat::statistics::KernelDensityDistribution</compoundname>
+    <basecompoundref refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution" prot="public" virt="non-virtual">tudat::statistics::ContinuousProbabilityDistribution&lt; Eigen::VectorXd &gt;</basecompoundref>
+    <includes refid="kernelDensityDistribution_8h" local="no">kernelDensityDistribution.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a11b91e60d4db9382ae95f210da9f1ab1" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; Eigen::VectorXd &gt;</type>
+        <definition>std::vector&lt; Eigen::VectorXd &gt; tudat::statistics::KernelDensityDistribution::dataSamples_</definition>
+        <argsstring></argsstring>
+        <name>dataSamples_</name>
+        <briefdescription>
+<para>Datasamples. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="338" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="338" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ac3a1a8b2c80469b0c2c35ac1563de1aa" prot="private" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::sampleMean_</definition>
+        <argsstring></argsstring>
+        <name>sampleMean_</name>
+        <briefdescription>
+<para>Sample mean (per entry) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="341" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="341" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a5a6da16bd70f61ad891457dfba5cbfd7" prot="private" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::sampleVariance_</definition>
+        <argsstring></argsstring>
+        <name>sampleVariance_</name>
+        <briefdescription>
+<para>Sample variance (per entry) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="344" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="344" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ad9fa6f8cbf6dadecb85e8f68291c33b6" prot="private" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::sampleStandardDeviation_</definition>
+        <argsstring></argsstring>
+        <name>sampleStandardDeviation_</name>
+        <briefdescription>
+<para>Sample standard deviation (per entry) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="347" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="347" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a457c8983c41b55cfc2d85f9d082c7556" prot="private" static="no" mutable="no">
+        <type>KernelType</type>
+        <definition>KernelType tudat::statistics::KernelDensityDistribution::kernelType_</definition>
+        <argsstring></argsstring>
+        <name>kernelType_</name>
+        <briefdescription>
+<para>Kernel type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="350" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="350" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ae506d6fe0553d9e0ca91f5031122017d" prot="private" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::bandWidth_</definition>
+        <argsstring></argsstring>
+        <name>bandWidth_</name>
+        <briefdescription>
+<para>Bandwidth of kernels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="353" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="353" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a7d181fe964c8efeee167b81258e20cda" prot="private" static="no" mutable="no">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::optimalBandwidth_</definition>
+        <argsstring></argsstring>
+        <name>optimalBandwidth_</name>
+        <briefdescription>
+<para>Optimal bandwidth of kernels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="356" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="356" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a66b0836d52f6954c1f2ef87ca44ae375" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::statistics::KernelDensityDistribution::dimensions_</definition>
+        <argsstring></argsstring>
+        <name>dimensions_</name>
+        <briefdescription>
+<para>Number of dimensions of the samples and distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="359" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="359" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a009df4a8757360d801487508bf0d6035" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::statistics::KernelDensityDistribution::numberOfSamples_</definition>
+        <argsstring></argsstring>
+        <name>numberOfSamples_</name>
+        <briefdescription>
+<para>Number of datasamples. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="362" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="362" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a51f463484d9d95052682402ebde2f350" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution" kindref="compound">ContinuousProbabilityDistribution</ref>&lt; double &gt; &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; std::shared_ptr&lt; ContinuousProbabilityDistribution&lt; double &gt; &gt; &gt; &gt; tudat::statistics::KernelDensityDistribution::kernelPointersMatrix_</definition>
+        <argsstring></argsstring>
+        <name>kernelPointersMatrix_</name>
+        <briefdescription>
+<para>Matrix (vector of vectors) of 1D kernel pointers that define full kernel density distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="365" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="365" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ae326df1759095eb05aae78280bf7fa20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::statistics::KernelDensityDistribution::KernelDensityDistribution</definition>
+        <argsstring>(const std::vector&lt; Eigen::VectorXd &gt; &amp;samples, const double bandWidthFactor=1.0, const KernelType kernel_type=KernelType::gaussian_kernel, const Eigen::VectorXd &amp;manualStandardDeviation=Eigen::VectorXd::Zero(0), const Eigen::VectorXd &amp;manualBandwidth=Eigen::VectorXd::Zero(0))</argsstring>
+        <name>KernelDensityDistribution</name>
+        <param>
+          <type>const std::vector&lt; Eigen::VectorXd &gt; &amp;</type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bandWidthFactor</declname>
+          <defval>1.0</defval>
+        </param>
+        <param>
+          <type>const KernelType</type>
+          <declname>kernel_type</declname>
+          <defval>KernelType::gaussian_kernel</defval>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>manualStandardDeviation</declname>
+          <defval>Eigen::VectorXd::Zero(0)</defval>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>manualBandwidth</declname>
+          <defval>Eigen::VectorXd::Zero(0)</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>samples</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data samples from which the empirical distribution is to be created. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bandWidthFactor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Factor by which to multiply the computed bandwidth values of the kernels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>kernel_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of distribution to be used for the kernels in the distribution. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>manualStandardDeviation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Standard deviations with which to scale the entries of each sample. By default this vector is empty and not used. If it is provided, it is used to scale the entry i of each sample by manualStandardDeviation( i ) / sampleStandardDeviation( i ), where sampleStandardDeviation is the standard deviation computed from the samples/ </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>manualBandwidth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of bandwidths for each dimension that is to be used in the kernels. By default this vector is empty and not used. Optimal bandwidths (scaled by bandWidthFactor) are used in this default case. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="99" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="55" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ac8713330d605559df79f572175d9136c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::KernelDensityDistribution::evaluatePdf</definition>
+        <argsstring>(const Eigen::VectorXd &amp;independentVariables)</argsstring>
+        <name>evaluatePdf</name>
+        <reimplements refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1a7edfe6753ce63fe4e12409d3fb88e499">evaluatePdf</reimplements>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate pdf of distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get probability density of the kernel density distribution.</para>
+<para>Function to evaluate probability distribution function at given independentVariable value. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of independent variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Evaluated pdf </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="112" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="248" bodyend="269"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a414da60bdbf0bbcd97cdccc42521d6aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::KernelDensityDistribution::evaluateCdf</definition>
+        <argsstring>(const Eigen::VectorXd &amp;independentVariables)</argsstring>
+        <name>evaluateCdf</name>
+        <reimplements refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1ad60887b5623ded9e73456dedcbf32a8a">evaluateCdf</reimplements>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate cdf of distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get cumulative probability of the kernel density distribution.</para>
+<para>Function to evaluate cumulative distribution function at given independentVariable value. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of independent variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Evaluated cdf </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="120" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="272" bodyend="293"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a7ae58f7bbdc51bdfbb0655ff98fee4dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::KernelDensityDistribution::evaluateMarginalProbabilityDensity</definition>
+        <argsstring>(const std::vector&lt; int &gt; &amp;marginalDimensions, const Eigen::VectorXd &amp;independentVariables)</argsstring>
+        <name>evaluateMarginalProbabilityDensity</name>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>marginalDimensions</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate probability density of marginal (in one or more dimensions) distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate probability density of joint marginal distribution.</para>
+<para>Function to evaluate probability density of marginal (in one or more dimensions) distribution, <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>marginalDimensions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimensions over which the marginal probaility is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Values of independent variables (in marginalDimensions) at which marginal probability is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Probability density of marginal distribution. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="130" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="309" bodyend="331"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a17e30a2f4db5bfb68c35d3be551802bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::KernelDensityDistribution::evaluateMarginalProbabilityDensity</definition>
+        <argsstring>(const int marginalDimension, const double independentVariable)</argsstring>
+        <name>evaluateMarginalProbabilityDensity</name>
+        <param>
+          <type>const int</type>
+          <declname>marginalDimension</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate marginal distribution density at single dimension. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate marginal distribution density at single dimension. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>marginalDimension</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimension in which the marginal distribution is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable in dimension marginalDimension </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Probability density of marginal distribution at given dimension and independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="140" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="334" bodyend="345"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a20e89a464116be53ca29c7344c34fb06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::KernelDensityDistribution::evaluateCumulativeMarginalProbability</definition>
+        <argsstring>(const int marginalDimension, const double independentVariable)</argsstring>
+        <name>evaluateCumulativeMarginalProbability</name>
+        <param>
+          <type>const int</type>
+          <declname>marginalDimension</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate cumulative probability of marginal distribution at single dimension. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get cumulative probability of marginal distribution.</para>
+<para>Function to evaluate cumulative probability of marginal distribution at single dimension. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>marginalDimension</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimension in whihc the marginal distribution is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable in dimension marginalDimension </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>cumulative probability of marginal distribution at given dimension and independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="149" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="296" bodyend="306"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a880a77577d2ef5a77e168fa0df101cf7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::KernelDensityDistribution::evaluateCumulativeConditionalMarginalProbability</definition>
+        <argsstring>(const std::vector&lt; int &gt; &amp;conditionDimensions, const std::vector&lt; double &gt; &amp;conditions, const int marginalDimension, const double independentVariable)</argsstring>
+        <name>evaluateCumulativeConditionalMarginalProbability</name>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>conditionDimensions</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>conditions</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>marginalDimension</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate cumulative probability of marginal distribution of conditional distribution at single dimension. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate cumulative conditional probability of marginal distribution at single dimension.</para>
+<para>Function to evaluate cumulative probability of marginal distribution of conditional distribution at single dimension, given conditions of cdf on other dimensions <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>conditionDimensions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of dimensions in which cdf is given </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>conditions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variables at which values of cdf, in dimensions listed in conditionDimensions, are to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>marginalDimension</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimension in which the marginal cdf is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variable at which conditional marginal cdf is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Cumulative conditional probability of marginal distribution at given settings. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="162" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="348" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a05756e1d03cdeeaf55e6e6677d844841" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::KernelDensityDistribution::evaluateConditionalMarginalProbabilityDensity</definition>
+        <argsstring>(const std::vector&lt; int &gt; &amp;conditionDimensions, const std::vector&lt; double &gt; &amp;conditions, const int marginalDimension, const double independentVariable)</argsstring>
+        <name>evaluateConditionalMarginalProbabilityDensity</name>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>conditionDimensions</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>conditions</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>marginalDimension</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate probability density of marginal distribution of conditional distribution at single dimension. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate conditional probability density of marginal distribution at single dimension.</para>
+<para>Function to evaluate probability density of marginal distribution of conditional distribution at single dimension, given conditions of cdf on other dimensions <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>conditionDimensions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of dimensions in which pdf is given </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>conditions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variables at which values of pdf, in dimensions listed in conditionDimensions, are to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>marginalDimension</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimension in which the marginal pdf is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Independent variable at which conditional marginal pdf is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Conditional pdf of marginal distribution at given settings. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="178" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="385" bodyend="420"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ab2049005a0f3decd363646f2832b5c89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::statistics::KernelDensityDistribution::computeOptimalBandWidth</definition>
+        <argsstring>()</argsstring>
+        <name>computeOptimalBandWidth</name>
+        <briefdescription>
+<para>Compute optimal bandwidth using the provided samples. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute the optimal bandwidth. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="184" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="196" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ae4f8ad854752925254940a989399f141" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::getOptimalBandWidth</definition>
+        <argsstring>()</argsstring>
+        <name>getOptimalBandWidth</name>
+        <briefdescription>
+<para>Function to retrieve the optimal bandwidth. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the optimal bandwidth <simplesect kind="return"><para>Optimal bandwidth </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="191" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="191" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1afc9e72b066ced6e06347a569df69c556" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::getBandWidth</definition>
+        <argsstring>()</argsstring>
+        <name>getBandWidth</name>
+        <briefdescription>
+<para>Function to retrieve the bandwidth. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the bandwidth <simplesect kind="return"><para>Bandwidth </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="201" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="201" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a085c6ea1a52e4e2ce859d0a6865c8793" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; Eigen::VectorXd &gt;</type>
+        <definition>std::vector&lt; Eigen::VectorXd &gt; tudat::statistics::KernelDensityDistribution::getSamples</definition>
+        <argsstring>()</argsstring>
+        <name>getSamples</name>
+        <briefdescription>
+<para>Function to retrieve the data samples used to generate kernel density distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the data samples used to generate kernel density distribution. <simplesect kind="return"><para>Data samples used to generate kernel density distribution. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="211" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="211" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ab80de71e5a2bc8ed07d5dcaf468fd834" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::statistics::KernelDensityDistribution::setBandWidth</definition>
+        <argsstring>(const Eigen::VectorXd &amp;bandWidth)</argsstring>
+        <name>setBandWidth</name>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>bandWidth</declname>
+        </param>
+        <briefdescription>
+<para>Function to manually reset the bandwidth. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to manually reset the bandwidth. Calling this function automatically recomputes the kernels. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bandWidth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New bandwidth to be used for each dimension. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="221" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="221" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a3ce8d6572385efa10c80d70d898aade5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::getSampleMean</definition>
+        <argsstring>()</argsstring>
+        <name>getSampleMean</name>
+        <briefdescription>
+<para>Function to retrieve the sample mean. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the sample mean. <simplesect kind="return"><para>Sample mean. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="232" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="232" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1abc1c800ffc9b8365dd47ff1927cbec11" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::getSampleVariance</definition>
+        <argsstring>()</argsstring>
+        <name>getSampleVariance</name>
+        <briefdescription>
+<para>Function to retrieve the sample variance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the sample variance. <simplesect kind="return"><para>Sample variance. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="242" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="242" bodyend="245"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a234e3d235dafb5f52caca40249ffc2fd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::getSampleStandardDeviation</definition>
+        <argsstring>()</argsstring>
+        <name>getSampleStandardDeviation</name>
+        <briefdescription>
+<para>Function to retrieve the sample standard deviation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the sample standard deviation. <simplesect kind="return"><para>Sample standard deviation. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="252" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="252" bodyend="256"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1aea73cb503e18645c591dfc52e589be99" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::statistics::KernelDensityDistribution::getNumberOfSamples</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfSamples</name>
+        <briefdescription>
+<para>Function to retrieve the number of samples. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the number of samples. <simplesect kind="return"><para>Number of samples. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="263" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="263" bodyend="266"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ac0ec8bcfd1579e6a380e04ebc8d1e656" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution" kindref="compound">ContinuousProbabilityDistribution</ref>&lt; double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; ContinuousProbabilityDistribution&lt; double &gt; &gt; tudat::statistics::KernelDensityDistribution::constructKernel</definition>
+        <argsstring>(const double mean, const double bandWidth)</argsstring>
+        <name>constructKernel</name>
+        <param>
+          <type>const double</type>
+          <declname>mean</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bandWidth</declname>
+        </param>
+        <briefdescription>
+<para>Function that constructs a single kernel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that constructs a single kernel, called iteratively to construct the full multivariate kernel density. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mean</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mean value of kernel that is to be created. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bandWidth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bandwidth of kernel thatr is to be created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Probability distribution for single kernel. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="279" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="279" bodyend="300"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a474d08b87ebf52764770514f0babfae3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::statistics::KernelDensityDistribution::generateKernelPointerMatrix</definition>
+        <argsstring>()</argsstring>
+        <name>generateKernelPointerMatrix</name>
+        <briefdescription>
+<para>Function that generates the kernel density distribution based on the samples and kernel type that is provided. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that generates the kernel density distribution based on the samples and kernel type that is provided. This function iteratively calls the constructKernel function to create a kernel for each entry in each sample. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="307" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="128" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1abbb6a6454a082fb883abce189244d0fe" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::statistics::KernelDensityDistribution::computeSampleMean</definition>
+        <argsstring>()</argsstring>
+        <name>computeSampleMean</name>
+        <briefdescription>
+<para>Function that computes and sets the sample mean. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that computes and sets the sample mean (sampleMean_ variable). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="313" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="160" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a6da15f3275863bc62846af75f155b901" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::statistics::KernelDensityDistribution::computeSampleVariance</definition>
+        <argsstring>()</argsstring>
+        <name>computeSampleVariance</name>
+        <briefdescription>
+<para>Function that computes and sets the sample variance and standard deviation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that computes and sets the sample variance and standard deviation (sampleVariance_ and sampleStandardDeviation_ variable). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="320" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="171" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1ae00634126dbd5ff38e01aac7079baed0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::statistics::KernelDensityDistribution::scaleSamplesWithVariance</definition>
+        <argsstring>(const Eigen::VectorXd &amp;standardDeviation)</argsstring>
+        <name>scaleSamplesWithVariance</name>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>standardDeviation</declname>
+        </param>
+        <briefdescription>
+<para>Function to scale the samples to the required standard deviation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to scale the samples to the required standard deviation <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>standardDeviation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New standard deviation that the data is to have. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="327" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="183" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1KernelDensityDistribution_1a56b92fd8761dc089203789a7cb50037d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::statistics::KernelDensityDistribution::getMedian</definition>
+        <argsstring>(const std::vector&lt; Eigen::VectorXd &gt; &amp;samples)</argsstring>
+        <name>getMedian</name>
+        <param>
+          <type>const std::vector&lt; Eigen::VectorXd &gt; &amp;</type>
+          <declname>samples</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the sample set median. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the sample set median <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>samples</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set of samples from which the (per entry) median is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Sample set median </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="335" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="220" bodyend="245"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class that uses random samples to generate a multivariate probability distribution using Kernel Density distribution. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class that uses random samples to generate a multivariate probability distribution using Kernel Density distribution. The bandwidth of the kernels may be supplied by the user, or an optimal distrubution may be computed by this class At present, the user has the choice of a Gaussian or Epanechnikov distribution for the kernels. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::statistics::ContinuousProbabilityDistribution&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution"/>
+      </node>
+      <node id="1">
+        <label>tudat::statistics::KernelDensityDistribution</label>
+        <link refid="classtudat_1_1statistics_1_1KernelDensityDistribution"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::statistics::ContinuousProbabilityDistribution&lt; Eigen::VectorXd &gt;</label>
+        <link refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution"/>
+      </node>
+      <node id="1">
+        <label>tudat::statistics::KernelDensityDistribution</label>
+        <link refid="classtudat_1_1statistics_1_1KernelDensityDistribution"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="80" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="81" bodyend="367"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ae506d6fe0553d9e0ca91f5031122017d" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>bandWidth_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ab2049005a0f3decd363646f2832b5c89" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>computeOptimalBandWidth</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1abbb6a6454a082fb883abce189244d0fe" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>computeSampleMean</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a6da15f3275863bc62846af75f155b901" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>computeSampleVariance</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ac0ec8bcfd1579e6a380e04ebc8d1e656" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>constructKernel</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a11b91e60d4db9382ae95f210da9f1ab1" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>dataSamples_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a66b0836d52f6954c1f2ef87ca44ae375" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>dimensions_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a414da60bdbf0bbcd97cdccc42521d6aa" prot="public" virt="virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>evaluateCdf</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a05756e1d03cdeeaf55e6e6677d844841" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>evaluateConditionalMarginalProbabilityDensity</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a880a77577d2ef5a77e168fa0df101cf7" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>evaluateCumulativeConditionalMarginalProbability</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a20e89a464116be53ca29c7344c34fb06" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>evaluateCumulativeMarginalProbability</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a7ae58f7bbdc51bdfbb0655ff98fee4dc" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>evaluateMarginalProbabilityDensity</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a17e30a2f4db5bfb68c35d3be551802bb" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>evaluateMarginalProbabilityDensity</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ac8713330d605559df79f572175d9136c" prot="public" virt="virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>evaluatePdf</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a474d08b87ebf52764770514f0babfae3" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>generateKernelPointerMatrix</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1afc9e72b066ced6e06347a569df69c556" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>getBandWidth</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a56b92fd8761dc089203789a7cb50037d" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>getMedian</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1aea73cb503e18645c591dfc52e589be99" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>getNumberOfSamples</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ae4f8ad854752925254940a989399f141" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>getOptimalBandWidth</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a3ce8d6572385efa10c80d70d898aade5" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>getSampleMean</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a085c6ea1a52e4e2ce859d0a6865c8793" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>getSamples</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a234e3d235dafb5f52caca40249ffc2fd" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>getSampleStandardDeviation</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1abc1c800ffc9b8365dd47ff1927cbec11" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>getSampleVariance</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ae326df1759095eb05aae78280bf7fa20" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>KernelDensityDistribution</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a51f463484d9d95052682402ebde2f350" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>kernelPointersMatrix_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a457c8983c41b55cfc2d85f9d082c7556" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>kernelType_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a009df4a8757360d801487508bf0d6035" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>numberOfSamples_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a7d181fe964c8efeee167b81258e20cda" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>optimalBandwidth_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ac3a1a8b2c80469b0c2c35ac1563de1aa" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>sampleMean_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ad9fa6f8cbf6dadecb85e8f68291c33b6" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>sampleStandardDeviation_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a5a6da16bd70f61ad891457dfba5cbfd7" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>sampleVariance_</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ae00634126dbd5ff38e01aac7079baed0" prot="private" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>scaleSamplesWithVariance</name></member>
+      <member refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ab80de71e5a2bc8ed07d5dcaf468fd834" prot="public" virt="non-virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>setBandWidth</name></member>
+      <member refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1a621a691342d27745eb2e9f617372e075" prot="public" virt="virtual"><scope>tudat::statistics::KernelDensityDistribution</scope><name>~ContinuousProbabilityDistribution</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

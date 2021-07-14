@@ -1,0 +1,288 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction" kind="class" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::EquilibriumTemperatureFunction</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__mathematics_1_1Function" prot="public" virt="non-virtual">tudat::basic_mathematics::Function&lt; double, double &gt;</basecompoundref>
+    <includes refid="equilibriumWallTemperature_8h" local="no">equilibriumWallTemperature.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a327c1b1f5336329da2391160442404e4" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::aerodynamics::EquilibriumTemperatureFunction::heatTransferFunction_</definition>
+        <argsstring></argsstring>
+        <name>heatTransferFunction_</name>
+        <briefdescription>
+<para>Function that returns the heat input as a function of wall temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="86" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1aedea40a9544133285ffd92af02a7edab" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::aerodynamics::EquilibriumTemperatureFunction::wallEmissivity_</definition>
+        <argsstring></argsstring>
+        <name>wallEmissivity_</name>
+        <briefdescription>
+<para>Constant wall emissivity. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="89" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1adc0a1bac1fd74422aebf26e2bf878fe1" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::EquilibriumTemperatureFunction::adiabaticWallTemperature_</definition>
+        <argsstring></argsstring>
+        <name>adiabaticWallTemperature_</name>
+        <briefdescription>
+<para>Constant adiabatic wall temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="92" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a362cf62fba5b583f599ab88d330e54b2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::EquilibriumTemperatureFunction::EquilibriumTemperatureFunction</definition>
+        <argsstring>(const std::function&lt; double(const double) &gt; heatTransferFunction, const double wallEmissivity, double adiabaticWallTemperature)</argsstring>
+        <name>EquilibriumTemperatureFunction</name>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>heatTransferFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>wallEmissivity</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>adiabaticWallTemperature</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>heatTransferFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the feat flux as a function of wall temperature. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wallEmissivity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Emmissivity of the wall to which heat transfer is taking place </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>adiabaticWallTemperature</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Adiabatic wall temperature </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="37" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="37" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a94178bbbf87129eb32dfc2aa82aafa80" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::EquilibriumTemperatureFunction::~EquilibriumTemperatureFunction</definition>
+        <argsstring>()</argsstring>
+        <name>~EquilibriumTemperatureFunction</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1abd89b7690138e463bcc52ebd667f7bfa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::EquilibriumTemperatureFunction::evaluate</definition>
+        <argsstring>(const double currentWallTemperature)</argsstring>
+        <name>evaluate</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a69b59769da9784abaaa8a0a309d16de8">evaluate</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentWallTemperature</declname>
+        </param>
+        <briefdescription>
+<para>Compute net heat flux at given wall temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute net heat flux at given wall temperature <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentWallTemperature</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Wall temperature to be used for computation of input and output of heat. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Net heat input to wall </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="53" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="53" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1abffe5b7f1fb949b9e1009d0434092ba8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::EquilibriumTemperatureFunction::computeDerivative</definition>
+        <argsstring>(const unsigned int order, const double independentVariable)</argsstring>
+        <name>computeDerivative</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a0929cfbeb90a6cbc85d50455fd01d75f">computeDerivative</reimplements>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Compute first derivative of net heat flux at given wall temperature (FUNCTION NOT IMPLEMENTED) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="60" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="60" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1af80114f81558e28479d8f945a209ac77" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::EquilibriumTemperatureFunction::computeDefiniteIntegral</definition>
+        <argsstring>(const unsigned int order, const double lowerBound, const double upperbound)</argsstring>
+        <name>computeDefiniteIntegral</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a74c5639b8c6288471368e65312569e52">computeDefiniteIntegral</reimplements>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>lowerBound</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>upperbound</declname>
+        </param>
+        <briefdescription>
+<para>Compute first derivative of net heat flux at given wall temperature (FUNCTION NOT IMPLEMENTED) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="67" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="67" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1ae04093a1bd72acd39f2d22e9d47bf297" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::EquilibriumTemperatureFunction::getLowerBound</definition>
+        <argsstring>()</argsstring>
+        <name>getLowerBound</name>
+        <briefdescription>
+<para>Function to retrieve the lower bound of the wall temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="74" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="74" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a3be24594e7019e225a1fa86a21a66a50" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::EquilibriumTemperatureFunction::getUpperBound</definition>
+        <argsstring>()</argsstring>
+        <name>getUpperBound</name>
+        <briefdescription>
+<para>Function to retrieve the upper bound of the wall temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="77" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="77" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a39fab24957a98060eb1a49295f8e8feb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::EquilibriumTemperatureFunction::getInitialGuess</definition>
+        <argsstring>()</argsstring>
+        <name>getInitialGuess</name>
+        <briefdescription>
+<para>Function to retrieve the initial guess of the wall temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="80" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="80" bodyend="80"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Function that is used to compute the net heat flux from a given heat input and wall temperature. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::aerodynamics::EquilibriumTemperatureFunction</label>
+        <link refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_mathematics::Function&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::aerodynamics::EquilibriumTemperatureFunction</label>
+        <link refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_mathematics::Function&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" line="27" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/equilibriumWallTemperature.h" bodystart="28" bodyend="93"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1adc0a1bac1fd74422aebf26e2bf878fe1" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>adiabaticWallTemperature_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1af80114f81558e28479d8f945a209ac77" prot="public" virt="virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>computeDefiniteIntegral</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1abffe5b7f1fb949b9e1009d0434092ba8" prot="public" virt="virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>computeDerivative</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a362cf62fba5b583f599ab88d330e54b2" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>EquilibriumTemperatureFunction</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1abd89b7690138e463bcc52ebd667f7bfa" prot="public" virt="virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>evaluate</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a39fab24957a98060eb1a49295f8e8feb" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>getInitialGuess</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1ae04093a1bd72acd39f2d22e9d47bf297" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>getLowerBound</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a3be24594e7019e225a1fa86a21a66a50" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>getUpperBound</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a327c1b1f5336329da2391160442404e4" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>heatTransferFunction_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a4b135236b9531d0329c151afeef8a2d8" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1aedea40a9544133285ffd92af02a7edab" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>wallEmissivity_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1a94178bbbf87129eb32dfc2aa82aafa80" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>~EquilibriumTemperatureFunction</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1ae438d4c770503bfdf34c812e4f47cf09" prot="public" virt="virtual"><scope>tudat::aerodynamics::EquilibriumTemperatureFunction</scope><name>~Function</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

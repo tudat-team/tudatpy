@@ -1,0 +1,100 @@
+\hypertarget{classtudat_1_1ephemerides_1_1CustomEphemeris}{}\doxysection{tudat\+::ephemerides\+::Custom\+Ephemeris Class Reference}
+\label{classtudat_1_1ephemerides_1_1CustomEphemeris}\index{tudat::ephemerides::CustomEphemeris@{tudat::ephemerides::CustomEphemeris}}
+
+
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} class that gives a custom (i.\+e. arbitrarily defined as a function of time) state.  
+
+
+
+
+{\ttfamily \#include $<$custom\+Ephemeris.\+h$>$}
+
+Inheritance diagram for tudat\+::ephemerides\+::Custom\+Ephemeris\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1ephemerides_1_1CustomEphemeris}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1CustomEphemeris_ad54b9ccee6cecdd965af7c33289a4266}{Custom\+Ephemeris}} (const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$ state\+Function, const std\+::string \&reference\+Frame\+Origin=\char`\"{}SSB\char`\"{}, const std\+::string \&reference\+Frame\+Orientation=\char`\"{}ECLIPJ2000\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1CustomEphemeris_aa02b2df425bff1ca1ff5b010af30bd49}{get\+Cartesian\+State}} (const double secons\+Since\+Epoch=0.\+0)
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris according to custom function. \end{DoxyCompactList}\item 
+virtual Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1ephemerides_1_1CustomEphemeris_a9ffa2e6b00aa190385d87266bc6ca091}{get\+Cartesian\+State}} (const double seconds\+Since\+Epoch)=0
+\begin{DoxyCompactList}\small\item\em Get state from ephemeris. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} class that gives a custom (i.\+e. arbitrarily defined as a function of time) state. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1CustomEphemeris_ad54b9ccee6cecdd965af7c33289a4266}\label{classtudat_1_1ephemerides_1_1CustomEphemeris_ad54b9ccee6cecdd965af7c33289a4266}} 
+\index{tudat::ephemerides::CustomEphemeris@{tudat::ephemerides::CustomEphemeris}!CustomEphemeris@{CustomEphemeris}}
+\index{CustomEphemeris@{CustomEphemeris}!tudat::ephemerides::CustomEphemeris@{tudat::ephemerides::CustomEphemeris}}
+\doxysubsubsection{\texorpdfstring{CustomEphemeris()}{CustomEphemeris()}}
+{\footnotesize\ttfamily tudat\+::ephemerides\+::\+Custom\+Ephemeris\+::\+Custom\+Ephemeris (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$}]{state\+Function,  }\item[{const std\+::string \&}]{reference\+Frame\+Origin = {\ttfamily \char`\"{}SSB\char`\"{}},  }\item[{const std\+::string \&}]{reference\+Frame\+Orientation = {\ttfamily \char`\"{}ECLIPJ2000\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor of an \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris}{Ephemeris}} object from a custom function 
+\begin{DoxyParams}{Parameters}
+{\em state\+Function} & Function returning the state as a function of time \\
+\hline
+{\em reference\+Frame\+Origin} & Origin of reference frame in which state is defined. \\
+\hline
+{\em reference\+Frame\+Orientation} & Orientation of reference frame in which state is defined. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1CustomEphemeris_a9ffa2e6b00aa190385d87266bc6ca091}\label{classtudat_1_1ephemerides_1_1CustomEphemeris_a9ffa2e6b00aa190385d87266bc6ca091}} 
+\index{tudat::ephemerides::CustomEphemeris@{tudat::ephemerides::CustomEphemeris}!getCartesianState@{getCartesianState}}
+\index{getCartesianState@{getCartesianState}!tudat::ephemerides::CustomEphemeris@{tudat::ephemerides::CustomEphemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianState()}{getCartesianState()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual Eigen\+::\+Vector6d tudat\+::ephemerides\+::\+Ephemeris\+::get\+Cartesian\+State}
+
+
+
+Get state from ephemeris. 
+
+Returns state from ephemeris at given time 
+\begin{DoxyParams}{Parameters}
+{\em seconds\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State from ephemeris. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1CustomEphemeris_aa02b2df425bff1ca1ff5b010af30bd49}\label{classtudat_1_1ephemerides_1_1CustomEphemeris_aa02b2df425bff1ca1ff5b010af30bd49}} 
+\index{tudat::ephemerides::CustomEphemeris@{tudat::ephemerides::CustomEphemeris}!getCartesianState@{getCartesianState}}
+\index{getCartesianState@{getCartesianState}!tudat::ephemerides::CustomEphemeris@{tudat::ephemerides::CustomEphemeris}}
+\doxysubsubsection{\texorpdfstring{getCartesianState()}{getCartesianState()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::ephemerides\+::\+Custom\+Ephemeris\+::get\+Cartesian\+State (\begin{DoxyParamCaption}\item[{const double}]{secons\+Since\+Epoch = {\ttfamily 0.0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get state from ephemeris according to custom function. 
+
+Returns state from ephemeris at given time. 
+\begin{DoxyParams}{Parameters}
+{\em secons\+Since\+Epoch} & Seconds since epoch at which ephemeris is to be evaluated (not used in this derived class) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+State given by state\+Function\+\_\+ 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1ephemerides_1_1Ephemeris_a9ffa2e6b00aa190385d87266bc6ca091}{tudat\+::ephemerides\+::\+Ephemeris}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/ephemerides/custom\+Ephemeris.\+h\end{DoxyCompactItemize}

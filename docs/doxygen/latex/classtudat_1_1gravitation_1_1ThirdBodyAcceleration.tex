@@ -1,0 +1,179 @@
+\hypertarget{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{}\doxysection{tudat\+::gravitation\+::Third\+Body\+Acceleration$<$ Direct\+Acceleration\+Model\+Type, type $>$ Class Template Reference}
+\label{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}\index{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}}
+
+
+Class for calculating third-\/body (gravitational) accelerations.  
+
+
+
+
+{\ttfamily \#include $<$third\+Body\+Perturbation.\+h$>$}
+
+Inheritance diagram for tudat\+::gravitation\+::Third\+Body\+Acceleration$<$ Direct\+Acceleration\+Model\+Type, type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a9a31ff65932c1240c867e0972b615db8}{Third\+Body\+Acceleration}} (const std\+::shared\+\_\+ptr$<$ Direct\+Acceleration\+Model\+Type $>$ acceleration\+Model\+For\+Body\+Undergoing\+Acceleration, const std\+::shared\+\_\+ptr$<$ Direct\+Acceleration\+Model\+Type $>$ acceleration\+Model\+For\+Central\+Body, const std\+::string central\+Body\+Name)
+\begin{DoxyCompactList}\small\item\em Constructor for third body acceleration. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a691fd89ab76723ea07dd3df22468e9b2}{get\+Acceleration}} ()
+\begin{DoxyCompactList}\small\item\em Function to calculate the third body gravity acceleration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_aefb3a91250b7a304743f4dafd4f5b9e2}{update\+Members}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Update member variables to current state. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_ad180bbba1d309a993723e12d166d0d82}{reset\+Time}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Function to reset the current time. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ Direct\+Acceleration\+Model\+Type $>$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a83ffc9b0d4cd85fdb9100c6d4e427037}{get\+Acceleration\+Model\+For\+Body\+Undergoing\+Acceleration}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the direct acceleration model on body undergoing acceleration. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ Direct\+Acceleration\+Model\+Type $>$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a36bebfb376ccf762daa52cff3243c792}{get\+Acceleration\+Model\+For\+Central\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the acceleration model on central body. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a0dd84423d63344ef415c5c4446f38d55}{get\+Central\+Body\+Name}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the name of the central body w.\+r.\+t. which the acceleration is computed. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Direct\+Acceleration\+Model\+Type, typename std\+::enable\+\_\+if$<$ is\+\_\+direct\+\_\+gravity\+\_\+acceleration$<$ Direct\+Acceleration\+Model\+Type $>$\+::value, int $>$\+::type = 0$>$\newline
+class tudat\+::gravitation\+::\+Third\+Body\+Acceleration$<$ Direct\+Acceleration\+Model\+Type, type $>$}
+
+Class for calculating third-\/body (gravitational) accelerations. 
+
+Class for calculating third-\/body (gravitational accelerations), i.\+e. the gravitational acceleration on a body A, expressed in a frame fixed on a body B, due to a gravitating body C. The acceleration is calculated by subtracting the acceleration of the central body (B) due to body C from the direct acceleration of body C on body A. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em The} & gravitational acceleration class for which the third body acceleration is calculated (\mbox{\hyperlink{classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel}{Central\+Gravitational\+Acceleration\+Model}}, \mbox{\hyperlink{classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel}{Spherical\+Harmonics\+Gravitational\+Acceleration\+Model}}, ...) \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a9a31ff65932c1240c867e0972b615db8}\label{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a9a31ff65932c1240c867e0972b615db8}} 
+\index{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}!ThirdBodyAcceleration@{ThirdBodyAcceleration}}
+\index{ThirdBodyAcceleration@{ThirdBodyAcceleration}!tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}}
+\doxysubsubsection{\texorpdfstring{ThirdBodyAcceleration()}{ThirdBodyAcceleration()}}
+{\footnotesize\ttfamily template$<$typename Direct\+Acceleration\+Model\+Type , typename std\+::enable\+\_\+if$<$ is\+\_\+direct\+\_\+gravity\+\_\+acceleration$<$ Direct\+Acceleration\+Model\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+\mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration}}$<$ Direct\+Acceleration\+Model\+Type, type $>$\+::\mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{Third\+Body\+Acceleration}} (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ Direct\+Acceleration\+Model\+Type $>$}]{acceleration\+Model\+For\+Body\+Undergoing\+Acceleration,  }\item[{const std\+::shared\+\_\+ptr$<$ Direct\+Acceleration\+Model\+Type $>$}]{acceleration\+Model\+For\+Central\+Body,  }\item[{const std\+::string}]{central\+Body\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor for third body acceleration. 
+
+Constructor, sets the two acceleration models (one direct, one on central body) 
+\begin{DoxyParams}{Parameters}
+{\em acceleration\+Model\+For\+Body\+Undergoing\+Acceleration} & Direct acceleration model on body undergoing acceleration (i.\+e. as expressed in an inertial frame) \\
+\hline
+{\em acceleration\+Model\+For\+Central\+Body} & Acceleration model on central body (i.\+e. the body in a frame centered on which the third body acceleration is expressed) \\
+\hline
+{\em central\+Body\+Name} & Name of the central body w.\+r.\+t. which the acceleration is computed. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a691fd89ab76723ea07dd3df22468e9b2}\label{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a691fd89ab76723ea07dd3df22468e9b2}} 
+\index{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}!getAcceleration@{getAcceleration}}
+\index{getAcceleration@{getAcceleration}!tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}}
+\doxysubsubsection{\texorpdfstring{getAcceleration()}{getAcceleration()}}
+{\footnotesize\ttfamily template$<$typename Direct\+Acceleration\+Model\+Type , typename std\+::enable\+\_\+if$<$ is\+\_\+direct\+\_\+gravity\+\_\+acceleration$<$ Direct\+Acceleration\+Model\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration}}$<$ Direct\+Acceleration\+Model\+Type, type $>$\+::get\+Acceleration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to calculate the third body gravity acceleration. 
+
+Function to calculate the third body gravity acceleration. \begin{DoxyReturn}{Returns}
+Current third body acceleration 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a83ffc9b0d4cd85fdb9100c6d4e427037}\label{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a83ffc9b0d4cd85fdb9100c6d4e427037}} 
+\index{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}!getAccelerationModelForBodyUndergoingAcceleration@{getAccelerationModelForBodyUndergoingAcceleration}}
+\index{getAccelerationModelForBodyUndergoingAcceleration@{getAccelerationModelForBodyUndergoingAcceleration}!tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}}
+\doxysubsubsection{\texorpdfstring{getAccelerationModelForBodyUndergoingAcceleration()}{getAccelerationModelForBodyUndergoingAcceleration()}}
+{\footnotesize\ttfamily template$<$typename Direct\+Acceleration\+Model\+Type , typename std\+::enable\+\_\+if$<$ is\+\_\+direct\+\_\+gravity\+\_\+acceleration$<$ Direct\+Acceleration\+Model\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+std\+::shared\+\_\+ptr$<$ Direct\+Acceleration\+Model\+Type $>$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration}}$<$ Direct\+Acceleration\+Model\+Type, type $>$\+::get\+Acceleration\+Model\+For\+Body\+Undergoing\+Acceleration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the direct acceleration model on body undergoing acceleration. 
+
+Function to return the direct acceleration model on body undergoing acceleration. \begin{DoxyReturn}{Returns}
+Direct acceleration model on body undergoing acceleration. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a36bebfb376ccf762daa52cff3243c792}\label{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a36bebfb376ccf762daa52cff3243c792}} 
+\index{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}!getAccelerationModelForCentralBody@{getAccelerationModelForCentralBody}}
+\index{getAccelerationModelForCentralBody@{getAccelerationModelForCentralBody}!tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}}
+\doxysubsubsection{\texorpdfstring{getAccelerationModelForCentralBody()}{getAccelerationModelForCentralBody()}}
+{\footnotesize\ttfamily template$<$typename Direct\+Acceleration\+Model\+Type , typename std\+::enable\+\_\+if$<$ is\+\_\+direct\+\_\+gravity\+\_\+acceleration$<$ Direct\+Acceleration\+Model\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+std\+::shared\+\_\+ptr$<$ Direct\+Acceleration\+Model\+Type $>$ \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration}}$<$ Direct\+Acceleration\+Model\+Type, type $>$\+::get\+Acceleration\+Model\+For\+Central\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the acceleration model on central body. 
+
+Function to return the acceleration model on central body \begin{DoxyReturn}{Returns}
+Acceleration model on central body 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a0dd84423d63344ef415c5c4446f38d55}\label{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_a0dd84423d63344ef415c5c4446f38d55}} 
+\index{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}!getCentralBodyName@{getCentralBodyName}}
+\index{getCentralBodyName@{getCentralBodyName}!tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}}
+\doxysubsubsection{\texorpdfstring{getCentralBodyName()}{getCentralBodyName()}}
+{\footnotesize\ttfamily template$<$typename Direct\+Acceleration\+Model\+Type , typename std\+::enable\+\_\+if$<$ is\+\_\+direct\+\_\+gravity\+\_\+acceleration$<$ Direct\+Acceleration\+Model\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+std\+::string \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration}}$<$ Direct\+Acceleration\+Model\+Type, type $>$\+::get\+Central\+Body\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the name of the central body w.\+r.\+t. which the acceleration is computed. 
+
+Function to return the name of the central body w.\+r.\+t. which the acceleration is computed. \begin{DoxyReturn}{Returns}
+Name of the central body w.\+r.\+t. which the acceleration is computed. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_ad180bbba1d309a993723e12d166d0d82}\label{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_ad180bbba1d309a993723e12d166d0d82}} 
+\index{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}!resetTime@{resetTime}}
+\index{resetTime@{resetTime}!tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}}
+\doxysubsubsection{\texorpdfstring{resetTime()}{resetTime()}}
+{\footnotesize\ttfamily template$<$typename Direct\+Acceleration\+Model\+Type , typename std\+::enable\+\_\+if$<$ is\+\_\+direct\+\_\+gravity\+\_\+acceleration$<$ Direct\+Acceleration\+Model\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+void \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration}}$<$ Direct\+Acceleration\+Model\+Type, type $>$\+::reset\+Time (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the current time. 
+
+Function to reset the current time of the acceleration model. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & Current time (default NaN). \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a325aae81896137d88b756aac15e188da}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_aefb3a91250b7a304743f4dafd4f5b9e2}\label{classtudat_1_1gravitation_1_1ThirdBodyAcceleration_aefb3a91250b7a304743f4dafd4f5b9e2}} 
+\index{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$@{tudat::gravitation::ThirdBodyAcceleration$<$ DirectAccelerationModelType, type $>$}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily template$<$typename Direct\+Acceleration\+Model\+Type , typename std\+::enable\+\_\+if$<$ is\+\_\+direct\+\_\+gravity\+\_\+acceleration$<$ Direct\+Acceleration\+Model\+Type $>$\+::value, int $>$\+::type  = 0$>$ \\
+void \mbox{\hyperlink{classtudat_1_1gravitation_1_1ThirdBodyAcceleration}{tudat\+::gravitation\+::\+Third\+Body\+Acceleration}}$<$ Direct\+Acceleration\+Model\+Type, type $>$\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Update member variables to current state. 
+
+Update member variables to current state. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which acceleration model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/gravitation/third\+Body\+Perturbation.\+h\end{DoxyCompactItemize}

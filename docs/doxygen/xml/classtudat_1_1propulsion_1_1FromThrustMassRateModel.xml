@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propulsion_1_1FromThrustMassRateModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propulsion::FromThrustMassRateModel</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::MassRateModel</basecompoundref>
+    <includes refid="massRateFromThrust_8h" local="no">massRateFromThrust.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1a9bc390d7f5b65ed7fc6f4a8a1d5b76e3" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1propulsion_1_1ThrustAcceleration" kindref="compound">ThrustAcceleration</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; ThrustAcceleration &gt; &gt; tudat::propulsion::FromThrustMassRateModel::thrustAccelerations_</definition>
+        <argsstring></argsstring>
+        <name>thrustAccelerations_</name>
+        <briefdescription>
+<para>List of thrust accelerations from which the total mass rate is to be computed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" line="98" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1ad7a138f25a84eb882abb3958810192dc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::FromThrustMassRateModel::FromThrustMassRateModel</definition>
+        <argsstring>(const std::shared_ptr&lt; ThrustAcceleration &gt; thrustAcceleration)</argsstring>
+        <name>FromThrustMassRateModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propulsion_1_1ThrustAcceleration" kindref="compound">ThrustAcceleration</ref> &gt;</type>
+          <declname>thrustAcceleration</declname>
+        </param>
+        <briefdescription>
+<para>Constructor taking single acceleration model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor taking single acceleration model. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Thrust acceleration model from which the mass rate is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" bodystart="45" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1ac87403df307c292759fdfa5eae288c8c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::FromThrustMassRateModel::FromThrustMassRateModel</definition>
+        <argsstring>(const std::vector&lt; std::shared_ptr&lt; ThrustAcceleration &gt; &gt; thrustAccelerations)</argsstring>
+        <name>FromThrustMassRateModel</name>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1propulsion_1_1ThrustAcceleration" kindref="compound">ThrustAcceleration</ref> &gt; &gt;</type>
+          <declname>thrustAccelerations</declname>
+        </param>
+        <briefdescription>
+<para>Constructor taking list of acceleration models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor taking list of acceleration models. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustAccelerations</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of thrust acceleration models from which the mass rates are to be retrieved and summed.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+Constructor </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" line="60" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" bodystart="60" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1adc6d43d81a86425a324568dce822f5ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propulsion::FromThrustMassRateModel::~FromThrustMassRateModel</definition>
+        <argsstring>()</argsstring>
+        <name>~FromThrustMassRateModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" line="65" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" bodystart="65" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1abc3aa103c5d58b1ddbb224786b6c0ff9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propulsion::FromThrustMassRateModel::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a73c723ea252c57f3ac3109bb4c1bed42">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the mass rate model and compute the mass rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update member variables used by the mass rate model and compute the mass rate. Updates the thrusta acceleration models and sums the resulting mass rates, updating the currentMassRate_ variable. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which mass rate model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" line="73" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" bodystart="73" bodyend="93"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This class provides the mass rate from a (set of) thrust model(s), used in numerically propagating a body&apos;s total mass. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class provides the mass rate from a (set of) thrust model(s, used in numerically propagating a body&apos;s total mass. The mass rate is directly obtained from the thrust accelerations. This class can be used to sum the mass rates due to any number of thrust acceleration models. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::MassRateModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::propulsion::FromThrustMassRateModel</label>
+        <link refid="classtudat_1_1propulsion_1_1FromThrustMassRateModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::MassRateModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::propulsion::FromThrustMassRateModel</label>
+        <link refid="classtudat_1_1propulsion_1_1FromThrustMassRateModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" line="36" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion/massRateFromThrust.h" bodystart="37" bodyend="99"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a0275d5e4455508410ca4effa18e2c1ce" prot="protected" virt="non-virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>currentMassRate_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a036c0d6616d8bc654cb84276f1fd667c" prot="protected" virt="non-virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1ad7a138f25a84eb882abb3958810192dc" prot="public" virt="non-virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>FromThrustMassRateModel</name></member>
+      <member refid="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1ac87403df307c292759fdfa5eae288c8c" prot="public" virt="non-virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>FromThrustMassRateModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1aae103a96511649566f7bce8417a2f049" prot="public" virt="virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>getMassRate</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a1683d8d274ad04b9cb92abbf8d2f7773" prot="public" virt="non-virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>MassRateModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a40eab52663ad3e184899354596d0dbca" prot="public" virt="virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1a9bc390d7f5b65ed7fc6f4a8a1d5b76e3" prot="private" virt="non-virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>thrustAccelerations_</name></member>
+      <member refid="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1abc3aa103c5d58b1ddbb224786b6c0ff9" prot="public" virt="virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1propulsion_1_1FromThrustMassRateModel_1adc6d43d81a86425a324568dce822f5ea" prot="public" virt="non-virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>~FromThrustMassRateModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1ab1417a088fd41b31e1709f316f7bbfc6" prot="public" virt="virtual"><scope>tudat::propulsion::FromThrustMassRateModel</scope><name>~MassRateModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

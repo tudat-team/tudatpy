@@ -1,0 +1,88 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Estimation\+Convergence\+Checker Class Reference}
+\label{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker}\index{tudat::simulation\_setup::EstimationConvergenceChecker@{tudat::simulation\_setup::EstimationConvergenceChecker}}
+
+
+Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.  
+
+
+
+
+{\ttfamily \#include $<$pod\+Input\+Output\+Types.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_ae750b2c04d22e59e6748bf0d86f077bd}{Estimation\+Convergence\+Checker}} (const unsigned int maximum\+Number\+Of\+Iterations=5, const double minimum\+Residual\+Change=0.\+0, const double minimum\+Residual=1.\+0E-\/20, const int number\+Of\+Iterations\+Without\+Improvement=2)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a73596d5c195a30fb7d10773d0663f010}{is\+Estimation\+Converged}} (const int number\+Of\+Iterations, const std\+::vector$<$ double $>$ rms\+Residual\+History)
+\begin{DoxyCompactList}\small\item\em Function to determine whether the estimation is deemed to be converged. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a78302ca23542f361e19e957f2be3cabd}\label{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a78302ca23542f361e19e957f2be3cabd}} 
+int \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a78302ca23542f361e19e957f2be3cabd}{maximum\+Number\+Of\+Iterations\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Maximum number of allowed iterations for estimation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_abde0aae2cb3643ec29b97ec3dded63cf}\label{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_abde0aae2cb3643ec29b97ec3dded63cf}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_abde0aae2cb3643ec29b97ec3dded63cf}{minimum\+Residual\+Change\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Minimum required change in residual between two iterations. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a818e28aba12eaf715f2d13e5562d7cf3}\label{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a818e28aba12eaf715f2d13e5562d7cf3}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a818e28aba12eaf715f2d13e5562d7cf3}{minimum\+Residual\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Minimum value of observation residual below which estimation is converged. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_aef1ab2e781d88b4354f292da4e7fa04e}\label{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_aef1ab2e781d88b4354f292da4e7fa04e}} 
+unsigned int \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_aef1ab2e781d88b4354f292da4e7fa04e}{number\+Of\+Iterations\+Without\+Improvement\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of iterations without reduction of residual. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_ae750b2c04d22e59e6748bf0d86f077bd}\label{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_ae750b2c04d22e59e6748bf0d86f077bd}} 
+\index{tudat::simulation\_setup::EstimationConvergenceChecker@{tudat::simulation\_setup::EstimationConvergenceChecker}!EstimationConvergenceChecker@{EstimationConvergenceChecker}}
+\index{EstimationConvergenceChecker@{EstimationConvergenceChecker}!tudat::simulation\_setup::EstimationConvergenceChecker@{tudat::simulation\_setup::EstimationConvergenceChecker}}
+\doxysubsubsection{\texorpdfstring{EstimationConvergenceChecker()}{EstimationConvergenceChecker()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Estimation\+Convergence\+Checker\+::\+Estimation\+Convergence\+Checker (\begin{DoxyParamCaption}\item[{const unsigned int}]{maximum\+Number\+Of\+Iterations = {\ttfamily 5},  }\item[{const double}]{minimum\+Residual\+Change = {\ttfamily 0.0},  }\item[{const double}]{minimum\+Residual = {\ttfamily 1.0E-\/20},  }\item[{const int}]{number\+Of\+Iterations\+Without\+Improvement = {\ttfamily 2} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor, sets a number of values for stopping conditions. The estimation stops if one of these is met. 
+\begin{DoxyParams}{Parameters}
+{\em maximum\+Number\+Of\+Iterations} & Maximum number of allowed iterations for estimation \\
+\hline
+{\em minimum\+Residual\+Change} & Minimum required change in residual between two iterations \\
+\hline
+{\em minimum\+Residual} & Minimum value of observation residual below which estimation is converged \\
+\hline
+{\em number\+Of\+Iterations\+Without\+Improvement} & Number of iterations without reduction of residual \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a73596d5c195a30fb7d10773d0663f010}\label{classtudat_1_1simulation__setup_1_1EstimationConvergenceChecker_a73596d5c195a30fb7d10773d0663f010}} 
+\index{tudat::simulation\_setup::EstimationConvergenceChecker@{tudat::simulation\_setup::EstimationConvergenceChecker}!isEstimationConverged@{isEstimationConverged}}
+\index{isEstimationConverged@{isEstimationConverged}!tudat::simulation\_setup::EstimationConvergenceChecker@{tudat::simulation\_setup::EstimationConvergenceChecker}}
+\doxysubsubsection{\texorpdfstring{isEstimationConverged()}{isEstimationConverged()}}
+{\footnotesize\ttfamily bool tudat\+::simulation\+\_\+setup\+::\+Estimation\+Convergence\+Checker\+::is\+Estimation\+Converged (\begin{DoxyParamCaption}\item[{const int}]{number\+Of\+Iterations,  }\item[{const std\+::vector$<$ double $>$}]{rms\+Residual\+History }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to determine whether the estimation is deemed to be converged. 
+
+Function to determine whether the estimation is deemed to be converged (i.\+e. if it should terminate) 
+\begin{DoxyParams}{Parameters}
+{\em number\+Of\+Iterations} & Number of iterations of estimation procedure that have been completed \\
+\hline
+{\em rms\+Residual\+History} & Rms residuals at current and all previous iterations \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if estimation is to be terminated 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/pod\+Input\+Output\+Types.\+h\end{DoxyCompactItemize}

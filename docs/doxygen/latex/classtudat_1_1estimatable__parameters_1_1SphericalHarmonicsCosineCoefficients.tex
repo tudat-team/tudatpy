@@ -1,0 +1,162 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Spherical\+Harmonics\+Cosine\+Coefficients Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients}\index{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}}
+
+
+Interface class for estimation of spherical harmonic gravity field cosine coefficients.  
+
+
+
+
+{\ttfamily \#include $<$spherical\+Harmonic\+Cosine\+Coefficients.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Spherical\+Harmonics\+Cosine\+Coefficients\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a636ce83c61e00bbc19e857478fd9353b}{Spherical\+Harmonics\+Cosine\+Coefficients}} (const std\+::function$<$ Eigen\+::\+Matrix\+Xd() $>$ get\+Cosine\+Coefficients, const std\+::function$<$ void(Eigen\+::\+Matrix\+Xd) $>$ set\+Cosine\+Coefficients, const std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ block\+Indices, const std\+::string \&associated\+Body)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a4293dcb3bf8bb44956c0097214a9859c}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a4293dcb3bf8bb44956c0097214a9859c}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a4293dcb3bf8bb44956c0097214a9859c}{$\sim$\+Spherical\+Harmonics\+Cosine\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_af6d41ec450351355acfc0926a1f48c45}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the current values of the cosine coefficients that are to be estimated. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a83b148618a4198a251bf8c651c19427b}{set\+Parameter\+Value}} (const Eigen\+::\+Vector\+Xd parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Function to reset the cosine coefficients that are to be estimated. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a321eb698efe3468fd266620fa426b042}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a74a5de58521fef27b93a4e865c5b260c}{get\+Block\+Indices}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the list of cosine coefficient indices which are to be estimated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a9d7d90552030db868cc27a402e601d3a}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a9d7d90552030db868cc27a402e601d3a}} 
+std\+::string {\bfseries get\+Parameter\+Description} ()
+\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a7f61fb5740c9c586c011f0176ed57f34}{get\+Degree\+Two\+Entries}} (int \&c20\+Index, int \&c21\+Index, int \&c22\+Index)
+\begin{DoxyCompactList}\small\item\em Function that returns the indices for degree two coefficients (if any) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for estimation of spherical harmonic gravity field cosine coefficients. 
+
+Interface class for estimation of spherical harmonic gravity field cosine coefficients. Interfaces the estimation with the member coefficients of an instance of the Spherical\+Harmonics\+Gravity\+Field (or nominal coefficients of Time\+Dependent\+Spherical\+Harmonics\+Gravity\+Field). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a636ce83c61e00bbc19e857478fd9353b}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a636ce83c61e00bbc19e857478fd9353b}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}!SphericalHarmonicsCosineCoefficients@{SphericalHarmonicsCosineCoefficients}}
+\index{SphericalHarmonicsCosineCoefficients@{SphericalHarmonicsCosineCoefficients}!tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}}
+\doxysubsubsection{\texorpdfstring{SphericalHarmonicsCosineCoefficients()}{SphericalHarmonicsCosineCoefficients()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients\+::\+Spherical\+Harmonics\+Cosine\+Coefficients (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Matrix\+Xd() $>$}]{get\+Cosine\+Coefficients,  }\item[{const std\+::function$<$ void(Eigen\+::\+Matrix\+Xd) $>$}]{set\+Cosine\+Coefficients,  }\item[{const std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$}]{block\+Indices,  }\item[{const std\+::string \&}]{associated\+Body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em get\+Cosine\+Coefficients} & Function to retrieve the full set of sine coefficients, of which a subset is to be estimated. \\
+\hline
+{\em set\+Cosine\+Coefficients} & Function to reset the full set of sine coefficients, of which a subset is to be estimated. \\
+\hline
+{\em block\+Indices} & List of cosine coefficient indices which are to be estimated (first and second are degree and order for each vector entry). \\
+\hline
+{\em associated\+Body} & Name of body for which cosine coefficients are to be estimated. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a74a5de58521fef27b93a4e865c5b260c}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a74a5de58521fef27b93a4e865c5b260c}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}!getBlockIndices@{getBlockIndices}}
+\index{getBlockIndices@{getBlockIndices}!tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}}
+\doxysubsubsection{\texorpdfstring{getBlockIndices()}{getBlockIndices()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients\+::get\+Block\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the list of cosine coefficient indices which are to be estimated. 
+
+Function to retrieve the list of cosine coefficient indices which are to be estimated (first and second are degree and order for each vector entry). \begin{DoxyReturn}{Returns}
+List of cosine coefficient indices which are to be estimated. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a7f61fb5740c9c586c011f0176ed57f34}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a7f61fb5740c9c586c011f0176ed57f34}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}!getDegreeTwoEntries@{getDegreeTwoEntries}}
+\index{getDegreeTwoEntries@{getDegreeTwoEntries}!tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}}
+\doxysubsubsection{\texorpdfstring{getDegreeTwoEntries()}{getDegreeTwoEntries()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients\+::get\+Degree\+Two\+Entries (\begin{DoxyParamCaption}\item[{int \&}]{c20\+Index,  }\item[{int \&}]{c21\+Index,  }\item[{int \&}]{c22\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function that returns the indices for degree two coefficients (if any) 
+
+Function that returns the indices for degree two coefficients (if any) 
+\begin{DoxyParams}{Parameters}
+{\em c20\+Index} & Index for degree=2, order=0 entry (-\/1 if none; returned by reference) \\
+\hline
+{\em c21\+Index} & Index for degree=2, order=1 entry (-\/1 if none; returned by reference) \\
+\hline
+{\em c22\+Index} & Index for degree=2, order=2 entry (-\/1 if none; returned by reference) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a321eb698efe3468fd266620fa426b042}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a321eb698efe3468fd266620fa426b042}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter. 
+
+Function to retrieve the size of the parameter, equal to the length of the blcok\+Indices\+\_\+ member vector, i.\+e. the number of coefficients that are to be estimated. \begin{DoxyReturn}{Returns}
+Size of parameter value. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_af6d41ec450351355acfc0926a1f48c45}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_af6d41ec450351355acfc0926a1f48c45}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to retrieve the current values of the cosine coefficients that are to be estimated. 
+
+Function to retrieve the current values of the cosine coefficients that are to be estimated. The order of the entries in this vector is the same as in the block\+Indices\+\_\+ member vector. \begin{DoxyReturn}{Returns}
+List of values for cosine coefficients that are to be estimated. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a83b148618a4198a251bf8c651c19427b}\label{classtudat_1_1estimatable__parameters_1_1SphericalHarmonicsCosineCoefficients_a83b148618a4198a251bf8c651c19427b}} 
+\index{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients@{tudat::estimatable\_parameters::SphericalHarmonicsCosineCoefficients}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Spherical\+Harmonics\+Cosine\+Coefficients\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector\+Xd}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to reset the cosine coefficients that are to be estimated. 
+
+Function to reset the cosine coefficients that are to be estimated. The order of the entries in this vector is the same as in the block\+Indices\+\_\+ member vector. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & List of new values for cosine coefficients that are to be estimated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/spherical\+Harmonic\+Cosine\+Coefficients.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/spherical\+Harmonic\+Cosine\+Coefficients.\+cpp\end{DoxyCompactItemize}

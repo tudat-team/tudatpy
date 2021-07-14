@@ -1,0 +1,94 @@
+\hypertarget{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial}{}\doxysection{tudat\+::observation\+\_\+partials\+::Differenced\+One\+Way\+Range\+Rate\+Partial Class Reference}
+\label{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial}\index{tudat::observation\_partials::DifferencedOneWayRangeRatePartial@{tudat::observation\_partials::DifferencedOneWayRangeRatePartial}}
+
+
+Class to compute the partial derivatives of a one-\/way range-\/rate (differenced) observation.  
+
+
+
+
+{\ttfamily \#include $<$differenced\+One\+Way\+Range\+Rate\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Differenced\+One\+Way\+Range\+Rate\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_ae4b42b2673753305a5710dd37a743902}{Differenced\+One\+Way\+Range\+Rate\+Partial}} (const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier parameter\+Identifier, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ arc\+Start\+Range\+Partial, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ arc\+End\+Range\+Partial)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a38c551c0722a462fe8d5405a89ba3ccb}\label{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a38c551c0722a462fe8d5405a89ba3ccb}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a38c551c0722a462fe8d5405a89ba3ccb}{$\sim$\+Differenced\+One\+Way\+Range\+Rate\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 1, Eigen\+::\+Dynamic $>$, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_adf1e0b6cddb1334e00c6d05a31c82795}{calculate\+Partial}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Of\+Fixed\+Time, const Eigen\+::\+Vector1d \&current\+Observation=Eigen\+::\+Vector1d\+::\+Constant(TUDAT\+\_\+\+NAN))
+\begin{DoxyCompactList}\small\item\em Function to calculate the observation partial(s) at required time and state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a875c2955daf92fec27b6c4217fd9f990}\label{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a875c2955daf92fec27b6c4217fd9f990}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a875c2955daf92fec27b6c4217fd9f990}{arc\+Start\+Range\+Partial\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Partial object for arc start range observation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a0afaa31e9b222e10478b908958de657f}\label{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a0afaa31e9b222e10478b908958de657f}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_a0afaa31e9b222e10478b908958de657f}{arc\+End\+Range\+Partial\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Partial object for arc end range observation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the partial derivatives of a one-\/way range-\/rate (differenced) observation. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_ae4b42b2673753305a5710dd37a743902}\label{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_ae4b42b2673753305a5710dd37a743902}} 
+\index{tudat::observation\_partials::DifferencedOneWayRangeRatePartial@{tudat::observation\_partials::DifferencedOneWayRangeRatePartial}!DifferencedOneWayRangeRatePartial@{DifferencedOneWayRangeRatePartial}}
+\index{DifferencedOneWayRangeRatePartial@{DifferencedOneWayRangeRatePartial}!tudat::observation\_partials::DifferencedOneWayRangeRatePartial@{tudat::observation\_partials::DifferencedOneWayRangeRatePartial}}
+\doxysubsubsection{\texorpdfstring{DifferencedOneWayRangeRatePartial()}{DifferencedOneWayRangeRatePartial()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+Differenced\+One\+Way\+Range\+Rate\+Partial\+::\+Differenced\+One\+Way\+Range\+Rate\+Partial (\begin{DoxyParamCaption}\item[{const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier}]{parameter\+Identifier,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$}]{arc\+Start\+Range\+Partial,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1ObservationPartial}{Observation\+Partial}}$<$ 1 $>$ $>$}]{arc\+End\+Range\+Partial }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Identifier} & Id of parameter for which instance of class computes partial derivatives. \\
+\hline
+{\em arc\+Start\+Range\+Partial} & Partial object for arc start range observation \\
+\hline
+{\em arc\+End\+Range\+Partial} & Partial object for arc end range observation \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_adf1e0b6cddb1334e00c6d05a31c82795}\label{classtudat_1_1observation__partials_1_1DifferencedOneWayRangeRatePartial_adf1e0b6cddb1334e00c6d05a31c82795}} 
+\index{tudat::observation\_partials::DifferencedOneWayRangeRatePartial@{tudat::observation\_partials::DifferencedOneWayRangeRatePartial}!calculatePartial@{calculatePartial}}
+\index{calculatePartial@{calculatePartial}!tudat::observation\_partials::DifferencedOneWayRangeRatePartial@{tudat::observation\_partials::DifferencedOneWayRangeRatePartial}}
+\doxysubsubsection{\texorpdfstring{calculatePartial()}{calculatePartial()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 1, Eigen\+::\+Dynamic $>$, double $>$ $>$ tudat\+::observation\+\_\+partials\+::\+Differenced\+One\+Way\+Range\+Rate\+Partial\+::calculate\+Partial (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Of\+Fixed\+Time,  }\item[{const Eigen\+::\+Vector1d \&}]{current\+Observation = {\ttfamily Eigen\+:\+:Vector1d\+:\+:Constant(~TUDAT\+\_\+NAN~)} }\end{DoxyParamCaption})}
+
+
+
+Function to calculate the observation partial(s) at required time and state. 
+
+Function to calculate the observation partial(s) at required time and state. State and time are typically obtained from evaluation of observation model. 
+\begin{DoxyParams}{Parameters}
+{\em states} & Link end states. Index maps to link end for a given Obsevable\+Type through get\+Link\+End\+Index function. \\
+\hline
+{\em times} & Link end time. \\
+\hline
+{\em link\+End\+Of\+Fixed\+Time} & Link end that is kept fixed when computing the observable. \\
+\hline
+{\em current\+Observation} & Value of observation for which partial scaling is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of pairs containing partial values and associated times. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/differenced\+One\+Way\+Range\+Rate\+Partial.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/orbit\+\_\+determination/observation\+\_\+partials/differenced\+One\+Way\+Range\+Rate\+Partial.\+cpp\end{DoxyCompactItemize}

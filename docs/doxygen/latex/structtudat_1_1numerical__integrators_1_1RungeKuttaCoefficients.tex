@@ -1,0 +1,132 @@
+\hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients}{}\doxysection{tudat\+::numerical\+\_\+integrators\+::Runge\+Kutta\+Coefficients Struct Reference}
+\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients}\index{tudat::numerical\_integrators::RungeKuttaCoefficients@{tudat::numerical\_integrators::RungeKuttaCoefficients}}
+
+
+Struct that defines the coefficients of a Runge-\/\+Kutta integrator.  
+
+
+
+
+{\ttfamily \#include $<$runge\+Kutta\+Coefficients.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a97f8cb87fe196aa1f07f2355d0e4f8a3}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a97f8cb87fe196aa1f07f2355d0e4f8a3}} 
+enum \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a97f8cb87fe196aa1f07f2355d0e4f8a3}{Order\+Estimate\+To\+Integrate}} \{ {\bfseries lower}
+, {\bfseries higher}
+ \}
+\begin{DoxyCompactList}\small\item\em Enum of order estimates that can be integrated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a462b6c2e353f7f84ce09e693fb6c7f17}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a462b6c2e353f7f84ce09e693fb6c7f17}} 
+enum \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a462b6c2e353f7f84ce09e693fb6c7f17}{Coefficient\+Sets}} \{ \newline
+{\bfseries undefined\+Coefficient\+Set} = -\/1
+, {\bfseries runge\+Kutta\+Fehlberg45}
+, {\bfseries runge\+Kutta\+Fehlberg56}
+, {\bfseries runge\+Kutta\+Fehlberg78}
+, \newline
+{\bfseries runge\+Kutta87\+Dormand\+Prince}
+ \}
+\begin{DoxyCompactList}\small\item\em Enum of predefined coefficient sets. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_adbfdb02514c94b8fee1bf4e82a2e8847}{Runge\+Kutta\+Coefficients}} ()
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a7e872ba39e98e8aba04ac23e3a68187a}{Runge\+Kutta\+Coefficients}} (const Eigen\+::\+Matrix\+Xd \&a\+Coefficients\+\_\+, const Eigen\+::\+Matrix\+Xd \&b\+Coefficients\+\_\+, const Eigen\+::\+Matrix\+Xd \&c\+Coefficients\+\_\+, const unsigned int higher\+Order\+\_\+, const unsigned int lower\+Order\+\_\+, \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a97f8cb87fe196aa1f07f2355d0e4f8a3}{Order\+Estimate\+To\+Integrate}} order)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static const \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients}{Runge\+Kutta\+Coefficients}} \& \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_abadf6be2eb5a42a4890b40ddc707789f}{get}} (\mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a462b6c2e353f7f84ce09e693fb6c7f17}{Coefficient\+Sets}} coefficient\+Set)
+\begin{DoxyCompactList}\small\item\em Get coefficients for a specified coefficient set. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_aa3a5c88883d3e2fb4c13c693d8806c62}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_aa3a5c88883d3e2fb4c13c693d8806c62}} 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_aa3a5c88883d3e2fb4c13c693d8806c62}{a\+Coefficients}}
+\begin{DoxyCompactList}\small\item\em Main table of the Butcher tableau. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ac74c7cb4330fa64ae632a4690c13047e}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ac74c7cb4330fa64ae632a4690c13047e}} 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ac74c7cb4330fa64ae632a4690c13047e}{b\+Coefficients}}
+\begin{DoxyCompactList}\small\item\em Bottom rows of the Butcher tableau. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ab24ddd8697269e30f66eb9a0b53c345d}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ab24ddd8697269e30f66eb9a0b53c345d}} 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ab24ddd8697269e30f66eb9a0b53c345d}{c\+Coefficients}}
+\begin{DoxyCompactList}\small\item\em First column of the Butcher tableau. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a4cc0763688c5b430894b989d9fc594a0}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a4cc0763688c5b430894b989d9fc594a0}} 
+unsigned int \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a4cc0763688c5b430894b989d9fc594a0}{higher\+Order}}
+\begin{DoxyCompactList}\small\item\em Order of the higher order estimate. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a988d19836e8a6310e20a1a905da39459}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a988d19836e8a6310e20a1a905da39459}} 
+unsigned int \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a988d19836e8a6310e20a1a905da39459}{lower\+Order}}
+\begin{DoxyCompactList}\small\item\em Order of the lower order estimate. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ae966d42ae651b1205c4f1bd36589cf6a}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ae966d42ae651b1205c4f1bd36589cf6a}} 
+\mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a97f8cb87fe196aa1f07f2355d0e4f8a3}{Order\+Estimate\+To\+Integrate}} \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_ae966d42ae651b1205c4f1bd36589cf6a}{order\+Estimate\+To\+Integrate}}
+\begin{DoxyCompactList}\small\item\em Order estimate to integrate. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Struct that defines the coefficients of a Runge-\/\+Kutta integrator. 
+
+Struct that defines coefficients of a Runge-\/\+Kutta integrators 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_adbfdb02514c94b8fee1bf4e82a2e8847}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_adbfdb02514c94b8fee1bf4e82a2e8847}} 
+\index{tudat::numerical\_integrators::RungeKuttaCoefficients@{tudat::numerical\_integrators::RungeKuttaCoefficients}!RungeKuttaCoefficients@{RungeKuttaCoefficients}}
+\index{RungeKuttaCoefficients@{RungeKuttaCoefficients}!tudat::numerical\_integrators::RungeKuttaCoefficients@{tudat::numerical\_integrators::RungeKuttaCoefficients}}
+\doxysubsubsection{\texorpdfstring{RungeKuttaCoefficients()}{RungeKuttaCoefficients()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta\+Coefficients\+::\+Runge\+Kutta\+Coefficients (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor that initializes coefficients to 0. \mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a7e872ba39e98e8aba04ac23e3a68187a}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a7e872ba39e98e8aba04ac23e3a68187a}} 
+\index{tudat::numerical\_integrators::RungeKuttaCoefficients@{tudat::numerical\_integrators::RungeKuttaCoefficients}!RungeKuttaCoefficients@{RungeKuttaCoefficients}}
+\index{RungeKuttaCoefficients@{RungeKuttaCoefficients}!tudat::numerical\_integrators::RungeKuttaCoefficients@{tudat::numerical\_integrators::RungeKuttaCoefficients}}
+\doxysubsubsection{\texorpdfstring{RungeKuttaCoefficients()}{RungeKuttaCoefficients()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta\+Coefficients\+::\+Runge\+Kutta\+Coefficients (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix\+Xd \&}]{a\+Coefficients\+\_\+,  }\item[{const Eigen\+::\+Matrix\+Xd \&}]{b\+Coefficients\+\_\+,  }\item[{const Eigen\+::\+Matrix\+Xd \&}]{c\+Coefficients\+\_\+,  }\item[{const unsigned int}]{higher\+Order\+\_\+,  }\item[{const unsigned int}]{lower\+Order\+\_\+,  }\item[{\mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a97f8cb87fe196aa1f07f2355d0e4f8a3}{Order\+Estimate\+To\+Integrate}}}]{order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor that sets the coefficients. 
+\begin{DoxyParams}{Parameters}
+{\em a\+Coefficients\+\_\+} & Main table of the Butcher tableau. \\
+\hline
+{\em b\+Coefficients\+\_\+} & Bottom rows of the Butcher tableau. \\
+\hline
+{\em c\+Coefficients\+\_\+} & First column of the Butcher tableau. \\
+\hline
+{\em higher\+Order\+\_\+} & Order of the integrator. \\
+\hline
+{\em lower\+Order\+\_\+} & Order of the embedded low-\/order integrator. \\
+\hline
+{\em order} & Enum denoting whether to use the lower or higher order scheme for numerical integration. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_abadf6be2eb5a42a4890b40ddc707789f}\label{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_abadf6be2eb5a42a4890b40ddc707789f}} 
+\index{tudat::numerical\_integrators::RungeKuttaCoefficients@{tudat::numerical\_integrators::RungeKuttaCoefficients}!get@{get}}
+\index{get@{get}!tudat::numerical\_integrators::RungeKuttaCoefficients@{tudat::numerical\_integrators::RungeKuttaCoefficients}}
+\doxysubsubsection{\texorpdfstring{get()}{get()}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients}{Runge\+Kutta\+Coefficients}} \& tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta\+Coefficients\+::get (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtudat_1_1numerical__integrators_1_1RungeKuttaCoefficients_a462b6c2e353f7f84ce09e693fb6c7f17}{Runge\+Kutta\+Coefficients\+::\+Coefficient\+Sets}}}]{coefficient\+Set }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Get coefficients for a specified coefficient set. 
+
+Returns coefficients for a specified coefficient set. 
+\begin{DoxyParams}{Parameters}
+{\em coefficient\+Set} & The set to get the coefficients for. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The requested coefficient set. 
+\end{DoxyReturn}
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/integrators/runge\+Kutta\+Coefficients.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/math/integrators/runge\+Kutta\+Coefficients.\+cpp\end{DoxyCompactItemize}

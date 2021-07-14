@@ -1,0 +1,61 @@
+\hypertarget{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings}{}\doxysection{tudat\+::propagators\+::Propagation\+Time\+Termination\+Settings Class Reference}
+\label{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings}\index{tudat::propagators::PropagationTimeTerminationSettings@{tudat::propagators::PropagationTimeTerminationSettings}}
+
+
+Class for propagation stopping conditions settings\+: stopping the propagation after a fixed amount of time.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Termination\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Propagation\+Time\+Termination\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_a401967864c8060877285b6ae28d72444}{Propagation\+Time\+Termination\+Settings}} (const double termination\+Time, const bool check\+Termination\+To\+Exact\+Condition=false)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_a2f074f51ab17a053adc5b8a6f0252f22}\label{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_a2f074f51ab17a053adc5b8a6f0252f22}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_a2f074f51ab17a053adc5b8a6f0252f22}{$\sim$\+Propagation\+Time\+Termination\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_ad457b83b386ac442a1db07cc6e79947d}\label{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_ad457b83b386ac442a1db07cc6e79947d}} 
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_ad457b83b386ac442a1db07cc6e79947d}{termination\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Maximum time for the propagation, upon which the propagation is to be stopped. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for propagation stopping conditions settings\+: stopping the propagation after a fixed amount of time. 
+
+Class for propagation stopping conditions settings\+: stopping the propagation after a fixed amount of time. Note that the propagator will finish a given time step, slightly surpassing the defined final time. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_a401967864c8060877285b6ae28d72444}\label{classtudat_1_1propagators_1_1PropagationTimeTerminationSettings_a401967864c8060877285b6ae28d72444}} 
+\index{tudat::propagators::PropagationTimeTerminationSettings@{tudat::propagators::PropagationTimeTerminationSettings}!PropagationTimeTerminationSettings@{PropagationTimeTerminationSettings}}
+\index{PropagationTimeTerminationSettings@{PropagationTimeTerminationSettings}!tudat::propagators::PropagationTimeTerminationSettings@{tudat::propagators::PropagationTimeTerminationSettings}}
+\doxysubsubsection{\texorpdfstring{PropagationTimeTerminationSettings()}{PropagationTimeTerminationSettings()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Propagation\+Time\+Termination\+Settings\+::\+Propagation\+Time\+Termination\+Settings (\begin{DoxyParamCaption}\item[{const double}]{termination\+Time,  }\item[{const bool}]{check\+Termination\+To\+Exact\+Condition = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em termination\+Time} & Maximum time for the propagation, upon which the propagation is to be stopped \\
+\hline
+{\em check\+Termination\+To\+Exact\+Condition} & Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Termination\+Settings.\+h\end{DoxyCompactItemize}

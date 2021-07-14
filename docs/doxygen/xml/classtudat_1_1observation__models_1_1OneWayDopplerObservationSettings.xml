@@ -1,0 +1,232 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::OneWayDopplerObservationSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationSettings" prot="public" virt="non-virtual">tudat::observation_models::ObservationSettings</basecompoundref>
+    <includes refid="createObservationModel_8h" local="no">createObservationModel.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1a6eae936e320de6a3bc538f0b65ee76f8" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateSettings" kindref="compound">DopplerProperTimeRateSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; DopplerProperTimeRateSettings &gt; tudat::observation_models::OneWayDopplerObservationSettings::transmitterProperTimeRateSettings_</definition>
+        <argsstring></argsstring>
+        <name>transmitterProperTimeRateSettings_</name>
+        <briefdescription>
+<para>Settings for proper time rate at transmitter. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="392" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="392" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1a5e9681f3900765ef2fece8166061254b" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateSettings" kindref="compound">DopplerProperTimeRateSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; DopplerProperTimeRateSettings &gt; tudat::observation_models::OneWayDopplerObservationSettings::receiverProperTimeRateSettings_</definition>
+        <argsstring></argsstring>
+        <name>receiverProperTimeRateSettings_</name>
+        <briefdescription>
+<para>Settings for proper time rate at receiver. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="395" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="395" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1a2715476dddbde319159c4533f7010c2f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::OneWayDopplerObservationSettings::OneWayDopplerObservationSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; LightTimeCorrectionSettings &gt; lightTimeCorrections, const std::shared_ptr&lt; DopplerProperTimeRateSettings &gt; transmitterProperTimeRateSettings=nullptr, const std::shared_ptr&lt; DopplerProperTimeRateSettings &gt; receiverProperTimeRateSettings=nullptr, const std::shared_ptr&lt; ObservationBiasSettings &gt; biasSettings=nullptr)</argsstring>
+        <name>OneWayDopplerObservationSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCorrectionSettings" kindref="compound">LightTimeCorrectionSettings</ref> &gt;</type>
+          <declname>lightTimeCorrections</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateSettings" kindref="compound">DopplerProperTimeRateSettings</ref> &gt;</type>
+          <declname>transmitterProperTimeRateSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateSettings" kindref="compound">DopplerProperTimeRateSettings</ref> &gt;</type>
+          <declname>receiverProperTimeRateSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBiasSettings" kindref="compound">ObservationBiasSettings</ref> &gt;</type>
+          <declname>biasSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lightTimeCorrections</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for a single light-time correction that is to be used for the observation model (nullptr if none) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transmitterProperTimeRateSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for proper time rate at transmitter </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>receiverProperTimeRateSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for proper time rate at receiver </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biasSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the observation bias model that is to be used (default none: NUL </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="360" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="360" bodyend="367"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1a8873207eb0e579db613c5145b50043b7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::OneWayDopplerObservationSettings::OneWayDopplerObservationSettings</definition>
+        <argsstring>(const std::vector&lt; std::shared_ptr&lt; LightTimeCorrectionSettings &gt; &gt; lightTimeCorrectionsList=std::vector&lt; std::shared_ptr&lt; LightTimeCorrectionSettings &gt; &gt;(), const std::shared_ptr&lt; DopplerProperTimeRateSettings &gt; transmitterProperTimeRateSettings=nullptr, const std::shared_ptr&lt; DopplerProperTimeRateSettings &gt; receiverProperTimeRateSettings=nullptr, const std::shared_ptr&lt; ObservationBiasSettings &gt; biasSettings=nullptr)</argsstring>
+        <name>OneWayDopplerObservationSettings</name>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCorrectionSettings" kindref="compound">LightTimeCorrectionSettings</ref> &gt; &gt;</type>
+          <declname>lightTimeCorrectionsList</declname>
+          <defval>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCorrectionSettings" kindref="compound">LightTimeCorrectionSettings</ref> &gt; &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateSettings" kindref="compound">DopplerProperTimeRateSettings</ref> &gt;</type>
+          <declname>transmitterProperTimeRateSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1DopplerProperTimeRateSettings" kindref="compound">DopplerProperTimeRateSettings</ref> &gt;</type>
+          <declname>receiverProperTimeRateSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBiasSettings" kindref="compound">ObservationBiasSettings</ref> &gt;</type>
+          <declname>biasSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lightTimeCorrectionsList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of settings for a single light-time correction that is to be used for the observation model (empty if none) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transmitterProperTimeRateSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for proper time rate at transmitter </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>receiverProperTimeRateSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for proper time rate at receiver </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biasSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the observation bias model that is to be used (default none: NUL </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="378" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="378" bodyend="386"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1aad4961ca6ef9b5731bd5ca5cec1f713e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::OneWayDopplerObservationSettings::~OneWayDopplerObservationSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~OneWayDopplerObservationSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="389" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="389" bodyend="389"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define the settings for one-way Doppler observable. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::observation_models::OneWayDopplerObservationSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::ObservationSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::observation_models::OneWayDopplerObservationSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::ObservationSettings</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" line="347" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationModel.h" bodystart="348" bodyend="396"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSettings_1adb9c67fa89e06aee0de5291df4ecdfbb" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>biasSettings_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSettings_1a623792e2fffbe3bf7fd9cef0f97c0c0b" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>lightTimeCorrectionsList_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSettings_1a18565aad88c43414283e7a45477ad333" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>observableType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSettings_1ab2cbdc63cf299181c13617a0ba8be008" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>ObservationSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSettings_1a74bbfd0869ca68ca6c91c049a73fb74a" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>ObservationSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1a2715476dddbde319159c4533f7010c2f" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>OneWayDopplerObservationSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1a8873207eb0e579db613c5145b50043b7" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>OneWayDopplerObservationSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1a5e9681f3900765ef2fece8166061254b" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>receiverProperTimeRateSettings_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1a6eae936e320de6a3bc538f0b65ee76f8" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>transmitterProperTimeRateSettings_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationSettings_1af3165a78324d96e894cf363e2a4d3a14" prot="public" virt="virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>~ObservationSettings</name></member>
+      <member refid="classtudat_1_1observation__models_1_1OneWayDopplerObservationSettings_1aad4961ca6ef9b5731bd5ca5cec1f713e" prot="public" virt="non-virtual"><scope>tudat::observation_models::OneWayDopplerObservationSettings</scope><name>~OneWayDopplerObservationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

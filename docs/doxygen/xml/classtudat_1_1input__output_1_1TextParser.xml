@@ -1,0 +1,296 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1TextParser" kind="class" language="C++" prot="public">
+    <compoundname>tudat::input_output::TextParser</compoundname>
+    <basecompoundref refid="classtudat_1_1input__output_1_1Parser" prot="public" virt="non-virtual">tudat::input_output::Parser</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1input__output_1_1FixedWidthParser" prot="public" virt="non-virtual">tudat::input_output::FixedWidthParser</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1input__output_1_1SeparatedParser" prot="public" virt="non-virtual">tudat::input_output::SeparatedParser</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1input__output_1_1solar__activity_1_1ParseSolarActivityData" prot="public" virt="non-virtual">tudat::input_output::solar_activity::ParseSolarActivityData</derivedcompoundref>
+    <includes refid="textParser_8h" local="no">textParser.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1TextParser_1aaae584bf29ac4466230bf18c976a28d7" prot="protected" static="no" mutable="no">
+        <type>parsed_data_vector_utilities::ParsedDataVectorPtr</type>
+        <definition>parsed_data_vector_utilities::ParsedDataVectorPtr tudat::input_output::TextParser::parsedData</definition>
+        <argsstring></argsstring>
+        <name>parsedData</name>
+        <briefdescription>
+<para>Data container of the parsed data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cleared and refilled on every call to parse(string) or parse(stream). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="82" column="55" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1TextParser_1a0523e93af363869e44119419880c41e4" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::input_output::TextParser::parseAsStream</definition>
+        <argsstring></argsstring>
+        <name>parseAsStream</name>
+        <briefdescription>
+<para>Flag to identify either stream parsing or line based parsing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Clients doing stream based parsing must override parseStream! Clients doing line based parsing must override parseLine! Clients doing both parsing techniques must override parseLine and parseStream. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="90" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1TextParser_1a8a2fccf83edc89ea7983523527b439d6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::TextParser::TextParser</definition>
+        <argsstring>()</argsstring>
+        <name>TextParser</name>
+        <briefdescription>
+<para>Create the default <ref refid="classtudat_1_1input__output_1_1TextParser" kindref="compound">TextParser</ref> with processAsStream == false. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The default constructor for <ref refid="classtudat_1_1input__output_1_1TextParser" kindref="compound">TextParser</ref> causes the parser to behave as a line based parser. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="41" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" bodystart="41" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1TextParser_1a68d2338a4ec8741beecae9ea4559ba49" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::TextParser::TextParser</definition>
+        <argsstring>(bool processAsStream)</argsstring>
+        <name>TextParser</name>
+        <param>
+          <type>bool</type>
+          <declname>processAsStream</declname>
+        </param>
+        <briefdescription>
+<para>Create the <ref refid="classtudat_1_1input__output_1_1TextParser" kindref="compound">TextParser</ref> in the given process mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a Textparser that deligates parsing either as stream or on a line-by-line basis. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>processAsStream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean that determines whether the parsing should be done as a stream (string is default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="52" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" bodystart="52" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1TextParser_1aa9b9ccb909a665d5252efee839738712" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::input_output::TextParser::~TextParser</definition>
+        <argsstring>()</argsstring>
+        <name>~TextParser</name>
+        <briefdescription>
+<para>Default destructor, no new objects besides smart ones. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="58" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" bodystart="58" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1TextParser_1a3644442307eb67b0f2422ae3a88db7d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>parsed_data_vector_utilities::ParsedDataVectorPtr</type>
+        <definition>ParsedDataVectorPtr tudat::input_output::TextParser::parse</definition>
+        <argsstring>(std::string &amp;string)</argsstring>
+        <name>parse</name>
+        <reimplements refid="classtudat_1_1input__output_1_1Parser_1a136ddd9ae7adf905c38bd60ef4138593">parse</reimplements>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>string</declname>
+        </param>
+        <briefdescription>
+<para>Implementation of parse for strings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>string</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String that is to be parsed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Parsed line data, stored in a ParsedDataVectorPtr object. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classtudat_1_1input__output_1_1Parser_1a136ddd9ae7adf905c38bd60ef4138593" kindref="member">Parser::parse(std::string&amp; string)</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="66" column="55" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/textParser.cpp" bodystart="23" bodyend="30"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1TextParser_1aed0200deca3a30deb07165f60c5b6229" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>parsed_data_vector_utilities::ParsedDataVectorPtr</type>
+        <definition>ParsedDataVectorPtr tudat::input_output::TextParser::parse</definition>
+        <argsstring>(std::istream &amp;stream)</argsstring>
+        <name>parse</name>
+        <reimplements refid="classtudat_1_1input__output_1_1Parser_1a896eecdb14f86e361dc9d0bdeccdc915">parse</reimplements>
+        <param>
+          <type>std::istream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Implementation of parse for an istream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream that is to be parsed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Parsed line data, stored in a ParsedDataVectorPtr object. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classtudat_1_1input__output_1_1Parser_1a896eecdb14f86e361dc9d0bdeccdc915" kindref="member">Parser::parse(std::istream&amp; stream)</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="74" column="55" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/textParser.cpp" bodystart="33" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1TextParser_1ac0e038fccafbb79ff2d8386f7521999c" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::input_output::TextParser::parseLine</definition>
+        <argsstring>(std::string &amp;line)</argsstring>
+        <name>parseLine</name>
+        <reimplementedby refid="classtudat_1_1input__output_1_1FixedWidthParser_1ab09cb31c9956aaacff64cb5e2228f91c">parseLine</reimplementedby>
+        <reimplementedby refid="classtudat_1_1input__output_1_1SeparatedParser_1ada367004413e3b0a68a91975e75bdebb">parseLine</reimplementedby>
+        <param>
+          <type>std::string &amp;</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+<para>Parse the given line content and append the resulting data lines to parsedData. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Parse all lines/fields from the passed string and store (append) them to parsedData.</para>
+<para>Needs to be overwritten if parseAsStream==false otherwise an exception will be thrown!</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String to parse </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="100" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1TextParser_1accbecbef478769713a2729a4a123d75c" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::input_output::TextParser::parseStream</definition>
+        <argsstring>(std::istream &amp;stream)</argsstring>
+        <name>parseStream</name>
+        <reimplementedby refid="classtudat_1_1input__output_1_1solar__activity_1_1ParseSolarActivityData_1a8f56e590afa7f4de81e729f308509d37">parseStream</reimplementedby>
+        <param>
+          <type>std::istream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Parse the given stream content and append the resulting data lines to parsedData. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Parse all lines/fields from the passed stream and store (append) them to parsedData.</para>
+<para>Needs to be overwritten if parseAsStream==true otherwise an exception will be thrown!</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream to parse </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="113" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" bodystart="113" bodyend="117"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A <ref refid="classtudat_1_1input__output_1_1TextParser" kindref="compound">TextParser</ref> is a <ref refid="classtudat_1_1input__output_1_1Parser" kindref="compound">Parser</ref> that specialized in parsing text files. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A <ref refid="classtudat_1_1input__output_1_1TextParser" kindref="compound">TextParser</ref> provides a set of functions to streamline parsing to simplify the parsing process. The inheriting parsers can chose there prefered way of processing by calling <ref refid="classtudat_1_1input__output_1_1TextParser_1a68d2338a4ec8741beecae9ea4559ba49" kindref="member">TextParser(bool)</ref>.</para>
+<para>NOTE: This <ref refid="classtudat_1_1input__output_1_1TextParser" kindref="compound">TextParser</ref> works with the FieldValue/FieldType architecture. For simpler file reading, use, for instance, matrixTextFileReader. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::input_output::TextParser</label>
+        <link refid="classtudat_1_1input__output_1_1TextParser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::input_output::SeparatedParser</label>
+        <link refid="classtudat_1_1input__output_1_1SeparatedParser"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::input_output::FixedWidthParser</label>
+        <link refid="classtudat_1_1input__output_1_1FixedWidthParser"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::input_output::solar_activity::ParseSolarActivityData</label>
+        <link refid="classtudat_1_1input__output_1_1solar__activity_1_1ParseSolarActivityData"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::input_output::Parser</label>
+        <link refid="classtudat_1_1input__output_1_1Parser"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::input_output::TextParser</label>
+        <link refid="classtudat_1_1input__output_1_1TextParser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::input_output::Parser</label>
+        <link refid="classtudat_1_1input__output_1_1Parser"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/textParser.h" bodystart="34" bodyend="120"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1a3644442307eb67b0f2422ae3a88db7d5" prot="public" virt="virtual"><scope>tudat::input_output::TextParser</scope><name>parse</name></member>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1aed0200deca3a30deb07165f60c5b6229" prot="public" virt="virtual"><scope>tudat::input_output::TextParser</scope><name>parse</name></member>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1a0523e93af363869e44119419880c41e4" prot="protected" virt="non-virtual"><scope>tudat::input_output::TextParser</scope><name>parseAsStream</name></member>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1aaae584bf29ac4466230bf18c976a28d7" prot="protected" virt="non-virtual"><scope>tudat::input_output::TextParser</scope><name>parsedData</name></member>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1ac0e038fccafbb79ff2d8386f7521999c" prot="protected" virt="virtual"><scope>tudat::input_output::TextParser</scope><name>parseLine</name></member>
+      <member refid="classtudat_1_1input__output_1_1Parser_1a92b1c3e6592eee050c09d28504225aa1" prot="public" virt="non-virtual"><scope>tudat::input_output::TextParser</scope><name>Parser</name></member>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1accbecbef478769713a2729a4a123d75c" prot="protected" virt="virtual"><scope>tudat::input_output::TextParser</scope><name>parseStream</name></member>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1a8a2fccf83edc89ea7983523527b439d6" prot="public" virt="non-virtual"><scope>tudat::input_output::TextParser</scope><name>TextParser</name></member>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1a68d2338a4ec8741beecae9ea4559ba49" prot="public" virt="non-virtual"><scope>tudat::input_output::TextParser</scope><name>TextParser</name></member>
+      <member refid="classtudat_1_1input__output_1_1Parser_1a2f1426cf83f5b023aaf5ecb34d16350f" prot="public" virt="virtual"><scope>tudat::input_output::TextParser</scope><name>~Parser</name></member>
+      <member refid="classtudat_1_1input__output_1_1TextParser_1aa9b9ccb909a665d5252efee839738712" prot="public" virt="virtual"><scope>tudat::input_output::TextParser</scope><name>~TextParser</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

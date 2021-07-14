@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::statistics::ContinuousProbabilityDistribution</compoundname>
+    <derivedcompoundref refid="classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution" prot="public" virt="non-virtual">tudat::statistics::InvertibleContinuousProbabilityDistribution&lt; IndependentVariableType &gt;</derivedcompoundref>
+    <includes refid="continuousProbabilityDistributions_8h" local="no">continuousProbabilityDistributions.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1a621a691342d27745eb2e9f617372e075" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::statistics::ContinuousProbabilityDistribution&lt; IndependentVariableType &gt;::~ContinuousProbabilityDistribution</definition>
+        <argsstring>()</argsstring>
+        <name>~ContinuousProbabilityDistribution</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/continuousProbabilityDistributions.h" line="69" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/continuousProbabilityDistributions.h" bodystart="69" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1a7edfe6753ce63fe4e12409d3fb88e499" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::statistics::ContinuousProbabilityDistribution&lt; IndependentVariableType &gt;::evaluatePdf</definition>
+        <argsstring>(const IndependentVariableType &amp;independentVariable)=0</argsstring>
+        <name>evaluatePdf</name>
+        <reimplementedby refid="classtudat_1_1statistics_1_1BoostContinuousProbabilityDistribution_1a4ca43440bd33baebea62c568f0fb5df4">evaluatePdf</reimplementedby>
+        <reimplementedby refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1ad4ef6494dd02a5efae26ffe69e1f8008">evaluatePdf</reimplementedby>
+        <reimplementedby refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1ac8713330d605559df79f572175d9136c">evaluatePdf</reimplementedby>
+        <reimplementedby refid="classtudat_1_1statistics_1_1GaussianDistributionXd_1a8b09ee64c8fe4ddb15bdba86b9eb5a5a">evaluatePdf</reimplementedby>
+        <reimplementedby refid="classtudat_1_1statistics_1_1GaussianCopulaDistributionXd_1afa1a343fc638373f6df65402327f2135">evaluatePdf</reimplementedby>
+        <param>
+          <type>const IndependentVariableType &amp;</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate pdf of distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate probability distribution function at given independentVariable value. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Evaluated pdf </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/continuousProbabilityDistributions.h" line="77" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1ad60887b5623ded9e73456dedcbf32a8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::statistics::ContinuousProbabilityDistribution&lt; IndependentVariableType &gt;::evaluateCdf</definition>
+        <argsstring>(const IndependentVariableType &amp;independentVariable)=0</argsstring>
+        <name>evaluateCdf</name>
+        <reimplementedby refid="classtudat_1_1statistics_1_1BoostContinuousProbabilityDistribution_1aacf2e0c715bddf0618d0af5f8abf8eb9">evaluateCdf</reimplementedby>
+        <reimplementedby refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a168c6dc6cec1b90c5eb98fc04509a980">evaluateCdf</reimplementedby>
+        <reimplementedby refid="classtudat_1_1statistics_1_1KernelDensityDistribution_1a414da60bdbf0bbcd97cdccc42521d6aa">evaluateCdf</reimplementedby>
+        <reimplementedby refid="classtudat_1_1statistics_1_1GaussianDistributionXd_1a35b5b2168a1856aa4f93fca963c430e1">evaluateCdf</reimplementedby>
+        <reimplementedby refid="classtudat_1_1statistics_1_1GaussianCopulaDistributionXd_1a0c12013ebf12d3c5418431fef33fc2a8">evaluateCdf</reimplementedby>
+        <param>
+          <type>const IndependentVariableType &amp;</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate cdf of distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to evaluate cumulative distribution function at given independentVariable value. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Evaluated cdf </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/continuousProbabilityDistributions.h" line="85" column="20"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for a continuous random variable. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for a continuous random variable, providing interfaces for evaluating probability and cumulative distribution functions (inverse cdf is only available for derived class <ref refid="classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution" kindref="compound">InvertibleContinuousProbabilityDistribution</ref>). Specific functions are to be implemented by derived class. Derived class may be used for random number generation through <ref refid="classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator" kindref="compound">ContinuousRandomVariableGenerator</ref> class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::statistics::InvertibleContinuousProbabilityDistribution&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1statistics_1_1InvertibleContinuousProbabilityDistribution"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::statistics::ContinuousProbabilityDistribution&lt; IndependentVariableType &gt;</label>
+        <link refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution"/>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/continuousProbabilityDistributions.h" line="64" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/continuousProbabilityDistributions.h" bodystart="65" bodyend="86"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1ad60887b5623ded9e73456dedcbf32a8a" prot="public" virt="pure-virtual"><scope>tudat::statistics::ContinuousProbabilityDistribution</scope><name>evaluateCdf</name></member>
+      <member refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1a7edfe6753ce63fe4e12409d3fb88e499" prot="public" virt="pure-virtual"><scope>tudat::statistics::ContinuousProbabilityDistribution</scope><name>evaluatePdf</name></member>
+      <member refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1a621a691342d27745eb2e9f617372e075" prot="public" virt="virtual"><scope>tudat::statistics::ContinuousProbabilityDistribution</scope><name>~ContinuousProbabilityDistribution</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

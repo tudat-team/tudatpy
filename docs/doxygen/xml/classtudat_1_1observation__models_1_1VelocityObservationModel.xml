@@ -1,0 +1,267 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1VelocityObservationModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::VelocityObservationModel</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationModel" prot="public" virt="non-virtual">tudat::observation_models::ObservationModel&lt; 3, double, double &gt;</basecompoundref>
+    <includes refid="velocityObservationModel_8h" local="no">velocityObservationModel.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ObservationScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1VelocityObservationModel_1a2daa0bd86384a399ef11cede7d833238" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt; const TimeType &amp;) &gt;</type>
+        <definition>std::function&lt; Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt; const TimeType&amp; ) &gt; tudat::observation_models::VelocityObservationModel&lt; ObservationScalarType, TimeType &gt;::stateFunction_</definition>
+        <argsstring></argsstring>
+        <name>stateFunction_</name>
+        <briefdescription>
+<para>Function that returns the Cartesian state of the observed body as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" line="116" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1VelocityObservationModel_1a4439c742bb87404a0f63b1f43656374f" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt; tudat::observation_models::VelocityObservationModel&lt; ObservationScalarType, TimeType &gt;::currentState_</definition>
+        <argsstring></argsstring>
+        <name>currentState_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" line="118" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1VelocityObservationModel_1a2df7309a1367ea1cef701b0cceb073be" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::VelocityObservationModel&lt; ObservationScalarType, TimeType &gt;::VelocityObservationModel</definition>
+        <argsstring>(const std::function&lt; Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt;(const TimeType &amp;) &gt; stateFunction, const std::shared_ptr&lt; ObservationBias&lt; 3 &gt; &gt; observationBiasCalculator=NULL)</argsstring>
+        <name>VelocityObservationModel</name>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt;(const TimeType &amp;) &gt;</type>
+          <declname>stateFunction</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBias" kindref="compound">ObservationBias</ref>&lt; 3 &gt; &gt;</type>
+          <declname>observationBiasCalculator</declname>
+          <defval>NULL</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns the Cartesian state of the observed body as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observationBiasCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object for calculating system-dependent errors in the observable, i.e. deviations from the physically ideal observable (default none). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" line="44" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" bodystart="44" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1VelocityObservationModel_1ad2a67d817685e37cb375aaa8cb257444" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::VelocityObservationModel&lt; ObservationScalarType, TimeType &gt;::~VelocityObservationModel</definition>
+        <argsstring>()</argsstring>
+        <name>~VelocityObservationModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" line="51" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1VelocityObservationModel_1ae8fa80640b8d15c4c8d05ab976d9d396" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt; tudat::observation_models::VelocityObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservations</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime=observed_body)</argsstring>
+        <name>computeIdealObservations</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+          <defval>observed_body</defval>
+        </param>
+        <briefdescription>
+<para>Function to compute ideal velocity observation at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function computes the ideal velocity observation at a given time (without biases). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observation is to be simulated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid (must be observed_body for this derived class) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calculated observed velocity of body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" line="60" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" bodystart="60" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1VelocityObservationModel_1a1ec72b987ac76ffc1c73e37dbf97cc23" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 3, 1 &gt; tudat::observation_models::VelocityObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservationsWithLinkEndData</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime, std::vector&lt; double &gt; &amp;linkEndTimes, std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)</argsstring>
+        <name>computeIdealObservationsWithLinkEndData</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute ideal velocity observation at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function computes the ideal velocity observation at a given time (without biases). The times and states of the link ends are also returned in full precision (determined by class template arguments). These states and times are returned by reference. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observable is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid (must be observed_body for this derived class) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Ideal velocity observable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" line="86" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" bodystart="86" bodyend="110"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for simulating observations of three-dimensional velocity. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for simulating observations of three-dimensional velocity. This observable is typically not realized in practice, but its use can be very valuable in simulation studies </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 3, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::VelocityObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1VelocityObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 3, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::VelocityObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1VelocityObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/velocityObservationModel.h" bodystart="34" bodyend="119"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1VelocityObservationModel_1ae8fa80640b8d15c4c8d05ab976d9d396" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1acc309e12a1396f0245d5faa48d2f6e13" prot="public" virt="virtual" ambiguityscope="ObservationModel&lt; 3, double, double &gt;::"><scope>tudat::observation_models::VelocityObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1VelocityObservationModel_1a1ec72b987ac76ffc1c73e37dbf97cc23" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9ecd10a922744f259f842d4b6a411347" prot="public" virt="pure-virtual" ambiguityscope="ObservationModel&lt; 3, double, double &gt;::"><scope>tudat::observation_models::VelocityObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a199cabb55653815809a71ae266c4a428" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>computeObservationEntry</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9b9246a44342f0c05f6b0b49c269de2c" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>computeObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1aa40d89c3432581dad61a0893b4a1bd07" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>computeObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1VelocityObservationModel_1a4439c742bb87404a0f63b1f43656374f" prot="private" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>currentState_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a02a719feded8289f8f90c8d5080f1f8f" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>getObservableType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1af7bb363bb98b710155dd585a9a6fada2" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>getObservationBiasCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ae819c04040cf0dcdd4617d49592ce33e" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ad22ad8c1f124d042c0110246da92fe24" prot="protected" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>isBiasnullptr_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ac5e15b533fd970380b801078b822e66d" prot="protected" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>linkEndStates_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a4e166ee91d8e8d52a4625d1daad99fd3" prot="protected" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>linkEndTimes_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a0117fc5ab1859bdad1124ddd12be3620" prot="protected" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>observableType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a18d177b43452e3d1af4de8fa876b6df7" prot="protected" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>observationBiasCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a2e356049328b9044bf8f1d05ad094802" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>ObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1VelocityObservationModel_1a2daa0bd86384a399ef11cede7d833238" prot="private" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>stateFunction_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1VelocityObservationModel_1a2df7309a1367ea1cef701b0cceb073be" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>VelocityObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a4b72c0c9d2d8ea5221bc7cf8fe64dda7" prot="public" virt="virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>~ObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1VelocityObservationModel_1ad2a67d817685e37cb375aaa8cb257444" prot="public" virt="non-virtual"><scope>tudat::observation_models::VelocityObservationModel</scope><name>~VelocityObservationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

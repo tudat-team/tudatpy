@@ -1,0 +1,865 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::HybridArcVariationalEquationsSolver</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1VariationalEquationsSolver" prot="public" virt="non-virtual">tudat::propagators::VariationalEquationsSolver&lt; double, double &gt;</basecompoundref>
+    <includes refid="variationalEquationsSolver_8h" local="no">variationalEquationsSolver.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ae2d0ef9b714be3844353b41ae226e94d" prot="public" static="no">
+        <type>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::MatrixType</definition>
+        <argsstring></argsstring>
+        <name>MatrixType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1631" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1631" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1afa78db3662f1ea0a6382800f3b7261a4" prot="public" static="no">
+        <type>Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::VectorType</definition>
+        <argsstring></argsstring>
+        <name>VectorType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1632" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1632" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a5d6912aee505402865cf0172979a962d" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1MultiArcVariationalEquationsSolver" kindref="compound">MultiArcVariationalEquationsSolver</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; MultiArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::originalMultiArcSolver_</definition>
+        <argsstring></argsstring>
+        <name>originalMultiArcSolver_</name>
+        <briefdescription>
+<para>Object to solve multi-arc variational equations (multi-arc bodies only). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2092" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2092" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a167aa4f894c4caff8c80dec575de10ee" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleArcVariationalEquationsSolver" kindref="compound">SingleArcVariationalEquationsSolver</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; SingleArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::singleArcSolver_</definition>
+        <argsstring></argsstring>
+        <name>singleArcSolver_</name>
+        <briefdescription>
+<para>Object to solve single-arc variational equations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2095" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2095" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1adc12e9a8d9dc51d7fac7ff3aca0be005" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1MultiArcVariationalEquationsSolver" kindref="compound">MultiArcVariationalEquationsSolver</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; MultiArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::multiArcSolver_</definition>
+        <argsstring></argsstring>
+        <name>multiArcSolver_</name>
+        <briefdescription>
+<para>Object to solve multi-arc variational equations (single- and multi-arc bodies). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2098" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2098" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a3f00abfdc4855c0d3f08981b48f00b16" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1HybridArcPropagatorSettings" kindref="compound">HybridArcPropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; HybridArcPropagatorSettings&lt; StateScalarType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::originalPopagatorSettings_</definition>
+        <argsstring></argsstring>
+        <name>originalPopagatorSettings_</name>
+        <briefdescription>
+<para>Propagator settings, with single- and multi-arc separately. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2101" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1af35135e6be3fbfe145fcbb90ac8ce1db" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1HybridArcPropagatorSettings" kindref="compound">HybridArcPropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; HybridArcPropagatorSettings&lt; StateScalarType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::propagatorSettings_</definition>
+        <argsstring></argsstring>
+        <name>propagatorSettings_</name>
+        <briefdescription>
+<para>Propagator settings, with single-arc bodies added to multi-arc list. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2104" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a74252cbfc3543be38532e77ed6465278" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; TimeType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::singleArcIntegratorSettings_</definition>
+        <argsstring></argsstring>
+        <name>singleArcIntegratorSettings_</name>
+        <briefdescription>
+<para>Settings to be used for integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2107" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1abceef88e486e46b6fc5db62745f67f56" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; TimeType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::multiArcIntegratorSettings_</definition>
+        <argsstring></argsstring>
+        <name>multiArcIntegratorSettings_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2109" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ab0d3e469eb0dbb25caf181be28a3403c" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::singleArcDynamicsSize_</definition>
+        <argsstring></argsstring>
+        <name>singleArcDynamicsSize_</name>
+        <briefdescription>
+<para>Size of estimated single-arc dynamical parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2112" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1abc2ae34e29885ce01889112455aff576" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::originalMultiArcDynamicsSingleArcSize_</definition>
+        <argsstring></argsstring>
+        <name>originalMultiArcDynamicsSingleArcSize_</name>
+        <briefdescription>
+<para>Size of single arc of original estimated multi-arc dynamical parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2115" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1afe8d2b2d39ace7084ca3da37acd2bc16" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::originalMultiArcDynamicsSize_</definition>
+        <argsstring></argsstring>
+        <name>originalMultiArcDynamicsSize_</name>
+        <briefdescription>
+<para>Total size of original estimated multi-arc dynamical parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2118" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ab329f701a1873d2e924dadb1cb857136" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::multiArcDynamicsSize_</definition>
+        <argsstring></argsstring>
+        <name>multiArcDynamicsSize_</name>
+        <briefdescription>
+<para>Size of single arc of extended estimated multi-arc dynamical parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2121" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a96ac2ba32fb83d5eb95583db910c6cf8" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::multiArcDynamicsSingleArcSize_</definition>
+        <argsstring></argsstring>
+        <name>multiArcDynamicsSingleArcSize_</name>
+        <briefdescription>
+<para>Total size of extended estimated multi-arc dynamical parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2124" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a92620372e0a2900b22d0e7d5ff3ed92a" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet" kindref="compound">estimatable_parameters::EstimatableParameterSet</ref>&lt; StateScalarType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; estimatable_parameters::EstimatableParameterSet&lt; StateScalarType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::singleArcParametersToEstimate_</definition>
+        <argsstring></argsstring>
+        <name>singleArcParametersToEstimate_</name>
+        <briefdescription>
+<para>Estimated parameter set with single-arc dynamical parameters only. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2127" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a248d6f485a4b66c045189af7f9d43aae" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet" kindref="compound">estimatable_parameters::EstimatableParameterSet</ref>&lt; StateScalarType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; estimatable_parameters::EstimatableParameterSet&lt; StateScalarType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::originalMultiArcParametersToEstimate_</definition>
+        <argsstring></argsstring>
+        <name>originalMultiArcParametersToEstimate_</name>
+        <briefdescription>
+<para>Estimated parameter set with original multi-arc dynamical parameters only. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2130" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a84395f425d1798320e31e251130593c7" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet" kindref="compound">estimatable_parameters::EstimatableParameterSet</ref>&lt; StateScalarType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; estimatable_parameters::EstimatableParameterSet&lt; StateScalarType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::multiArcParametersToEstimate_</definition>
+        <argsstring></argsstring>
+        <name>multiArcParametersToEstimate_</name>
+        <briefdescription>
+<para>Estimated parameter set with extended multi-arc dynamical parameters only. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2133" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a65b29f963e58a1970030880b81dc0a2e" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::arcStartTimes_</definition>
+        <argsstring></argsstring>
+        <name>arcStartTimes_</name>
+        <briefdescription>
+<para>Times at which arcs for multi-arc solution start. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2136" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ad35541340176646c076260a4e5e77b3d" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; const double ) &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::initialStatesFromSingleArcPropagation_</definition>
+        <argsstring></argsstring>
+        <name>initialStatesFromSingleArcPropagation_</name>
+        <briefdescription>
+<para>Function that retrieves the single-arc bodies&apos; initial states as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that retrieves the single-arc bodies&apos; initial states as a function of time, is used to update the multi-arc initial states after the single-arc propagation </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2143" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a0965a5608bfcbcfe0195f42a52f755b9" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::singleArcInitialTime_</definition>
+        <argsstring></argsstring>
+        <name>singleArcInitialTime_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2145" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2145" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a84ccd75515abfd47000e536a02490eb3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::HybridArcVariationalEquationsSolver</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies, const std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; TimeType &gt; &gt; integratorSettings, const std::shared_ptr&lt; PropagatorSettings&lt; StateScalarType &gt; &gt; propagatorSettings, const std::shared_ptr&lt; estimatable_parameters::EstimatableParameterSet&lt; StateScalarType &gt; &gt; parametersToEstimate, const std::vector&lt; double &gt; arcStartTimes, const bool integrateDynamicalAndVariationalEquationsConcurrently=true, const bool clearNumericalSolution=true, const bool integrateEquationsOnCreation=false)</argsstring>
+        <name>HybridArcVariationalEquationsSolver</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; TimeType &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagatorSettings" kindref="compound">PropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+          <declname>propagatorSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet" kindref="compound">estimatable_parameters::EstimatableParameterSet</ref>&lt; StateScalarType &gt; &gt;</type>
+          <declname>parametersToEstimate</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>integrateDynamicalAndVariationalEquationsConcurrently</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>clearNumericalSolution</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>integrateEquationsOnCreation</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of bodies (with names) of all bodies in integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for numerical integrator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagatorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for propagator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parametersToEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object containing all parameters that are to be estimated and their current settings and values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start times for separate arcs </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integrateDynamicalAndVariationalEquationsConcurrently</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean defining whether variational and dynamical equations are to be propagated concurrently (if true) or sequentially (of false) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clearNumericalSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to determine whether to clear the raw numerical solution member variables (default true) after propagation and resetting of state transition interface. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integrateEquationsOnCreation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether equations should be integrated immediately at the end of this contructor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1655" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1655" bodyend="1672"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a23507a51d4c216c97a71c573f1cd4ed2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::HybridArcVariationalEquationsSolver</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies, const std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; TimeType &gt; &gt; singleArcIntegratorSettings, const std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; TimeType &gt; &gt; multiArcIntegratorSettings, const std::shared_ptr&lt; PropagatorSettings&lt; StateScalarType &gt; &gt; propagatorSettings, const std::shared_ptr&lt; estimatable_parameters::EstimatableParameterSet&lt; StateScalarType &gt; &gt; parametersToEstimate, const std::vector&lt; double &gt; arcStartTimes, const bool integrateDynamicalAndVariationalEquationsConcurrently=true, const bool clearNumericalSolution=true, const bool integrateEquationsOnCreation=false)</argsstring>
+        <name>HybridArcVariationalEquationsSolver</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; TimeType &gt; &gt;</type>
+          <declname>singleArcIntegratorSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; TimeType &gt; &gt;</type>
+          <declname>multiArcIntegratorSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagatorSettings" kindref="compound">PropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+          <declname>propagatorSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet" kindref="compound">estimatable_parameters::EstimatableParameterSet</ref>&lt; StateScalarType &gt; &gt;</type>
+          <declname>parametersToEstimate</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>integrateDynamicalAndVariationalEquationsConcurrently</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>clearNumericalSolution</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>integrateEquationsOnCreation</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1674" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1674" bodyend="1692"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a210049a52e768935e4452d0d03c765bf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::initializeHybridArcVariationalEquationsSolver</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies, const std::shared_ptr&lt; PropagatorSettings&lt; StateScalarType &gt; &gt; propagatorSettings, const bool integrateDynamicalAndVariationalEquationsConcurrently, const bool integrateEquationsOnCreation)</argsstring>
+        <name>initializeHybridArcVariationalEquationsSolver</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagatorSettings" kindref="compound">PropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+          <declname>propagatorSettings</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>integrateDynamicalAndVariationalEquationsConcurrently</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>integrateEquationsOnCreation</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1694" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1694" bodyend="1783"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ae01eca3955668704cf301b7646b70f98" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::~HybridArcVariationalEquationsSolver</definition>
+        <argsstring>()</argsstring>
+        <name>~HybridArcVariationalEquationsSolver</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1786" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1786" bodyend="1786"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a7c7f5f85669faabefab1364196e46732" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::integrateVariationalAndDynamicalEquations</definition>
+        <argsstring>(const VectorType &amp;initialStateEstimate, const bool integrateEquationsConcurrently)</argsstring>
+        <name>integrateVariationalAndDynamicalEquations</name>
+        <param>
+          <type>const VectorType &amp;</type>
+          <declname>initialStateEstimate</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>integrateEquationsConcurrently</declname>
+        </param>
+        <briefdescription>
+<para>Function to integrate variational equations and equations of motion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to integrate variational equations and equations of motion. At the end of this function, the stateTransitionInterface_ is reset with the new state transition and sensitivity matrices. If dynamical solution is to be processed, the environment is also updated to the new solution. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialStateEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial statez of the equations of motion that is to be used (in same order as in parametersToEstimate_). The initial states of single and multi-arcs propagations are concatenated into a single vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integrateEquationsConcurrently</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable determining whether the equations of motion are to be propagated concurrently with variational equations of motion (if true), or before variational equations (if false). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1799" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1799" bodyend="1859"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1aa41b4b27f3aea2d0dad1fa07778927c8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::integrateDynamicalEquationsOfMotionOnly</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;initialStateEstimate)</argsstring>
+        <name>integrateDynamicalEquationsOfMotionOnly</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialStateEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Function to integrate equations of motion only. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to integrate equations of motion only. If dynamical solution is to be processed, the environment is also updated to the new solution. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialStateEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state of the equations of motion that is to be used (in same order as in parametersToEstimate_). The initial states of single and multi-arcs propagations are concatenated into a single vector. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1869" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1869" bodyend="1900"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ab6e11360502123cc74c49ce1742b60b6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::resetParameterEstimate</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; newParameterEstimate, const bool areVariationalEquationsToBeIntegrated=true)</argsstring>
+        <name>resetParameterEstimate</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt;</type>
+          <declname>newParameterEstimate</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areVariationalEquationsToBeIntegrated</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations using the new physical parameters/body initial states. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newParameterEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New estimate of parameters that are to be estimated, in same order as defined in parametersToEstimate_ member. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areVariationalEquationsToBeIntegrated</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean defining whether the variational equations are to be reintegrated with the new parameter values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1911" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1911" bodyend="1947"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a643621da61de02ce4fa637992001066e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1HybridArcPropagatorSettings" kindref="compound">HybridArcPropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; HybridArcPropagatorSettings&lt; StateScalarType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::getPropagatorSettings</definition>
+        <argsstring>()</argsstring>
+        <name>getPropagatorSettings</name>
+        <briefdescription>
+<para>Function to retrieve propagator settings used for equations of motion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve propagator settings used for equations of motion <simplesect kind="return"><para>Propagator settings used for equations of motion </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1954" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1954" bodyend="1957"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a109d3989fcf56ebe09460feb1027120d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DynamicsSimulator" kindref="compound">DynamicsSimulator</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+        <definition>virtual std::shared_ptr&lt; DynamicsSimulator&lt; StateScalarType, TimeType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::getDynamicsSimulatorBase</definition>
+        <argsstring>()</argsstring>
+        <name>getDynamicsSimulatorBase</name>
+        <reimplements refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a12eab59633236f8c5ff85ad49f15c4d1">getDynamicsSimulatorBase</reimplements>
+        <briefdescription>
+<para>Function to retrieve the dynamics simulator object (as base-class pointer) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the dynamics simulator object (as base-class pointer). This function is not yet implemented in hybric-arc model, as no single <ref refid="classtudat_1_1propagators_1_1DynamicsSimulator" kindref="compound">DynamicsSimulator</ref> model is used. Calling this function throws an error <simplesect kind="return"><para>Dynamics simulator object (as base-class pointer) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1965" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1965" bodyend="1968"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a90e78ae3c71786bd5bc2c0b707a0a13c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1MultiArcVariationalEquationsSolver" kindref="compound">MultiArcVariationalEquationsSolver</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; MultiArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::getMultiArcSolver</definition>
+        <argsstring>()</argsstring>
+        <name>getMultiArcSolver</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1971" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1971" bodyend="1974"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1af400c82ec6a4770d91cc86ef2647a323" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleArcVariationalEquationsSolver" kindref="compound">SingleArcVariationalEquationsSolver</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; SingleArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt; &gt; tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::getSingleArcSolver</definition>
+        <argsstring>()</argsstring>
+        <name>getSingleArcSolver</name>
+        <briefdescription>
+<para>Object to solve single-arc variational equations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1977" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1977" bodyend="1980"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1aa08c84e52aba14f45e9ca31faaaa76a7" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::setExtendedMultiArcParameters</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;arcStartTimes)</argsstring>
+        <name>setExtendedMultiArcParameters</name>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <briefdescription>
+<para>Function to set and process the arc start times of the multi-arc propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set and process the arc start times of the multi-arc propagation <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Arc start times of the multi-arc propagation </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1989" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1989" bodyend="2022"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1aa67da8220bc43332275987e0539b6754" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::resetMultiArcInitialStates</definition>
+        <argsstring>(const VectorType &amp;manualMultiArcStates)</argsstring>
+        <name>resetMultiArcInitialStates</name>
+        <param>
+          <type>const VectorType &amp;</type>
+          <declname>manualMultiArcStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the initial multi-arc states. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the initial multi-arc states <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>manualMultiArcStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New multi-arc states </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2029" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2029" bodyend="2051"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1aa25296a0473782588df6519cc98aeb60" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::removeSingleArcBodiesFromMultiArcSolultion</definition>
+        <argsstring>(std::vector&lt; std::map&lt; TimeType, VectorType &gt; &gt; &amp;numericalMultiArcSolution)</argsstring>
+        <name>removeSingleArcBodiesFromMultiArcSolultion</name>
+        <param>
+          <type>std::vector&lt; std::map&lt; TimeType, VectorType &gt; &gt; &amp;</type>
+          <declname>numericalMultiArcSolution</declname>
+        </param>
+        <briefdescription>
+<para>Function that removes the single-arc body data from propagation results before processing data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function that removes the single-arc body data from propagation results before processing data <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>numericalMultiArcSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Full numerical solution of single and multi-arc bodies. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2058" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2058" bodyend="2072"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a9c4ca9bce54c3b885cdb44c665876ca8" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;::copyExtendedMultiArcInitialStatesToOriginalSettins</definition>
+        <argsstring>()</argsstring>
+        <name>copyExtendedMultiArcInitialStatesToOriginalSettins</name>
+        <briefdescription>
+<para>Update original propagator settings. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="2075" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="2075" bodyend="2089"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to manage and execute the numerical integration of variational equations of a dynamical system in a combination of single and multiple arcs</para>
+<para>Class to manage and execute the numerical integration of variational equations of a dynamical system, in addition to the dynamics itself, in a combination of single and multiple arcs. In this class, the governing equations are set once, but can be re-integrated for different initial conditions using the same instance of the class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::propagators::VariationalEquationsSolver&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1VariationalEquationsSolver"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propagators::VariationalEquationsSolver&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1VariationalEquationsSolver"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::HybridArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" line="1627" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h" bodystart="1628" bodyend="2147"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a65b29f963e58a1970030880b81dc0a2e" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>arcStartTimes_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a894f40d6a392999709385683bf5a17ab" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>bodies_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1ad78fd2c767dda10b9e9b71d57bda07b4" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>clearNumericalSolution_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a9c4ca9bce54c3b885cdb44c665876ca8" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>copyExtendedMultiArcInitialStatesToOriginalSettins</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a93332500d32176d53b75a81a71b740a1" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>createInitialConditions</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a7db5e3a04a0e1548e05202ae3e7cda30" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>createInitialVariationalEquationsSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a109d3989fcf56ebe09460feb1027120d" prot="public" virt="virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>getDynamicsSimulatorBase</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a90e78ae3c71786bd5bc2c0b707a0a13c" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>getMultiArcSolver</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a7be62250341720a5835e30e58d67e742" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>getParametersToEstimate</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a643621da61de02ce4fa637992001066e" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>getPropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1af400c82ec6a4770d91cc86ef2647a323" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>getSingleArcSolver</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1ac02df748b234c7d3b16569a49458ea23" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>getStateTransitionMatrixInterface</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a84ccd75515abfd47000e536a02490eb3" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>HybridArcVariationalEquationsSolver</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a23507a51d4c216c97a71c573f1cd4ed2" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>HybridArcVariationalEquationsSolver</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a210049a52e768935e4452d0d03c765bf" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>initializeHybridArcVariationalEquationsSolver</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ad35541340176646c076260a4e5e77b3d" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>initialStatesFromSingleArcPropagation_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1aa41b4b27f3aea2d0dad1fa07778927c8" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>integrateDynamicalEquationsOfMotionOnly</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1af275042b401385be66bcb54396e61136" prot="public" virt="pure-virtual" ambiguityscope="VariationalEquationsSolver&lt; double, double &gt;::"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>integrateDynamicalEquationsOfMotionOnly</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a7c7f5f85669faabefab1364196e46732" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>integrateVariationalAndDynamicalEquations</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a7b457d2bccd0b04d4f73276c1b1081cb" prot="public" virt="pure-virtual" ambiguityscope="VariationalEquationsSolver&lt; double, double &gt;::"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>integrateVariationalAndDynamicalEquations</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ae2d0ef9b714be3844353b41ae226e94d" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>MatrixType</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a96ac2ba32fb83d5eb95583db910c6cf8" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>multiArcDynamicsSingleArcSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ab329f701a1873d2e924dadb1cb857136" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>multiArcDynamicsSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1abceef88e486e46b6fc5db62745f67f56" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>multiArcIntegratorSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a84395f425d1798320e31e251130593c7" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>multiArcParametersToEstimate_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1adc12e9a8d9dc51d7fac7ff3aca0be005" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>multiArcSolver_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1abc2ae34e29885ce01889112455aff576" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>originalMultiArcDynamicsSingleArcSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1afe8d2b2d39ace7084ca3da37acd2bc16" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>originalMultiArcDynamicsSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a248d6f485a4b66c045189af7f9d43aae" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>originalMultiArcParametersToEstimate_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a5d6912aee505402865cf0172979a962d" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>originalMultiArcSolver_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a3f00abfdc4855c0d3f08981b48f00b16" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>originalPopagatorSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a4181478af94cd35bc8c3f009f97ec3d5" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>parametersToEstimate_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a6eb68374d5593e6bfaef272d0252efd9" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>parameterVectorSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1af35135e6be3fbfe145fcbb90ac8ce1db" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>propagatorSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1aa25296a0473782588df6519cc98aeb60" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>removeSingleArcBodiesFromMultiArcSolultion</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1aa67da8220bc43332275987e0539b6754" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>resetMultiArcInitialStates</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ab6e11360502123cc74c49ce1742b60b6" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>resetParameterEstimate</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1aede708b95f8514d59f4f5c78a993cb0e" prot="public" virt="pure-virtual" ambiguityscope="VariationalEquationsSolver&lt; double, double &gt;::"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>resetParameterEstimate</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1aa08c84e52aba14f45e9ca31faaaa76a7" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>setExtendedMultiArcParameters</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ab0d3e469eb0dbb25caf181be28a3403c" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>singleArcDynamicsSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a0965a5608bfcbcfe0195f42a52f755b9" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>singleArcInitialTime_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a74252cbfc3543be38532e77ed6465278" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>singleArcIntegratorSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a92620372e0a2900b22d0e7d5ff3ed92a" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>singleArcParametersToEstimate_</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1a167aa4f894c4caff8c80dec575de10ee" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>singleArcSolver_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1ad20119c41ac1a99b6ca691502a15cafc" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>stateTransitionInterface_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a6c64e399b480c53a2f19019e11f86169" prot="protected" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>stateTransitionMatrixSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1a73f835bd166a594e3ca1097cb4d9ad9a" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>VariationalEquationsSolver</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1afa78db3662f1ea0a6382800f3b7261a4" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>VectorType</name></member>
+      <member refid="classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver_1ae01eca3955668704cf301b7646b70f98" prot="public" virt="non-virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>~HybridArcVariationalEquationsSolver</name></member>
+      <member refid="classtudat_1_1propagators_1_1VariationalEquationsSolver_1abec3c96b94b15424614f55a6dc3fd02a" prot="public" virt="virtual"><scope>tudat::propagators::HybridArcVariationalEquationsSolver</scope><name>~VariationalEquationsSolver</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

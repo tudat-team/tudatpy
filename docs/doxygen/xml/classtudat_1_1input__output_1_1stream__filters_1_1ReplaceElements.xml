@@ -1,0 +1,237 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements" kind="class" language="C++" prot="public">
+    <compoundname>tudat::input_output::stream_filters::ReplaceElements</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">boost::iostreams::line_filter</basecompoundref>
+    <includes refid="streamFilters_8h" local="no">streamFilters.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1a49041141dd348ec81151923f0c393cc3" prot="private" static="no" mutable="no">
+        <type>boost::regex</type>
+        <definition>boost::regex tudat::input_output::stream_filters::ReplaceElements::searchFilter_</definition>
+        <argsstring></argsstring>
+        <name>searchFilter_</name>
+        <briefdescription>
+<para>Search pattern. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Search pattern used to find matches to replace. This is an encapsulated regular expression, see <ulink url="http://www.regular-expressions.info/">http://www.regular-expressions.info/</ulink> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="215" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="215" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1a3d7e9730e37ed2bb50e23d9b1e47654b" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::input_output::stream_filters::ReplaceElements::replaceString_</definition>
+        <argsstring></argsstring>
+        <name>replaceString_</name>
+        <briefdescription>
+<para>Replace string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Search matches are replaced with this string. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="221" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1ae1ecd94cce7c296c5d7b09fc36a606b8" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::input_output::stream_filters::ReplaceElements::isOmitIfEmpty_</definition>
+        <argsstring></argsstring>
+        <name>isOmitIfEmpty_</name>
+        <briefdescription>
+<para>Omit state for filtered line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If filtered line is empty, and omit flag is set to true, no newline empty line is returned. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="227" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1aa18b9e1b18df2d4cf0873637f2f647cc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::stream_filters::ReplaceElements::ReplaceElements</definition>
+        <argsstring>(boost::regex searchFilter, std::string replaceString=&quot;&quot;, bool isOmitIfEmpty=true)</argsstring>
+        <name>ReplaceElements</name>
+        <param>
+          <type>boost::regex</type>
+          <declname>searchFilter</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>replaceString</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isOmitIfEmpty</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Create filter with a regex object and replace string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates a <ref refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements" kindref="compound">ReplaceElements</ref> filter with a provided regex search pattern object and a replacement for any matches. If you want to remove any match leave replaceString empty. Note that &quot;line_filter&quot; is set to true, to indicate to Boost not to append newline characters. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>searchFilter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Regex search pattern to search for. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>replaceString</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String to replace any search matches with. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isOmitIfEmpty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if a line should be removed when a complete line is filtered away. (If true, if an entire line is removed, no newline character will be returned.) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="176" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="176" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1aa29f1fd05b29803c0d4d64bfa609b1d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::stream_filters::ReplaceElements::ReplaceElements</definition>
+        <argsstring>(std::string searchFilter, std::string replaceString=&quot;&quot;, bool isOmitIfEmpty=true)</argsstring>
+        <name>ReplaceElements</name>
+        <param>
+          <type>std::string</type>
+          <declname>searchFilter</declname>
+        </param>
+        <param>
+          <type>std::string</type>
+          <declname>replaceString</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isOmitIfEmpty</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Create filter with a basic search and replace string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates a <ref refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements" kindref="compound">ReplaceElements</ref> filter with a provided search string object and a replacement for any matches. Note this is for exact matches only (creates a regex object and escapes the following charachters: .[]{}()*+?|^$ ). If you want to remove any match leave replaceString empty. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>searchFilter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Regex search pattern to search for </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>replaceString</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String to replace any search matches with </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isOmitIfEmpty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if a line should be removed when a complete line is filtered away. (If true, if an entire line is removed, no newline character will be returned.) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="195" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/streamFilters.cpp" bodystart="63" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1ab74a73729a02c25a48413b02b1ff2961" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::input_output::stream_filters::ReplaceElements::do_filter</definition>
+        <argsstring>(const std::string &amp;line)</argsstring>
+        <name>do_filter</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+<para>Execute filter on a single line to replace matched elements with replace string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Find search pattern matches and replace them with a predefined string. For more information see boost::iostreams::line_filter (overrides definition of line_filter to enable chaining of filters). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unfiltered line. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filtered line. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="206" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/streamFilters.cpp" bodystart="87" bodyend="102"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Filter for searching and replacing text in a stream. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This filter allows the user to perform a search&amp;replace operation on a stream (line based). If a match is found, it is replaced by the given replace string.</para>
+<para>The search pattern is created using a regex expression (boost::regex). The following are example search queries:</para>
+<para>Search for keyword: &apos;myKeyWord&apos; This will match all exact matches of &apos;myKeyWord&apos;.</para>
+<para>Search for entire line with keyword: &apos;^.*myKeyWord.*$&apos; This will match the line (from start to finish) if it contains the string &quot;myKeyWord&quot;.</para>
+<para>Search for numbers with two decimals: &apos;[+-]*[0-9]*.[0-9]{2}&apos; This will match numbers up to two decimals (including preceding + and -).</para>
+<para>More examples: <ulink url="http://www.boost.org/libs/regex/">http://www.boost.org/libs/regex/</ulink> <ulink url="http://www.regular-expressions.info/examples.html">http://www.regular-expressions.info/examples.html</ulink> </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::input_output::stream_filters::ReplaceElements</label>
+        <link refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost::iostreams::line_filter</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::input_output::stream_filters::ReplaceElements</label>
+        <link refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost::iostreams::line_filter</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="161" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="162" bodyend="228"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1ab74a73729a02c25a48413b02b1ff2961" prot="public" virt="non-virtual"><scope>tudat::input_output::stream_filters::ReplaceElements</scope><name>do_filter</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1ae1ecd94cce7c296c5d7b09fc36a606b8" prot="private" virt="non-virtual"><scope>tudat::input_output::stream_filters::ReplaceElements</scope><name>isOmitIfEmpty_</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1aa18b9e1b18df2d4cf0873637f2f647cc" prot="public" virt="non-virtual"><scope>tudat::input_output::stream_filters::ReplaceElements</scope><name>ReplaceElements</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1aa29f1fd05b29803c0d4d64bfa609b1d8" prot="public" virt="non-virtual"><scope>tudat::input_output::stream_filters::ReplaceElements</scope><name>ReplaceElements</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1a3d7e9730e37ed2bb50e23d9b1e47654b" prot="private" virt="non-virtual"><scope>tudat::input_output::stream_filters::ReplaceElements</scope><name>replaceString_</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1ReplaceElements_1a49041141dd348ec81151923f0c393cc3" prot="private" virt="non-virtual"><scope>tudat::input_output::stream_filters::ReplaceElements</scope><name>searchFilter_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

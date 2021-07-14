@@ -1,0 +1,491 @@
+\hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial}{}\doxysection{tudat\+::orbit\+\_\+determination\+::State\+Derivative\+Partial Class Reference}
+\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial}\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+
+
+Base class for computing the partial derivatives of a state derivative model.  
+
+
+
+
+{\ttfamily \#include $<$state\+Derivative\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::orbit\+\_\+determination\+::State\+Derivative\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.791667cm]{classtudat_1_1orbit__determination_1_1StateDerivativePartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a4827d172b38b466f65f4da68500f53ea}{State\+Derivative\+Partial}} (const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type, const std\+::pair$<$ std\+::string, std\+::string $>$ \&integration\+Reference\+Point)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a05f085a890b27518ca24446ac22bdb3e}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a05f085a890b27518ca24446ac22bdb3e}} 
+virtual \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a05f085a890b27518ca24446ac22bdb3e}{$\sim$\+State\+Derivative\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual std\+::pair$<$ std\+::function$<$ void(Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$) $>$, int $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ab4fa1fbffa888476633642ca3e1a1dd1}{get\+Derivative\+Function\+Wrt\+State\+Of\+Integrated\+Body}} (const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7d6dc0c6a70e33af5aefedf00dee1959}{is\+State\+Derivative\+Dependent\+On\+Integrated\+Additional\+State\+Types}} (const std\+::pair$<$ std\+::string, std\+::string $>$ \&state\+Reference\+Point, const propagators\+::\+Integrated\+State\+Type integrated\+State\+Type)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function to check whether a partial w.\+r.\+t. some integrated state is non-\/zero. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a17003fa377113426b3e556a78f147941}{wrt\+Parameter}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$ parameter)
+\begin{DoxyCompactList}\small\item\em Function to directly compute the partial of the state derivative w.\+r.\+t. a double parameter. \end{DoxyCompactList}\item 
+virtual std\+::pair$<$ std\+::function$<$ void(Eigen\+::\+Matrix\+Xd \&) $>$, int $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a69a7807aefb5f8d5972718d36a96635f}{get\+Parameter\+Partial\+Function}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$ parameter)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the function that computes (by reference) a given double parameter partial. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ae12101f97027e73084d3d80dbc7059b3}{wrt\+Parameter}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$ parameter)
+\begin{DoxyCompactList}\small\item\em Function to directly compute the partial of the state derivative w.\+r.\+t. a vector parameter. \end{DoxyCompactList}\item 
+virtual std\+::pair$<$ std\+::function$<$ void(Eigen\+::\+Matrix\+Xd \&) $>$, int $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a849b14fede905e4e26ee2e752fbc95cc}{get\+Parameter\+Partial\+Function}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$ parameter)
+\begin{DoxyCompactList}\small\item\em Function to retrieve the function that computes (by reference) a given vector parameter partial. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a6801a8f31cc0fcdb9679c2db6be3b157}{update}} (const double current\+Time)=0
+\begin{DoxyCompactList}\small\item\em Pure virtual for updating the common parts of the partial object to current state and time. \end{DoxyCompactList}\item 
+propagators\+::\+Integrated\+State\+Type \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a01893338e6faedd93cc0410bb692ce12}{get\+Integrated\+State\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the type of state for which partials are to be computed. \end{DoxyCompactList}\item 
+std\+::pair$<$ std\+::string, std\+::string $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adbe24dfd4085ec6343ccf18478b52bc0}{get\+Integration\+Reference\+Point}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the identifier for body/reference point for which propagation is performed. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a3654d540045886559b6592dc4f30bab8}{reset\+Time}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Function to reset the object to the current time. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adf72962ebc3a9a2008170009c26f553c}{get\+Current\+Parameter\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$ parameter, Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a partial w.\+r.\+t. a double parameter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ac31393221aeef20ea4ee5d7d0ad59aba}{get\+Current\+Double\+Parameter\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$ parameter, Eigen\+::\+Matrix\+Xd \&parameter\+Partial)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a partial w.\+r.\+t. a double parameter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_acdfcbf63330d5b2b04fbaeb3787c8f68}{get\+Current\+Parameter\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$ parameter, Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ partial\+Matrix)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a partial w.\+r.\+t. a vector parameter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a2ba60d5dd1c131412a8f1aae8dd47a21}{get\+Current\+Vector\+Parameter\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$ parameter, Eigen\+::\+Matrix\+Xd \&parameter\+Partial)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a partial w.\+r.\+t. a vector parameter. \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a481fc771c0a87996bc469b34ead49db9}{set\+Parameter\+Partial\+Update\+Function}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$ parameter)
+\begin{DoxyCompactList}\small\item\em Function to set a dependency of this partial object w.\+r.\+t. a given double parameter. \end{DoxyCompactList}\item 
+virtual int \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a646f021c7c884446d482b9b0ab1e14f4}{set\+Parameter\+Partial\+Update\+Function}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$ parameter)
+\begin{DoxyCompactList}\small\item\em Function to set a dependency of this partial object w.\+r.\+t. a given vector parameter. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7a6f8bf919e2a0c16bc254738123b5b4}{update\+Parameter\+Partials}} ()
+\begin{DoxyCompactList}\small\item\em Function to update the values partial derivatives to current state and time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a53491f7d5c94bd64b71c5190b9793a64}{update\+Parameter\+Partials\+Of\+Member\+Objects}} ()
+\begin{DoxyCompactList}\small\item\em Function to compute parameter partials of member objects. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aa0245f5f6b58423905b64709dac39a4c}{reset\+Time\+Of\+Member\+Objects}} ()
+\begin{DoxyCompactList}\small\item\em Function to reset the member object to the current time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7b26a08bb4990220a7d2f40f3681274a}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7b26a08bb4990220a7d2f40f3681274a}} 
+void \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7b26a08bb4990220a7d2f40f3681274a}{reset\+Current\+Parameter\+Values}} ()
+\begin{DoxyCompactList}\small\item\em Function to define all current parameter partials as \textquotesingle{}not computed\textquotesingle{}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aad4f9e664da456462d4cb8b764679f1f}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aad4f9e664da456462d4cb8b764679f1f}} 
+propagators\+::\+Integrated\+State\+Type \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aad4f9e664da456462d4cb8b764679f1f}{integrated\+State\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of state for which partials are to be computed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aacaaf221e1d39de40b6d9e3b881b9e42}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aacaaf221e1d39de40b6d9e3b881b9e42}} 
+int \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aacaaf221e1d39de40b6d9e3b881b9e42}{acceleration\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Size of the single order state derivative model (i.\+e. 3 for translational dynamics). \end{DoxyCompactList}\item 
+std\+::pair$<$ std\+::string, std\+::string $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a0c30598298c59647e997203dc0ad664c}{integration\+Reference\+Point\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Identifier for body/reference point for which propagation is performed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ad91136949f633458e8b970a5baacb9ce}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ad91136949f633458e8b970a5baacb9ce}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$, bool $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ad91136949f633458e8b970a5baacb9ce}{is\+Current\+Double\+Parameter\+Partial\+Set\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of booleans defining whether the partial w.\+r.\+t. the current double parameter (key) has been computed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aebd9e9721d7194fea38a286e94391d97}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aebd9e9721d7194fea38a286e94391d97}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$, bool $>$\+::iterator \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aebd9e9721d7194fea38a286e94391d97}{is\+Current\+Double\+Parameter\+Partial\+Set\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Iterator for list defining whether the partial w.\+r.\+t. the current double parameter (key) has been computed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a6699f3159f79975406d3fcc1f9002d1b}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a6699f3159f79975406d3fcc1f9002d1b}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$, Eigen\+::\+Matrix\+Xd $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a6699f3159f79975406d3fcc1f9002d1b}{current\+Double\+Parameter\+Partials\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of current values of partials w.\+r.\+t. double parameter values (emptied at beginning of every time step). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a3e7c12925372ee2844f8f76d2dae4a77}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a3e7c12925372ee2844f8f76d2dae4a77}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$, std\+::function$<$ void(Eigen\+::\+Matrix\+Xd \&) $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a3e7c12925372ee2844f8f76d2dae4a77}{parameter\+Double\+Partial\+Functions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of functions to compute (return by reference) values of partials w.\+r.\+t. doule parameter partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a300a3a9234fd8eb9fd4f5d50778a4321}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a300a3a9234fd8eb9fd4f5d50778a4321}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$, std\+::function$<$ void(Eigen\+::\+Matrix\+Xd \&) $>$ $>$\+::iterator \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a300a3a9234fd8eb9fd4f5d50778a4321}{parameter\+Double\+Partial\+Function\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Iterator over list of functions to compute values of partials w.\+r.\+t. double parameter partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a90cb1a317764b060601778e2a515d305}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a90cb1a317764b060601778e2a515d305}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$, bool $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a90cb1a317764b060601778e2a515d305}{is\+Current\+Vector\+Parameter\+Partial\+Set\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of booleans defining whether the partial w.\+r.\+t. the current vector parameter (key) has been computed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adc2943bcf127c42d392e57e574b0fa1f}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adc2943bcf127c42d392e57e574b0fa1f}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$, bool $>$\+::iterator \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adc2943bcf127c42d392e57e574b0fa1f}{is\+Current\+Vector\+Parameter\+Partial\+Set\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Iterator for list defining whether the partial w.\+r.\+t. the current vector parameter (key) has been computed. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a1091be37858cb2fbef57b803e944ac60}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a1091be37858cb2fbef57b803e944ac60}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$, Eigen\+::\+Matrix\+Xd $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a1091be37858cb2fbef57b803e944ac60}{current\+Vector\+Parameter\+Partials\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of current values of partials w.\+r.\+t. double parameter values (emptied at beginning of every time step). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a799da4695ca3bea29aaed8b761c9c3b3}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a799da4695ca3bea29aaed8b761c9c3b3}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$, std\+::function$<$ void(Eigen\+::\+Matrix\+Xd \&) $>$ $>$ \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a799da4695ca3bea29aaed8b761c9c3b3}{parameter\+Vector\+Partial\+Functions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of functions to compute (return by reference) values of partials w.\+r.\+t. vector parameter partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ae86be0f3c3a487ce1706e0829caca26e}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ae86be0f3c3a487ce1706e0829caca26e}} 
+std\+::map$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$, std\+::function$<$ void(Eigen\+::\+Matrix\+Xd \&) $>$ $>$\+::iterator \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ae86be0f3c3a487ce1706e0829caca26e}{parameter\+Vector\+Partial\+Function\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Iterator over list of functions to compute values of partials w.\+r.\+t. vector parameter partials. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_abbca0ac294a29b7d1efc16a68d7c4582}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_abbca0ac294a29b7d1efc16a68d7c4582}} 
+double {\bfseries current\+Time\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for computing the partial derivatives of a state derivative model. 
+
+Base class for computing the partial derivatives of a state derivative model (i.\+e. acceleration model for translational dynamics, torque model for rottional dynamics, etc.). Typically, two levels of derived classes are required\+: one for the type of dynamics, and one for the type of model (e.\+g. one level for acceleration model, and one level for central gravitational, spherical harmonic model, etc.). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a4827d172b38b466f65f4da68500f53ea}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a4827d172b38b466f65f4da68500f53ea}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!StateDerivativePartial@{StateDerivativePartial}}
+\index{StateDerivativePartial@{StateDerivativePartial}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{StateDerivativePartial()}{StateDerivativePartial()}}
+{\footnotesize\ttfamily tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::\+State\+Derivative\+Partial (\begin{DoxyParamCaption}\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type,  }\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{integration\+Reference\+Point }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em integrated\+State\+Type} & Type of dynamics for which partials are to be computed \\
+\hline
+{\em integration\+Reference\+Point} & Reference point (i.\+e. propagated body and point) for which the dynamics is propagated. First entry denotes the full body, second entry the reference point on the body that is propagated (empty for translational, rotational dynamics). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ac31393221aeef20ea4ee5d7d0ad59aba}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ac31393221aeef20ea4ee5d7d0ad59aba}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getCurrentDoubleParameterPartial@{getCurrentDoubleParameterPartial}}
+\index{getCurrentDoubleParameterPartial@{getCurrentDoubleParameterPartial}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getCurrentDoubleParameterPartial()}{getCurrentDoubleParameterPartial()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Current\+Double\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$}]{parameter,  }\item[{Eigen\+::\+Matrix\+Xd \&}]{parameter\+Partial }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a partial w.\+r.\+t. a double parameter. 
+
+Function to retrieve a partial w.\+r.\+t. a double parameter. An error is thrown if there is no dependency w.\+r.\+t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which a parameter is to be computed \\
+\hline
+{\em parameter\+Partial} & Partial of state derivative w.\+r.\+t. given parameter (return by reference) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adf72962ebc3a9a2008170009c26f553c}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adf72962ebc3a9a2008170009c26f553c}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getCurrentParameterPartial@{getCurrentParameterPartial}}
+\index{getCurrentParameterPartial@{getCurrentParameterPartial}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getCurrentParameterPartial()}{getCurrentParameterPartial()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Current\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$}]{parameter,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a partial w.\+r.\+t. a double parameter. 
+
+Function to retrieve a partial w.\+r.\+t. a double parameter. An error is thrown if there is no dependency w.\+r.\+t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which a parameter is to be computed \\
+\hline
+{\em partial\+Matrix} & Partial of state derivative w.\+r.\+t. given parameter (return by \textquotesingle{}reference\textquotesingle{}, amking use of Eigen\+::\+Block architecture). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_acdfcbf63330d5b2b04fbaeb3787c8f68}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_acdfcbf63330d5b2b04fbaeb3787c8f68}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getCurrentParameterPartial@{getCurrentParameterPartial}}
+\index{getCurrentParameterPartial@{getCurrentParameterPartial}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getCurrentParameterPartial()}{getCurrentParameterPartial()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Current\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$}]{parameter,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$}]{partial\+Matrix }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a partial w.\+r.\+t. a vector parameter. 
+
+Function to retrieve a partial w.\+r.\+t. a vector parameter. An error is thrown if there is no dependency w.\+r.\+t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which a parameter is to be computed \\
+\hline
+{\em partial\+Matrix} & Partial of state derivative w.\+r.\+t. given parameter (return by \textquotesingle{}reference\textquotesingle{}, amking use of Eigen\+::\+Block architecture). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a2ba60d5dd1c131412a8f1aae8dd47a21}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a2ba60d5dd1c131412a8f1aae8dd47a21}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getCurrentVectorParameterPartial@{getCurrentVectorParameterPartial}}
+\index{getCurrentVectorParameterPartial@{getCurrentVectorParameterPartial}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getCurrentVectorParameterPartial()}{getCurrentVectorParameterPartial()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Current\+Vector\+Parameter\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$}]{parameter,  }\item[{Eigen\+::\+Matrix\+Xd \&}]{parameter\+Partial }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a partial w.\+r.\+t. a vector parameter. 
+
+Function to retrieve a partial w.\+r.\+t. a vector parameter. An error is thrown if there is no dependency w.\+r.\+t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which a parameter is to be computed \\
+\hline
+{\em parameter\+Partial} & Partial of state derivative w.\+r.\+t. given parameter (return by reference) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ab4fa1fbffa888476633642ca3e1a1dd1}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ab4fa1fbffa888476633642ca3e1a1dd1}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getDerivativeFunctionWrtStateOfIntegratedBody@{getDerivativeFunctionWrtStateOfIntegratedBody}}
+\index{getDerivativeFunctionWrtStateOfIntegratedBody@{getDerivativeFunctionWrtStateOfIntegratedBody}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getDerivativeFunctionWrtStateOfIntegratedBody()}{getDerivativeFunctionWrtStateOfIntegratedBody()}}
+{\footnotesize\ttfamily virtual std\+::pair$<$ std\+::function$<$ void( Eigen\+::\+Block$<$ Eigen\+::\+Matrix\+Xd $>$ ) $>$, int $>$ tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Derivative\+Function\+Wrt\+State\+Of\+Integrated\+Body (\begin{DoxyParamCaption}\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. 
+
+Pure virtual function to retrieve the function that returns the partial derivative w.\+r.\+t. a propagated state. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Reference\+Point} & Reference point (id) for propagated state (i.\+e. body name for translational dynamics). \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pair with function, returning partial derivative, and number of columns in partial vector, 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_a00abe63e3789cd2f42bc1b0c7d1fdb9e}{tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a1b40573f9d0a7ad203e379327f13757e}{tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a01893338e6faedd93cc0410bb692ce12}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a01893338e6faedd93cc0410bb692ce12}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getIntegratedStateType@{getIntegratedStateType}}
+\index{getIntegratedStateType@{getIntegratedStateType}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getIntegratedStateType()}{getIntegratedStateType()}}
+{\footnotesize\ttfamily propagators\+::\+Integrated\+State\+Type tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Integrated\+State\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the type of state for which partials are to be computed. 
+
+Function to get the type of state for which partials are to be computed. \begin{DoxyReturn}{Returns}
+Type of state for which partials are to be computed. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adbe24dfd4085ec6343ccf18478b52bc0}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_adbe24dfd4085ec6343ccf18478b52bc0}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getIntegrationReferencePoint@{getIntegrationReferencePoint}}
+\index{getIntegrationReferencePoint@{getIntegrationReferencePoint}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getIntegrationReferencePoint()}{getIntegrationReferencePoint()}}
+{\footnotesize\ttfamily std\+::pair$<$ std\+::string, std\+::string $>$ tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Integration\+Reference\+Point (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the identifier for body/reference point for which propagation is performed. 
+
+Function to get the identifier for body/reference point for which propagation is performed. \begin{DoxyReturn}{Returns}
+Identifier for body/reference point for which propagation is performed. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a69a7807aefb5f8d5972718d36a96635f}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a69a7807aefb5f8d5972718d36a96635f}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getParameterPartialFunction@{getParameterPartialFunction}}
+\index{getParameterPartialFunction@{getParameterPartialFunction}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getParameterPartialFunction()}{getParameterPartialFunction()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual std\+::pair$<$ std\+::function$<$ void( Eigen\+::\+Matrix\+Xd\& ) $>$, int $>$ tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Parameter\+Partial\+Function (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$}]{parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the function that computes (by reference) a given double parameter partial. 
+
+Function to retrieve the function that computes (by reference) a given double parameter partial. NOTE\+: this function is implemented in this base class with default no dependency. If any double parameter dependencioes exists, this function should be overriden in derived class. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Parameter w.\+r.\+t. which partial is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_a5b01a276e1be12005799a1d49e553c6c}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonic\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_a5000ecdbfaa71aad686a970663d1d198}{tudat\+::acceleration\+\_\+partials\+::\+Second\+Degree\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1InertialTorquePartial_abe169cb26ea78ab953062fa6b2a41bd9}{tudat\+::acceleration\+\_\+partials\+::\+Inertial\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_acb6f5e7a412a8a17fba74fb97e74b8ff}{tudat\+::acceleration\+\_\+partials\+::\+Constant\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_aced267e729ef613715b2a5370695e58e}{tudat\+::acceleration\+\_\+partials\+::\+Momentum\+Wheel\+Desaturation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_aa3c7d3780d4e91a42656210494973169}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a47b1b544bfab892216d8f66d5e66f724}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_a70136429a80f09e972dc865f933f49f2}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_af7cc881fead76db604465d28d91e5d92}{tudat\+::acceleration\+\_\+partials\+::\+Cannon\+Ball\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_a241b255164f25da4bd5cbc9c4afa807c}{tudat\+::acceleration\+\_\+partials\+::\+Panelled\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a6b140963d7564525e00fee292c75f59b}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_a0a8691ec5d4b03293cfe122976a68cff}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_af4915ffd97c18ae894aeb302af2e5e16}{tudat\+::acceleration\+\_\+partials\+::\+Central\+Gravitation\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_a5b243ad2d7fe069d9af4d6ca20ffd9b1}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a849b14fede905e4e26ee2e752fbc95cc}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a849b14fede905e4e26ee2e752fbc95cc}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!getParameterPartialFunction@{getParameterPartialFunction}}
+\index{getParameterPartialFunction@{getParameterPartialFunction}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{getParameterPartialFunction()}{getParameterPartialFunction()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual std\+::pair$<$ std\+::function$<$ void( Eigen\+::\+Matrix\+Xd\& ) $>$, int $>$ tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::get\+Parameter\+Partial\+Function (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$}]{parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the function that computes (by reference) a given vector parameter partial. 
+
+Function to retrieve the function that computes (by reference) a given vector parameter partial. NOTE\+: this function is implemented in this base class with default no dependency. If any double parameter dependencioes exists, this function should be overriden in derived class. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Parameter w.\+r.\+t. which partial is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_a03018f40496c5de51f454a4548cae5f3}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonic\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_a7578059084d9a216e133cb3020454a6c}{tudat\+::acceleration\+\_\+partials\+::\+Second\+Degree\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1InertialTorquePartial_af3e1401cddb47a569b99672ba391308f}{tudat\+::acceleration\+\_\+partials\+::\+Inertial\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_ab542c8d0f4b0f7a01ddb2705f8eec03c}{tudat\+::acceleration\+\_\+partials\+::\+Constant\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_ac86a6391373c0f24075a23ff4b69abb7}{tudat\+::acceleration\+\_\+partials\+::\+Momentum\+Wheel\+Desaturation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a23c1b474e6de1143d18ca08786aa04c1}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a8e5a5268d81802ce08a6ee258d89799a}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_a5a94db06085bf145865d9b58b26ebe9a}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_ada6608f46cde95e33cf6f31f6b2a332b}{tudat\+::acceleration\+\_\+partials\+::\+Cannon\+Ball\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_ab5e76171822c3694cd1fb698b7876520}{tudat\+::acceleration\+\_\+partials\+::\+Panelled\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a2d44ec5d917aaaae8b63fe37b318e66e}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial_a450c3f2be2a765c9f057ff93017e6167}{tudat\+::acceleration\+\_\+partials\+::\+Empirical\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_a9ce68e594f2ad57b7deab1ef952e3d1b}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_a6ccd2c5d479c82c7637ca210fa38b27c}{tudat\+::acceleration\+\_\+partials\+::\+Central\+Gravitation\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_abfb24927d2a23b3c2eb47a77ae873110}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7d6dc0c6a70e33af5aefedf00dee1959}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7d6dc0c6a70e33af5aefedf00dee1959}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!isStateDerivativeDependentOnIntegratedAdditionalStateTypes@{isStateDerivativeDependentOnIntegratedAdditionalStateTypes}}
+\index{isStateDerivativeDependentOnIntegratedAdditionalStateTypes@{isStateDerivativeDependentOnIntegratedAdditionalStateTypes}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{isStateDerivativeDependentOnIntegratedAdditionalStateTypes()}{isStateDerivativeDependentOnIntegratedAdditionalStateTypes()}}
+{\footnotesize\ttfamily virtual bool tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::is\+State\+Derivative\+Dependent\+On\+Integrated\+Additional\+State\+Types (\begin{DoxyParamCaption}\item[{const std\+::pair$<$ std\+::string, std\+::string $>$ \&}]{state\+Reference\+Point,  }\item[{const propagators\+::\+Integrated\+State\+Type}]{integrated\+State\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual function to check whether a partial w.\+r.\+t. some integrated state is non-\/zero. 
+
+Pure virtual function to check whether a partial w.\+r.\+t. some integrated state is non-\/zero. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Reference\+Point} & Reference point (id) for propagated state (i.\+e. body name for translational dynamics). \\
+\hline
+{\em integrated\+State\+Type} & Type of propagated state. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if dependency exists, false otherwise. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1TorquePartial_abd32c3a39bd48fe77a2223580d44ea57}{tudat\+::acceleration\+\_\+partials\+::\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_a6c7db8f8ebb688b9281316cc78012a17}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonic\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_aec785a36a4fab48930ca67263da3a469}{tudat\+::acceleration\+\_\+partials\+::\+Second\+Degree\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_a5ce17e25105436d860a7e6d4545cecc2}{tudat\+::acceleration\+\_\+partials\+::\+Momentum\+Wheel\+Desaturation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a3b2270ed356d4d160791f27e08abddfd}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a46303a708d5697dff414538e8dc42912}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_a655cf2b7a07572b8af83b42c11e667fb}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_acb1a163e59f398cba8929feb0c64627d}{tudat\+::acceleration\+\_\+partials\+::\+Cannon\+Ball\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_ad9eac4e9f3b342b6bd3c7fe6031dc37f}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_a8b2783d84e2d5d6692887b9b30c9d598}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_ae34f4b0350fb63296433e29f1ede15ae}{tudat\+::acceleration\+\_\+partials\+::\+Central\+Gravitation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_a0a61b86bf520d9d668c87eb8b5cd9d94}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AccelerationPartial_a94b95390a37109627270bd8dfbca5342}{tudat\+::acceleration\+\_\+partials\+::\+Acceleration\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a3654d540045886559b6592dc4f30bab8}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a3654d540045886559b6592dc4f30bab8}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!resetTime@{resetTime}}
+\index{resetTime@{resetTime}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{resetTime()}{resetTime()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::reset\+Time (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the object to the current time. 
+
+Function to reset the object to the current time, recomputing partials to current state. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} to which partials are to be updated. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aa0245f5f6b58423905b64709dac39a4c}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_aa0245f5f6b58423905b64709dac39a4c}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!resetTimeOfMemberObjects@{resetTimeOfMemberObjects}}
+\index{resetTimeOfMemberObjects@{resetTimeOfMemberObjects}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{resetTimeOfMemberObjects()}{resetTimeOfMemberObjects()}}
+{\footnotesize\ttfamily virtual void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::reset\+Time\+Of\+Member\+Objects (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the member object to the current time. 
+
+Function to reset the member object to the current time. By default (implemented here) no computations are performed. For certain derived classed (i.\+e. Third\+Body\+Gravity\+Partial), there are member \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial}{State\+Derivative\+Partial}} objects that need to be updated when calling reset\+Time, for which this function should be redefined. 
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a6bc1d79dc73aba002ba8dd56f82bf3c2}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a615bd69cfc7a7ea6a91ea50d506f02c3}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a2e3c904dd2ba9be3349111899991c3e4}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a481fc771c0a87996bc469b34ead49db9}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a481fc771c0a87996bc469b34ead49db9}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!setParameterPartialUpdateFunction@{setParameterPartialUpdateFunction}}
+\index{setParameterPartialUpdateFunction@{setParameterPartialUpdateFunction}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{setParameterPartialUpdateFunction()}{setParameterPartialUpdateFunction()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily virtual int tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::set\+Parameter\+Partial\+Update\+Function (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$}]{parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to set a dependency of this partial object w.\+r.\+t. a given double parameter. 
+
+Function to set a dependency of this partial object w.\+r.\+t. a given double parameter. If a dependency exists, the given partial is recomputed on every call of update\+Parameter\+Partials. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which dependency is to be checked and set. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Size (number of columns) of parameter partial. Zero if no dependency, 1 otherwise. 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_a1ec85f9f6063993b01dfe83407c5ba3e}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a7c2d48e799cee6d669b4342c1e215faa}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a646f021c7c884446d482b9b0ab1e14f4}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a646f021c7c884446d482b9b0ab1e14f4}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!setParameterPartialUpdateFunction@{setParameterPartialUpdateFunction}}
+\index{setParameterPartialUpdateFunction@{setParameterPartialUpdateFunction}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{setParameterPartialUpdateFunction()}{setParameterPartialUpdateFunction()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily virtual int tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::set\+Parameter\+Partial\+Update\+Function (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$}]{parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to set a dependency of this partial object w.\+r.\+t. a given vector parameter. 
+
+Function to set a dependency of this partial object w.\+r.\+t. a given vector parameter. If a dependency exists, the given partial is recomputed on every call of update\+Parameter\+Partials. 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Partial w.\+r.\+t. which dependency is to be checked and set. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Size (number of columns) of parameter partial. Zero if no dependency, size of parameter otherwise. 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_aa5d17fcbd0514e51ab6aa4fbef89c17f}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a0951e63ab3dd4f252ef62a61f74fcb36}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a6801a8f31cc0fcdb9679c2db6be3b157}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a6801a8f31cc0fcdb9679c2db6be3b157}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!update@{update}}
+\index{update@{update}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily virtual void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::update (\begin{DoxyParamCaption}\item[{const double}]{current\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Pure virtual for updating the common parts of the partial object to current state and time. 
+
+Pure virtual for updating the common parts of the partial object to current state and time. Note that this function is distinct from the update\+Parameter\+Partials, which only updates the specific required partial derivatives w.\+r.\+t. required parameters. This function computes variables that are always required when the derived class partial is used. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} to which partials are to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_aa8f21b1b5df8a2e498c46c863ba8406e}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonic\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_a0b0b872b220ff546290f1f8f7b5ea087}{tudat\+::acceleration\+\_\+partials\+::\+Second\+Degree\+Gravitational\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1InertialTorquePartial_a3dc807eef09e683da68acdca271862f6}{tudat\+::acceleration\+\_\+partials\+::\+Inertial\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_abd5d0ac79bbb95adc2db171a7e12fa46}{tudat\+::acceleration\+\_\+partials\+::\+Constant\+Torque\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_aaf93b152fe0f1679dd29f6d143fb66fe}{tudat\+::acceleration\+\_\+partials\+::\+Momentum\+Wheel\+Desaturation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a581667836418faf4f1a6e9c79f898e6a}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_a3141f02f866f71df4f9509daad0e0fe3}{tudat\+::acceleration\+\_\+partials\+::\+Relativistic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_ab32fc99fb794b72a6cbdbbcb122e6d6d}{tudat\+::acceleration\+\_\+partials\+::\+Panelled\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial_a935abdcf0f1f833f2481c8598fe36d57}{tudat\+::acceleration\+\_\+partials\+::\+Empirical\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_a6151a26e5a5baf0cceeee9fbbcf24e4f}{tudat\+::acceleration\+\_\+partials\+::\+Direct\+Tidal\+Dissipation\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_a340849314fd38579fdbf17d58b197be8}{tudat\+::acceleration\+\_\+partials\+::\+Central\+Gravitation\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_a1d05e14668c9dd5433fe17332afc726b}{tudat\+::acceleration\+\_\+partials\+::\+Aerodynamic\+Acceleration\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_ac146f0ef1adda30ba9657bac6e563692}{tudat\+::acceleration\+\_\+partials\+::\+Cannon\+Ball\+Radiation\+Pressure\+Partial}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_ac200d4b69bc1409a6f0c6cc62daba93f}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_abff1814094093bf2104e730d1f533cb3}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7a6f8bf919e2a0c16bc254738123b5b4}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a7a6f8bf919e2a0c16bc254738123b5b4}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!updateParameterPartials@{updateParameterPartials}}
+\index{updateParameterPartials@{updateParameterPartials}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{updateParameterPartials()}{updateParameterPartials()}}
+{\footnotesize\ttfamily void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::update\+Parameter\+Partials (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to update the values partial derivatives to current state and time. 
+
+Function to update the values partial derivatives to current state and time. \mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a53491f7d5c94bd64b71c5190b9793a64}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a53491f7d5c94bd64b71c5190b9793a64}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!updateParameterPartialsOfMemberObjects@{updateParameterPartialsOfMemberObjects}}
+\index{updateParameterPartialsOfMemberObjects@{updateParameterPartialsOfMemberObjects}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{updateParameterPartialsOfMemberObjects()}{updateParameterPartialsOfMemberObjects()}}
+{\footnotesize\ttfamily virtual void tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::update\+Parameter\+Partials\+Of\+Member\+Objects (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function to compute parameter partials of member objects. 
+
+Function to compute parameter partials of member objects. By default (implemented here) no computations are performed. For certain derived classed (i.\+e. Third\+Body\+Gravity\+Partial), there are member \mbox{\hyperlink{classtudat_1_1orbit__determination_1_1StateDerivativePartial}{State\+Derivative\+Partial}} objects that need to be updated when calling update\+Parameter\+Partials, for which this function should be redefined. 
+
+Reimplemented in \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_abe59cad0fa867a62e29ffa1761cc4d39}{tudat\+::acceleration\+\_\+partials\+::\+Third\+Body\+Gravity\+Partial$<$ Direct\+Gravity\+Partial, type $>$}}, \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_a689a4e11722f9552b91a0be493fb4fc4}{tudat\+::acceleration\+\_\+partials\+::\+Spherical\+Harmonics\+Gravity\+Partial}}, and \mbox{\hyperlink{classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_a49274238763d4dc15d5acdd7ea656d09}{tudat\+::acceleration\+\_\+partials\+::\+Mutual\+Spherical\+Harmonics\+Gravity\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a17003fa377113426b3e556a78f147941}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a17003fa377113426b3e556a78f147941}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!wrtParameter@{wrtParameter}}
+\index{wrtParameter@{wrtParameter}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{wrtParameter()}{wrtParameter()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix\+Xd tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::wrt\+Parameter (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ double $>$ $>$}]{parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to directly compute the partial of the state derivative w.\+r.\+t. a double parameter. 
+
+Function to directly compute the partial of the state derivative w.\+r.\+t. a double parameter. NOTE\+: This function is incldued for testing purposes, and is not to be used during propagation (highly inefficient). 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Parameter w.\+r.\+t. which partial is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of state derivative w.\+r.\+t. given parameter. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ae12101f97027e73084d3d80dbc7059b3}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_ae12101f97027e73084d3d80dbc7059b3}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!wrtParameter@{wrtParameter}}
+\index{wrtParameter@{wrtParameter}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{wrtParameter()}{wrtParameter()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix\+Xd tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::wrt\+Parameter (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter}}$<$ Eigen\+::\+Vector\+Xd $>$ $>$}]{parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to directly compute the partial of the state derivative w.\+r.\+t. a vector parameter. 
+
+Function to directly compute the partial of the state derivative w.\+r.\+t. a vector parameter. NOTE\+: This function is incldued for testing purposes, and is not to be used during propagation (highly inefficient). 
+\begin{DoxyParams}{Parameters}
+{\em parameter} & Parameter w.\+r.\+t. which partial is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of state derivative w.\+r.\+t. given parameter. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a0c30598298c59647e997203dc0ad664c}\label{classtudat_1_1orbit__determination_1_1StateDerivativePartial_a0c30598298c59647e997203dc0ad664c}} 
+\index{tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}!integrationReferencePoint\_@{integrationReferencePoint\_}}
+\index{integrationReferencePoint\_@{integrationReferencePoint\_}!tudat::orbit\_determination::StateDerivativePartial@{tudat::orbit\_determination::StateDerivativePartial}}
+\doxysubsubsection{\texorpdfstring{integrationReferencePoint\_}{integrationReferencePoint\_}}
+{\footnotesize\ttfamily std\+::pair$<$ std\+::string, std\+::string $>$ tudat\+::orbit\+\_\+determination\+::\+State\+Derivative\+Partial\+::integration\+Reference\+Point\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Identifier for body/reference point for which propagation is performed. 
+
+Identifier for body/reference point for which propagation is performed. First entry represents the body being propagated. Second entry is empty for propagation of entire bodies (translational, rotational), but must be set for propagation of local dynamics (i.\+e. observer proper time). 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/state\+Derivative\+Partial.\+h\end{DoxyCompactItemize}

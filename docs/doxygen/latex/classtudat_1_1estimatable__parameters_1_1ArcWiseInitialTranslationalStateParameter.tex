@@ -1,0 +1,196 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Arc\+Wise\+Initial\+Translational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$ Class Template Reference}
+\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+
+
+Interface class for the estimation of an arcwise initial translational state.  
+
+
+
+
+{\ttfamily \#include $<$initial\+Translational\+State.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Arc\+Wise\+Initial\+Translational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.888702cm]{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_aeefb58f0c98f34a47991b4b83d5cece0}{Arc\+Wise\+Initial\+Translational\+State\+Parameter}} (const std\+::string \&associated\+Body, const std\+::vector$<$ double $>$ \&arc\+Start\+Times, const std\+::vector$<$ Eigen\+::\+Matrix$<$ Initial\+State\+Parameter\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \&initial\+Translational\+State, const std\+::vector$<$ std\+::string $>$ \&central\+Bodies, const std\+::string \&frame\+Orientation=\char`\"{}ECLIPJ2000\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a02247f9b06a665fb9aa9d850471f191a}{Arc\+Wise\+Initial\+Translational\+State\+Parameter}} (const std\+::string \&associated\+Body, const std\+::vector$<$ double $>$ \&arc\+Start\+Times, const Eigen\+::\+Matrix$<$ Initial\+State\+Parameter\+Type, Eigen\+::\+Dynamic, 1 $>$ initial\+Translational\+States, const std\+::vector$<$ std\+::string $>$ \&central\+Bodies, const std\+::string \&frame\+Orientation=\char`\"{}ECLIPJ2000\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ Initial\+State\+Parameter\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a877e0d957a05682f144360e0c56f83e0}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the current values of initial states w.\+r.\+t. central\+Body for each arc, concatenated in arc order. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a77f06aac5390eee59068c1c6bb97fc50}{set\+Parameter\+Value}} (Eigen\+::\+Matrix$<$ Initial\+State\+Parameter\+Type, Eigen\+::\+Dynamic, 1 $>$ parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Function to reset the current values of initial states w.\+r.\+t. central\+Body for each arc, concatenated in arc order. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a5aff78af8fdeee8022a692fab7464ab4}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter (always 6 times number of arcs). \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a5ad6f9b768c5c2ee15f2da6719321e01}{get\+Number\+Of\+State\+Arcs}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the number of state arcs. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_ac12dc0a99a80dc5403d1651eea0e5b30}{get\+Central\+Bodies}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the names of the bodies w.\+r.\+t. which the initial states are to be estimated. \end{DoxyCompactList}\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_abc1b6ba2668754f916a21014af6d2d50}{get\+Arc\+Start\+Times}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the start times for separate arcs. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Initial\+State\+Parameter\+Type = double$>$\newline
+class tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter$<$ Initial\+State\+Parameter\+Type $>$}
+
+Interface class for the estimation of an arcwise initial translational state. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_aeefb58f0c98f34a47991b4b83d5cece0}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_aeefb58f0c98f34a47991b4b83d5cece0}} 
+\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}!ArcWiseInitialTranslationalStateParameter@{ArcWiseInitialTranslationalStateParameter}}
+\index{ArcWiseInitialTranslationalStateParameter@{ArcWiseInitialTranslationalStateParameter}!tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{ArcWiseInitialTranslationalStateParameter()}{ArcWiseInitialTranslationalStateParameter()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Initial\+State\+Parameter\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter}}$<$ Initial\+State\+Parameter\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{Arc\+Wise\+Initial\+Translational\+State\+Parameter}} (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{associated\+Body,  }\item[{const std\+::vector$<$ double $>$ \&}]{arc\+Start\+Times,  }\item[{const std\+::vector$<$ Eigen\+::\+Matrix$<$ Initial\+State\+Parameter\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \&}]{initial\+Translational\+State,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{central\+Bodies,  }\item[{const std\+::string \&}]{frame\+Orientation = {\ttfamily \char`\"{}ECLIPJ2000\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em associated\+Body} & Body for which initial state is to be estimated. \\
+\hline
+{\em arc\+Start\+Times} & Start times for separate arcs \\
+\hline
+{\em initial\+Translational\+State} & List of initial arc states \\
+\hline
+{\em central\+Bodies} & List of central bodies w.\+r.\+t. which the initial state is to be estimated (per arc). \\
+\hline
+{\em frame\+Orientation} & Orientation of the frame in which the state is defined. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a02247f9b06a665fb9aa9d850471f191a}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a02247f9b06a665fb9aa9d850471f191a}} 
+\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}!ArcWiseInitialTranslationalStateParameter@{ArcWiseInitialTranslationalStateParameter}}
+\index{ArcWiseInitialTranslationalStateParameter@{ArcWiseInitialTranslationalStateParameter}!tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{ArcWiseInitialTranslationalStateParameter()}{ArcWiseInitialTranslationalStateParameter()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Initial\+State\+Parameter\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter}}$<$ Initial\+State\+Parameter\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{Arc\+Wise\+Initial\+Translational\+State\+Parameter}} (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{associated\+Body,  }\item[{const std\+::vector$<$ double $>$ \&}]{arc\+Start\+Times,  }\item[{const Eigen\+::\+Matrix$<$ Initial\+State\+Parameter\+Type, Eigen\+::\+Dynamic, 1 $>$}]{initial\+Translational\+States,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{central\+Bodies,  }\item[{const std\+::string \&}]{frame\+Orientation = {\ttfamily \char`\"{}ECLIPJ2000\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em associated\+Body} & Body for which initial state is to be estimated. \\
+\hline
+{\em arc\+Start\+Times} & Start times for separate arcs \\
+\hline
+{\em initial\+Translational\+States} & Current value of initial arc states (concatenated in same order as arcs) \\
+\hline
+{\em central\+Bodies} & List of central bodies w.\+r.\+t. which the initial state is to be estimated (per arc). \\
+\hline
+{\em frame\+Orientation} & Orientation of the frame in which the state is defined. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_abc1b6ba2668754f916a21014af6d2d50}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_abc1b6ba2668754f916a21014af6d2d50}} 
+\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}!getArcStartTimes@{getArcStartTimes}}
+\index{getArcStartTimes@{getArcStartTimes}!tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getArcStartTimes()}{getArcStartTimes()}}
+{\footnotesize\ttfamily template$<$typename Initial\+State\+Parameter\+Type  = double$>$ \\
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter}}$<$ Initial\+State\+Parameter\+Type $>$\+::get\+Arc\+Start\+Times (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the start times for separate arcs. 
+
+Function to get the start times for separate arcs \begin{DoxyReturn}{Returns}
+Start times for separate arcs 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_ac12dc0a99a80dc5403d1651eea0e5b30}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_ac12dc0a99a80dc5403d1651eea0e5b30}} 
+\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}!getCentralBodies@{getCentralBodies}}
+\index{getCentralBodies@{getCentralBodies}!tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getCentralBodies()}{getCentralBodies()}}
+{\footnotesize\ttfamily template$<$typename Initial\+State\+Parameter\+Type  = double$>$ \\
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter}}$<$ Initial\+State\+Parameter\+Type $>$\+::get\+Central\+Bodies (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the names of the bodies w.\+r.\+t. which the initial states are to be estimated. 
+
+Function to get the names of the bodie w.\+r.\+t. which the initial states are to be estimated. \begin{DoxyReturn}{Returns}
+Names of the bodies w.\+r.\+t. which the initial states are to be estimated. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a5ad6f9b768c5c2ee15f2da6719321e01}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a5ad6f9b768c5c2ee15f2da6719321e01}} 
+\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}!getNumberOfStateArcs@{getNumberOfStateArcs}}
+\index{getNumberOfStateArcs@{getNumberOfStateArcs}!tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getNumberOfStateArcs()}{getNumberOfStateArcs()}}
+{\footnotesize\ttfamily template$<$typename Initial\+State\+Parameter\+Type  = double$>$ \\
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter}}$<$ Initial\+State\+Parameter\+Type $>$\+::get\+Number\+Of\+State\+Arcs (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the number of state arcs. 
+
+Function to retrieve the number of state arcs \begin{DoxyReturn}{Returns}
+Number of state arcs 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a5aff78af8fdeee8022a692fab7464ab4}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a5aff78af8fdeee8022a692fab7464ab4}} 
+\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily template$<$typename Initial\+State\+Parameter\+Type  = double$>$ \\
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter}}$<$ Initial\+State\+Parameter\+Type $>$\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter (always 6 times number of arcs). 
+
+Function to retrieve the size of the parameter (always 6 times number of arcs). \begin{DoxyReturn}{Returns}
+Size of parameter value (always 6 times number of arcs). 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, 1 $>$ $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a877e0d957a05682f144360e0c56f83e0}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a877e0d957a05682f144360e0c56f83e0}} 
+\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily template$<$typename Initial\+State\+Parameter\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ Initial\+State\+Parameter\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter}}$<$ Initial\+State\+Parameter\+Type $>$\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to get the current values of initial states w.\+r.\+t. central\+Body for each arc, concatenated in arc order. 
+
+Function to get the current values of initial states w.\+r.\+t. central\+Body for each arc, concatenated in arc order \begin{DoxyReturn}{Returns}
+The current values of initial states w.\+r.\+t. central\+Body for each arc, concatenated in arc order 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Matrix$<$ double, Eigen\+::\+Dynamic, 1 $>$ $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a77f06aac5390eee59068c1c6bb97fc50}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter_a77f06aac5390eee59068c1c6bb97fc50}} 
+\index{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$@{tudat::estimatable\_parameters::ArcWiseInitialTranslationalStateParameter$<$ InitialStateParameterType $>$}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily template$<$typename Initial\+State\+Parameter\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseInitialTranslationalStateParameter}{tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Initial\+Translational\+State\+Parameter}}$<$ Initial\+State\+Parameter\+Type $>$\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{Eigen\+::\+Matrix$<$ Initial\+State\+Parameter\+Type, Eigen\+::\+Dynamic, 1 $>$}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the current values of initial states w.\+r.\+t. central\+Body for each arc, concatenated in arc order. 
+
+Function to reset the current values of initial states w.\+r.\+t. central\+Body for each arc, concatenated in arc order 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New values of initial states w.\+r.\+t. central\+Body for each arc, concatenated in arc order \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/initial\+Translational\+State.\+h\end{DoxyCompactItemize}

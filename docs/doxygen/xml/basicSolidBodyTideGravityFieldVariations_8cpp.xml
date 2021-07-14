@@ -1,0 +1,725 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="basicSolidBodyTideGravityFieldVariations_8cpp" kind="file" language="C++">
+    <compoundname>basicSolidBodyTideGravityFieldVariations.cpp</compoundname>
+    <includes refid="basicSolidBodyTideGravityFieldVariations_8h" local="yes">tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h</includes>
+    <includes refid="mathematicalConstants_8h" local="yes">tudat/math/basic/mathematicalConstants.h</includes>
+    <includes refid="legendrePolynomials_8h" local="yes">tudat/math/basic/legendrePolynomials.h</includes>
+    <incdepgraph>
+      <node id="28">
+        <label>tudat/math/interpolators/oneDimensionalInterpolator.h</label>
+        <link refid="oneDimensionalInterpolator_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>boost/algorithm/string.hpp</label>
+      </node>
+      <node id="59">
+        <label>tudat/io/streamFilters.h</label>
+        <link refid="streamFilters_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>tudat/math/interpolators/piecewiseConstantInterpolator.h</label>
+        <link refid="piecewiseConstantInterpolator_8h_source"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>functional</label>
+      </node>
+      <node id="47">
+        <label>boost/shared_ptr.hpp</label>
+      </node>
+      <node id="15">
+        <label>limits</label>
+      </node>
+      <node id="26">
+        <label>tudat/math/interpolators/linearInterpolator.h</label>
+        <link refid="linearInterpolator_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>boost/iostreams/device/back_inserter.hpp</label>
+      </node>
+      <node id="29">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="56">
+        <label>boost/iostreams/copy.hpp</label>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/basicSolidBodyTideGravityFieldVariations.cpp</label>
+        <link refid="basicSolidBodyTideGravityFieldVariations_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>tudat/astro/gravitation/gravityFieldVariations.h</label>
+        <link refid="gravityFieldVariations_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="40">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>tudat/math/interpolators/multiDimensionalInterpolator.h</label>
+        <link refid="multiDimensionalInterpolator_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>cmath</label>
+      </node>
+      <node id="32">
+        <label>stdexcept</label>
+      </node>
+      <node id="6">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="49">
+        <label>string</label>
+      </node>
+      <node id="10">
+        <label>map</label>
+      </node>
+      <node id="53">
+        <label>boost/algorithm/string/trim.hpp</label>
+      </node>
+      <node id="62">
+        <label>boost/iostreams/stream_buffer.hpp</label>
+      </node>
+      <node id="54">
+        <label>boost/algorithm/string/trim_all.hpp</label>
+      </node>
+      <node id="50">
+        <label>fstream</label>
+      </node>
+      <node id="18">
+        <label>boost/circular_buffer.hpp</label>
+      </node>
+      <node id="36">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>tudat/math/interpolators/hermiteCubicSplineInterpolator.h</label>
+        <link refid="hermiteCubicSplineInterpolator_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>tudat/math/interpolators/multiLinearInterpolator.h</label>
+        <link refid="multiLinearInterpolator_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="55">
+        <label>boost/iostreams/device/file.hpp</label>
+      </node>
+      <node id="38">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>tudat/math/interpolators/createInterpolator.h</label>
+        <link refid="createInterpolator_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>boost/unordered_map.hpp</label>
+      </node>
+      <node id="31">
+        <label>tudat/math/basic/nearestNeighbourSearch.h</label>
+        <link refid="nearestNeighbourSearch_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>vector</label>
+      </node>
+      <node id="60">
+        <label>boost/iostreams/filter/line.hpp</label>
+      </node>
+      <node id="2">
+        <label>tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h</label>
+        <link refid="basicSolidBodyTideGravityFieldVariations_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>tudat/math/basic/legendrePolynomials.h</label>
+        <link refid="legendrePolynomials_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>sstream</label>
+      </node>
+      <node id="34">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>boost/enable_shared_from_this.hpp</label>
+      </node>
+      <node id="11">
+        <label>tudat/math/basic/coordinateConversions.h</label>
+        <link refid="coordinateConversions_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>iostream</label>
+      </node>
+      <node id="13">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>cstddef</label>
+      </node>
+      <node id="48">
+        <label>tudat/io/mapTextFileReader.h</label>
+        <link refid="mapTextFileReader_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="63">
+        <label>boost/regex.hpp</label>
+      </node>
+      <node id="27">
+        <label>boost/array.hpp</label>
+      </node>
+      <node id="58">
+        <label>tudat/io/matrixTextFileReader.h</label>
+        <link refid="matrixTextFileReader_8h_source"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>tudat/math/interpolators/cubicSplineInterpolator.h</label>
+        <link refid="cubicSplineInterpolator_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>type_traits</label>
+      </node>
+      <node id="25">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="4">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="57">
+        <label>boost/iostreams/filtering_stream.hpp</label>
+      </node>
+      <node id="9">
+        <label>complex</label>
+      </node>
+      <node id="35">
+        <label>algorithm</label>
+      </node>
+      <node id="43">
+        <label>tudat/math/interpolators/lagrangeInterpolator.h</label>
+        <link refid="lagrangeInterpolator_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>memory</label>
+      </node>
+      <node id="30">
+        <label>tudat/math/interpolators/lookupScheme.h</label>
+        <link refid="lookupScheme_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1gravitation">tudat::gravitation</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/basic/mathematicalConstants.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/basic/legendrePolynomials.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="16"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">gravitation</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal">std::complex&lt;<sp/>double<sp/>&gt;<sp/>calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>loveNumber,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>massRatio,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>radiusRatioPowerN,</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>amplitude,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>tideArgument,</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>degree,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>order<sp/>)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>and<sp/>return<sp/>corrections.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>loveNumber<sp/>/<sp/>(<sp/>2.0<sp/>*<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>degree<sp/>)<sp/>+<sp/>1.0<sp/>)<sp/>*</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>massRatio<sp/>*<sp/>radiusRatioPowerN<sp/>*</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>amplitude<sp/>*<sp/>basic_mathematics::calculateLegendreGeodesyNormalizationFactor(</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>degree,<sp/>order<sp/>)<sp/>*<sp/>std::exp(<sp/>-tideArgument<sp/>);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">std::complex&lt;<sp/>double<sp/>&gt;<sp/>calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>loveNumber,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>massRatio,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>referenceRadius,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d&amp;<sp/>relativeBodyFixedPosition,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>degree,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>order<sp/>)</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>spherical<sp/>position<sp/>of<sp/>perturbing<sp/>body.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/>sphericalPosition<sp/>=<sp/>coordinate_conversions::convertCartesianToSpherical(</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>relativeBodyFixedPosition<sp/>);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>amplitude<sp/>and<sp/>argument<sp/>of<sp/>tide</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>tideAmplitude<sp/>=<sp/>basic_mathematics::computeLegendrePolynomialExplicit(</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>degree,<sp/>order,<sp/>std::sin(<sp/>mathematical_constants::PI<sp/>/<sp/>2.0<sp/>-<sp/>sphericalPosition.y(<sp/>)<sp/>)<sp/>)<sp/>*</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>basic_mathematics::calculateLegendreGeodesyNormalizationFactor(</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>degree,<sp/>order<sp/>);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>tideArgument<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>order<sp/>)<sp/>*<sp/>std::complex&lt;<sp/>double<sp/>&gt;(<sp/>0.0,<sp/>sphericalPosition(<sp/>2<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>tidal<sp/>corrections.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>loveNumber<sp/>/<sp/>(<sp/>2.0<sp/>*<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>degree<sp/>)<sp/>+<sp/>1.0<sp/>)<sp/>*</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>massRatio<sp/>*<sp/>std::pow(<sp/>referenceRadius<sp/>/<sp/>sphericalPosition(<sp/>0<sp/>),<sp/>degree<sp/>+<sp/>1<sp/>)<sp/>*</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tideAmplitude<sp/>*<sp/>std::exp(<sp/>-tideArgument<sp/>);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">std::pair&lt;<sp/>Eigen::MatrixXd,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::map&lt;<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/>std::vector&lt;<sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>loveNumbers,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>massRatio,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>referenceRadius,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d&amp;<sp/>relativeBodyFixedPosition,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>maximumDegree,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>maximumOrder<sp/>)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Initialize<sp/>results.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/>cosineCorrections<sp/>=<sp/>Eigen::MatrixXd::Zero(<sp/>maximumDegree<sp/>+<sp/>1,<sp/>maximumOrder<sp/>+<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/>sineCorrections<sp/>=<sp/>Eigen::MatrixXd::Zero(<sp/>maximumDegree<sp/>+<sp/>1,<sp/>maximumOrder<sp/>+<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>currentCorrections;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Iterate<sp/>over<sp/>all<sp/>requested<sp/>degrees<sp/>and<sp/>orders</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>loveNumberIt<sp/>:<sp/>loveNumbers<sp/>)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n<sp/>=<sp/>loveNumberIt.first;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>m<sp/>=<sp/>0;<sp/>(<sp/>m<sp/>&lt;=<sp/>maximumOrder<sp/>&amp;&amp;<sp/>m<sp/>&lt;=<sp/>n<sp/>);<sp/>m++<sp/>)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>and<sp/>set<sp/>corrections<sp/>at<sp/>current<sp/>degree<sp/>and<sp/>order.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>currentCorrections<sp/>=<sp/>calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>loveNumbers.at(<sp/>n<sp/>).at(<sp/>m<sp/>),<sp/>massRatio,<sp/>referenceRadius,<sp/>relativeBodyFixedPosition,<sp/>n,<sp/>m<sp/>);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cosineCorrections(<sp/>n,<sp/>m<sp/>)<sp/>=<sp/>currentCorrections.real(<sp/>);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>m<sp/>&gt;<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sineCorrections(<sp/>n,<sp/>m<sp/>)<sp/>=<sp/>-currentCorrections.imag(<sp/>);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>cosineCorrections,<sp/>sineCorrections<sp/>);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a5026f7ed54fa6d1a60367a0b981913af" kindref="member">BasicSolidBodyTideGravityFieldVariations::setBodyGeometryParameters</ref>(</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>bodyIndex,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>current<sp/>state<sp/>and<sp/>orientation<sp/>of<sp/>deformed<sp/>body.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>bodyIndex<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1ae4df43a455c3c408c467e55de0c2684b" kindref="member">deformedBodyPosition</ref><sp/>=<sp/>std::move(<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a94daec48e8ebe87f1bb7b8d86b184c23" kindref="member">deformedBodyStateFunction_</ref>(<sp/>evaluationTime<sp/>)<sp/>).segment(<sp/>0,<sp/>3<sp/>);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1aa3d565d7ddcb5e355b934d6e25b8ed55" kindref="member">toDeformedBodyFrameRotation</ref><sp/>=<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1ab0479d2bd00f267060e89187cdce1fe9" kindref="member">deformedBodyOrientationFunction_</ref>(<sp/>evaluationTime<sp/>);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>current<sp/>state<sp/>of<sp/>body<sp/>causing<sp/>deformation.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/>relativeDeformingBodyPosition<sp/>=<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1aa3d565d7ddcb5e355b934d6e25b8ed55" kindref="member">toDeformedBodyFrameRotation</ref><sp/>*<sp/>(</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::move(<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a7feb8537d317dea06f8ff1a3798786db" kindref="member">deformingBodyStateFunctions_</ref>[<sp/>bodyIndex<sp/>](<sp/>evaluationTime<sp/>)<sp/>).segment(<sp/>0,<sp/>3<sp/>)<sp/>-</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1ae4df43a455c3c408c467e55de0c2684b" kindref="member">deformedBodyPosition</ref><sp/>);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/><sp/>relativeDeformingBodySphericalPosition<sp/>=coordinate_conversions::</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>convertCartesianToSpherical(<sp/>relativeDeformingBodyPosition<sp/>);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>geometric<sp/>parameters<sp/>of<sp/>body<sp/>causing<sp/>deformation.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a6ba4ba751b56f7f653a7370371f5ab21" kindref="member">radiusRatio</ref><sp/>=<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1abe0acaf654a36869a9abd709a09607b0" kindref="member">deformedBodyReferenceRadius_</ref><sp/>/<sp/>relativeDeformingBodySphericalPosition.x(<sp/>);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1aaf20605f78a1e71fff58a82e047b721d" kindref="member">iLongitude</ref><sp/>=<sp/>mathematical_constants::COMPLEX_I<sp/>*<sp/>relativeDeformingBodySphericalPosition.z(<sp/>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1adf49e1f8b787b2d8f3df4a8f9ba07d19" kindref="member">sineOfLatitude</ref><sp/>=<sp/>std::sin(<sp/>mathematical_constants::PI<sp/>/<sp/>2.0<sp/>-</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>relativeDeformingBodySphericalPosition.y(<sp/>)<sp/>);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal">std::pair&lt;<sp/>Eigen::MatrixXd,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a531dcae6f842ada23679d1151df4d5c4" kindref="member">BasicSolidBodyTideGravityFieldVariations::</ref></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a531dcae6f842ada23679d1151df4d5c4" kindref="member">calculateBasicSphericalHarmonicsCorrections</ref>(</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time<sp/>)</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Initialize<sp/>corrections<sp/>to<sp/>zero.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/>cTermCorrections<sp/>=<sp/>Eigen::MatrixXd::Zero(<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a236edca529bfd6895123089bcfaf883d" kindref="member">numberOfDegrees_</ref>,<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a8235f01b085cb96035fb7473526e938b" kindref="member">numberOfOrders_</ref><sp/>);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/>sTermCorrections<sp/>=<sp/>Eigen::MatrixXd::Zero(<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a236edca529bfd6895123089bcfaf883d" kindref="member">numberOfDegrees_</ref>,<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a8235f01b085cb96035fb7473526e938b" kindref="member">numberOfOrders_</ref><sp/>);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Iterate<sp/>over<sp/>all<sp/>bodies<sp/>causing<sp/>deformation<sp/>and<sp/>calculate<sp/>and<sp/>add<sp/>associated<sp/>corrections</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a7feb8537d317dea06f8ff1a3798786db" kindref="member">deformingBodyStateFunctions_</ref>.size(<sp/>);<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a5026f7ed54fa6d1a60367a0b981913af" kindref="member">setBodyGeometryParameters</ref>(<sp/>i,<sp/>time<sp/>);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>properties<sp/>of<sp/>currently<sp/>considered<sp/>body</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a40b77e066ce4933eb7a4d9ca5fd27b76" kindref="member">massRatio</ref><sp/>=<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1ab51391be89455040799ac95130756196" kindref="member">deformingBodyMasses_</ref>[<sp/>i<sp/>](<sp/>)<sp/>/<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a4d4a7c751a54cb218af94dff4ba8dba7" kindref="member">deformedBodyMass_</ref>(<sp/>);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>all<sp/>correction<sp/>functions.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a81195e90f992c3a62793d52eec41cb95" kindref="member">correctionFunctions</ref>.size(<sp/>);<sp/>j++<sp/>)</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a81195e90f992c3a62793d52eec41cb95" kindref="member">correctionFunctions</ref>[<sp/>j<sp/>](<sp/>cTermCorrections,<sp/>sTermCorrections<sp/>);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>std::make_pair(<sp/>cTermCorrections,<sp/>sTermCorrections<sp/>);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1aa4a8b7924134fed07f596b6b43df9472" kindref="member">BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections</ref>(</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd&amp;<sp/>cTermCorrections,</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Eigen::MatrixXd&amp;<sp/>sTermCorrections<sp/>)</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/>//<sp/>Initialize<sp/>power<sp/>of<sp/>radiusRatio^(N+1)<sp/>(calculation<sp/>starts<sp/>at<sp/>N=2)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a598b40a06e03913ae2694d0108af03fc" kindref="member">currentCosineCorrections_</ref>.setZero(<sp/>);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1ae3ef8888c89778135bd861f6b2b08bcc" kindref="member">currentSineCorrections_</ref>.setZero(<sp/>);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/>//<sp/>Iterate<sp/>over<sp/>all<sp/>love</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>std::complex&lt;<sp/>double<sp/>&gt;<sp/>stokesCoefficientCorrection(<sp/>0.0,<sp/>0.0<sp/>);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>loveNumberIt<sp/>:<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a7656652504480ad46ff1b8cc8c6e1b20" kindref="member">loveNumbers_</ref><sp/>)</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(<sp/>loveNumberIt.first<sp/>);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a6646e9fc25280255248df924c8fcc6ea" kindref="member">radiusRatioPower</ref><sp/>=<sp/>basic_mathematics::raiseToIntegerPower(<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a6ba4ba751b56f7f653a7370371f5ab21" kindref="member">radiusRatio</ref>,<sp/>n<sp/>+<sp/>1<sp/>);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>m<sp/>=<sp/>0;<sp/>(<sp/>m<sp/>&lt;=<sp/>n<sp/>&amp;&amp;<sp/>m<sp/>&lt;<sp/>loveNumberIt.second.size(<sp/>)<sp/>);<sp/>m++<sp/>)</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a62c60cf127ad2a396a51b4c0733c7b72" kindref="member">updateTidalAmplitudeAndArgument</ref>(<sp/>n,<sp/>m<sp/>);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Calculate<sp/>and<sp/>add<sp/>coefficients.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stokesCoefficientCorrection<sp/>=</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a7656652504480ad46ff1b8cc8c6e1b20" kindref="member">loveNumbers_</ref>[<sp/>n<sp/>][<sp/>m<sp/>],<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a40b77e066ce4933eb7a4d9ca5fd27b76" kindref="member">massRatio</ref>,<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a6646e9fc25280255248df924c8fcc6ea" kindref="member">radiusRatioPower</ref>,<sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a6b196974e5ec21765cbf3d0c6054be11" kindref="member">tideAmplitude</ref>,</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1aace888d4e6e5dde87704145b40913294" kindref="member">tideArgument</ref>,<sp/>n,<sp/>m<sp/>);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a598b40a06e03913ae2694d0108af03fc" kindref="member">currentCosineCorrections_</ref>(<sp/>n<sp/>-<sp/>2,<sp/>m<sp/>)<sp/>+=<sp/>stokesCoefficientCorrection.real(<sp/>);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>m<sp/>!=<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1ae3ef8888c89778135bd861f6b2b08bcc" kindref="member">currentSineCorrections_</ref>(<sp/>n<sp/>-<sp/>2,<sp/>m<sp/>)<sp/>-=<sp/>stokesCoefficientCorrection.imag(<sp/>);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>cTermCorrections.block(<sp/>0,<sp/>0,<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a5014de246777abec5b844b7585d7efea" kindref="member">maximumDegree_</ref><sp/>-<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a9bf8b72830d19d382bcdc935cd69c69e" kindref="member">minimumDegree_</ref><sp/>+<sp/>1,<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1ab5d6f1bd7478e0a44dd6145cfa834242" kindref="member">maximumOrder_</ref><sp/><sp/>-<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a6f6ab951e6a5ec1ca230d629ae2a1104" kindref="member">minimumOrder_</ref><sp/>+<sp/>1<sp/>)<sp/>+=</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1a598b40a06e03913ae2694d0108af03fc" kindref="member">currentCosineCorrections_</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/>sTermCorrections.block(<sp/>0,<sp/>0,<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a5014de246777abec5b844b7585d7efea" kindref="member">maximumDegree_</ref><sp/>-<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a9bf8b72830d19d382bcdc935cd69c69e" kindref="member">minimumDegree_</ref><sp/>+<sp/>1,<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1ab5d6f1bd7478e0a44dd6145cfa834242" kindref="member">maximumOrder_</ref><sp/><sp/>-<sp/><ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a6f6ab951e6a5ec1ca230d629ae2a1104" kindref="member">minimumOrder_</ref><sp/>+<sp/>1<sp/>)<sp/>+=</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations_1ae3ef8888c89778135bd861f6b2b08bcc" kindref="member">currentSineCorrections_</ref>;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/basicSolidBodyTideGravityFieldVariations.cpp"/>
+  </compounddef>
+</doxygen>

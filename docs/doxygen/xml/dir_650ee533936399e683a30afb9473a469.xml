@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_650ee533936399e683a30afb9473a469" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface</compoundname>
+    <innerdir refid="dir_2c1d4af6e463e36eedacb11a178cb35d">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json</innerdir>
+    <innerdir refid="dir_304521cd7c43a89590ee135a4c45970b">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/sofa</innerdir>
+    <innerdir refid="dir_e3d805d7f7820445a24134b157152fe6">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/spice</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/"/>
+  </compounddef>
+</doxygen>

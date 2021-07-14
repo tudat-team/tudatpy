@@ -1,0 +1,279 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding" kind="class" language="C++" prot="public">
+    <compoundname>tudat::mission_segments::LambertFunctionsGooding</compoundname>
+    <includes refid="lambertRoutines_8h" local="no">lambertRoutines.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a00be2984dd05575b7236a9a1cdc94c4f" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::mission_segments::LambertFunctionsGooding::qParameter</definition>
+        <argsstring></argsstring>
+        <name>qParameter</name>
+        <briefdescription>
+<para>Lambert q-parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Lambert q-parameter. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="188" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a1db8d5d77077be55dfaeddb4045d74c6" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::mission_segments::LambertFunctionsGooding::normalizedTimeOfFlight</definition>
+        <argsstring></argsstring>
+        <name>normalizedTimeOfFlight</name>
+        <briefdescription>
+<para>Normalized time of flight for Lambert implementation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Normalized time of flight for Lambert implementation. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="194" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" bodystart="194" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a20ab9d6cb406bcf2859118ecbbd4bfa3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::mission_segments::LambertFunctionsGooding::LambertFunctionsGooding</definition>
+        <argsstring>(const double aQParameter, const double aNormalizedTimeOfFlight)</argsstring>
+        <name>LambertFunctionsGooding</name>
+        <param>
+          <type>const double</type>
+          <declname>aQParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aNormalizedTimeOfFlight</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with immediate definition of parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor that sets all the parameters in the Lambert functions for use in the Newton-Raphson rootfinder. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aQParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The value of the Lambert q-parameter. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aNormalizedTimeOfFlight</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The normalized time-of-flight for the Lambert problem. [-] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="127" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" bodystart="127" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a2e79db651f15d2e0c749131dec97a4b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::LambertFunctionsGooding::computeLambertFunctionGooding</definition>
+        <argsstring>(const double xParameter)</argsstring>
+        <name>computeLambertFunctionGooding</name>
+        <param>
+          <type>const double</type>
+          <declname>xParameter</declname>
+        </param>
+        <briefdescription>
+<para>Define general Lambert function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines the general Lambert function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>x-parameter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Lambert function value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="138" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/lambertRoutines.cpp" bodystart="603" bodyend="616"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a840445c6a6a6e641071d345a30351149" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::LambertFunctionsGooding::computeFirstDerivativeLambertFunctionGooding</definition>
+        <argsstring>(const double xParameter)</argsstring>
+        <name>computeFirstDerivativeLambertFunctionGooding</name>
+        <param>
+          <type>const double</type>
+          <declname>xParameter</declname>
+        </param>
+        <briefdescription>
+<para>Define first derivative of general Lambert function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines the first derivative of general Lambert function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>x-parameter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of the Lambert function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="146" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/lambertRoutines.cpp" bodystart="619" bodyend="632"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a6a4439f4b7f8a5375b1989140131a894" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::LambertFunctionsGooding::lambertFunctionPositiveGooding</definition>
+        <argsstring>(const double xParameter)</argsstring>
+        <name>lambertFunctionPositiveGooding</name>
+        <param>
+          <type>const double</type>
+          <declname>xParameter</declname>
+        </param>
+        <briefdescription>
+<para>Define Lambert function for positive lambertEccentricAnomaly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines the Lambert function for a positive lambertEccentricAnomaly. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>x-parameter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Lambert function value for a positive lambertEccentricAnomaly. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="154" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/lambertRoutines.cpp" bodystart="635" bodyend="647"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1ab0a5a78377684e239ea851700571e32a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::LambertFunctionsGooding::lambertFunctionNegativeGooding</definition>
+        <argsstring>(const double xParameter)</argsstring>
+        <name>lambertFunctionNegativeGooding</name>
+        <param>
+          <type>const double</type>
+          <declname>xParameter</declname>
+        </param>
+        <briefdescription>
+<para>Define Lambert function for negative lambertEccentricAnomaly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines the Lambert function for a negative lambertEccentricAnomaly. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>x-parameter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Lambert function value for a negative lambertEccentricAnomaly. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="162" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/lambertRoutines.cpp" bodystart="650" bodyend="662"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1afb44881b2d389192522574b5be5f7e0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::LambertFunctionsGooding::lambertFirstDerivativeFunctionPositiveGooding</definition>
+        <argsstring>(const double xParameter)</argsstring>
+        <name>lambertFirstDerivativeFunctionPositiveGooding</name>
+        <param>
+          <type>const double</type>
+          <declname>xParameter</declname>
+        </param>
+        <briefdescription>
+<para>Define first derivative of Lambert function for positive lambertEccentricAnomaly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines the first derivative of Lambert function for a positive lambertEccentricAnomaly. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>x-parameter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of the Lambert function for a positive lambertEccentricAnomaly. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="170" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/lambertRoutines.cpp" bodystart="665" bodyend="694"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1ab3e79aabf0f02b5181ff3a85db25f281" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::LambertFunctionsGooding::lambertFirstDerivativeFunctionNegativeGooding</definition>
+        <argsstring>(const double xParameter)</argsstring>
+        <name>lambertFirstDerivativeFunctionNegativeGooding</name>
+        <param>
+          <type>const double</type>
+          <declname>xParameter</declname>
+        </param>
+        <briefdescription>
+<para>Define first derivative of Lambert function for negative lambertEccentricAnomaly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Defines first derivative of Lambert function for negative lambertEccentricAnomaly. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>x-parameter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of the Lambert function for a negative lambertEccentricAnomaly. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="178" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/lambertRoutines.cpp" bodystart="697" bodyend="727"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Gooding Lambert functions class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class contains the auxiliary functions required by the root-finder in the Lambert routine from Gooding. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" line="116" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertRoutines.h" bodystart="117" bodyend="195"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a840445c6a6a6e641071d345a30351149" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>computeFirstDerivativeLambertFunctionGooding</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a2e79db651f15d2e0c749131dec97a4b0" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>computeLambertFunctionGooding</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1ab3e79aabf0f02b5181ff3a85db25f281" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>lambertFirstDerivativeFunctionNegativeGooding</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1afb44881b2d389192522574b5be5f7e0d" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>lambertFirstDerivativeFunctionPositiveGooding</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1ab0a5a78377684e239ea851700571e32a" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>lambertFunctionNegativeGooding</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a6a4439f4b7f8a5375b1989140131a894" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>lambertFunctionPositiveGooding</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a20ab9d6cb406bcf2859118ecbbd4bfa3" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>LambertFunctionsGooding</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a1db8d5d77077be55dfaeddb4045d74c6" prot="private" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>normalizedTimeOfFlight</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertFunctionsGooding_1a00be2984dd05575b7236a9a1cdc94c4f" prot="private" virt="non-virtual"><scope>tudat::mission_segments::LambertFunctionsGooding</scope><name>qParameter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

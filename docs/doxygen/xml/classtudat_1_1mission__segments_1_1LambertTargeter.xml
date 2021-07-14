@@ -1,0 +1,322 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1mission__segments_1_1LambertTargeter" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::mission_segments::LambertTargeter</compoundname>
+    <derivedcompoundref refid="classtudat_1_1mission__segments_1_1LambertTargeterGooding" prot="public" virt="non-virtual">tudat::mission_segments::LambertTargeterGooding</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo" prot="public" virt="non-virtual">tudat::mission_segments::LambertTargeterIzzo</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo" prot="public" virt="non-virtual">tudat::mission_segments::ZeroRevolutionLambertTargeterIzzo</derivedcompoundref>
+    <includes refid="lambertTargeter_8h" local="no">lambertTargeter.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertTargeter_1a67d3a9e1b514c0ca2dad3f235c46941b" prot="protected" static="no" mutable="no">
+        <type>const Eigen::Vector3d</type>
+        <definition>const Eigen::Vector3d tudat::mission_segments::LambertTargeter::cartesianPositionAtDeparture</definition>
+        <argsstring></argsstring>
+        <name>cartesianPositionAtDeparture</name>
+        <briefdescription>
+<para>Cartesian position at departure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cartesian position at departure. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="131" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertTargeter_1ab710c1fabfd56361c457449c99efd5fa" prot="protected" static="no" mutable="no">
+        <type>const Eigen::Vector3d</type>
+        <definition>const Eigen::Vector3d tudat::mission_segments::LambertTargeter::cartesianPositionAtArrival</definition>
+        <argsstring></argsstring>
+        <name>cartesianPositionAtArrival</name>
+        <briefdescription>
+<para>Cartesian position at arrival. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cartesian position at arrival. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="137" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertTargeter_1a74f0ac221b22693ba7fe0b7398007e9b" prot="protected" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::mission_segments::LambertTargeter::timeOfFlight</definition>
+        <argsstring></argsstring>
+        <name>timeOfFlight</name>
+        <briefdescription>
+<para>Time-of-flight. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Time-of-flight. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="143" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertTargeter_1ab22c920bfc0f13cdfee122fa2bb93ea2" prot="protected" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::mission_segments::LambertTargeter::gravitationalParameter</definition>
+        <argsstring></argsstring>
+        <name>gravitationalParameter</name>
+        <briefdescription>
+<para>Gravitational parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Gravitational parameter. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="149" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertTargeter_1a461475bd753a2ba590f1a403a8695794" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::mission_segments::LambertTargeter::cartesianVelocityAtDeparture</definition>
+        <argsstring></argsstring>
+        <name>cartesianVelocityAtDeparture</name>
+        <briefdescription>
+<para>Cartesian velocity at departure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cartesian velocity at departure. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="155" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertTargeter_1a7260e16ff3a70f4971945d66ef08e682" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::mission_segments::LambertTargeter::cartesianVelocityAtArrival</definition>
+        <argsstring></argsstring>
+        <name>cartesianVelocityAtArrival</name>
+        <briefdescription>
+<para>Cartesian velocity at arrival. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cartesian velocity at arrival. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="161" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1LambertTargeter_1aa9dd030ab3e408d72f44c4f9ea2fe03a" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::mission_segments::LambertTargeter::solved</definition>
+        <argsstring></argsstring>
+        <name>solved</name>
+        <briefdescription>
+<para>Solved boolean flag. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean flag to indicate the problem has a computed outcome. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="167" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="167" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertTargeter_1a332842cdf2c2302ed2ade4c50b170ad9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>EIGEN_MAKE_ALIGNED_OPERATOR_NEW</type>
+        <definition>EIGEN_MAKE_ALIGNED_OPERATOR_NEW tudat::mission_segments::LambertTargeter::LambertTargeter</definition>
+        <argsstring>(const Eigen::Vector3d &amp;aCartesianPositionAtDeparture, const Eigen::Vector3d &amp;aCartesianPositionAtArrival, const double aTimeOfFlight, const double aGravitationalParameter)</argsstring>
+        <name>LambertTargeter</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>aCartesianPositionAtDeparture</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>aCartesianPositionAtArrival</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aTimeOfFlight</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aGravitationalParameter</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor that only initializes parameters. Execution of solving routine happens on member function call. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aCartesianPositionAtDeparture</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The position at departure in Cartesian coordinates. [m] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aCartesianPositionAtArrival</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The position at arrival in Cartesian coordinates. [m] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aTimeOfFlight</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The time-of-flight between departure and arrival. [s] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The gravitational parameter of the main body. [m^3 s^-2] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="51" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="51" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertTargeter_1ab70e44ba68bb104a0d86e293e00b0ea2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::mission_segments::LambertTargeter::~LambertTargeter</definition>
+        <argsstring>()</argsstring>
+        <name>~LambertTargeter</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="68" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="68" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertTargeter_1aaa55de14f573813df2ca90540ef51148" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::mission_segments::LambertTargeter::getInertialVelocityAtDeparture</definition>
+        <argsstring>()</argsstring>
+        <name>getInertialVelocityAtDeparture</name>
+        <briefdescription>
+<para>Get inertial velocity at departure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the inertial velocity at departure ( heliocentric or planetocentric ). <simplesect kind="return"><para>Inertial velocity at departure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="75" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="75" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertTargeter_1a9f04eb41af7d6ab2c3ae2597b65155fd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::mission_segments::LambertTargeter::getInertialVelocityAtArrival</definition>
+        <argsstring>()</argsstring>
+        <name>getInertialVelocityAtArrival</name>
+        <briefdescription>
+<para>Get inertial velocity at arrival. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the inertial velocity at arrival ( heliocentric or planetocentric ). <simplesect kind="return"><para>Inertial velocity at arrival. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="89" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="89" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertTargeter_1ae3a2c762748e3e4ed914b9b248003bf6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::pair&lt; Eigen::Vector3d, Eigen::Vector3d &gt;</type>
+        <definition>std::pair&lt; Eigen::Vector3d, Eigen::Vector3d &gt; tudat::mission_segments::LambertTargeter::getInertialVelocityVectors</definition>
+        <argsstring>()</argsstring>
+        <name>getInertialVelocityVectors</name>
+        <briefdescription>
+<para>Get inertial velocity vectors. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns a pair of vectors, the first corresponding to the velocity vector along the transfer ellipse, the second to the the velocity vector at arrival. <simplesect kind="return"><para>Pair of velocity vectors. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="104" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="104" bodyend="112"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1LambertTargeter_1ac022ab6c8aa0d941b1d049036a7d8054" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::mission_segments::LambertTargeter::execute</definition>
+        <argsstring>()=0</argsstring>
+        <name>execute</name>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1LambertTargeterGooding_1a6a8d24104f7fd12f753b0df2799b2eff">execute</reimplementedby>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo_1a912b334947302675369e10f964770028">execute</reimplementedby>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_1a12b1d8e5895d3e73bd6c8b9a462c90ae">execute</reimplementedby>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_1a1cb96dd1627e781c996d38b9303a57df">execute</reimplementedby>
+        <briefdescription>
+<para>Execute Lambert targeting algorithm. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Executes the Lambert targeting algorithm. Since the parameters of the Lambert routine are set directly in the constructor, the same <ref refid="classtudat_1_1mission__segments_1_1LambertTargeter" kindref="compound">LambertTargeter</ref> object cannot be reused for a different problem. This makes the class more robust, as all parameters are consistent with a single problem at all times. Since each object corresponds to a unique problem, there is no need to call this function more than once. Therefore, this function is protected and run at construction. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="125" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Lambert targeting algorithm class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implementation of Lambert targeting algorithm in Tudat. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5">
+        <label>tudat::mission_segments::MultiRevolutionLambertTargeterIzzo</label>
+        <link refid="classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::mission_segments::LambertTargeterIzzo</label>
+        <link refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::mission_segments::LambertTargeter</label>
+        <link refid="classtudat_1_1mission__segments_1_1LambertTargeter"/>
+      </node>
+      <node id="4">
+        <label>tudat::mission_segments::ZeroRevolutionLambertTargeterIzzo</label>
+        <link refid="classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::mission_segments::LambertTargeterGooding</label>
+        <link refid="classtudat_1_1mission__segments_1_1LambertTargeterGooding"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" line="35" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/lambertTargeter.h" bodystart="36" bodyend="170"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab710c1fabfd56361c457449c99efd5fa" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>cartesianPositionAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a67d3a9e1b514c0ca2dad3f235c46941b" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>cartesianPositionAtDeparture</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a7260e16ff3a70f4971945d66ef08e682" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>cartesianVelocityAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a461475bd753a2ba590f1a403a8695794" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>cartesianVelocityAtDeparture</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ac022ab6c8aa0d941b1d049036a7d8054" prot="protected" virt="pure-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>execute</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a9f04eb41af7d6ab2c3ae2597b65155fd" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>getInertialVelocityAtArrival</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1aaa55de14f573813df2ca90540ef51148" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>getInertialVelocityAtDeparture</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ae3a2c762748e3e4ed914b9b248003bf6" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>getInertialVelocityVectors</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab22c920bfc0f13cdfee122fa2bb93ea2" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>gravitationalParameter</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a332842cdf2c2302ed2ade4c50b170ad9" prot="public" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>LambertTargeter</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1aa9dd030ab3e408d72f44c4f9ea2fe03a" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>solved</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a74f0ac221b22693ba7fe0b7398007e9b" prot="protected" virt="non-virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>timeOfFlight</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab70e44ba68bb104a0d86e293e00b0ea2" prot="public" virt="virtual"><scope>tudat::mission_segments::LambertTargeter</scope><name>~LambertTargeter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

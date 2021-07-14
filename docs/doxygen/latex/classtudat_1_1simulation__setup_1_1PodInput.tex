@@ -1,0 +1,319 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1PodInput}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Pod\+Input$<$ Observation\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1simulation__setup_1_1PodInput}\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+
+
+Data structure used to provide input to orbit determination procedure.  
+
+
+
+
+{\ttfamily \#include $<$pod\+Input\+Output\+Types.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_adfadb5fbccd9d7710f2a48fb945d2daf}\label{classtudat_1_1simulation__setup_1_1PodInput_adfadb5fbccd9d7710f2a48fb945d2daf}} 
+typedef Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_adfadb5fbccd9d7710f2a48fb945d2daf}{Observation\+Vector\+Type}}
+\begin{DoxyCompactList}\small\item\em Typedef of vector of observations of a single type. \end{DoxyCompactList}\item 
+typedef std\+::map$<$ observation\+\_\+models\+::\+Link\+Ends, std\+::pair$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_adfadb5fbccd9d7710f2a48fb945d2daf}{Observation\+Vector\+Type}}, std\+::pair$<$ std\+::vector$<$ Time\+Type $>$, observation\+\_\+models\+::\+Link\+End\+Type $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_aa393ce8a0c6bc79c8af7dacc9f63ed61}{Single\+Observable\+Pod\+Input\+Type}}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a2e1f6d5a718a2cf8359e222823ddc40b}\label{classtudat_1_1simulation__setup_1_1PodInput_a2e1f6d5a718a2cf8359e222823ddc40b}} 
+typedef std\+::map$<$ observation\+\_\+models\+::\+Observable\+Type, \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_aa393ce8a0c6bc79c8af7dacc9f63ed61}{Single\+Observable\+Pod\+Input\+Type}} $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a2e1f6d5a718a2cf8359e222823ddc40b}{Pod\+Input\+Data\+Type}}
+\begin{DoxyCompactList}\small\item\em List of Single\+Observable\+Pod\+Input\+Type per observation type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_ae867826e363d16e416bbf87f6dde8fc7}{Pod\+Input}} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a2e1f6d5a718a2cf8359e222823ddc40b}{Pod\+Input\+Data\+Type}} \&observations\+And\+Times, const int number\+Of\+Estimated\+Parameters, const Eigen\+::\+Matrix\+Xd inverse\+Of\+Apriori\+Covariance=Eigen\+::\+Matrix\+Xd\+::\+Zero(0, 0), const Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ initial\+Parameter\+Deviation\+Estimate=Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$\+::Zero(0, 1))
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_ae8e3f3bfcbe652ad1f592503f4656352}\label{classtudat_1_1simulation__setup_1_1PodInput_ae8e3f3bfcbe652ad1f592503f4656352}} 
+virtual \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_ae8e3f3bfcbe652ad1f592503f4656352}{$\sim$\+Pod\+Input}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_aee83eb22193762a70a57d3064c010de4}{set\+Constant\+Weights\+Matrix}} (const double constant\+Weight=1.\+0)
+\begin{DoxyCompactList}\small\item\em Function to set a constant values for all observation weights. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a2e06a7166bafc1f6cb0b78ad117b17db}{set\+Constant\+Per\+Observable\+Weights\+Matrix}} (const std\+::map$<$ observation\+\_\+models\+::\+Observable\+Type, double $>$ weight\+Per\+Observable)
+\begin{DoxyCompactList}\small\item\em Function to set a values for observation weights, constant per observable type. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a37960ccb0b1ab6c15e8a6e0d1e2097e5}{set\+Constant\+Per\+Observable\+And\+Link\+Ends\+Weights}} (const std\+::map$<$ observation\+\_\+models\+::\+Observable\+Type, std\+::map$<$ observation\+\_\+models\+::\+Link\+Ends, double $>$ $>$ weight\+Per\+Observable\+And\+Link\+Ends)
+\begin{DoxyCompactList}\small\item\em Function to set a values for observation weights, constant per observable type and link ends type. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a1cf21e79bf0800df0ee61aa4b6f71373}{define\+Estimation\+Settings}} (const bool reintegrate\+Equations\+On\+First\+Iteration=1, const bool reintegrate\+Variational\+Equations=1, const bool save\+Information\+Matrix=1, const bool print\+Output=1, const bool save\+Residuals\+And\+Parameters\+From\+Each\+Iteration=1, const bool save\+State\+History\+For\+Each\+Iteration=0)
+\begin{DoxyCompactList}\small\item\em Function to define specific settings for estimation process. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a2e1f6d5a718a2cf8359e222823ddc40b}{Pod\+Input\+Data\+Type}} \& \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_ad49edbf0665355e0b735d12dbdd2af75}{get\+Observations\+And\+Times}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the total data structure of observations and associated times/link ends/type (by reference) \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a066bb86d23d52f7abc968107d9b68ada}{get\+Initial\+Parameter\+Deviation\+Estimate}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the correction to estimated parameter vector to be applied on first iteration. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a5d98da3baed4610339cf5639ec982a78}{get\+Inverse\+Of\+Apriori\+Covariance}} ()
+\item 
+std\+::map$<$ observation\+\_\+models\+::\+Observable\+Type, std\+::map$<$ observation\+\_\+models\+::\+Link\+Ends, Eigen\+::\+Vector\+Xd $>$ $>$ \& \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_aac343d50edaceeb33233c41edde058f8}{get\+Weights\+Matrix\+Diagonals}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference) \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a66274177db8feb353e2300672b1942da}{get\+Reintegrate\+Equations\+On\+First\+Iteration}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_aa76b58f501752ed759877992d247c4c4}{get\+Reintegrate\+Variational\+Equations}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a1392e4f33dc513241aacf621a0b9cb53}{get\+Save\+Information\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting whether to print output to th terminal when running the estimation. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_aeca00db85f7aaa529e583d7f3a107635}{get\+Print\+Output}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting whether to print output to th terminal when running the estimation. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a8bd610430764387be99e628077b8509a}{get\+Save\+Residuals\+And\+Parameters\+From\+Each\+Iteration}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a806b134be8f7f1773da619ba3120ac45}{get\+Save\+State\+History\+For\+Each\+Iteration}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting whether the state history is to be saved on each iteration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Observation\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::simulation\+\_\+setup\+::\+Pod\+Input$<$ Observation\+Scalar\+Type, Time\+Type $>$}
+
+Data structure used to provide input to orbit determination procedure. 
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_aa393ce8a0c6bc79c8af7dacc9f63ed61}\label{classtudat_1_1simulation__setup_1_1PodInput_aa393ce8a0c6bc79c8af7dacc9f63ed61}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!SingleObservablePodInputType@{SingleObservablePodInputType}}
+\index{SingleObservablePodInputType@{SingleObservablePodInputType}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{SingleObservablePodInputType}{SingleObservablePodInputType}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+typedef std\+::map$<$ observation\+\_\+models\+::\+Link\+Ends, std\+::pair$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_adfadb5fbccd9d7710f2a48fb945d2daf}{Observation\+Vector\+Type}}, std\+::pair$<$ std\+::vector$<$ Time\+Type $>$, observation\+\_\+models\+::\+Link\+End\+Type $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_aa393ce8a0c6bc79c8af7dacc9f63ed61}{Single\+Observable\+Pod\+Input\+Type}}}
+
+Typedef of map of pairs (observation vector and pair (vector of associated times reference link end)), link ends as map key 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_ae867826e363d16e416bbf87f6dde8fc7}\label{classtudat_1_1simulation__setup_1_1PodInput_ae867826e363d16e416bbf87f6dde8fc7}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!PodInput@{PodInput}}
+\index{PodInput@{PodInput}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{PodInput()}{PodInput()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{Pod\+Input}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a2e1f6d5a718a2cf8359e222823ddc40b}{Pod\+Input\+Data\+Type}} \&}]{observations\+And\+Times,  }\item[{const int}]{number\+Of\+Estimated\+Parameters,  }\item[{const Eigen\+::\+Matrix\+Xd}]{inverse\+Of\+Apriori\+Covariance = {\ttfamily Eigen\+:\+:MatrixXd\+:\+:Zero(~0,~0~)},  }\item[{const Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$}]{initial\+Parameter\+Deviation\+Estimate = {\ttfamily Eigen\+:\+:Matrix$<$~ObservationScalarType,~Eigen\+:\+:Dynamic,~1~$>$\+:\+:Zero(~0,~1~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em observations\+And\+Times} & Total data structure of observations and associated times/link ends/type \\
+\hline
+{\em number\+Of\+Estimated\+Parameters} & Size of vector of estimated parameters \\
+\hline
+{\em inverse\+Of\+Apriori\+Covariance} & A priori covariance matrix (unnormalized) of estimated parameters. None (matrix of size 0) by default \\
+\hline
+{\em initial\+Parameter\+Deviation\+Estimate} & Correction to estimated parameter vector to be applied on first iteration. None (vector of size 0) by default \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a1cf21e79bf0800df0ee61aa4b6f71373}\label{classtudat_1_1simulation__setup_1_1PodInput_a1cf21e79bf0800df0ee61aa4b6f71373}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!defineEstimationSettings@{defineEstimationSettings}}
+\index{defineEstimationSettings@{defineEstimationSettings}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{defineEstimationSettings()}{defineEstimationSettings()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::define\+Estimation\+Settings (\begin{DoxyParamCaption}\item[{const bool}]{reintegrate\+Equations\+On\+First\+Iteration = {\ttfamily 1},  }\item[{const bool}]{reintegrate\+Variational\+Equations = {\ttfamily 1},  }\item[{const bool}]{save\+Information\+Matrix = {\ttfamily 1},  }\item[{const bool}]{print\+Output = {\ttfamily 1},  }\item[{const bool}]{save\+Residuals\+And\+Parameters\+From\+Each\+Iteration = {\ttfamily 1},  }\item[{const bool}]{save\+State\+History\+For\+Each\+Iteration = {\ttfamily 0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to define specific settings for estimation process. 
+
+Function to define specific settings for estimation process 
+\begin{DoxyParams}{Parameters}
+{\em reintegrate\+Equations\+On\+First\+Iteration} & Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration, or if existing values are to be used to perform first iteration. \\
+\hline
+{\em reintegrate\+Variational\+Equations} & Boolean denoting whether the variational equations are to be reintegrated during estimation \\
+\hline
+{\em save\+Information\+Matrix} & Boolean denoting whether to save the partials matrix in the output \\
+\hline
+{\em print\+Output} & Boolean denoting whether to print output to th terminal when running the estimation. \\
+\hline
+{\em save\+Residuals\+And\+Parameters\+From\+Each\+Iteration} & Boolean denoting whether the residuals and parameters from the each iteration are to be saved \\
+\hline
+{\em save\+State\+History\+For\+Each\+Iteration} & Boolean denoting whether the state history is to be saved on each iteration \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a066bb86d23d52f7abc968107d9b68ada}\label{classtudat_1_1simulation__setup_1_1PodInput_a066bb86d23d52f7abc968107d9b68ada}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getInitialParameterDeviationEstimate@{getInitialParameterDeviationEstimate}}
+\index{getInitialParameterDeviationEstimate@{getInitialParameterDeviationEstimate}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getInitialParameterDeviationEstimate()}{getInitialParameterDeviationEstimate()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Initial\+Parameter\+Deviation\+Estimate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the correction to estimated parameter vector to be applied on first iteration. 
+
+Function to return the correction to estimated parameter vector to be applied on first iteration \begin{DoxyReturn}{Returns}
+Correction to estimated parameter vector to be applied on first iteration 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a5d98da3baed4610339cf5639ec982a78}\label{classtudat_1_1simulation__setup_1_1PodInput_a5d98da3baed4610339cf5639ec982a78}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getInverseOfAprioriCovariance@{getInverseOfAprioriCovariance}}
+\index{getInverseOfAprioriCovariance@{getInverseOfAprioriCovariance}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getInverseOfAprioriCovariance()}{getInverseOfAprioriCovariance()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Inverse\+Of\+Apriori\+Covariance (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+A priori covariance matrix (unnormalized) of estimated parameters Function to return the a priori covariance matrix (unnormalized) of estimated parameters
+
+Function to return the a priori covariance matrix (unnormalized) of estimated parameters \begin{DoxyReturn}{Returns}
+A priori covariance matrix (unnormalized) of estimated parameters 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_ad49edbf0665355e0b735d12dbdd2af75}\label{classtudat_1_1simulation__setup_1_1PodInput_ad49edbf0665355e0b735d12dbdd2af75}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getObservationsAndTimes@{getObservationsAndTimes}}
+\index{getObservationsAndTimes@{getObservationsAndTimes}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getObservationsAndTimes()}{getObservationsAndTimes()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput_a2e1f6d5a718a2cf8359e222823ddc40b}{Pod\+Input\+Data\+Type}}\& \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Observations\+And\+Times (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the total data structure of observations and associated times/link ends/type (by reference) 
+
+Function to return the total data structure of observations and associated times/link ends/type (by reference) \begin{DoxyReturn}{Returns}
+Total data structure of observations and associated times/link ends/type (by reference) 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_aeca00db85f7aaa529e583d7f3a107635}\label{classtudat_1_1simulation__setup_1_1PodInput_aeca00db85f7aaa529e583d7f3a107635}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getPrintOutput@{getPrintOutput}}
+\index{getPrintOutput@{getPrintOutput}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getPrintOutput()}{getPrintOutput()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Print\+Output (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting whether to print output to th terminal when running the estimation. 
+
+Function to return the boolean denoting whether to print output to th terminal when running the estimation. \begin{DoxyReturn}{Returns}
+Boolean denoting whether to print output to th terminal when running the estimation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a66274177db8feb353e2300672b1942da}\label{classtudat_1_1simulation__setup_1_1PodInput_a66274177db8feb353e2300672b1942da}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getReintegrateEquationsOnFirstIteration@{getReintegrateEquationsOnFirstIteration}}
+\index{getReintegrateEquationsOnFirstIteration@{getReintegrateEquationsOnFirstIteration}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getReintegrateEquationsOnFirstIteration()}{getReintegrateEquationsOnFirstIteration()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Reintegrate\+Equations\+On\+First\+Iteration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration. 
+
+Function to return the boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration \begin{DoxyReturn}{Returns}
+Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_aa76b58f501752ed759877992d247c4c4}\label{classtudat_1_1simulation__setup_1_1PodInput_aa76b58f501752ed759877992d247c4c4}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getReintegrateVariationalEquations@{getReintegrateVariationalEquations}}
+\index{getReintegrateVariationalEquations@{getReintegrateVariationalEquations}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getReintegrateVariationalEquations()}{getReintegrateVariationalEquations()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Reintegrate\+Variational\+Equations (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation. 
+
+Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation \begin{DoxyReturn}{Returns}
+Boolean denoting whether the variational equations are to be reintegrated during estimation 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a1392e4f33dc513241aacf621a0b9cb53}\label{classtudat_1_1simulation__setup_1_1PodInput_a1392e4f33dc513241aacf621a0b9cb53}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getSaveInformationMatrix@{getSaveInformationMatrix}}
+\index{getSaveInformationMatrix@{getSaveInformationMatrix}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getSaveInformationMatrix()}{getSaveInformationMatrix()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Save\+Information\+Matrix (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting whether to print output to th terminal when running the estimation. 
+
+Function to return the boolean denoting whether to print output to th terminal when running the estimation. \begin{DoxyReturn}{Returns}
+Boolean denoting whether to print output to th terminal when running the estimation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a8bd610430764387be99e628077b8509a}\label{classtudat_1_1simulation__setup_1_1PodInput_a8bd610430764387be99e628077b8509a}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getSaveResidualsAndParametersFromEachIteration@{getSaveResidualsAndParametersFromEachIteration}}
+\index{getSaveResidualsAndParametersFromEachIteration@{getSaveResidualsAndParametersFromEachIteration}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getSaveResidualsAndParametersFromEachIteration()}{getSaveResidualsAndParametersFromEachIteration()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Save\+Residuals\+And\+Parameters\+From\+Each\+Iteration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved. 
+
+Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved \begin{DoxyReturn}{Returns}
+Boolean denoting whether the residuals and parameters from the each iteration are to be saved 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a806b134be8f7f1773da619ba3120ac45}\label{classtudat_1_1simulation__setup_1_1PodInput_a806b134be8f7f1773da619ba3120ac45}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getSaveStateHistoryForEachIteration@{getSaveStateHistoryForEachIteration}}
+\index{getSaveStateHistoryForEachIteration@{getSaveStateHistoryForEachIteration}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getSaveStateHistoryForEachIteration()}{getSaveStateHistoryForEachIteration()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Save\+State\+History\+For\+Each\+Iteration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting whether the state history is to be saved on each iteration. 
+
+Function to return the boolean denoting whether the state history is to be saved on each iteration. \begin{DoxyReturn}{Returns}
+Boolean denoting whether the state history is to be saved on each iteration. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_aac343d50edaceeb33233c41edde058f8}\label{classtudat_1_1simulation__setup_1_1PodInput_aac343d50edaceeb33233c41edde058f8}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!getWeightsMatrixDiagonals@{getWeightsMatrixDiagonals}}
+\index{getWeightsMatrixDiagonals@{getWeightsMatrixDiagonals}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{getWeightsMatrixDiagonals()}{getWeightsMatrixDiagonals()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+std\+::map$<$ observation\+\_\+models\+::\+Observable\+Type, std\+::map$<$ observation\+\_\+models\+::\+Link\+Ends, Eigen\+::\+Vector\+Xd $>$ $>$\& \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::get\+Weights\+Matrix\+Diagonals (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference) 
+
+Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference) \begin{DoxyReturn}{Returns}
+Weight matrix diagonals, sorted by link ends and observable type (by reference) 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a37960ccb0b1ab6c15e8a6e0d1e2097e5}\label{classtudat_1_1simulation__setup_1_1PodInput_a37960ccb0b1ab6c15e8a6e0d1e2097e5}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!setConstantPerObservableAndLinkEndsWeights@{setConstantPerObservableAndLinkEndsWeights}}
+\index{setConstantPerObservableAndLinkEndsWeights@{setConstantPerObservableAndLinkEndsWeights}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{setConstantPerObservableAndLinkEndsWeights()}{setConstantPerObservableAndLinkEndsWeights()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::set\+Constant\+Per\+Observable\+And\+Link\+Ends\+Weights (\begin{DoxyParamCaption}\item[{const std\+::map$<$ observation\+\_\+models\+::\+Observable\+Type, std\+::map$<$ observation\+\_\+models\+::\+Link\+Ends, double $>$ $>$}]{weight\+Per\+Observable\+And\+Link\+Ends }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to set a values for observation weights, constant per observable type and link ends type. 
+
+Function to set a values for observation weights, constant per observable type and link ends type 
+\begin{DoxyParams}{Parameters}
+{\em weight\+Per\+Observable\+And\+Link\+Ends} & Values for observation weights, constant per observable type and link ends type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_a2e06a7166bafc1f6cb0b78ad117b17db}\label{classtudat_1_1simulation__setup_1_1PodInput_a2e06a7166bafc1f6cb0b78ad117b17db}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!setConstantPerObservableWeightsMatrix@{setConstantPerObservableWeightsMatrix}}
+\index{setConstantPerObservableWeightsMatrix@{setConstantPerObservableWeightsMatrix}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{setConstantPerObservableWeightsMatrix()}{setConstantPerObservableWeightsMatrix()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::set\+Constant\+Per\+Observable\+Weights\+Matrix (\begin{DoxyParamCaption}\item[{const std\+::map$<$ observation\+\_\+models\+::\+Observable\+Type, double $>$}]{weight\+Per\+Observable }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to set a values for observation weights, constant per observable type. 
+
+Function to set a values for observation weights, constant per observable type 
+\begin{DoxyParams}{Parameters}
+{\em weight\+Per\+Observable} & Values for observation weights, constant per observable type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1PodInput_aee83eb22193762a70a57d3064c010de4}\label{classtudat_1_1simulation__setup_1_1PodInput_aee83eb22193762a70a57d3064c010de4}} 
+\index{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}!setConstantWeightsMatrix@{setConstantWeightsMatrix}}
+\index{setConstantWeightsMatrix@{setConstantWeightsMatrix}!tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$@{tudat::simulation\_setup::PodInput$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{setConstantWeightsMatrix()}{setConstantWeightsMatrix()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1PodInput}{tudat\+::simulation\+\_\+setup\+::\+Pod\+Input}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::set\+Constant\+Weights\+Matrix (\begin{DoxyParamCaption}\item[{const double}]{constant\+Weight = {\ttfamily 1.0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to set a constant values for all observation weights. 
+
+Function to set a constant values for all observation weights 
+\begin{DoxyParams}{Parameters}
+{\em constant\+Weight} & Constant weight that is to be set for all observations \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/pod\+Input\+Output\+Types.\+h\end{DoxyCompactItemize}

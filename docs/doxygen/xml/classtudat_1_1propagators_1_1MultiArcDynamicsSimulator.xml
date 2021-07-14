@@ -1,0 +1,686 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::MultiArcDynamicsSimulator</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1DynamicsSimulator" prot="public" virt="non-virtual">tudat::propagators::DynamicsSimulator&lt; double, double &gt;</basecompoundref>
+    <includes refid="dynamicsSimulator_8h" local="no">dynamicsSimulator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1af5fa02b39b36f2a466933ce5cbac6a9b" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::equationsOfMotionNumericalSolution_</definition>
+        <argsstring></argsstring>
+        <name>equationsOfMotionNumericalSolution_</name>
+        <briefdescription>
+<para>List of maps of state history of numerically integrated states. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of maps of state history of numerically integrated states. Each entry in the list contains data on a single arc. Key of map denotes time, values are concatenated vectors of body states in order of bodiesToIntegrate </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1473" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1473" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1adc45477ba606404f38b1f0b727f9dff7" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::map&lt; TimeType, Eigen::VectorXd &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, Eigen::VectorXd &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::dependentVariableHistory_</definition>
+        <argsstring></argsstring>
+        <name>dependentVariableHistory_</name>
+        <briefdescription>
+<para>List of maps of dependent variable history that was saved during numerical propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1476" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1476" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ab7e2d10eeb1a1f3e4710e9315354f994" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::map&lt; TimeType, double &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, double &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::cumulativeComputationTimeHistory_</definition>
+        <argsstring></argsstring>
+        <name>cumulativeComputationTimeHistory_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1478" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1478" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ae9c1d25bdf06fade351f44c7b9a3230b" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleArcDynamicsSimulator" kindref="compound">SingleArcDynamicsSimulator</ref>&lt; StateScalarType, TimeType &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; SingleArcDynamicsSimulator&lt; StateScalarType, TimeType &gt; &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::singleArcDynamicsSimulators_</definition>
+        <argsstring></argsstring>
+        <name>singleArcDynamicsSimulators_</name>
+        <briefdescription>
+<para>Objects used to compute the dynamics of the sepatrate arcs. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1481" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1481" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ade4d12f57e0044215f6f69f78ed95b2a" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::arcStartTimes_</definition>
+        <argsstring></argsstring>
+        <name>arcStartTimes_</name>
+        <briefdescription>
+<para>List of start times of each arc. NOTE: This list is updated after every propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1484" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1484" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1adb0a835226c565d31314cc316808adeb" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagationTerminationDetails" kindref="compound">PropagationTerminationDetails</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; PropagationTerminationDetails &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::propagationTerminationReasons_</definition>
+        <argsstring></argsstring>
+        <name>propagationTerminationReasons_</name>
+        <briefdescription>
+<para>Event that triggered the termination of the propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1487" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1487" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ab6b96502685a5892cd00fb30d533ed36" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1MultiArcPropagatorSettings" kindref="compound">MultiArcPropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; MultiArcPropagatorSettings&lt; StateScalarType &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::multiArcPropagatorSettings_</definition>
+        <argsstring></argsstring>
+        <name>multiArcPropagatorSettings_</name>
+        <briefdescription>
+<para>Propagator settings used by this objec. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1490" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1490" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a280be79761f7b8f3ea180cdb79af4dc6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::MultiArcDynamicsSimulator</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies, const std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; TimeType &gt; &gt; integratorSettings, const std::shared_ptr&lt; PropagatorSettings&lt; StateScalarType &gt; &gt; propagatorSettings, const std::vector&lt; double &gt; arcStartTimes, const bool areEquationsOfMotionToBeIntegrated=true, const bool clearNumericalSolutions=true, const bool setIntegratedResult=true)</argsstring>
+        <name>MultiArcDynamicsSimulator</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; TimeType &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagatorSettings" kindref="compound">PropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+          <declname>propagatorSettings</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>arcStartTimes</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areEquationsOfMotionToBeIntegrated</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>clearNumericalSolutions</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>setIntegratedResult</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Constructor of multi-arc simulator for same integration settings per arc. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of multi-arc simulator for same integration settings per arc. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of bodies (with names) of all bodies in integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integrator settings for numerical integrator, used for all arcs. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagatorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Propagator settings for dynamics (must be of multi arc type) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arcStartTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Times at which the separate arcs start </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areEquationsOfMotionToBeIntegrated</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether equations of motion should be integrated at the end of the contructor or not. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clearNumericalSolutions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to determine whether to clear the raw numerical solution member variables after propagation and resetting ephemerides (default true). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>setIntegratedResult</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to determine whether to automatically use the integrated results to set ephemerides (default true). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1068" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1068" bodyend="1118"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a928b5d87e0e1b5c7c37284951fbeecdb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::MultiArcDynamicsSimulator</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies, const std::vector&lt; std::shared_ptr&lt; numerical_integrators::IntegratorSettings&lt; TimeType &gt; &gt; &gt; integratorSettings, const std::shared_ptr&lt; PropagatorSettings&lt; StateScalarType &gt; &gt; propagatorSettings, const bool areEquationsOfMotionToBeIntegrated=true, const bool clearNumericalSolutions=true, const bool setIntegratedResult=true)</argsstring>
+        <name>MultiArcDynamicsSimulator</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kindref="compound">numerical_integrators::IntegratorSettings</ref>&lt; TimeType &gt; &gt; &gt;</type>
+          <declname>integratorSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagatorSettings" kindref="compound">PropagatorSettings</ref>&lt; StateScalarType &gt; &gt;</type>
+          <declname>propagatorSettings</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areEquationsOfMotionToBeIntegrated</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>clearNumericalSolutions</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>setIntegratedResult</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Constructor of multi-arc simulator for different integration settings per arc. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of multi-arc simulator for different integration settings per arc. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of bodies (with names) of all bodies in integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of integrator settings for numerical integrator, defined per arc. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagatorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Propagator settings for dynamics (must be of multi arc type) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areEquationsOfMotionToBeIntegrated</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether equations of motion should be integrated at the end of the contructor or not. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clearNumericalSolutions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to determine whether to clear the raw numerical solution member variables after propagation and resetting ephemerides (default true). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>setIntegratedResult</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to determine whether to automatically use the integrated results to set ephemerides (default true). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1133" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1133" bodyend="1181"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a0d8c60772276f6d26063ad1e08fe0e10" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::~MultiArcDynamicsSimulator</definition>
+        <argsstring>()</argsstring>
+        <name>~MultiArcDynamicsSimulator</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1184" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1184" bodyend="1184"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a6af98bd721fa54deb5c81451602340e0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::integrateEquationsOfMotion</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;concatenatedInitialStates)</argsstring>
+        <name>integrateEquationsOfMotion</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;</type>
+          <declname>concatenatedInitialStates</declname>
+        </param>
+        <briefdescription>
+<para>This function numerically (re-)integrates the equations of motion, using concatenated states for all arcs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function numerically (re-)integrates the equations of motion, using the settings set through the constructor and a new initial state vector provided here. The raw results are set in the equationsOfMotionNumericalSolution_ <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>concatenatedInitialStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state vector that is to be used for numerical integration. Note that this state should be in the correct frame (i.e. corresponding to centralBodies in propagatorSettings_), but not in the propagator- specific form (i.e Encke, Gauss, etc. for translational dynamics). The states for all arcs must be concatenated in order into a single Eigen Vector. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1195" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1195" bodyend="1214"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a266b9a90dcd3cc18d0f024c532009043" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::integrateEquationsOfMotion</definition>
+        <argsstring>(const std::vector&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &amp;initialStatesList)</argsstring>
+        <name>integrateEquationsOfMotion</name>
+        <param>
+          <type>const std::vector&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &amp;</type>
+          <declname>initialStatesList</declname>
+        </param>
+        <briefdescription>
+<para>This function numerically (re-)integrates the equations of motion, using separate states for all arcs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function numerically (re-)integrates the equations of motion, using the settings set through the constructor and a new initial state vector provided here. The raw results are set in the equationsOfMotionNumericalSolution_ <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>initialStatesList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state vector that is to be used for numerical integration. Note that this state should be in the correct frame (i.e. corresponding to centralBodies in propagatorSettings_), but not in the propagator- specific form (i.e Encke, Gauss, etc. for translational dynamics). The states for all stored, in order, in the input std vector. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1225" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1225" bodyend="1291"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a2bf9786859eb03befd473038ea5fa543" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getEquationsOfMotionNumericalSolution</definition>
+        <argsstring>()</argsstring>
+        <name>getEquationsOfMotionNumericalSolution</name>
+        <briefdescription>
+<para>Function to return the numerical solution to the equations of motion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the numerical solution to the equations of motion for last numerical integration. Each vector entry denotes one arc. Key of map denotes time, values are full propagated state vectors. <simplesect kind="return"><para>List of maps of history of numerically integrated states. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1300" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1300" bodyend="1303"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a42ff77da48a39286440c0c82cbf08164" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::map&lt; TimeType, Eigen::VectorXd &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, Eigen::VectorXd &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getDependentVariableHistory</definition>
+        <argsstring>()</argsstring>
+        <name>getDependentVariableHistory</name>
+        <briefdescription>
+<para>Function to return the numerical solution of the dependent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the numerical solution of the dependent variables for last numerical integration. Each vector entry denotes one arc. Key of map denotes time, values are dependent variable vectors <simplesect kind="return"><para>List of maps of dependent variable history </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1311" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1311" bodyend="1314"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1aea8d4409398fc34fbb63a57529886a6d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::map&lt; TimeType, double &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, double &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getCumulativeComputationTimeHistory</definition>
+        <argsstring>()</argsstring>
+        <name>getCumulativeComputationTimeHistory</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1316" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1316" bodyend="1319"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a11a7aaf1c00bd38a3a39fae2eec339dc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getEquationsOfMotionNumericalSolutionBase</definition>
+        <argsstring>()</argsstring>
+        <name>getEquationsOfMotionNumericalSolutionBase</name>
+        <reimplements refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a63672d5ad32468e2d352f3a145427e01">getEquationsOfMotionNumericalSolutionBase</reimplements>
+        <briefdescription>
+<para>Function to return the numerical solution to the equations of motion (base class interface). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the numerical solution to the equations of motion for last numerical integration. Each vector entry denotes one arc. Key of map denotes time, values are full propagated state vectors. <simplesect kind="return"><para>List of maps of history of numerically integrated states. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1328" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1328" bodyend="1331"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a359b7693e69f2ea2f2bb9928a61cb631" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::vector&lt; std::map&lt; TimeType, Eigen::VectorXd &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, Eigen::VectorXd &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getDependentVariableNumericalSolutionBase</definition>
+        <argsstring>()</argsstring>
+        <name>getDependentVariableNumericalSolutionBase</name>
+        <reimplements refid="classtudat_1_1propagators_1_1DynamicsSimulator_1ac20b41aa54498743b4c8a4fb3019416d">getDependentVariableNumericalSolutionBase</reimplements>
+        <briefdescription>
+<para>Function to return the numerical solution of the dependent variables (base class interface) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the numerical solution of the dependent variables for last numerical integration. Each vector entry denotes one arc. Key of map denotes time, values are dependent variable vectors <simplesect kind="return"><para>List of maps of dependent variable history </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1339" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1339" bodyend="1342"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a08cd39875e429f23228ce8c9129bc652" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::vector&lt; std::map&lt; TimeType, double &gt; &gt;</type>
+        <definition>std::vector&lt; std::map&lt; TimeType, double &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getCumulativeComputationTimeHistoryBase</definition>
+        <argsstring>()</argsstring>
+        <name>getCumulativeComputationTimeHistoryBase</name>
+        <reimplements refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a21dd4ad2045c5596afe8ad00fd63d2ba">getCumulativeComputationTimeHistoryBase</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1344" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1344" bodyend="1347"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ab3018116747209c83a14bc84a7fe02e3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::manuallySetAndProcessRawNumericalEquationsOfMotionSolution</definition>
+        <argsstring>(std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt; &amp;equationsOfMotionNumericalSolution, std::vector&lt; std::map&lt; TimeType, Eigen::VectorXd &gt; &gt; &amp;dependentVariableHistory, const bool processSolution=true)</argsstring>
+        <name>manuallySetAndProcessRawNumericalEquationsOfMotionSolution</name>
+        <param>
+          <type>std::vector&lt; std::map&lt; TimeType, Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; &gt; &amp;</type>
+          <declname>equationsOfMotionNumericalSolution</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::map&lt; TimeType, Eigen::VectorXd &gt; &gt; &amp;</type>
+          <declname>dependentVariableHistory</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>processSolution</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Function to reset the environment using an externally provided list of (numerically integrated) states. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the environment using an externally provided list of (numerically integrated) states, for instance provided by a variational equations solver. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>equationsOfMotionNumericalSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of state histories (externally provided equationsOfMotionNumericalSolution_) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariableHistory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of dependent variable histories (externally provided dependentVariableHistory_) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>processSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if the new solution is to be immediately processed (default true). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1359" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1359" bodyend="1389"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1af165fe4633efed11d39469db191d6240" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DynamicsStateDerivativeModel" kindref="compound">DynamicsStateDerivativeModel</ref>&lt; TimeType, StateScalarType &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; DynamicsStateDerivativeModel&lt; TimeType, StateScalarType &gt; &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getDynamicsStateDerivative</definition>
+        <argsstring>()</argsstring>
+        <name>getDynamicsStateDerivative</name>
+        <briefdescription>
+<para>Function to get the list of <ref refid="classtudat_1_1propagators_1_1DynamicsStateDerivativeModel" kindref="compound">DynamicsStateDerivativeModel</ref> objects used for each arc. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the list of <ref refid="classtudat_1_1propagators_1_1DynamicsStateDerivativeModel" kindref="compound">DynamicsStateDerivativeModel</ref> objects used for each arc <simplesect kind="return"><para>List of <ref refid="classtudat_1_1propagators_1_1DynamicsStateDerivativeModel" kindref="compound">DynamicsStateDerivativeModel</ref> objects used for each arc </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1396" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1396" bodyend="1404"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a45b7967758a8e57879ddfa75ca1a5c63" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleArcDynamicsSimulator" kindref="compound">SingleArcDynamicsSimulator</ref>&lt; StateScalarType, TimeType &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; SingleArcDynamicsSimulator&lt; StateScalarType, TimeType &gt; &gt; &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getSingleArcDynamicsSimulators</definition>
+        <argsstring>()</argsstring>
+        <name>getSingleArcDynamicsSimulators</name>
+        <briefdescription>
+<para>Function to get the list of <ref refid="classtudat_1_1propagators_1_1DynamicsSimulator" kindref="compound">DynamicsSimulator</ref> objects used for each arc. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the list of <ref refid="classtudat_1_1propagators_1_1DynamicsSimulator" kindref="compound">DynamicsSimulator</ref> objects used for each arc <simplesect kind="return"><para>List of <ref refid="classtudat_1_1propagators_1_1DynamicsSimulator" kindref="compound">DynamicsSimulator</ref> objects used for each arc </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1411" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1411" bodyend="1414"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1af48212c6fe493d754886b3c65a9e5266" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::getArcStartTimes</definition>
+        <argsstring>()</argsstring>
+        <name>getArcStartTimes</name>
+        <briefdescription>
+<para>Function to retrieve the current state and end times of the arcs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current state and end times of the arcs <simplesect kind="return"><para>The current state and end times of the arcs </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1421" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1421" bodyend="1424"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a6ed02a0f1ddd25aec13bf580d3df3cb5" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::integrationCompletedSuccessfully</definition>
+        <argsstring>() const</argsstring>
+        <name>integrationCompletedSuccessfully</name>
+        <reimplements refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a299c98e9a537ed7f32d9897d033f51b5">integrationCompletedSuccessfully</reimplements>
+        <briefdescription>
+<para>Get whether the integration was completed successfully. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get whether the integration was completed successfully. <simplesect kind="return"><para>Whether the integration was completed successfully by reaching the termination condition. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1431" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1431" bodyend="1442"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a287886fe610cc3521d5e84d7b9b70b9e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;::processNumericalEquationsOfMotionSolution</definition>
+        <argsstring>()</argsstring>
+        <name>processNumericalEquationsOfMotionSolution</name>
+        <reimplements refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a63213c599db30418b794bd9047ff08f1">processNumericalEquationsOfMotionSolution</reimplements>
+        <briefdescription>
+<para>This function updates the environment with the numerical solution of the propagation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function updates the environment with the numerical solution of the propagation. It sets the propagated dynamics solution as the new input for e.g., the ephemeris object of the boies that were propagated (for translational states). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1450" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1450" bodyend="1464"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for performing full numerical integration of a dynamical system over multiple arcs. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for performing full numerical integration of a dynamical system over multiple arcs, equations of motion are set up for each arc (and need not be equal for each arc). In this class, the governing equations are set once, but can be re-integrated for different initial conditions using the same instance of the class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::propagators::DynamicsSimulator&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1DynamicsSimulator"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propagators::DynamicsSimulator&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1DynamicsSimulator"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::MultiArcDynamicsSimulator&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" line="1047" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/dynamicsSimulator.h" bodystart="1048" bodyend="1491"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ade4d12f57e0044215f6f69f78ed95b2a" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>arcStartTimes_</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a805137a2a7abb58239026a70a1e82b58" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>bodies_</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a9bbe7a7134636105ddfe4100fed77518" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>clearNumericalSolutions_</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ab7e2d10eeb1a1f3e4710e9315354f994" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>cumulativeComputationTimeHistory_</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1adc45477ba606404f38b1f0b727f9dff7" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>dependentVariableHistory_</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1adab48e1facc2bfe46e97076a64418e53" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>DynamicsSimulator</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1af5fa02b39b36f2a466933ce5cbac6a9b" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>equationsOfMotionNumericalSolution_</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1af48212c6fe493d754886b3c65a9e5266" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getArcStartTimes</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1aea8d4409398fc34fbb63a57529886a6d" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getCumulativeComputationTimeHistory</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a08cd39875e429f23228ce8c9129bc652" prot="public" virt="virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getCumulativeComputationTimeHistoryBase</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a42ff77da48a39286440c0c82cbf08164" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getDependentVariableHistory</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a359b7693e69f2ea2f2bb9928a61cb631" prot="public" virt="virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getDependentVariableNumericalSolutionBase</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1af165fe4633efed11d39469db191d6240" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getDynamicsStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a2bf9786859eb03befd473038ea5fa543" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getEquationsOfMotionNumericalSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a11a7aaf1c00bd38a3a39fae2eec339dc" prot="public" virt="virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getEquationsOfMotionNumericalSolutionBase</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1aeee81515a527dc2f0d083020451f9f8d" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getNamedBodyMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1aa34c500851102371eecb00e43368bbe3" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getSetIntegratedResult</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a45b7967758a8e57879ddfa75ca1a5c63" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>getSingleArcDynamicsSimulators</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a6af98bd721fa54deb5c81451602340e0" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>integrateEquationsOfMotion</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a266b9a90dcd3cc18d0f024c532009043" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>integrateEquationsOfMotion</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a0136cc85ce5a0938846bc55097fcd88c" prot="public" virt="pure-virtual" ambiguityscope="DynamicsSimulator&lt; double, double &gt;::"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>integrateEquationsOfMotion</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a6ed02a0f1ddd25aec13bf580d3df3cb5" prot="public" virt="virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>integrationCompletedSuccessfully</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ab3018116747209c83a14bc84a7fe02e3" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>manuallySetAndProcessRawNumericalEquationsOfMotionSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a280be79761f7b8f3ea180cdb79af4dc6" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>MultiArcDynamicsSimulator</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a928b5d87e0e1b5c7c37284951fbeecdb" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>MultiArcDynamicsSimulator</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ab6b96502685a5892cd00fb30d533ed36" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>multiArcPropagatorSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a287886fe610cc3521d5e84d7b9b70b9e" prot="public" virt="virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>processNumericalEquationsOfMotionSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1adb0a835226c565d31314cc316808adeb" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>propagationTerminationReasons_</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a09ecdfd1f37e70b6e523453e6e296ddb" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>resetNamedBodyMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a2ccd5a055e54b8353132b7e7264de8c7" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>resetSetIntegratedResult</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a031f7f17018368e86682675970dc9a2a" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>setIntegratedResult_</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1ae9c1d25bdf06fade351f44c7b9a3230b" prot="protected" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>singleArcDynamicsSimulators_</name></member>
+      <member refid="classtudat_1_1propagators_1_1DynamicsSimulator_1a88b8053599e97640a23aca87ec9673dd" prot="public" virt="virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>~DynamicsSimulator</name></member>
+      <member refid="classtudat_1_1propagators_1_1MultiArcDynamicsSimulator_1a0d8c60772276f6d26063ad1e08fe0e10" prot="public" virt="non-virtual"><scope>tudat::propagators::MultiArcDynamicsSimulator</scope><name>~MultiArcDynamicsSimulator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

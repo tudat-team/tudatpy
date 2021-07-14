@@ -1,0 +1,759 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface" kind="class" language="C++" prot="public">
+    <compoundname>tudat::electromagnetism::SolarSailingRadiationPressureInterface</compoundname>
+    <basecompoundref refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" prot="public" virt="non-virtual">tudat::electromagnetism::RadiationPressureInterface</basecompoundref>
+    <includes refid="radiationPressureInterface_8h" local="no">radiationPressureInterface.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a19c297ab174fba12001cc9fd005ac7b0" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::SolarSailingRadiationPressureInterface::targetVelocityFunction_</definition>
+        <argsstring></argsstring>
+        <name>targetVelocityFunction_</name>
+        <briefdescription>
+<para>Function returning the current position of the source body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="727" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="727" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a3ebded498d19145705db26301be454d4" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::electromagnetism::SolarSailingRadiationPressureInterface::coneAngleFunction_</definition>
+        <argsstring></argsstring>
+        <name>coneAngleFunction_</name>
+        <briefdescription>
+<para>Function returning the current cone angle of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="730" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="730" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a043fe5abffd3fc5fb7167823260c3019" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::electromagnetism::SolarSailingRadiationPressureInterface::clockAngleFunction_</definition>
+        <argsstring></argsstring>
+        <name>clockAngleFunction_</name>
+        <briefdescription>
+<para>Function returning the current clock angle of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="733" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="733" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a2a6ab705fa6160276553f01bd1aa953f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::currentConeAngle_</definition>
+        <argsstring></argsstring>
+        <name>currentConeAngle_</name>
+        <briefdescription>
+<para>Current cone angle of the body (in rad). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="736" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="736" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ad1051acd40999a5051401e023d17c747" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::currentClockAngle_</definition>
+        <argsstring></argsstring>
+        <name>currentClockAngle_</name>
+        <briefdescription>
+<para>Current clock angle of the body (in rad). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="739" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="739" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1aef736755aa75231e100805803ed315f1" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::frontEmissivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>frontEmissivityCoefficient_</name>
+        <briefdescription>
+<para>Front emissivity coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="742" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="742" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a6ab7b9b86a96be983a97ed7ab7a01de1" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::backEmissivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>backEmissivityCoefficient_</name>
+        <briefdescription>
+<para>Back emissivity coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="745" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="745" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ad11ca69cf92d254f160e35b1a03aaccd" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::frontLambertianCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>frontLambertianCoefficient_</name>
+        <briefdescription>
+<para>Front Lambertian coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="748" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="748" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a156191c191b168253ecdb67d1706f48a" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::backLambertianCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>backLambertianCoefficient_</name>
+        <briefdescription>
+<para>Back Lambertian coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="751" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="751" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a16b01f865c93724aab0c454452686235" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::reflectivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>reflectivityCoefficient_</name>
+        <briefdescription>
+<para>Reflectivity coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="754" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="754" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ac7df57a8af1c4804c31f1e0c2d79e7b1" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::specularReflectionCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>specularReflectionCoefficient_</name>
+        <briefdescription>
+<para>Specular reflection coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="757" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="757" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a24b7297ab5958f81251075b290a20020" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::SolarSailingRadiationPressureInterface::centralBodyVelocity_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyVelocity_</name>
+        <briefdescription>
+<para>Function returning the velocity of the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="760" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="760" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a5643d39809e9a5b5ef69d4f50eaf9129" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::SolarSailingRadiationPressureInterface::currentUnitVelocityVector_</definition>
+        <argsstring></argsstring>
+        <name>currentUnitVelocityVector_</name>
+        <briefdescription>
+<para>Current vector of the target&apos;s normalised velocity. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="763" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="763" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1af989b15e399e9162ed831668efc0fa41" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::electromagnetism::SolarSailingRadiationPressureInterface::SolarSailingRadiationPressureInterface</definition>
+        <argsstring>(const std::function&lt; double() &gt; sourcePower, const std::function&lt; Eigen::Vector3d() &gt; sourcePositionFunction, const std::function&lt; Eigen::Vector3d() &gt; targetPositionFunction, const std::function&lt; Eigen::Vector3d() &gt; targetVelocityFunction, const double area, const std::function&lt; double(const double) &gt; coneAngle, const std::function&lt; double(const double) &gt; clockAngle, const double frontEmissivityCoefficient, const double backEmissivityCoefficient, const double frontLambertianCoefficient, const double backLambertianCoefficient, const double reflectivityCoefficient, const double specularReflectionCoefficient, const std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt; occultingBodyPositions=std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;(), const std::function&lt; Eigen::Vector3d() &gt; centralBodyVelocity=std::function&lt; Eigen::Vector3d() &gt;(), const std::vector&lt; double &gt; occultingBodyRadii=std::vector&lt; double &gt;(), const double sourceRadius=0.0)</argsstring>
+        <name>SolarSailingRadiationPressureInterface</name>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>sourcePower</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>sourcePositionFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>targetPositionFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>targetVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>coneAngle</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>clockAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frontEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frontLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>reflectivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specularReflectionCoefficient</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;</type>
+          <declname>occultingBodyPositions</declname>
+          <defval>std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>centralBodyVelocity</declname>
+          <defval>std::function&lt; Eigen::Vector3d() &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>occultingBodyRadii</declname>
+          <defval>std::vector&lt; double &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sourceRadius</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Class constructor for radiation pressure interface (appropriate for solar sail model) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sourcePower</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current total power (in W) emitted by the source body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sourcePositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current position of the source body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetPositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current position of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetVelocityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current velocity of the target body w.r.t. central body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reflecting area of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coneAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current cone angle of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clockAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current clock angle of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Front emissivity coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Back emissivity coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Front Lambertian coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Back Lambertian coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reflectivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reflectivity coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specularReflectionCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Specular reflection coefficient of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>occultingBodyPositions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of functions returning the positions of the bodies causing occultations (default none) NOTE: Multiple concurrent occultations may currently result in slighlty underestimted radiation pressure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyVelocity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current velocity of the central body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>occultingBodyRadii</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of radii of the bodies causing occultations (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sourceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radius of the source body (used for occultation calculations) (default 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="539" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="539" bodyend="570"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a79f523f1311843d143ebe6efe4f1dcf0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::electromagnetism::SolarSailingRadiationPressureInterface::updateInterface</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateInterface</name>
+        <reimplements refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a0a6d161420b52a1a00d2c13db4c39d85">updateInterface</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Base class function to update the current properties of the solar sailing radiation pressure acceleration model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Base class function to update the current properties of the solar sailing radiation pressure acceleration model. This function is nominally called by the updateInterface function, which may be overridden by derived classes. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="579" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="579" bodyend="590"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a14fb98f62688b48f6b293906d6e3a1ff" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::SolarSailingRadiationPressureInterface::getCurrentVelocityVector</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentVelocityVector</name>
+        <briefdescription>
+<para>Function to return the current normalised velocity of the target. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current normalised velocity of the target. <simplesect kind="return"><para>Current normalised velocity vector of the target [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="598" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="598" bodyend="601"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1afc986fc04298dea640b651ebaa295992" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::SolarSailingRadiationPressureInterface::getTargetVelocityFunction</definition>
+        <argsstring>() const</argsstring>
+        <name>getTargetVelocityFunction</name>
+        <briefdescription>
+<para>Function to return the function returning the current normalised velocity of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the function returning the current normalised velocity of the target body. <simplesect kind="return"><para>Function returning the current normalised velocity of the target body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="608" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="608" bodyend="611"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a4b8f49bce967ff77282fa5f85f7e88cf" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::getCurrentConeAngle</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentConeAngle</name>
+        <briefdescription>
+<para>Function to return the current cone angle of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current cone angle of the target body. <simplesect kind="return"><para>Current cone angle of the target body [rad]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="618" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="618" bodyend="621"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ae23960a39de071e53f49e5fe753b3d37" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::getCurrentClockAngle</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentClockAngle</name>
+        <briefdescription>
+<para>Function to return the current clock angle of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current clock angle of the target body. <simplesect kind="return"><para>The current clock angle of the target body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="628" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="628" bodyend="631"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1af39e193da1e67e86b6974d42c15872b7" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::electromagnetism::SolarSailingRadiationPressureInterface::getConeAngleFunction</definition>
+        <argsstring>() const</argsstring>
+        <name>getConeAngleFunction</name>
+        <briefdescription>
+<para>Function to return the cone angle function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the cone angle function <simplesect kind="return"><para>Cone angle function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="638" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="638" bodyend="641"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ae3eab594c9c9dd7e15ec8e093050190c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::electromagnetism::SolarSailingRadiationPressureInterface::getClockAngleFunction</definition>
+        <argsstring>() const</argsstring>
+        <name>getClockAngleFunction</name>
+        <briefdescription>
+<para>Function to return the clock angle function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the clock angle function <simplesect kind="return"><para>Clock angle function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="648" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="648" bodyend="651"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a9b37fa5eb12ab8f6a0b5deb8dc7eaa27" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::getFrontEmissivityCoefficient</definition>
+        <argsstring>() const</argsstring>
+        <name>getFrontEmissivityCoefficient</name>
+        <briefdescription>
+<para>Function to return the front emissivity coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the front emissivity coefficient of the target body. <simplesect kind="return"><para>Front emissivity coefficient of the target body [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="658" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="658" bodyend="661"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a293b4af1f8018e0fbd4c5eece7b1132a" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::getBackEmissivityCoefficient</definition>
+        <argsstring>() const</argsstring>
+        <name>getBackEmissivityCoefficient</name>
+        <briefdescription>
+<para>Function to return the back emissivity coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the back emissivity coefficient of the target body. <simplesect kind="return"><para>Back emissivity coefficient of the target body [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="668" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="668" bodyend="671"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a2b55033c7f1ba411289718446208078c" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::getFrontLambertianCoefficient</definition>
+        <argsstring>() const</argsstring>
+        <name>getFrontLambertianCoefficient</name>
+        <briefdescription>
+<para>Function to return the front Lambertian coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the front Lambertian coefficient of the target body. <simplesect kind="return"><para>Front Lambertian coefficient of the target body [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="678" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="678" bodyend="681"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a7751bc6ccd1b50643b7b67fedf759593" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::getBackLambertianCoefficient</definition>
+        <argsstring>() const</argsstring>
+        <name>getBackLambertianCoefficient</name>
+        <briefdescription>
+<para>Function to return the back Lambertian coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the back Lambertian coefficient of the target body. <simplesect kind="return"><para>Back Lambertian coefficient of the target body [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="688" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="688" bodyend="691"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a725affd5c3d91cc437b4e61644d7f0e2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::getReflectivityCoefficient</definition>
+        <argsstring>() const</argsstring>
+        <name>getReflectivityCoefficient</name>
+        <briefdescription>
+<para>Function to return the reflectivity coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the reflectivity coefficient of the target body. <simplesect kind="return"><para>Reflectivity coefficient of the target body [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="698" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="698" bodyend="701"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a544f5d392b0213ef1b0c6b2f9099cfcf" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::SolarSailingRadiationPressureInterface::getSpecularReflectionCoefficient</definition>
+        <argsstring>() const</argsstring>
+        <name>getSpecularReflectionCoefficient</name>
+        <briefdescription>
+<para>Function to return the specular reflection coefficient of the target body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the specular reflection coefficient of the target body. <simplesect kind="return"><para>Specular reflection coefficient of the target body [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="708" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="708" bodyend="711"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a87bfd3ead3bee860c15c4c98c2efc9d0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::electromagnetism::SolarSailingRadiationPressureInterface::getCentralBodyVelocity</definition>
+        <argsstring>()</argsstring>
+        <name>getCentralBodyVelocity</name>
+        <briefdescription>
+<para>Returns the function returning the velocity of the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the function returning the velocity of the central body. <simplesect kind="return"><para>Function returning the velocity of the central body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="718" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="718" bodyend="721"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class in which the properties of a solar sailing radiation pressure acceleration model are stored. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class in which the properties of a solar sailing radiation pressure acceleration model are stored and in which the current solar sailing radiation pressure is calculated based on the source power and geometry, as well as on the spacecraft solar sail model. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::electromagnetism::SolarSailingRadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::electromagnetism::RadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::electromagnetism::SolarSailingRadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::electromagnetism::RadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="512" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="513" bodyend="765"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a04e2d7077622e88aa02832215350d4f6" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>area_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a6ab7b9b86a96be983a97ed7ab7a01de1" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>backEmissivityCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a156191c191b168253ecdb67d1706f48a" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>backLambertianCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a24b7297ab5958f81251075b290a20020" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>centralBodyVelocity_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a043fe5abffd3fc5fb7167823260c3019" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>clockAngleFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a3ebded498d19145705db26301be454d4" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>coneAngleFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ad1051acd40999a5051401e023d17c747" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>currentClockAngle_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a2a6ab705fa6160276553f01bd1aa953f" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>currentConeAngle_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a3dff0ed23972323dec47c69afed013f6" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>currentRadiationPressure_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a1be95ff189b5346b83a03ab52a0f7fae" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>currentSolarVector_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a5f4c8a1288b0d61f06a0fef2e5e0215a" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a5643d39809e9a5b5ef69d4f50eaf9129" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>currentUnitVelocityVector_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1aef736755aa75231e100805803ed315f1" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>frontEmissivityCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ad11ca69cf92d254f160e35b1a03aaccd" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>frontLambertianCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a8ba190d3660cba1a3e680d4cbf066595" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getArea</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a293b4af1f8018e0fbd4c5eece7b1132a" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getBackEmissivityCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a7751bc6ccd1b50643b7b67fedf759593" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getBackLambertianCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a87bfd3ead3bee860c15c4c98c2efc9d0" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getCentralBodyVelocity</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ae3eab594c9c9dd7e15ec8e093050190c" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getClockAngleFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1af39e193da1e67e86b6974d42c15872b7" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getConeAngleFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ae23960a39de071e53f49e5fe753b3d37" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getCurrentClockAngle</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a4b8f49bce967ff77282fa5f85f7e88cf" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getCurrentConeAngle</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a209a53f46c57d4ecc439669b4a66034f" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getCurrentRadiationPressure</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af8257a4166fd41c27cb046ac98dd9142" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getCurrentSolarVector</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a95472ae33b7e22da62099cc0d0dfd5e0" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getCurrentTime</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a14fb98f62688b48f6b293906d6e3a1ff" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getCurrentVelocityVector</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a9b37fa5eb12ab8f6a0b5deb8dc7eaa27" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getFrontEmissivityCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a2b55033c7f1ba411289718446208078c" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getFrontLambertianCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a17cfffd8b6e1c27c27c4fda95653abbf" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getOccultingBodyPositions</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a9bb6a065c0f04b1075644aadd802332c" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getOccultingBodyRadii</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a092b541d1978c4c00e21a87356de70ff" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getRadiationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a725affd5c3d91cc437b4e61644d7f0e2" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getReflectivityCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1aa2cc240947befd9fe22a4285667b034d" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getSourcePositionFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ac1b08085990ede1988dd21f5151adb35" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getSourcePowerFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a611624c603a1276624899d043bc20e90" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getSourceRadius</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a544f5d392b0213ef1b0c6b2f9099cfcf" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getSpecularReflectionCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a6ce4e08815ae5bce50eb705b603976ee" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getTargetPositionFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1afc986fc04298dea640b651ebaa295992" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>getTargetVelocityFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a53cfee0cbf69298d4a0d05bff7810132" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>occultingBodyPositions_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1aaf264645d6f27dbcef1352bec0d8c2ec" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>occultingBodyRadii_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af23389ab985239758021e95a52eb7ac2" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>radiationPressureCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a49136e9a7ef2e4dd136e32fe852f1f79" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>radiationPressureCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a31cc26c88dd8f55447042462bdfddca3" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>RadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a6fac7e11f591ca2c87d1588ecaa79428" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>RadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a16b01f865c93724aab0c454452686235" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>reflectivityCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a97e5df2678ff204facdcfb7fd2113d61" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>resetRadiationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a965b7d578ec0b90c8724f2ab013b631d" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>resetRadiationPressureCoefficientFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1af989b15e399e9162ed831668efc0fa41" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>SolarSailingRadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a8b1e3589ef7f05e340de24e65c053f1f" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>sourcePositionFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a649500ecb7092ec3b0e0304df9bb7e57" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>sourcePower_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af0b463560f437c33a7aa5b62c6a5ed4c" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>sourceRadius_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1ac7df57a8af1c4804c31f1e0c2d79e7b1" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>specularReflectionCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ac93f1f970d7d5a6277692c58dce24b47" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>targetPositionFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a19c297ab174fba12001cc9fd005ac7b0" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>targetVelocityFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface_1a79f523f1311843d143ebe6efe4f1dcf0" prot="public" virt="virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>updateInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ab48c69a870e547367bb260a633085662" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>updateInterfaceBase</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af75e0844a60cdb32afcf1059f9fd804e" prot="public" virt="virtual"><scope>tudat::electromagnetism::SolarSailingRadiationPressureInterface</scope><name>~RadiationPressureInterface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

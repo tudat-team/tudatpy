@@ -1,0 +1,165 @@
+\hypertarget{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface}{}\doxysection{tudat\+::observation\+\_\+models\+::Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface Class Reference}
+\label{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface}\index{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}}
+
+
+Function to compute first-\/order approximation of proper-\/time rate for one-\/way Doppler observable.  
+
+
+
+
+{\ttfamily \#include $<$one\+Way\+Doppler\+Observation\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+models\+::Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a2d34a05ec701ce74c61357aa7e717f68}{Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface}} (const Link\+End\+Type computation\+Point\+Link\+End\+Type, const std\+::function$<$ double() $>$ gravitational\+Parameter\+Function, const std\+::string \&reference\+Body, const Link\+End\+Type reference\+Point\+Link\+End\+Type=unidentified\+\_\+link\+\_\+end, const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$ reference\+Point\+State\+Function=std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$())
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_ac74680dbdce11d9f846384f37d253bd5}\label{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_ac74680dbdce11d9f846384f37d253bd5}} 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_ac74680dbdce11d9f846384f37d253bd5}{$\sim$\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a08c16e35f38500edb3e173865a8ca548}{get\+Oberver\+Proper\+Time\+Deviation}} (const std\+::vector$<$ double $>$ \&link\+End\+Times, const std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&link\+End\+States)
+\begin{DoxyCompactList}\small\item\em Function to coompute the proper time rate. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a9201e2c669c0e4452530e7a057be7291}{get\+Computation\+Point\+Relative\+State}} (const std\+::vector$<$ double $>$ \&link\+End\+Times, const std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&link\+End\+States)
+\begin{DoxyCompactList}\small\item\em Function to compute the state of the computation point w.\+r.\+t. the central body. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_af3bbe64a99adb404c31da888ec457482}{get\+Reference\+Point\+State}} (const std\+::vector$<$ double $>$ \&link\+End\+Times, const std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&link\+End\+States)
+\begin{DoxyCompactList}\small\item\em Function to compute the state of the central body (e.\+g. origin for positions and velocities in proper time calculations) \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a8c10fcca6f3924fc9d783bec92f263a3}{get\+Gravitational\+Parameter}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve central body gravitational parameter. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_ad082e80b791c683704a295229855116b}{get\+Central\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the name of body generating the gravity field. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Function to compute first-\/order approximation of proper-\/time rate for one-\/way Doppler observable. 
+
+Function to compute first-\/order approximation of proper-\/time rate for one-\/way Doppler observable. Assumes a single static mass generating the gravity field (Schwarzschild metric) and a c$^\wedge$-\/2 expansion of proper time rate function. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a2d34a05ec701ce74c61357aa7e717f68}\label{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a2d34a05ec701ce74c61357aa7e717f68}} 
+\index{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}!DirectFirstOrderDopplerProperTimeRateInterface@{DirectFirstOrderDopplerProperTimeRateInterface}}
+\index{DirectFirstOrderDopplerProperTimeRateInterface@{DirectFirstOrderDopplerProperTimeRateInterface}!tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}}
+\doxysubsubsection{\texorpdfstring{DirectFirstOrderDopplerProperTimeRateInterface()}{DirectFirstOrderDopplerProperTimeRateInterface()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+models\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface (\begin{DoxyParamCaption}\item[{const Link\+End\+Type}]{computation\+Point\+Link\+End\+Type,  }\item[{const std\+::function$<$ double() $>$}]{gravitational\+Parameter\+Function,  }\item[{const std\+::string \&}]{reference\+Body,  }\item[{const Link\+End\+Type}]{reference\+Point\+Link\+End\+Type = {\ttfamily unidentified\+\_\+link\+\_\+end},  }\item[{const std\+::function$<$ Eigen\+::\+Vector6d(const double) $>$}]{reference\+Point\+State\+Function = {\ttfamily std\+:\+:function$<$~Eigen\+:\+:Vector6d(~const~double~)~$>$(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em computation\+Point\+Link\+End\+Type} & Variable that denotes for which link end this object computes the proper time rate \\
+\hline
+{\em gravitational\+Parameter\+Function} & Function that returns the gravitational parameter of the central body. \\
+\hline
+{\em reference\+Body} & Name of body generating the gravity field. \\
+\hline
+{\em reference\+Point\+Link\+End\+Type} & Link end type of central body (default unidentified\+\_\+link\+\_\+end, meaning that the central body is not one of the link ends) \\
+\hline
+{\em reference\+Point\+State\+Function} & Function that returns the state of the central body as a function of time, default empty, but must be provided if reference\+Point\+Link\+End\+Type equals unidentified\+\_\+link\+\_\+end. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_ad082e80b791c683704a295229855116b}\label{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_ad082e80b791c683704a295229855116b}} 
+\index{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}!getCentralBody@{getCentralBody}}
+\index{getCentralBody@{getCentralBody}!tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}}
+\doxysubsubsection{\texorpdfstring{getCentralBody()}{getCentralBody()}}
+{\footnotesize\ttfamily std\+::string tudat\+::observation\+\_\+models\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface\+::get\+Central\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the name of body generating the gravity field. 
+
+Function to return the name of body generating the gravity field \begin{DoxyReturn}{Returns}
+Name of body generating the gravity field 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a9201e2c669c0e4452530e7a057be7291}\label{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a9201e2c669c0e4452530e7a057be7291}} 
+\index{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}!getComputationPointRelativeState@{getComputationPointRelativeState}}
+\index{getComputationPointRelativeState@{getComputationPointRelativeState}!tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}}
+\doxysubsubsection{\texorpdfstring{getComputationPointRelativeState()}{getComputationPointRelativeState()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::observation\+\_\+models\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface\+::get\+Computation\+Point\+Relative\+State (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{link\+End\+Times,  }\item[{const std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&}]{link\+End\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute the state of the computation point w.\+r.\+t. the central body. 
+
+Function to compute the state of the computation point w.\+r.\+t. the central body 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+Times} & Link end coordinate times for one-\/way Doppler observale for which proper time rate is to be computed. \\
+\hline
+{\em link\+End\+States} & Link end Cartesian states for one-\/way Doppler observale for which proper time rate is to be computed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The state of the computation point w.\+r.\+t. the central body 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a8c10fcca6f3924fc9d783bec92f263a3}\label{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a8c10fcca6f3924fc9d783bec92f263a3}} 
+\index{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}!getGravitationalParameter@{getGravitationalParameter}}
+\index{getGravitationalParameter@{getGravitationalParameter}!tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}}
+\doxysubsubsection{\texorpdfstring{getGravitationalParameter()}{getGravitationalParameter()}}
+{\footnotesize\ttfamily double tudat\+::observation\+\_\+models\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface\+::get\+Gravitational\+Parameter (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve central body gravitational parameter. 
+
+Function to retrieve central body gravitational parameter \begin{DoxyReturn}{Returns}
+Central body gravitational parameter 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a08c16e35f38500edb3e173865a8ca548}\label{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_a08c16e35f38500edb3e173865a8ca548}} 
+\index{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}!getOberverProperTimeDeviation@{getOberverProperTimeDeviation}}
+\index{getOberverProperTimeDeviation@{getOberverProperTimeDeviation}!tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}}
+\doxysubsubsection{\texorpdfstring{getOberverProperTimeDeviation()}{getOberverProperTimeDeviation()}}
+{\footnotesize\ttfamily double tudat\+::observation\+\_\+models\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface\+::get\+Oberver\+Proper\+Time\+Deviation (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{link\+End\+Times,  }\item[{const std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&}]{link\+End\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to coompute the proper time rate. 
+
+Function to coompute the proper time rate as (dtau/dt-\/1), with tau and t proper and coordinate time, respectively. 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+Times} & Link end coordinate times for one-\/way Doppler observale for which proper time rate is to be computed. \\
+\hline
+{\em link\+End\+States} & Link end Cartesian states for one-\/way Doppler observale for which proper time rate is to be computed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Proper time rate difference as (dtau/dt-\/1). 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__models_1_1DopplerProperTimeRateInterface_a1b78e6a5acafe98b899cac5fb2a5d8cf}{tudat\+::observation\+\_\+models\+::\+Doppler\+Proper\+Time\+Rate\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_af3bbe64a99adb404c31da888ec457482}\label{classtudat_1_1observation__models_1_1DirectFirstOrderDopplerProperTimeRateInterface_af3bbe64a99adb404c31da888ec457482}} 
+\index{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}!getReferencePointState@{getReferencePointState}}
+\index{getReferencePointState@{getReferencePointState}!tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface@{tudat::observation\_models::DirectFirstOrderDopplerProperTimeRateInterface}}
+\doxysubsubsection{\texorpdfstring{getReferencePointState()}{getReferencePointState()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::observation\+\_\+models\+::\+Direct\+First\+Order\+Doppler\+Proper\+Time\+Rate\+Interface\+::get\+Reference\+Point\+State (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$ \&}]{link\+End\+Times,  }\item[{const std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&}]{link\+End\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute the state of the central body (e.\+g. origin for positions and velocities in proper time calculations) 
+
+Function to compute the state of the central body (e.\+g. origin for positions and velocities in proper time calculations) 
+\begin{DoxyParams}{Parameters}
+{\em link\+End\+Times} & Link end coordinate times for one-\/way Doppler observale for which proper time rate is to be computed. \\
+\hline
+{\em link\+End\+States} & Link end Cartesian states for one-\/way Doppler observale for which proper time rate is to be computed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The state of the central body 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/observation\+\_\+models/one\+Way\+Doppler\+Observation\+Model.\+h\end{DoxyCompactItemize}

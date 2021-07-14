@@ -1,0 +1,428 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1filters" kind="namespace" language="C++">
+    <compoundname>tudat::filters</compoundname>
+    <innerclass refid="classtudat_1_1filters_1_1FilterSettings" prot="public">tudat::filters::FilterSettings</innerclass>
+    <innerclass refid="classtudat_1_1filters_1_1ExtendedKalmanFilterSettings" prot="public">tudat::filters::ExtendedKalmanFilterSettings</innerclass>
+    <innerclass refid="classtudat_1_1filters_1_1UnscentedKalmanFilterSettings" prot="public">tudat::filters::UnscentedKalmanFilterSettings</innerclass>
+    <innerclass refid="classtudat_1_1filters_1_1ExtendedKalmanFilter" prot="public">tudat::filters::ExtendedKalmanFilter</innerclass>
+    <innerclass refid="classtudat_1_1filters_1_1FilterBase" prot="public">tudat::filters::FilterBase</innerclass>
+    <innerclass refid="classtudat_1_1filters_1_1KalmanFilterBase" prot="public">tudat::filters::KalmanFilterBase</innerclass>
+    <innerclass refid="classtudat_1_1filters_1_1LinearKalmanFilter" prot="public">tudat::filters::LinearKalmanFilter</innerclass>
+    <innerclass refid="classtudat_1_1filters_1_1UnscentedKalmanFilter" prot="public">tudat::filters::UnscentedKalmanFilter</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="createFilter_8h_1afedcb5c0c45e4c9ceffbe65530ecaa13" prot="public" static="no" strong="no">
+        <type></type>
+        <name>AvailableFilteringTechniques</name>
+        <enumvalue id="createFilter_8h_1afedcb5c0c45e4c9ceffbe65530ecaa13aabae5737fe2e09fccf6234eaa7731b6b" prot="public">
+          <name>linear_kalman_filter</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="createFilter_8h_1afedcb5c0c45e4c9ceffbe65530ecaa13a935bbcc145217cc021ca7c69ef4c8a25" prot="public">
+          <name>extended_kalman_filter</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="createFilter_8h_1afedcb5c0c45e4c9ceffbe65530ecaa13a2e718d7c071422a5ea7cf46044829115" prot="public">
+          <name>unscented_kalman_filter</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enumeration of available filters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="34" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="35" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="enum" id="unscentedKalmanFilter_8h_1a3d987afcf1dd5c312dfe10e7a34ee061" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ConstantParameterIndices</name>
+        <enumvalue id="unscentedKalmanFilter_8h_1a3d987afcf1dd5c312dfe10e7a34ee061ad554ac34e3c4061beb6440f21b98e2be" prot="public">
+          <name>alpha_index</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="unscentedKalmanFilter_8h_1a3d987afcf1dd5c312dfe10e7a34ee061ab2934f5c38fc8965855b82282cb176ea" prot="public">
+          <name>beta_index</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="unscentedKalmanFilter_8h_1a3d987afcf1dd5c312dfe10e7a34ee061ad2c4fd43a529e91b235b7ddb146d4596" prot="public">
+          <name>gamma_index</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="unscentedKalmanFilter_8h_1a3d987afcf1dd5c312dfe10e7a34ee061ae885a9ba21c869dd0664799bc8211025" prot="public">
+          <name>kappa_index</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="unscentedKalmanFilter_8h_1a3d987afcf1dd5c312dfe10e7a34ee061a1075dd6738fcae2a2c524e6db5c35d0c" prot="public">
+          <name>lambda_index</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enumeration for value of contant parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h" line="35" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h" bodystart="36" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="enum" id="unscentedKalmanFilter_8h_1afcc3ddba6123085277fbfe468255f0f2" prot="public" static="no" strong="no">
+        <type></type>
+        <name>ConstantParameterReferences</name>
+        <enumvalue id="unscentedKalmanFilter_8h_1afcc3ddba6123085277fbfe468255f0f2a8bc22f7f8f740e44bbabafaad0e62065" prot="public">
+          <name>reference_Wan_and_Van_der_Merwe</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="unscentedKalmanFilter_8h_1afcc3ddba6123085277fbfe468255f0f2a0155e733d65209013b075f7cc81e15f9" prot="public">
+          <name>reference_Lisano_and_Born_and_Axelrad</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="unscentedKalmanFilter_8h_1afcc3ddba6123085277fbfe468255f0f2aa26ac971697aac6bdb18bdcbb12eed0f" prot="public">
+          <name>reference_Challa_and_Moore_and_Rogers</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="unscentedKalmanFilter_8h_1afcc3ddba6123085277fbfe468255f0f2ac5d84a7a74d308fa761590479f41f4cc" prot="public">
+          <name>custom_parameters</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enumeration for value of contant parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h" line="45" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h" bodystart="46" bodyend="51"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="extendedKalmanFilter_8h_1afeaff7d0b0991faba89efd8edac55263" prot="public" static="no">
+        <type><ref refid="classtudat_1_1filters_1_1ExtendedKalmanFilter" kindref="compound">ExtendedKalmanFilter</ref>&lt; &gt;</type>
+        <definition>typedef ExtendedKalmanFilter&lt; &gt; tudat::filters::ExtendedKalmanFilterDouble</definition>
+        <argsstring></argsstring>
+        <name>ExtendedKalmanFilterDouble</name>
+        <briefdescription>
+<para>Typedef for a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/extendedKalmanFilter.h" line="253" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/extendedKalmanFilter.h" bodystart="253" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="extendedKalmanFilter_8h_1ad219cedee0634635131365ab499f4275" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1filters_1_1ExtendedKalmanFilter" kindref="compound">ExtendedKalmanFilterDouble</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ExtendedKalmanFilterDouble &gt; tudat::filters::ExtendedKalmanFilterDoublePointer</definition>
+        <argsstring></argsstring>
+        <name>ExtendedKalmanFilterDoublePointer</name>
+        <briefdescription>
+<para>Typedef for a shared-pointer to a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/extendedKalmanFilter.h" line="256" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/extendedKalmanFilter.h" bodystart="256" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="filter_8h_1a749a23442478715a0210aef4587f8b17" prot="public" static="no">
+        <type><ref refid="classtudat_1_1filters_1_1FilterBase" kindref="compound">FilterBase</ref>&lt; &gt;</type>
+        <definition>typedef FilterBase&lt; &gt; tudat::filters::FilterDouble</definition>
+        <argsstring></argsstring>
+        <name>FilterDouble</name>
+        <briefdescription>
+<para>Typedef for a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/filter.h" line="580" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/filter.h" bodystart="580" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="filter_8h_1a40ce7e7d78e3fef6fd0fffd2578c45b6" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1filters_1_1FilterBase" kindref="compound">FilterDouble</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; FilterDouble &gt; tudat::filters::FilterDoublePointer</definition>
+        <argsstring></argsstring>
+        <name>FilterDoublePointer</name>
+        <briefdescription>
+<para>Typedef for a shared-pointer to a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/filter.h" line="583" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/filter.h" bodystart="583" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="kalmanFilter_8h_1a9eaa2007ff9b17cebd47744da40eca80" prot="public" static="no">
+        <type><ref refid="classtudat_1_1filters_1_1KalmanFilterBase" kindref="compound">KalmanFilterBase</ref>&lt; &gt;</type>
+        <definition>typedef KalmanFilterBase&lt; &gt; tudat::filters::KalmanFilterDouble</definition>
+        <argsstring></argsstring>
+        <name>KalmanFilterDouble</name>
+        <briefdescription>
+<para>Typedef for a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/kalmanFilter.h" line="134" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/kalmanFilter.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="kalmanFilter_8h_1acda769c7ae4828941ca68ee52d641308" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1filters_1_1KalmanFilterBase" kindref="compound">KalmanFilterDouble</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; KalmanFilterDouble &gt; tudat::filters::KalmanFilterDoublePointer</definition>
+        <argsstring></argsstring>
+        <name>KalmanFilterDoublePointer</name>
+        <briefdescription>
+<para>Typedef for a shared-pointer to a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/kalmanFilter.h" line="137" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/kalmanFilter.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="linearKalmanFilter_8h_1a60cf8ea9f208d30e2515ca7806519100" prot="public" static="no">
+        <type><ref refid="classtudat_1_1filters_1_1LinearKalmanFilter" kindref="compound">LinearKalmanFilter</ref>&lt; &gt;</type>
+        <definition>typedef LinearKalmanFilter&lt; &gt; tudat::filters::LinearKalmanFilterDouble</definition>
+        <argsstring></argsstring>
+        <name>LinearKalmanFilterDouble</name>
+        <briefdescription>
+<para>Typedef for a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/linearKalmanFilter.h" line="204" column="28" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/linearKalmanFilter.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="linearKalmanFilter_8h_1ab6c2e0d2458cc173923d36b2b9daf1cf" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1filters_1_1LinearKalmanFilter" kindref="compound">LinearKalmanFilterDouble</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; LinearKalmanFilterDouble &gt; tudat::filters::LinearKalmanFilterDoublePointer</definition>
+        <argsstring></argsstring>
+        <name>LinearKalmanFilterDoublePointer</name>
+        <briefdescription>
+<para>Typedef for a shared-pointer to a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/linearKalmanFilter.h" line="207" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/linearKalmanFilter.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="unscentedKalmanFilter_8h_1a53ebc11644ef7c3a5d6ae1bf35a626ef" prot="public" static="no">
+        <type><ref refid="classtudat_1_1filters_1_1UnscentedKalmanFilter" kindref="compound">UnscentedKalmanFilter</ref>&lt; &gt;</type>
+        <definition>typedef UnscentedKalmanFilter&lt; &gt; tudat::filters::UnscentedKalmanFilterDouble</definition>
+        <argsstring></argsstring>
+        <name>UnscentedKalmanFilterDouble</name>
+        <briefdescription>
+<para>Typedef for a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h" line="489" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h" bodystart="489" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="unscentedKalmanFilter_8h_1a3fcdc1836a3cbb50df0615a7bb436216" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1filters_1_1UnscentedKalmanFilter" kindref="compound">UnscentedKalmanFilterDouble</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; UnscentedKalmanFilterDouble &gt; tudat::filters::UnscentedKalmanFilterDoublePointer</definition>
+        <argsstring></argsstring>
+        <name>UnscentedKalmanFilterDoublePointer</name>
+        <briefdescription>
+<para>Typedef for a shared-pointer to a filter with double data type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h" line="492" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/unscentedKalmanFilter.h" bodystart="492" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="createFilter_8h_1a2b0a7083962d4a18b00ccb6475709878" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+            <defval>double</defval>
+          </param>
+          <param>
+            <type>typename DependentVariableType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1filters_1_1FilterBase" kindref="compound">filters::FilterBase</ref>&lt; IndependentVariableType, DependentVariableType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; filters::FilterBase&lt; IndependentVariableType, DependentVariableType &gt; &gt; tudat::filters::createFilter</definition>
+        <argsstring>(const std::shared_ptr&lt; FilterSettings&lt; IndependentVariableType, DependentVariableType &gt; &gt; filterSettings, const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;systemFunction, const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;measurementFunction, const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;stateJacobianFunction=std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt;(), const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;stateNoiseJacobianFunction=std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt;(), const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;measurementJacobianFunction=std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt;(), const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;measurementNoiseJacobianFunction=std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt;())</argsstring>
+        <name>createFilter</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1filters_1_1FilterSettings" kindref="compound">FilterSettings</ref>&lt; IndependentVariableType, DependentVariableType &gt; &gt;</type>
+          <declname>filterSettings</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;</type>
+          <declname>systemFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;</type>
+          <declname>measurementFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;</type>
+          <declname>stateJacobianFunction</declname>
+          <defval>std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;</type>
+          <declname>stateNoiseJacobianFunction</declname>
+          <defval>std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;</type>
+          <declname>measurementJacobianFunction</declname>
+          <defval>std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt; &amp;</type>
+          <declname>measurementNoiseJacobianFunction</declname>
+          <defval>std::function&lt; Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, Eigen::Dynamic &gt;(const IndependentVariableType, const Eigen::Matrix&lt; DependentVariableType, Eigen::Dynamic, 1 &gt; &amp;) &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Function to create a filter object with the use of filter settings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a filter object with the use of filter settings. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of independent variable. Default is double. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>DependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of dependent variable. Default is double. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>filterSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the creation of the filter object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>systemFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the state as a function of time and state vector. Can be a differential equation if the integratorSettings is set (i.e., if it is not a nullptr). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>measurementFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the measurement as a function of time and state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateJacobianFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the Jacobian of the system w.r.t. the state. The input values can be time and state vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateNoiseJacobianFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the Jacobian of the system function w.r.t. the system noise. The input values can be time and state vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>measurementJacobianFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the Jacobian of the measurement function w.r.t. the state. The input values can be time and state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>measurementNoiseJacobianFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the Jacobian of the measurement function w.r.t. the measurement noise. The input values can be time and state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="257" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" bodystart="257" bodyend="351"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/filters/createFilter.h" line="30" column="1"/>
+  </compounddef>
+</doxygen>

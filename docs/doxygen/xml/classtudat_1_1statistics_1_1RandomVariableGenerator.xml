@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1statistics_1_1RandomVariableGenerator" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::statistics::RandomVariableGenerator</compoundname>
+    <includes refid="randomVariableGenerator_8h" local="no">randomVariableGenerator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename DependentVariableType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1RandomVariableGenerator_1a09e496e2d7564d95f22482eee2860b96" prot="protected" static="no" mutable="no">
+        <type>boost::random::mt19937</type>
+        <definition>boost::random::mt19937 tudat::statistics::RandomVariableGenerator&lt; DependentVariableType &gt;::randomNumberGenerator_</definition>
+        <argsstring></argsstring>
+        <name>randomNumberGenerator_</name>
+        <briefdescription>
+<para>Uniform (0,1) random number generator, to be mapped to specific distribution by derived classes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" line="57" column="28" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1RandomVariableGenerator_1a1c76f64e24da9ff114c38d92538a8dd0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::statistics::RandomVariableGenerator&lt; DependentVariableType &gt;::RandomVariableGenerator</definition>
+        <argsstring>(const double seed)</argsstring>
+        <name>RandomVariableGenerator</name>
+        <param>
+          <type>const double</type>
+          <declname>seed</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, sets the seed for the base random number generator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets the seed for the base random number generator. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seed of random number generator (default is pseudo-random time(0)) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" line="40" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" bodystart="40" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1RandomVariableGenerator_1a267e1b8d4d8f4f78d73d8411f623bc9d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::statistics::RandomVariableGenerator&lt; DependentVariableType &gt;::~RandomVariableGenerator</definition>
+        <argsstring>()</argsstring>
+        <name>~RandomVariableGenerator</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" line="43" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" bodystart="43" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1RandomVariableGenerator_1a8fec0a593026cd247608027404ef4438" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>DependentVariableType</type>
+        <definition>virtual DependentVariableType tudat::statistics::RandomVariableGenerator&lt; DependentVariableType &gt;::getRandomVariableValue</definition>
+        <argsstring>()=0</argsstring>
+        <name>getRandomVariableValue</name>
+        <reimplementedby refid="classtudat_1_1statistics_1_1ContinuousRandomVariableGenerator_1a91d2ccdbad16f47c24ec8d97e6aa53c3">getRandomVariableValue</reimplementedby>
+        <briefdescription>
+<para>Function to generate random number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function generates a random number from the distribution defined by the derived class. It maps the random number (representing the cdf value) generated by the randomNumberGenerator_ member to that of the value of the independent variable according to the distribution implemented in the derived class.. <simplesect kind="return"><para>Randomly generated number of derived class distribution. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" line="52" column="35"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for random number generation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" line="31" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/randomVariableGenerator.h" bodystart="32" bodyend="58"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1statistics_1_1RandomVariableGenerator_1a8fec0a593026cd247608027404ef4438" prot="public" virt="pure-virtual"><scope>tudat::statistics::RandomVariableGenerator</scope><name>getRandomVariableValue</name></member>
+      <member refid="classtudat_1_1statistics_1_1RandomVariableGenerator_1a09e496e2d7564d95f22482eee2860b96" prot="protected" virt="non-virtual"><scope>tudat::statistics::RandomVariableGenerator</scope><name>randomNumberGenerator_</name></member>
+      <member refid="classtudat_1_1statistics_1_1RandomVariableGenerator_1a1c76f64e24da9ff114c38d92538a8dd0" prot="public" virt="non-virtual"><scope>tudat::statistics::RandomVariableGenerator</scope><name>RandomVariableGenerator</name></member>
+      <member refid="classtudat_1_1statistics_1_1RandomVariableGenerator_1a267e1b8d4d8f4f78d73d8411f623bc9d" prot="public" virt="virtual"><scope>tudat::statistics::RandomVariableGenerator</scope><name>~RandomVariableGenerator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

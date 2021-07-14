@@ -1,0 +1,101 @@
+\hypertarget{classtudat_1_1basic__astrodynamics_1_1MassRateModel}{}\doxysection{tudat\+::basic\+\_\+astrodynamics\+::Mass\+Rate\+Model Class Reference}
+\label{classtudat_1_1basic__astrodynamics_1_1MassRateModel}\index{tudat::basic\_astrodynamics::MassRateModel@{tudat::basic\_astrodynamics::MassRateModel}}
+
+
+Base class for determining the rate of change of a body\textquotesingle{}s mass, to be used in numerical integration.  
+
+
+
+
+{\ttfamily \#include $<$mass\+Rate\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::basic\+\_\+astrodynamics\+::Mass\+Rate\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.818182cm]{classtudat_1_1basic__astrodynamics_1_1MassRateModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a1683d8d274ad04b9cb92abbf8d2f7773}\label{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a1683d8d274ad04b9cb92abbf8d2f7773}} 
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a1683d8d274ad04b9cb92abbf8d2f7773}{Mass\+Rate\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1MassRateModel_ab1417a088fd41b31e1709f316f7bbfc6}\label{classtudat_1_1basic__astrodynamics_1_1MassRateModel_ab1417a088fd41b31e1709f316f7bbfc6}} 
+virtual \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1MassRateModel_ab1417a088fd41b31e1709f316f7bbfc6}{$\sim$\+Mass\+Rate\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1MassRateModel_aae103a96511649566f7bce8417a2f049}{get\+Mass\+Rate}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve current mass rate. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a73c723ea252c57f3ac3109bb4c1bed42}{update\+Members}} (const double current\+Time=TUDAT\+\_\+\+NAN)=0
+\begin{DoxyCompactList}\small\item\em Update member variables used by the mass rate model, and internally compute mass rate. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a40eab52663ad3e184899354596d0dbca}{reset\+Time}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Function to reset the current time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a036c0d6616d8bc654cb84276f1fd667c}\label{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a036c0d6616d8bc654cb84276f1fd667c}} 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a036c0d6616d8bc654cb84276f1fd667c}{current\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Previous time to which mass rate model was updated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a0275d5e4455508410ca4effa18e2c1ce}\label{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a0275d5e4455508410ca4effa18e2c1ce}} 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a0275d5e4455508410ca4effa18e2c1ce}{current\+Mass\+Rate\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current mass rate, as set by last call to update\+Members (implemented in derived class) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for determining the rate of change of a body\textquotesingle{}s mass, to be used in numerical integration. 
+
+Base class for determining the rate of change of a body\textquotesingle{}s mass, to be used in numerical integration. Specific types of mass rate models are to be implemented in derived classes 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1MassRateModel_aae103a96511649566f7bce8417a2f049}\label{classtudat_1_1basic__astrodynamics_1_1MassRateModel_aae103a96511649566f7bce8417a2f049}} 
+\index{tudat::basic\_astrodynamics::MassRateModel@{tudat::basic\_astrodynamics::MassRateModel}!getMassRate@{getMassRate}}
+\index{getMassRate@{getMassRate}!tudat::basic\_astrodynamics::MassRateModel@{tudat::basic\_astrodynamics::MassRateModel}}
+\doxysubsubsection{\texorpdfstring{getMassRate()}{getMassRate()}}
+{\footnotesize\ttfamily virtual double tudat\+::basic\+\_\+astrodynamics\+::\+Mass\+Rate\+Model\+::get\+Mass\+Rate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve current mass rate. 
+
+Function to retrieve current mass rate, as set by last call to update\+Members (implemented in derived class) \begin{DoxyReturn}{Returns}
+Current mass rate 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a40eab52663ad3e184899354596d0dbca}\label{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a40eab52663ad3e184899354596d0dbca}} 
+\index{tudat::basic\_astrodynamics::MassRateModel@{tudat::basic\_astrodynamics::MassRateModel}!resetTime@{resetTime}}
+\index{resetTime@{resetTime}!tudat::basic\_astrodynamics::MassRateModel@{tudat::basic\_astrodynamics::MassRateModel}}
+\doxysubsubsection{\texorpdfstring{resetTime()}{resetTime()}}
+{\footnotesize\ttfamily virtual void tudat\+::basic\+\_\+astrodynamics\+::\+Mass\+Rate\+Model\+::reset\+Time (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the current time. 
+
+Function to reset the current time of the acceleration model. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & Current time (default NaN). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a73c723ea252c57f3ac3109bb4c1bed42}\label{classtudat_1_1basic__astrodynamics_1_1MassRateModel_a73c723ea252c57f3ac3109bb4c1bed42}} 
+\index{tudat::basic\_astrodynamics::MassRateModel@{tudat::basic\_astrodynamics::MassRateModel}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::basic\_astrodynamics::MassRateModel@{tudat::basic\_astrodynamics::MassRateModel}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily virtual void tudat\+::basic\+\_\+astrodynamics\+::\+Mass\+Rate\+Model\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Update member variables used by the mass rate model, and internally compute mass rate. 
+
+Updates member variables used by the mass rate model, and internally compute mass rate. In the case of mass rate models containing varying parameters, function-\/pointers returning such a parameter (for instance the Cartesian state of a body) will be set as a member variable. This function evaluates such function-\/pointers and updates member variables to the \textquotesingle{}current\textquotesingle{} values of these parameters. Only these current values, not the function-\/pointers are then used for the actual computation function. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which acceleration model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propulsion_1_1FromThrustMassRateModel_abc3aa103c5d58b1ddbb224786b6c0ff9}{tudat\+::propulsion\+::\+From\+Thrust\+Mass\+Rate\+Model}}, and \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_a60655ab7f951063ed436fcbd6b6073ee}{tudat\+::basic\+\_\+astrodynamics\+::\+Custom\+Mass\+Rate\+Model}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/basic\+\_\+astro/mass\+Rate\+Model.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,130 @@
+\hypertarget{classtudat_1_1basic__mathematics_1_1BasicFunction}{}\doxysection{tudat\+::basic\+\_\+mathematics\+::Basic\+Function$<$ Independent\+Variable, Dependent\+Variable $>$ Class Template Reference}
+\label{classtudat_1_1basic__mathematics_1_1BasicFunction}\index{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$@{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$}}
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} with basic implementations for derivatives and integrals.  
+
+
+
+
+{\ttfamily \#include $<$basic\+Function.\+h$>$}
+
+Inheritance diagram for tudat\+::basic\+\_\+mathematics\+::Basic\+Function$<$ Independent\+Variable, Dependent\+Variable $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1basic__mathematics_1_1BasicFunction}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1BasicFunction_a6db9f3a2a2b5be0e10132e2b9b648132}\label{classtudat_1_1basic__mathematics_1_1BasicFunction_a6db9f3a2a2b5be0e10132e2b9b648132}} 
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction_a6db9f3a2a2b5be0e10132e2b9b648132}{Basic\+Function}} (unsigned int number\+Of\+Integration\+Steps=1000)
+\begin{DoxyCompactList}\small\item\em Constructor with definition of the number of steps. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1BasicFunction_a752b82484f0acb5f8ec1c55ea2dc731b}\label{classtudat_1_1basic__mathematics_1_1BasicFunction_a752b82484f0acb5f8ec1c55ea2dc731b}} 
+virtual \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction_a752b82484f0acb5f8ec1c55ea2dc731b}{$\sim$\+Basic\+Function}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+virtual Dependent\+Variable \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction_ae0a0844b6c72c55ef059039eb147453b}{compute\+Derivative}} (const unsigned int order, const Independent\+Variable independent\+Variable)
+\begin{DoxyCompactList}\small\item\em Derivative (of a given order) of a function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1BasicFunction_a629836ffd0ff73670ea1e3182e1ac717}\label{classtudat_1_1basic__mathematics_1_1BasicFunction_a629836ffd0ff73670ea1e3182e1ac717}} 
+Dependent\+Variable \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction_a629836ffd0ff73670ea1e3182e1ac717}{compute\+Definite\+Integral\+Mock}} (const unsigned int order, const Independent\+Variable lower\+Bound, const Independent\+Variable upperbound, const Dependent\+Variable place\+Holder)
+\begin{DoxyCompactList}\small\item\em Alias for compute\+Definite\+Integral, but with an extra variable. Should not be used! \end{DoxyCompactList}\item 
+virtual Dependent\+Variable \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction_a9ff1a3c03832150f34c06c86317c2ac7}{compute\+Definite\+Integral}} (const unsigned int order, const Independent\+Variable lower\+Bound, const Independent\+Variable upperbound)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1BasicFunction_ae29d47c0ba66688c59c793805c920386}\label{classtudat_1_1basic__mathematics_1_1BasicFunction_ae29d47c0ba66688c59c793805c920386}} 
+unsigned int \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction_ae29d47c0ba66688c59c793805c920386}{integration\+Steps}}
+\begin{DoxyCompactList}\small\item\em Number of steps to take when performing numerical integration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction_a9d9d85a5dd2bb72ec73619c126593f0d}{sqrt\+\_\+epsilon\+\_\+double}} = std\+::numeric\+\_\+limits$<$ double $>$\+::epsilon( )
+\begin{DoxyCompactList}\small\item\em Square root of double precision, used to scale the step size. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable = double, typename Dependent\+Variable = double$>$\newline
+class tudat\+::basic\+\_\+mathematics\+::\+Basic\+Function$<$ Independent\+Variable, Dependent\+Variable $>$}
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} with basic implementations for derivatives and integrals. 
+
+This class fills in the compute\+Derivative and compute\+Definite\+Integral functionality using numerical differentiation and integration. These are slower than their analytical counterparts, but useful when a closed form expression is available. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1BasicFunction_a9ff1a3c03832150f34c06c86317c2ac7}\label{classtudat_1_1basic__mathematics_1_1BasicFunction_a9ff1a3c03832150f34c06c86317c2ac7}} 
+\index{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$@{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$}!computeDefiniteIntegral@{computeDefiniteIntegral}}
+\index{computeDefiniteIntegral@{computeDefiniteIntegral}!tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$@{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$}}
+\doxysubsubsection{\texorpdfstring{computeDefiniteIntegral()}{computeDefiniteIntegral()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable  = double, typename Dependent\+Variable  = double$>$ \\
+virtual Dependent\+Variable \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction}{tudat\+::basic\+\_\+mathematics\+::\+Basic\+Function}}$<$ Independent\+Variable, Dependent\+Variable $>$\+::compute\+Definite\+Integral (\begin{DoxyParamCaption}\item[{const unsigned int}]{order,  }\item[{const Independent\+Variable}]{lower\+Bound,  }\item[{const Independent\+Variable}]{upperbound }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+Integral (of a given order) of a function from a given lower bound to upper bound (without constants).
+
+Generic calculation of the function integral using numerical techniques. TODO\+: Fix this code, as it doesnt work. 
+\begin{DoxyParams}{Parameters}
+{\em order} & Order of integral (i.\+e. integrate n times, with n = order ) \\
+\hline
+{\em lower\+Bound} & Lower integration bound \\
+\hline
+{\em upperbound} & Upper integration bound \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Nothing as yet; function not yet implemented 
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function_a74c5639b8c6288471368e65312569e52}{Function\+::compute\+Definite\+Integral}}. 
+\end{DoxySeeAlso}
+
+
+Reimplemented in \mbox{\hyperlink{structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_a3efc47b6ff79b80092e35c21e242f557}{tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::\+Time\+Of\+Flight\+Function}}.
+
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1BasicFunction_ae0a0844b6c72c55ef059039eb147453b}\label{classtudat_1_1basic__mathematics_1_1BasicFunction_ae0a0844b6c72c55ef059039eb147453b}} 
+\index{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$@{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$}!computeDerivative@{computeDerivative}}
+\index{computeDerivative@{computeDerivative}!tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$@{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$}}
+\doxysubsubsection{\texorpdfstring{computeDerivative()}{computeDerivative()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable  = double, typename Dependent\+Variable  = double$>$ \\
+virtual Dependent\+Variable \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction}{tudat\+::basic\+\_\+mathematics\+::\+Basic\+Function}}$<$ Independent\+Variable, Dependent\+Variable $>$\+::compute\+Derivative (\begin{DoxyParamCaption}\item[{const unsigned int}]{order,  }\item[{const Independent\+Variable}]{independent\+Variable }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Derivative (of a given order) of a function. 
+
+Generic calculation of the derivative of a function using numerical techniques. \begin{DoxySeeAlso}{See also}
+Function\+::derivative 
+\end{DoxySeeAlso}
+
+\begin{DoxyParams}{Parameters}
+{\em order} & The Order of the derivative \\
+\hline
+{\em independent\+Variable} & The independent variable with respect to which the derivative is taken. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The numerical derivative of the function. 
+\end{DoxyReturn}
+
+
+Reimplemented in \mbox{\hyperlink{structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_ad9ffdd736006317e21ee414936234f45}{tudat\+::shape\+\_\+based\+\_\+methods\+::\+Spherical\+Shaping\+::\+Time\+Of\+Flight\+Function}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1BasicFunction_a9d9d85a5dd2bb72ec73619c126593f0d}\label{classtudat_1_1basic__mathematics_1_1BasicFunction_a9d9d85a5dd2bb72ec73619c126593f0d}} 
+\index{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$@{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$}!sqrt\_epsilon\_double@{sqrt\_epsilon\_double}}
+\index{sqrt\_epsilon\_double@{sqrt\_epsilon\_double}!tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$@{tudat::basic\_mathematics::BasicFunction$<$ IndependentVariable, DependentVariable $>$}}
+\doxysubsubsection{\texorpdfstring{sqrt\_epsilon\_double}{sqrt\_epsilon\_double}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable , typename Dependent\+Variable $>$ \\
+const double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1BasicFunction}{tudat\+::basic\+\_\+mathematics\+::\+Basic\+Function}}$<$ Independent\+Variable, Dependent\+Variable $>$\+::sqrt\+\_\+epsilon\+\_\+double = std\+::numeric\+\_\+limits$<$ double $>$\+::epsilon( )\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [protected]}}
+
+
+
+Square root of double precision, used to scale the step size. 
+
+The reason not to scale with epsilon itself is to limit the error due to floating point arithmetic with super small numbers\+: = sqrt(std\+::numeric\+\_\+limits$<$double$>$\+::epsilon()). TODO\+: Remove when using external derivative code. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/basic/basic\+Function.\+h\end{DoxyCompactItemize}

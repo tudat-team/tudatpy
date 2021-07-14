@@ -1,0 +1,288 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</basecompoundref>
+    <basecompoundref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase" prot="public" virt="non-virtual">tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; Eigen::Vector3d &gt;</basecompoundref>
+    <includes refid="centralJ2J3GravityModel_8h" local="no">centralJ2J3GravityModel.h</includes>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5536e4f1494fb14e9f53bcdd321fdc3f" prot="private" static="no">
+        <type><ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase" kindref="compound">SphericalHarmonicsGravitationalAccelerationModelBase</ref>&lt; Eigen::Vector3d &gt;</type>
+        <definition>typedef SphericalHarmonicsGravitationalAccelerationModelBase&lt; Eigen::Vector3d &gt; tudat::gravitation::CentralJ2J3GravitationalAccelerationModel::Base</definition>
+        <argsstring></argsstring>
+        <name>Base</name>
+        <briefdescription>
+<para>Typedef for base class. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="78" column="66" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a49cfbe489574fea31f7b233eef413dc3" prot="protected" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::gravitation::CentralJ2J3GravitationalAccelerationModel::equatorialRadius</definition>
+        <argsstring></argsstring>
+        <name>equatorialRadius</name>
+        <briefdescription>
+<para>Equatorial radius [m]. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Equatorial radius of unnormalized spherical harmonics gravity field representation. [m] </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="152" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a7d36540461ca5f8dfead0cee415452b3" prot="protected" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::gravitation::CentralJ2J3GravitationalAccelerationModel::j2GravityCoefficient</definition>
+        <argsstring></argsstring>
+        <name>j2GravityCoefficient</name>
+        <briefdescription>
+<para>J2 gravity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>J2 coefficient of unnormalized spherical harmonics gravity field representation. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="158" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5b382c2c9adea0e0f46e46bb44f242f2" prot="protected" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::gravitation::CentralJ2J3GravitationalAccelerationModel::j3GravityCoefficient</definition>
+        <argsstring></argsstring>
+        <name>j3GravityCoefficient</name>
+        <briefdescription>
+<para>J3 gravity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>J3 coefficient of unnormalized spherical harmonics gravity field representation. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="164" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5dc01ae21abe7c3b7e8a468f3c03d2f0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel::CentralJ2J3GravitationalAccelerationModel</definition>
+        <argsstring>(const StateFunction positionOfBodySubjectToAccelerationFunction, const double aGravitationalParameter, const double anEquatorialRadius, const double aJ2GravityCoefficient, const double aJ3GravityCoefficient, const StateFunction positionOfBodyExertingAccelerationFunction=[](){ return Eigen::Vector3d::Zero();})</argsstring>
+        <name>CentralJ2J3GravitationalAccelerationModel</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" kindref="member">StateFunction</ref></type>
+          <declname>positionOfBodySubjectToAccelerationFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>anEquatorialRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aJ2GravityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aJ3GravityCoefficient</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" kindref="member">StateFunction</ref></type>
+          <declname>positionOfBodyExertingAccelerationFunction</declname>
+          <defval>[](){ return Eigen::Vector3d::Zero();}</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor taking position-functions for bodies, and constant parameters of spherical harmonics expansion.</para>
+<para>Constructor taking a pointer to a function returning the position of the body subject to gravitational acceleration, constant gravitational parameter, J2- and J3-coefficients, and equatorial radius of the body exerting the acceleration, and a pointer to a function returning the position of the body exerting the gravitational acceleration (typically the central body). This constructor uses the Boost::lambda library to create a function on-the-fly that returns the constant gravitational parameter, J2- and J3-coefficients, and equatorial radius provided. The constructor also updates all the internal members. The position of the body exerting the gravitational acceleration is an optional parameter; the default position is the origin. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAccelerationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to function returning position of body subject to gravitational acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A (constant) gravitational parameter [m^2 s^-3]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>anEquatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A (constant) equatorial radius [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aJ2GravityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A (constant) J2-coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aJ3GravityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A (constant) J3-coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAccelerationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to function returning position of body exerting gravitational acceleration (default = (0,0,0)). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="103" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" bodystart="103" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5b067a8787c813b6b08a5b83a3f415f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::CentralJ2J3GravitationalAccelerationModel::getAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getAcceleration</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750">getAcceleration</reimplements>
+        <briefdescription>
+<para>Get gravitational acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the gravitational acceleration computed using the input parameters provided to the class. This function serves as a wrapper for the computeGravitationalAcceleration(), computeGravitationalAccelerationDueToJ2(), and computeGravitationalAccelerationDueToJ3() functions. <simplesect kind="return"><para>Computed gravitational acceleration vector. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="129" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2J3GravityModel.cpp" bodystart="65" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1aa9cfafbe11efb4a60bb87ee5c6c06e1a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::CentralJ2J3GravitationalAccelerationModel::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update members. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates class members relevant for computing the central gravitational acceleration. In this case the function simply updates the members in the base class. <simplesect kind="see"><para><ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase" kindref="compound">SphericalHarmonicsGravitationalAccelerationModelBase</ref>. </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="138" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" bodystart="138" bodyend="144"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Central + J2 + J3 gravitational acceleration model class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class implements a gravitational acceleration model that includes the central, J2, and J3 (unnormalized coefficient of general spherical harmonics expansion) terms. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</label>
+        <link refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+      <node id="3">
+        <label>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; Eigen::Vector3d &gt;</label>
+        <link refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</label>
+        <link refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+      <node id="3">
+        <label>tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase&lt; Eigen::Vector3d &gt;</label>
+        <link refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="71" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" bodystart="74" bodyend="167"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a36f72cf81cc4ff658919a1b92cdc33ad" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>AccelerationModel</name></member>
+      <member refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5536e4f1494fb14e9f53bcdd321fdc3f" prot="private" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>Base</name></member>
+      <member refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5dc01ae21abe7c3b7e8a468f3c03d2f0" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>CentralJ2J3GravitationalAccelerationModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a70f6593c9eec30136ed648ca0e6c9e88" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a49cfbe489574fea31f7b233eef413dc3" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>equatorialRadius</name></member>
+      <member refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5b067a8787c813b6b08a5b83a3f415f9" prot="public" virt="virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>getAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1aa834018ebef79d20ba7d09dcd8735b5b" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>getCurrentGravitationalParameter</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1adf08c02b22b14aee63a1c5c6710245e4" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>getCurrentPositionOfBodyExertingAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1abcf8a1d45a47a52bbcb7ddc68ac70edc" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>getCurrentPositionOfBodySubjectToAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1acbdd1b69824c9f5af8419b84a14e1f85" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>getGravitationalParameterFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1aab2e6ab909d87470b03ab14eb77855db" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>getIsMutualAttractionUsed</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1ace19aa33fe08f1f8bb6704fdd7bf9471" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>getStateFunctionOfBodyExertingAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7af29510400781d943d1f8a02b4fb240" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>getStateFunctionOfBodyUndergoingAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a6324fd00981daa580fab84e579de285f" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>gravitationalParameter</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a98ca240f9cff47946ad04b1c44b744f9" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>gravitationalParameterFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a103da0d449d50376af758f527bbe5131" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>isMutualAttractionUsed_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a7d36540461ca5f8dfead0cee415452b3" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>j2GravityCoefficient</name></member>
+      <member refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5b382c2c9adea0e0f46e46bb44f242f2" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>j3GravityCoefficient</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7025348306abb91a3dd47a8583518de8" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>positionOfBodyExertingAcceleration</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a0e873e80f5b4654243def79fc89a8f9b" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>positionOfBodySubjectToAcceleration</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a325aae81896137d88b756aac15e188da" prot="public" virt="virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a90738dd2d368872dc3ac4b163ab98ece" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>sourcePositionFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a693001dda5e9013564542cd78b585b84" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>SphericalHarmonicsGravitationalAccelerationModelBase</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a91330db3d4ed181744cd9869b2459360" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>SphericalHarmonicsGravitationalAccelerationModelBase</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a7f7ae6c4f34211c8e93989ba22350074" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>StateFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a302efd9e7b078e67f3d475e613c96da1" prot="protected" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>subjectPositionFunction</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1ac6cc02edc064e51ab02fdb5cfdea9082" prot="public" virt="non-virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>updateBaseMembers</name></member>
+      <member refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1aa9cfafbe11efb4a60bb87ee5c6c06e1a" prot="public" virt="virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a131bb0f8b79b410810f602d9b8865968" prot="public" virt="virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>~AccelerationModel</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase_1a4fed916f0154efda68edf6d40f4a08b8" prot="public" virt="virtual"><scope>tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</scope><name>~SphericalHarmonicsGravitationalAccelerationModelBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

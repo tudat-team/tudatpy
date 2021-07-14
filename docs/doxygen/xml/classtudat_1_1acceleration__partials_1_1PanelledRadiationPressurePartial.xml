@@ -1,0 +1,524 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial" kind="class" language="C++" prot="public">
+    <compoundname>tudat::acceleration_partials::PanelledRadiationPressurePartial</compoundname>
+    <basecompoundref refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial" prot="public" virt="non-virtual">tudat::acceleration_partials::AccelerationPartial</basecompoundref>
+    <includes refid="panelledRadiationPressureAccelerationPartial_8h" local="no">panelledRadiationPressureAccelerationPartial.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a24cc711bc6d224f83e46676928efb738" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration" kindref="compound">electromagnetism::PanelledRadiationPressureAcceleration</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; electromagnetism::PanelledRadiationPressureAcceleration &gt; tudat::acceleration_partials::PanelledRadiationPressurePartial::radiationPressureAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureAcceleration_</name>
+        <briefdescription>
+<para>Pointer to the panelled radiation pressure acceleration model. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="151" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a7ec9162ff421781bfa6b6c72d22ea221" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface" kindref="compound">electromagnetism::PanelledRadiationPressureInterface</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; electromagnetism::PanelledRadiationPressureInterface &gt; tudat::acceleration_partials::PanelledRadiationPressurePartial::radiationPressureInterface_</definition>
+        <argsstring></argsstring>
+        <name>radiationPressureInterface_</name>
+        <briefdescription>
+<para>Pointer to the panelled radiation pressure interface. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="154" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a7557998dc04beb24896e933d336badfa" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::acceleration_partials::PanelledRadiationPressurePartial::currentPartialWrtPosition_</definition>
+        <argsstring></argsstring>
+        <name>currentPartialWrtPosition_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Current partial of acceleration w.r.t. position of body undergoing acceleration (equal to minus partial w.r.t. position of body exerting acceleration). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="158" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a3dcbfec6970bd41abcbc269596d69edf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::acceleration_partials::PanelledRadiationPressurePartial::PanelledRadiationPressurePartial</definition>
+        <argsstring>(const std::shared_ptr&lt; electromagnetism::PanelledRadiationPressureAcceleration &gt; radiationPressureAcceleration, const std::shared_ptr&lt; electromagnetism::PanelledRadiationPressureInterface &gt; radiationPressureInterface, const std::string &amp;acceleratedBody, const std::string &amp;acceleratingBody)</argsstring>
+        <name>PanelledRadiationPressurePartial</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration" kindref="compound">electromagnetism::PanelledRadiationPressureAcceleration</ref> &gt;</type>
+          <declname>radiationPressureAcceleration</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface" kindref="compound">electromagnetism::PanelledRadiationPressureInterface</ref> &gt;</type>
+          <declname>radiationPressureInterface</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>acceleratedBody</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>acceleratingBody</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radiationPressureAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Panelled radiation pressure acceleration model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressureInterface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Interface object to retrieve and/or compute the properties of the panelled radiation pressure model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>acceleratedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body undergoing acceleration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>acceleratingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body exerting acceleration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="29" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="29" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a459e4ba16a758d0083a635e57046f3f8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::acceleration_partials::PanelledRadiationPressurePartial::~PanelledRadiationPressurePartial</definition>
+        <argsstring>()</argsstring>
+        <name>~PanelledRadiationPressurePartial</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="38" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="38" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a329ffe0ccc7b432d1cadf7cd4302aba5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::PanelledRadiationPressurePartial::wrtPositionOfAcceleratedBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=0)</argsstring>
+        <name>wrtPositionOfAcceleratedBody</name>
+        <reimplements refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a629ee1ab826d64e6493d1dbf0fe7586b">wrtPositionOfAcceleratedBody</reimplements>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration and adding it to existing partial block. Update( ) function must have been called during current time step before calling this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of acceleration w.r.t. Cartesian position of body undergoing acceleration where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="51" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="51" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1abb67a696786351af522e13ec30a50465" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::PanelledRadiationPressurePartial::wrtPositionOfAcceleratingBody</definition>
+        <argsstring>(Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix, const bool addContribution=1, const int startRow=0, const int startColumn=0)</argsstring>
+        <name>wrtPositionOfAcceleratingBody</name>
+        <reimplements refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a779c9c208d2054d8425178f4ea8f6021">wrtPositionOfAcceleratingBody</reimplements>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>addContribution</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startRow</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>startColumn</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration and adding it to the existing partial block. The <ref refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1ab32fc99fb794b72a6cbdbbcb122e6d6d" kindref="member">update( )</ref> function must have been called during current time step before calling this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of partial derivatives of acceleration w.r.t. Cartesian position of body exerting acceleration where current partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addContribution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable denoting whether to return the partial itself (true) or the negative partial (false). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startRow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First row in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startColumn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First column in partialMatrix block where the computed partial is to be added. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="76" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="76" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1ab32fc99fb794b72a6cbdbbcb122e6d6d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::acceleration_partials::PanelledRadiationPressurePartial::update</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>update</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6801a8f31cc0fcdb9679c2db6be3b157">update</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function for updating partial w.r.t. the bodies&apos; positions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for updating common blocks of partial to current state. For the panelled radiation pressure acceleration, position partial is computed and set. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which partials are to be calculated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="95" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.cpp" bodystart="13" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a0f30baea93893cbc04e45a826c4701ac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::acceleration_partials::PanelledRadiationPressurePartial::isStateDerivativeDependentOnIntegratedNonTranslationalState</definition>
+        <argsstring>(const std::pair&lt; std::string, std::string &gt; &amp;stateReferencePoint, const propagators::IntegratedStateType integratedStateType)</argsstring>
+        <name>isStateDerivativeDependentOnIntegratedNonTranslationalState</name>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>stateReferencePoint</declname>
+        </param>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <briefdescription>
+<para>Function for determining if the acceleration is dependent on a non-translational integrated state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for determining if the acceleration is dependent on a non-translational integrated state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point id of propagated state </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagated state for which dependency is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if dependency exists (non-zero partial), false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="105" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="105" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a241b255164f25da4bd5cbc9c4afa807c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt;</type>
+        <definition>std::pair&lt; std::function&lt; void( Eigen::MatrixXd&amp; ) &gt;, int &gt; tudat::acceleration_partials::PanelledRadiationPressurePartial::getParameterPartialFunction</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt; parameter)</argsstring>
+        <name>getParameterPartialFunction</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f">getParameterPartialFunction</reimplements>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function for setting up and retrieving a function returning a partial w.r.t. a double parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for setting up and retrieving a function returning a partial w.r.t. a double parameter. Function returns empty function and zero size indicator for parameters with no dependency for current acceleration. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which partial is to be taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="127" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="127" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1ab5e76171822c3694cd1fb698b7876520" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt;</type>
+        <definition>std::pair&lt; std::function&lt; void( Eigen::MatrixXd&amp; ) &gt;, int &gt; tudat::acceleration_partials::PanelledRadiationPressurePartial::getParameterPartialFunction</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt; parameter)</argsstring>
+        <name>getParameterPartialFunction</name>
+        <reimplements refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a849b14fede905e4e26ee2e752fbc95cc">getParameterPartialFunction</reimplements>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter. Function returns empty function and zero size indicator for parameters with no dependency for current acceleration. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which partial is to be taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of parameter partial function and number of columns in partial (0 for no dependency). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="140" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="140" bodyend="145"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to calculate the partials of the panelled radiation pressure acceleration w.r.t. parameters and states. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::acceleration_partials::AccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::orbit_determination::StateDerivativePartial</label>
+        <link refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial"/>
+      </node>
+      <node id="1">
+        <label>tudat::acceleration_partials::PanelledRadiationPressurePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::acceleration_partials::AccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>acceleratedBody_</edgelabel>
+          <edgelabel>acceleratingBody_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>iterator</label>
+      </node>
+      <node id="3">
+        <label>tudat::orbit_determination::StateDerivativePartial</label>
+        <link refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>isCurrentDoubleParameterPartialSetIterator_</edgelabel>
+          <edgelabel>isCurrentVectorParameterPartialSetIterator_</edgelabel>
+          <edgelabel>parameterDoublePartialFunctionIterator_</edgelabel>
+          <edgelabel>parameterVectorPartialFunctionIterator_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::acceleration_partials::PanelledRadiationPressurePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>string</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" line="16" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h" bodystart="17" bodyend="159"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a655662aa6427373647cc9c26327e9565" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>acceleratedBody_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1aa0cb4d885b7833a39db39212a797ebd2" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>acceleratingBody_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ad4f4594c6e13138a1895dd008a14bf7e" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>AccelerationPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>accelerationSize_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a32cc6c58e4aa187b2110b4c6c7d4ccf4" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>accelerationType_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>currentDoubleParameterPartials_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a7557998dc04beb24896e933d336badfa" prot="private" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>currentPartialWrtPosition_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1abbca0ac294a29b7d1efc16a68d7c4582" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>currentVectorParameterPartials_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a0bf7d418855165be4d40b82cfbeb115c" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ac74a861f66f3362524aec1f0266513cf" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a6b6e323de35eaeb1292e4bfb410da7b1" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getAccelerationType</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ac31393221aeef20ea4ee5d7d0ad59aba" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getCurrentDoubleParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getCurrentParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1acdfcbf63330d5b2b04fbaeb3787c8f68" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getCurrentParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a2ba60d5dd1c131412a8f1aae8dd47a21" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getCurrentVectorParameterPartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a1b40573f9d0a7ad203e379327f13757e" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getDerivativeFunctionWrtStateOfIntegratedBody</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a01893338e6faedd93cc0410bb692ce12" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getIntegratedStateType</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adbe24dfd4085ec6343ccf18478b52bc0" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getIntegrationReferencePoint</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a241b255164f25da4bd5cbc9c4afa807c" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1ab5e76171822c3694cd1fb698b7876520" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>getParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>integratedStateType_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>integrationReferencePoint_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab6d26ee307ebc4bb8f2cdca9f53e5097" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>isAccelerationPartialWrtAdditionalBodyNonnullptr</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>isCurrentDoubleParameterPartialSet_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>isCurrentDoubleParameterPartialSetIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>isCurrentVectorParameterPartialSet_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>isCurrentVectorParameterPartialSetIterator_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a94b95390a37109627270bd8dfbca5342" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>isStateDerivativeDependentOnIntegratedAdditionalStateTypes</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a0f30baea93893cbc04e45a826c4701ac" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>isStateDerivativeDependentOnIntegratedNonTranslationalState</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab05fd603c6228f4639e6f00ac4f9527c" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>isStateDerivativeDependentOnIntegratedState</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a3dcbfec6970bd41abcbc269596d69edf" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>PanelledRadiationPressurePartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>parameterDoublePartialFunctionIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>parameterDoublePartialFunctions_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>parameterVectorPartialFunctionIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>parameterVectorPartialFunctions_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a24cc711bc6d224f83e46676928efb738" prot="private" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>radiationPressureAcceleration_</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a7ec9162ff421781bfa6b6c72d22ea221" prot="private" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>radiationPressureInterface_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7b26a08bb4990220a7d2f40f3681274a" prot="protected" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>resetCurrentParameterValues</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3654d540045886559b6592dc4f30bab8" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aa0245f5f6b58423905b64709dac39a4c" prot="protected" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>resetTimeOfMemberObjects</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a481fc771c0a87996bc469b34ead49db9" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>setParameterPartialUpdateFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a646f021c7c884446d482b9b0ab1e14f4" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>setParameterPartialUpdateFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a4827d172b38b466f65f4da68500f53ea" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>StateDerivativePartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1ab32fc99fb794b72a6cbdbbcb122e6d6d" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>update</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7a6f8bf919e2a0c16bc254738123b5b4" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>updateParameterPartials</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a53491f7d5c94bd64b71c5190b9793a64" prot="protected" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>updateParameterPartialsOfMemberObjects</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a781bc99dab9ab8dd805c63edf4e0d8f5" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtNonTranslationalStateOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a17003fa377113426b3e556a78f147941" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtParameter</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae12101f97027e73084d3d80dbc7059b3" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtParameter</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a329ffe0ccc7b432d1cadf7cd4302aba5" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtPositionOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1abb67a696786351af522e13ec30a50465" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtPositionOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab222ba1108201aa02e916c64ce82d599" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtPositionOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a0576a63608bc8bee1da8bf2aea0ea7b6" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtStateOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a8bfba67b7f9e9a3d6021b2b1759fc33e" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtStateOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a8e21b7ff67f97af2e7e2a963cd0da3b2" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtStateOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ad3bb8ec281acf660baed8eb5127fcf5d" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtVelocityOfAcceleratedBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab411157f1ab0d7b8bdcb771024b4f5a9" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtVelocityOfAcceleratingBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a1566f99b2cfd42d523c06ee6c1559435" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>wrtVelocityOfAdditionalBody</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1ab373fff70206231b312a988e59902038" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>~AccelerationPartial</name></member>
+      <member refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a459e4ba16a758d0083a635e57046f3f8" prot="public" virt="non-virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>~PanelledRadiationPressurePartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a05f085a890b27518ca24446ac22bdb3e" prot="public" virt="virtual"><scope>tudat::acceleration_partials::PanelledRadiationPressurePartial</scope><name>~StateDerivativePartial</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

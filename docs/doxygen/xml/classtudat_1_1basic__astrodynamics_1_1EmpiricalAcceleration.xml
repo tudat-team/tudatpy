@@ -1,0 +1,628 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration" kind="class" language="C++" prot="public">
+    <compoundname>tudat::basic_astrodynamics::EmpiricalAcceleration</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</basecompoundref>
+    <includes refid="empiricalAcceleration_8h" local="no">empiricalAcceleration.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a67bdc93bfa802ef52de8ba77182d05d7" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Matrix3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Matrix3d( const double ) &gt; tudat::basic_astrodynamics::EmpiricalAcceleration::accelerationComponentsFunction_</definition>
+        <argsstring></argsstring>
+        <name>accelerationComponentsFunction_</name>
+        <briefdescription>
+<para>Function returning empirical acceleration components as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function returning empirical acceleration components as a function of time. Constant, sine and cosine terms are given in first, second and third column of return matrix, respectively. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="314" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="314" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1aee353e59e823ca096a37215b1a1da7fe" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::basic_astrodynamics::EmpiricalAcceleration::areAccelerationComponentsTimeDependent_</definition>
+        <argsstring></argsstring>
+        <name>areAccelerationComponentsTimeDependent_</name>
+        <briefdescription>
+<para>Boolean denoting whether empirical accelerations are time-dependent. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="317" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="317" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a88a1bbbcde0dd313c2de64c02fe9eafa" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::EmpiricalAcceleration::currentConstantAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>currentConstantAcceleration_</name>
+        <briefdescription>
+<para>Value of constant empirical acceleration, in RSW frame, as computed by last call to updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="321" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="321" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1ac3ab1d881d7b821fa661c89c5a6815f5" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::EmpiricalAcceleration::currentSineAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>currentSineAcceleration_</name>
+        <briefdescription>
+<para>Value of sine empirical acceleration, in RSW frame, as computed by last call to updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="324" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="324" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1aede88c9e52eef079253c48d37b36603b" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::EmpiricalAcceleration::currentCosineAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>currentCosineAcceleration_</name>
+        <briefdescription>
+<para>Value of cosine empirical acceleration, in RSW frame, as computed by last call to updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="327" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="327" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a2517c643c8531179de818431b0b9ac73" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector6d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector6d( ) &gt; tudat::basic_astrodynamics::EmpiricalAcceleration::bodyStateFunction_</definition>
+        <argsstring></argsstring>
+        <name>bodyStateFunction_</name>
+        <briefdescription>
+<para>State function of the body that is undergoing the empirical acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="331" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="331" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a7b711867f7c09119450c3242e9152017" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector6d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector6d( ) &gt; tudat::basic_astrodynamics::EmpiricalAcceleration::centralBodyStateFunction_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyStateFunction_</name>
+        <briefdescription>
+<para>State function of the body that is being orbited. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="334" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="334" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1af31dbefb863a68a9d5cf872b68fd05dd" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::basic_astrodynamics::EmpiricalAcceleration::currentState_</definition>
+        <argsstring></argsstring>
+        <name>currentState_</name>
+        <briefdescription>
+<para>Current state of the body that is undergoing the empirical acceleration, relative to central body, in global frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="337" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="337" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a609516b92ffc66eef1ab524d22565a69" prot="private" static="no" mutable="no">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::basic_astrodynamics::EmpiricalAcceleration::currentRotationFromRswToInertialFrame_</definition>
+        <argsstring></argsstring>
+        <name>currentRotationFromRswToInertialFrame_</name>
+        <briefdescription>
+<para>Quaternion defining the rotation from RSW to inertial frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="340" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="340" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a8a0f375000be24f2dd780b73ee673a0c" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::EmpiricalAcceleration::currentTrueAnomaly_</definition>
+        <argsstring></argsstring>
+        <name>currentTrueAnomaly_</name>
+        <briefdescription>
+<para>Current true anomaly of accelerated body in its orbit about the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="343" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="343" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a82be8635b470ed4762a499d25ab20269" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::EmpiricalAcceleration::currentLocalAcclereration_</definition>
+        <argsstring></argsstring>
+        <name>currentLocalAcclereration_</name>
+        <briefdescription>
+<para>Current empirical acceleration in RSW frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="346" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="346" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1af435df7aa771674433d310fbce130311" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double( ) &gt; tudat::basic_astrodynamics::EmpiricalAcceleration::centralBodyGravitationalParameterFunction_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameterFunction_</name>
+        <briefdescription>
+<para>Function returning the gravitational parameter of the central body (for calculation of Kepler elements) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="349" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="349" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a6a3c5635aea0e0f0abb7d8c0570f960b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::EmpiricalAcceleration::EmpiricalAcceleration</definition>
+        <argsstring>(const Eigen::Vector3d constantAcceleration, const Eigen::Vector3d sineAcceleration, const Eigen::Vector3d cosineAcceleration, const std::function&lt; Eigen::Vector6d() &gt; bodyStateFunction, const std::function&lt; double() &gt; centralBodyGravitationalParameterFunction, const std::function&lt; Eigen::Vector6d() &gt; centralBodyStateFunction=[](){ return Eigen::Vector6d::Zero();})</argsstring>
+        <name>EmpiricalAcceleration</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>constantAcceleration</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>sineAcceleration</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>cosineAcceleration</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d() &gt;</type>
+          <declname>bodyStateFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>centralBodyGravitationalParameterFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d() &gt;</type>
+          <declname>centralBodyStateFunction</declname>
+          <defval>[](){ return Eigen::Vector6d::Zero();}</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>constantAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant empirical acceleration in RSW frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Empirical acceleration that is scaled by sine of true anomaly in RSW frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Empirical acceleration that is scaled by cosine of true anomaly in RSW frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Functon that returns the state of the body undergoing acceleration </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyGravitationalParameterFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Functon that returns the gravitational parameter of central body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Functon that returns the state of central body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="95" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="95" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a02fd8402d30172a0f7ce746317294749" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::EmpiricalAcceleration::~EmpiricalAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>~EmpiricalAcceleration</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="118" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="118" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a47db6eb95ff14e9089658bdef02c256d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::EmpiricalAcceleration::getAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getAcceleration</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750">getAcceleration</reimplements>
+        <briefdescription>
+<para>Function to retrieve current empirical acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve current empirical acceleration <simplesect kind="return"><para>Current empirical acceleration, expressed in propagation frame </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="125" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="125" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1ae431ab2dc0d99d2f14afdcebaa95621e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::basic_astrodynamics::EmpiricalAcceleration::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function to update constituent elements of empirical acceleration to current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update constituent elements of empirical acceleration to current time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which empirical acceleration elements are to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="135" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="135" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a0300947567e9c0bca38d23772f07f087" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::basic_astrodynamics::EmpiricalAcceleration::getAccelerationComponents</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>getAccelerationComponents</name>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function to retrieve empirical acceleration components in RSW frame at a given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve empirical acceleration components in RSW frame at a given time. If components are not time-dependent, input timemay be NaN <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration components are to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Empirical acceleration components in RSW frame. Constant, sine and cosine terms are given in first, second and third column of return matrix, respectively. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="174" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="174" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1ac757eb09388bd97b4a6af01585a27ef7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::EmpiricalAcceleration::getCurrentAccelerationComponent</definition>
+        <argsstring>(const EmpiricalAccelerationFunctionalShapes functionalShape)</argsstring>
+        <name>getCurrentAccelerationComponent</name>
+        <param>
+          <type>const EmpiricalAccelerationFunctionalShapes</type>
+          <declname>functionalShape</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve empirical acceleration component in RSW frame, as set by last call to updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve empirical acceleration component in RSW frame, as set by last call to updateMembers function <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>functionalShape</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Component of acceleration that is to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current empirical acceleration component in RSW frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="190" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="190" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a67a741d7a1de40bbb68545954fdd0b19" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_astrodynamics::EmpiricalAcceleration::resetAccelerationComponents</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;newAccelerationComponents)</argsstring>
+        <name>resetAccelerationComponents</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>newAccelerationComponents</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset time-independent empirical acceleration components. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset time-independent empirical acceleration components <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newAccelerationComponents</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Time-independent empirical acceleration components. Constant, sine and cosine terms are given in first, second and third column of return matrix, respectively. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="216" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="216" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1af7f0aa455582ddc8db5503a2bc75743f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_astrodynamics::EmpiricalAcceleration::resetAccelerationComponentsFunction</definition>
+        <argsstring>(const std::function&lt; Eigen::Matrix3d(const double) &gt; &amp;accelerationComponentsFunction)</argsstring>
+        <name>resetAccelerationComponentsFunction</name>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix3d(const double) &gt; &amp;</type>
+          <declname>accelerationComponentsFunction</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset time-dependent empirical acceleration components. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset time-dependent empirical acceleration components <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>accelerationComponentsFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning empirical acceleration components as a function of time. Constant, sine and cosine terms are given in first, second and third column of return matrix, respectively. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="234" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="234" bodyend="240"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1af9f7173b0f1f97dc72fdf0847d2099a4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::basic_astrodynamics::EmpiricalAcceleration::getCurrentState</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentState</name>
+        <briefdescription>
+<para>Function to retrieve current state of the body that is undergoing the empirical acceleration, relative to central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve Current state of the body that is undergoing the empirical acceleration, relative to central body, in propagation frame. <simplesect kind="return"><para>Current state of the body that is undergoing the empirical acceleration, relative to central body, in global frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="248" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="248" bodyend="251"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1abdd283328df12ef4bdd4e83e946ba830" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::basic_astrodynamics::EmpiricalAcceleration::getCurrentToInertialFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentToInertialFrame</name>
+        <briefdescription>
+<para>Function to retrieve quaternion defining the rotation from RSW to inertial frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve quaternion defining the rotation from RSW to inertial frame. <simplesect kind="return"><para>Quaternion defining the rotation from RSW to inertial frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="258" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="258" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a4e46f0861ab178073d1daf06d72b7a05" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::EmpiricalAcceleration::getCurrentLocalAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentLocalAcceleration</name>
+        <briefdescription>
+<para>Function to retrieve current empirical acceleration in RSW frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve current empirical acceleration in RSW frame. <simplesect kind="return"><para>Current empirical acceleration in RSW frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="268" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="268" bodyend="271"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a5bbb0dfb2110367ba5cb840e4ca9660b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::EmpiricalAcceleration::getCurrentTrueAnomaly</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentTrueAnomaly</name>
+        <briefdescription>
+<para>Function to retrieve current true anomaly of accelerated body in its orbit about the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve current true anomaly of accelerated body in its orbit about the central body. <simplesect kind="return"><para>Current true anomaly of accelerated body in its orbit about the central body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="278" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="278" bodyend="281"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a52d3ac0c9d157b88224b9c2038a29ccd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::EmpiricalAcceleration::getCurrentGravitationalParameter</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentGravitationalParameter</name>
+        <briefdescription>
+<para>Function to retrieve gravitational parameter of the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve gravitational parameter of the central body <simplesect kind="return"><para>Gravitational parameter of the central body </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="288" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="288" bodyend="291"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1abe5de546bab5631ba6f35dc483c7ac0f" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_astrodynamics::EmpiricalAcceleration::updateAccelerationComponents</definition>
+        <argsstring>(const double currentTime=0.0)</argsstring>
+        <name>updateAccelerationComponents</name>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Function to update components of empirical accelerations to current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update components of empirical accelerations to current time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which empirical accelerations are to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="300" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="300" bodyend="307"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for calculating an empirical acceleration, based on a once per orbit model, (Montenbruck and Gill, 2000) </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for calculating an empirical acceleration, based on a once per orbit model, (Montenbruck and Gill, 2000). Empirical accelerations are typically used in orbit determination to abosrb unmodelled small accelerations. The magnitude of the acceleration is determined by three vectors, a constant acceleration and two accelerations which scale with the sine and cosine fo the true anomaly of the accelerated body, respectively. The acceleration is evaluated in the satellite&apos;s RSW frame and then transformed to the inertial frame. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::EmpiricalAcceleration</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::EmpiricalAcceleration</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::AccelerationModel&lt; Eigen::Vector3d &gt;</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" line="81" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/empiricalAcceleration.h" bodystart="82" bodyend="350"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a67bdc93bfa802ef52de8ba77182d05d7" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>accelerationComponentsFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a36f72cf81cc4ff658919a1b92cdc33ad" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>AccelerationModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1aee353e59e823ca096a37215b1a1da7fe" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>areAccelerationComponentsTimeDependent_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a2517c643c8531179de818431b0b9ac73" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>bodyStateFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1af435df7aa771674433d310fbce130311" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>centralBodyGravitationalParameterFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a7b711867f7c09119450c3242e9152017" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>centralBodyStateFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a88a1bbbcde0dd313c2de64c02fe9eafa" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>currentConstantAcceleration_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1aede88c9e52eef079253c48d37b36603b" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>currentCosineAcceleration_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a82be8635b470ed4762a499d25ab20269" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>currentLocalAcclereration_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a609516b92ffc66eef1ab524d22565a69" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>currentRotationFromRswToInertialFrame_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1ac3ab1d881d7b821fa661c89c5a6815f5" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>currentSineAcceleration_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1af31dbefb863a68a9d5cf872b68fd05dd" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>currentState_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a70f6593c9eec30136ed648ca0e6c9e88" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a8a0f375000be24f2dd780b73ee673a0c" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>currentTrueAnomaly_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a6a3c5635aea0e0f0abb7d8c0570f960b" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>EmpiricalAcceleration</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a47db6eb95ff14e9089658bdef02c256d" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>getAcceleration</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a0300947567e9c0bca38d23772f07f087" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>getAccelerationComponents</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1ac757eb09388bd97b4a6af01585a27ef7" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>getCurrentAccelerationComponent</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a52d3ac0c9d157b88224b9c2038a29ccd" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>getCurrentGravitationalParameter</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a4e46f0861ab178073d1daf06d72b7a05" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>getCurrentLocalAcceleration</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1af9f7173b0f1f97dc72fdf0847d2099a4" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>getCurrentState</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1abdd283328df12ef4bdd4e83e946ba830" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>getCurrentToInertialFrame</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a5bbb0dfb2110367ba5cb840e4ca9660b" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>getCurrentTrueAnomaly</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a67a741d7a1de40bbb68545954fdd0b19" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>resetAccelerationComponents</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1af7f0aa455582ddc8db5503a2bc75743f" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>resetAccelerationComponentsFunction</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a325aae81896137d88b756aac15e188da" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1abe5de546bab5631ba6f35dc483c7ac0f" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>updateAccelerationComponents</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1ae431ab2dc0d99d2f14afdcebaa95621e" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a131bb0f8b79b410810f602d9b8865968" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>~AccelerationModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a02fd8402d30172a0f7ce746317294749" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::EmpiricalAcceleration</scope><name>~EmpiricalAcceleration</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

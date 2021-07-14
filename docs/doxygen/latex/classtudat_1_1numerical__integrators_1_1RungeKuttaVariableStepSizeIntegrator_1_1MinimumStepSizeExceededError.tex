@@ -1,0 +1,88 @@
+\hypertarget{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError}{}\doxysection{tudat\+::numerical\+\_\+integrators\+::Runge\+Kutta\+Variable\+Step\+Size\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::Minimum\+Step\+Size\+Exceeded\+Error Class Reference}
+\label{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError}\index{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError@{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError}}
+
+
+Exception that is thrown if the minimum step size is exceeded.  
+
+
+
+
+{\ttfamily \#include $<$runge\+Kutta\+Variable\+Step\+Size\+Integrator.\+h$>$}
+
+Inheritance diagram for tudat\+::numerical\+\_\+integrators\+::Runge\+Kutta\+Variable\+Step\+Size\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::Minimum\+Step\+Size\+Exceeded\+Error\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.086324cm]{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_af073ac75f9a5229a1e309d822fd123d0}{Minimum\+Step\+Size\+Exceeded\+Error}} (Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_a7055fda3b282fa93820597e2e7ee1f81}{minimum\+Step\+Size\+\_\+}}, Time\+Step\+Type requested\+Step\+Size\+\_\+)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_a3887ff27114314b8c7c9c8b7edfc1282}{minimum\+Step\+Size}}
+\begin{DoxyCompactList}\small\item\em The minimum step size allowed by the integrator. \end{DoxyCompactList}\item 
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_a1891f06b118052203b3ceaf2b10de36a}{requested\+Step\+Size}}
+\begin{DoxyCompactList}\small\item\em The new calculated step size. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type = double, typename State\+Type = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type = State\+Type, typename Time\+Step\+Type = Independent\+Variable\+Type$>$\newline
+class tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta\+Variable\+Step\+Size\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\+Minimum\+Step\+Size\+Exceeded\+Error}
+
+Exception that is thrown if the minimum step size is exceeded. 
+
+Exception thrown by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_a2074aa4b30e623e505c990f12161a388}{Runge\+Kutta\+Variable\+Step\+Size\+Integrator$<$ $>$\+::compute\+Next\+Step\+Size\+And\+Validate\+Result()}} if the minimum step size is exceeded. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_af073ac75f9a5229a1e309d822fd123d0}\label{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_af073ac75f9a5229a1e309d822fd123d0}} 
+\index{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError@{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError}!MinimumStepSizeExceededError@{MinimumStepSizeExceededError}}
+\index{MinimumStepSizeExceededError@{MinimumStepSizeExceededError}!tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError@{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError}}
+\doxysubsubsection{\texorpdfstring{MinimumStepSizeExceededError()}{MinimumStepSizeExceededError()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = State\+Type, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta\+Variable\+Step\+Size\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::Minimum\+Step\+Size\+Exceeded\+Error\+::\+Minimum\+Step\+Size\+Exceeded\+Error (\begin{DoxyParamCaption}\item[{Time\+Step\+Type}]{minimum\+Step\+Size\+\_\+,  }\item[{Time\+Step\+Type}]{requested\+Step\+Size\+\_\+ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor, initializes the parent runtime\+\_\+error. 
+\begin{DoxyParams}{Parameters}
+{\em minimum\+Step\+Size\+\_\+} & The minimum step size allowed by the integrator. \\
+\hline
+{\em requested\+Step\+Size\+\_\+} & The new calculated step size. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_a3887ff27114314b8c7c9c8b7edfc1282}\label{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_a3887ff27114314b8c7c9c8b7edfc1282}} 
+\index{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError@{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError}!minimumStepSize@{minimumStepSize}}
+\index{minimumStepSize@{minimumStepSize}!tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError@{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError}}
+\doxysubsubsection{\texorpdfstring{minimumStepSize}{minimumStepSize}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = State\+Type, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta\+Variable\+Step\+Size\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::Minimum\+Step\+Size\+Exceeded\+Error\+::minimum\+Step\+Size}
+
+
+
+The minimum step size allowed by the integrator. 
+
+The minimum step size allowed by the integrator. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_a1891f06b118052203b3ceaf2b10de36a}\label{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator_1_1MinimumStepSizeExceededError_a1891f06b118052203b3ceaf2b10de36a}} 
+\index{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError@{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError}!requestedStepSize@{requestedStepSize}}
+\index{requestedStepSize@{requestedStepSize}!tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError@{tudat::numerical\_integrators::RungeKuttaVariableStepSizeIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$::MinimumStepSizeExceededError}}
+\doxysubsubsection{\texorpdfstring{requestedStepSize}{requestedStepSize}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = State\+Type, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKuttaVariableStepSizeIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta\+Variable\+Step\+Size\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::Minimum\+Step\+Size\+Exceeded\+Error\+::requested\+Step\+Size}
+
+
+
+The new calculated step size. 
+
+The new calculated step size. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/integrators/runge\+Kutta\+Variable\+Step\+Size\+Integrator.\+h\end{DoxyCompactItemize}

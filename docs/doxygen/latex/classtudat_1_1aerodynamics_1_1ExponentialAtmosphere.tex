@@ -1,0 +1,275 @@
+\hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere}{}\doxysection{tudat\+::aerodynamics\+::Exponential\+Atmosphere Class Reference}
+\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere}\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+
+
+Exponential atmosphere class.  
+
+
+
+
+{\ttfamily \#include $<$exponential\+Atmosphere.\+h$>$}
+
+Inheritance diagram for tudat\+::aerodynamics\+::Exponential\+Atmosphere\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5ebde54a90c18ba708b8cadd7af3ab77}{Exponential\+Atmosphere}} (const double scale\+Height, const double constant\+Temperature, const double density\+At\+Zero\+Altitude, const double specific\+Gas\+Constant=physical\+\_\+constants\+::\+SPECIFIC\+\_\+\+GAS\+\_\+\+CONSTANT\+\_\+\+AIR, const double ratio\+Of\+Specific\+Heats=1.\+4)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a6181b92d0720900d9e4ac5fdf34f705e}{Exponential\+Atmosphere}} (const Bodies\+With\+Predefined\+Exponential\+Atmospheres body\+With\+Predefined\+Exponential\+Atmosphere)
+\begin{DoxyCompactList}\small\item\em Constructor from default atmospheric settings. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a74ca5778d0d81aa30339643421a33fbf}{get\+Scale\+Height}} ()
+\begin{DoxyCompactList}\small\item\em Get scale height. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_aa58c9c4e0920ed33187f7fae3c2cecd4}{get\+Density\+At\+Zero\+Altitude}} ()
+\begin{DoxyCompactList}\small\item\em Get density at zero altitude. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a2cbcf84eef3d96e1b5ff52d93ce6c5c3}{get\+Constant\+Temperature}} ()
+\begin{DoxyCompactList}\small\item\em Get constant temperature. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a77885b25ff2ac9e7218efea48ab231b6}{get\+Specific\+Gas\+Constant}} ()
+\begin{DoxyCompactList}\small\item\em Get specific gas constant. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5e6fb84e94c8c020d2a8eee0c5212f7a}{get\+Ratio\+Of\+Specific\+Heats}} ()
+\begin{DoxyCompactList}\small\item\em Get ratio of specific heats. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_ac6bc5f5fee5475f805e34461fa77b29d}{get\+Density}} (const double altitude, const double longitude=0.\+0, const double latitude=0.\+0, const double time=0.\+0)
+\begin{DoxyCompactList}\small\item\em Get local density. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5f9454b2cf717877723364ba3805e855}{get\+Pressure}} (const double altitude, const double longitude=0.\+0, const double latitude=0.\+0, const double time=0.\+0)
+\begin{DoxyCompactList}\small\item\em Get local pressure. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_aa486d36c2fbe56026d7a4cc17f7d04a2}{get\+Temperature}} (const double altitude, const double longitude=0.\+0, const double latitude=0.\+0, const double time=0.\+0)
+\begin{DoxyCompactList}\small\item\em Get local temperature. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a90283cd42dc4ee31892750b82bedf14c}{get\+Speed\+Of\+Sound}} (const double altitude, const double longitude=0.\+0, const double latitude=0.\+0, const double time=0.\+0)
+\begin{DoxyCompactList}\small\item\em Get local speed of sound in the atmosphere. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Exponential atmosphere class. 
+
+Class with an exponential atmosphere. The user has to initialize this class with a scale altitude, a density at zero meters altitude and a constant temperature. The density is determined by $ \rho = \rho_0 e^{-h/H} $, with $ \rho_0 $ the density at zero altitude, $ h $ the altitude, and $ H $ the scaling altitude. The temperature is taken as constant and the pressure follows from the universal gas law $ p = \rho RT $. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5ebde54a90c18ba708b8cadd7af3ab77}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5ebde54a90c18ba708b8cadd7af3ab77}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!ExponentialAtmosphere@{ExponentialAtmosphere}}
+\index{ExponentialAtmosphere@{ExponentialAtmosphere}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{ExponentialAtmosphere()}{ExponentialAtmosphere()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::\+Exponential\+Atmosphere (\begin{DoxyParamCaption}\item[{const double}]{scale\+Height,  }\item[{const double}]{constant\+Temperature,  }\item[{const double}]{density\+At\+Zero\+Altitude,  }\item[{const double}]{specific\+Gas\+Constant = {\ttfamily physical\+\_\+constants\+:\+:SPECIFIC\+\_\+GAS\+\_\+CONSTANT\+\_\+AIR},  }\item[{const double}]{ratio\+Of\+Specific\+Heats = {\ttfamily 1.4} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor setting all parameters manually. 
+\begin{DoxyParams}{Parameters}
+{\em scale\+Height} & Scale height of atmosphere model. \\
+\hline
+{\em constant\+Temperature} & Constant atmospheric temperature. \\
+\hline
+{\em density\+At\+Zero\+Altitude} & Atmospheric density at zero altitude. \\
+\hline
+{\em specific\+Gas\+Constant} & The constant specific gas constant of the atmosphere. \\
+\hline
+{\em ratio\+Of\+Specific\+Heats} & The constant ratio of specific heats of the atmosphere. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a6181b92d0720900d9e4ac5fdf34f705e}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a6181b92d0720900d9e4ac5fdf34f705e}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!ExponentialAtmosphere@{ExponentialAtmosphere}}
+\index{ExponentialAtmosphere@{ExponentialAtmosphere}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{ExponentialAtmosphere()}{ExponentialAtmosphere()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::\+Exponential\+Atmosphere (\begin{DoxyParamCaption}\item[{const Bodies\+With\+Predefined\+Exponential\+Atmospheres}]{body\+With\+Predefined\+Exponential\+Atmosphere }\end{DoxyParamCaption})}
+
+
+
+Constructor from default atmospheric settings. 
+
+Constructor from default atmospheric settings. 
+\begin{DoxyParams}{Parameters}
+{\em body\+With\+Predefined\+Exponential\+Atmosphere} & Identifier of body for which the atmosphere is to be created. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a2cbcf84eef3d96e1b5ff52d93ce6c5c3}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a2cbcf84eef3d96e1b5ff52d93ce6c5c3}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getConstantTemperature@{getConstantTemperature}}
+\index{getConstantTemperature@{getConstantTemperature}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getConstantTemperature()}{getConstantTemperature()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Constant\+Temperature (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get constant temperature. 
+
+Returns the atmospheric temperature (constant, property of exponential atmosphere) in Kelvin. \begin{DoxyReturn}{Returns}
+constant\+Temperature Constant atmospheric temperature in exponential atmosphere. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_ac6bc5f5fee5475f805e34461fa77b29d}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_ac6bc5f5fee5475f805e34461fa77b29d}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getDensity@{getDensity}}
+\index{getDensity@{getDensity}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getDensity()}{getDensity()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Density (\begin{DoxyParamCaption}\item[{const double}]{altitude,  }\item[{const double}]{longitude = {\ttfamily 0.0},  }\item[{const double}]{latitude = {\ttfamily 0.0},  }\item[{const double}]{time = {\ttfamily 0.0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get local density. 
+
+Returns the local density of the atmosphere in kg per meter$^\wedge$3. 
+\begin{DoxyParams}{Parameters}
+{\em altitude} & Altitude at which density is to be computed. \\
+\hline
+{\em longitude} & Longitude at which density is to be computed (not used but included for consistency with base class interface). \\
+\hline
+{\em latitude} & Latitude at which density is to be computed (not used but included for consistency with base class interface). \\
+\hline
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which density is to be computed (not used but included for consistency with base class interface). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Atmospheric density at specified altitude. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1StandardAtmosphere_a85b7e8803277496e8f5abc9bb36d5bf6}{tudat\+::aerodynamics\+::\+Standard\+Atmosphere}}.
+
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_aa58c9c4e0920ed33187f7fae3c2cecd4}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_aa58c9c4e0920ed33187f7fae3c2cecd4}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getDensityAtZeroAltitude@{getDensityAtZeroAltitude}}
+\index{getDensityAtZeroAltitude@{getDensityAtZeroAltitude}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getDensityAtZeroAltitude()}{getDensityAtZeroAltitude()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Density\+At\+Zero\+Altitude (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get density at zero altitude. 
+
+Returns the density at zero altitude (property of exponential atmosphere) in kg per meter$^\wedge$3. \begin{DoxyReturn}{Returns}
+density\+At\+Zero\+Altitude Atmospheric density at zero altitude. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5f9454b2cf717877723364ba3805e855}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5f9454b2cf717877723364ba3805e855}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getPressure@{getPressure}}
+\index{getPressure@{getPressure}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getPressure()}{getPressure()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Pressure (\begin{DoxyParamCaption}\item[{const double}]{altitude,  }\item[{const double}]{longitude = {\ttfamily 0.0},  }\item[{const double}]{latitude = {\ttfamily 0.0},  }\item[{const double}]{time = {\ttfamily 0.0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get local pressure. 
+
+Returns the local pressure of the atmosphere in Newton per meter$^\wedge$2. 
+\begin{DoxyParams}{Parameters}
+{\em altitude} & Altitude at which pressure is to be computed. \\
+\hline
+{\em longitude} & Longitude at which pressure is to be computed (not used but included for consistency with base class interface). \\
+\hline
+{\em latitude} & Latitude at which pressure is to be computed (not used but included for consistency with base class interface). \\
+\hline
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which pressure is to be computed (not used but included for consistency with base class interface). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Atmospheric pressure at specified altitude. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1StandardAtmosphere_aedd2b6b8824cebea8dea628bfec0e236}{tudat\+::aerodynamics\+::\+Standard\+Atmosphere}}.
+
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5e6fb84e94c8c020d2a8eee0c5212f7a}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a5e6fb84e94c8c020d2a8eee0c5212f7a}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getRatioOfSpecificHeats@{getRatioOfSpecificHeats}}
+\index{getRatioOfSpecificHeats@{getRatioOfSpecificHeats}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getRatioOfSpecificHeats()}{getRatioOfSpecificHeats()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Ratio\+Of\+Specific\+Heats (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get ratio of specific heats. 
+
+Returns the ratio of specific hears of the atmosphere, its value is assumed constant, due to the assumption of constant atmospheric composition. \begin{DoxyReturn}{Returns}
+Ratio of specific heats exponential atmosphere. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a74ca5778d0d81aa30339643421a33fbf}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a74ca5778d0d81aa30339643421a33fbf}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getScaleHeight@{getScaleHeight}}
+\index{getScaleHeight@{getScaleHeight}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getScaleHeight()}{getScaleHeight()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Scale\+Height (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get scale height. 
+
+Returns the scale height (property of exponential atmosphere) in meters. \begin{DoxyReturn}{Returns}
+scale\+Height Scale height of exponential atmosphere. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a77885b25ff2ac9e7218efea48ab231b6}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a77885b25ff2ac9e7218efea48ab231b6}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getSpecificGasConstant@{getSpecificGasConstant}}
+\index{getSpecificGasConstant@{getSpecificGasConstant}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getSpecificGasConstant()}{getSpecificGasConstant()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Specific\+Gas\+Constant (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get specific gas constant. 
+
+Returns the specific gas constant of the atmosphere in J/(kg K), its value is assumed constant, due to the assumption of constant atmospheric composition. \begin{DoxyReturn}{Returns}
+Specific gas constant in exponential atmosphere. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a90283cd42dc4ee31892750b82bedf14c}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_a90283cd42dc4ee31892750b82bedf14c}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getSpeedOfSound@{getSpeedOfSound}}
+\index{getSpeedOfSound@{getSpeedOfSound}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getSpeedOfSound()}{getSpeedOfSound()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Speed\+Of\+Sound (\begin{DoxyParamCaption}\item[{const double}]{altitude,  }\item[{const double}]{longitude = {\ttfamily 0.0},  }\item[{const double}]{latitude = {\ttfamily 0.0},  }\item[{const double}]{time = {\ttfamily 0.0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get local speed of sound in the atmosphere. 
+
+Returns the speed of sound in the atmosphere in m/s. 
+\begin{DoxyParams}{Parameters}
+{\em altitude} & Altitude at which speed of sounds is to be computed. \\
+\hline
+{\em longitude} & Longitude at which speed of sounds is to be computed (not used but included for consistency with base class interface). \\
+\hline
+{\em latitude} & Latitude at which speed of sounds is to be computed (not used but included for consistency with base class interface). \\
+\hline
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which speed of sounds is to be computed (not used but included for consistency with base class interface). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Atmospheric speed of sounds at specified altitude. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1StandardAtmosphere_a9992c99f7994882307b05161e19fc298}{tudat\+::aerodynamics\+::\+Standard\+Atmosphere}}.
+
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_aa486d36c2fbe56026d7a4cc17f7d04a2}\label{classtudat_1_1aerodynamics_1_1ExponentialAtmosphere_aa486d36c2fbe56026d7a4cc17f7d04a2}} 
+\index{tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}!getTemperature@{getTemperature}}
+\index{getTemperature@{getTemperature}!tudat::aerodynamics::ExponentialAtmosphere@{tudat::aerodynamics::ExponentialAtmosphere}}
+\doxysubsubsection{\texorpdfstring{getTemperature()}{getTemperature()}}
+{\footnotesize\ttfamily double tudat\+::aerodynamics\+::\+Exponential\+Atmosphere\+::get\+Temperature (\begin{DoxyParamCaption}\item[{const double}]{altitude,  }\item[{const double}]{longitude = {\ttfamily 0.0},  }\item[{const double}]{latitude = {\ttfamily 0.0},  }\item[{const double}]{time = {\ttfamily 0.0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get local temperature. 
+
+Returns the local temperature of the atmosphere in Kelvin. 
+\begin{DoxyParams}{Parameters}
+{\em altitude} & Altitude at which temperature is to be computed (not used since temperature is assumed to be constant). \\
+\hline
+{\em longitude} & Longitude at which temperature is to be computed (not used but included for consistency with base class interface). \\
+\hline
+{\em latitude} & Latitude at which temperature is to be computed (not used but included for consistency with base class interface). \\
+\hline
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which temperature is to be computed (not used but included for consistency with base class interface). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+constant\+Temperature Atmospheric temperature at specified altitude. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1StandardAtmosphere_ac5b9a16a96cbb496a4ee76b3dc495543}{tudat\+::aerodynamics\+::\+Standard\+Atmosphere}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/aerodynamics/exponential\+Atmosphere.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/aerodynamics/exponential\+Atmosphere.\+cpp\end{DoxyCompactItemize}

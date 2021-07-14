@@ -1,0 +1,124 @@
+\hypertarget{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}{}\doxysection{tudat\+::propagators\+::Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface Class Reference}
+\label{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}\index{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}}
+
+
+{\ttfamily \#include $<$state\+Transition\+Matrix\+Interface.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a0672bd56cdff47197650f7f0d4748367}{Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface}{Single\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} $>$ single\+Arc\+Interface, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface}{Multi\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} $>$ multi\+Arc\+Interface)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a9b58a6ca4cdb00fe4cfc6d8a81b169c6}\label{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a9b58a6ca4cdb00fe4cfc6d8a81b169c6}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a9b58a6ca4cdb00fe4cfc6d8a81b169c6}{$\sim$\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_adcfef42a112a1f70782b95d914c15120}{get\+Full\+Parameter\+Vector\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the size of the total parameter vector. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a94f906b95b40f8eb0e85f784528b9bf0}{get\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix}} (const double evaluation\+Time)
+\begin{DoxyCompactList}\small\item\em Function to get the concatenated state transition and sensitivity matrix at a given time. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix\+Xd \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a1f5e5daa169b4a5c277ed2313b3ae126}{get\+Full\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix}} (const double evaluation\+Time)
+\begin{DoxyCompactList}\small\item\em Function to get the full concatenated state transition and sensitivity matrix at a given time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface object of interpolation of numerically propagated state transition and sensitivity matrices for a hybrid of single-\/and multi-\/arc estimation (single order is put first in concatenation)
+
+Interface object of interpolation of numerically propagated state transition and sensitivity matrices for a hybrid of single-\/and multi-\/arc estimation (single order is put first in concatenation). The single-\/ anf multi-\/arc given as input must be consistent\+: the single arc bodies/states must also be included in the multi-\/arc model, in order to properly generate the coupling terms between single and multi-\/arc states (see \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridArcVariationalEquationsSolver}{Hybrid\+Arc\+Variational\+Equations\+Solver}}). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a0672bd56cdff47197650f7f0d4748367}\label{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a0672bd56cdff47197650f7f0d4748367}} 
+\index{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}!HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}}
+\index{HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}!tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{HybridArcCombinedStateTransitionAndSensitivityMatrixInterface()}{HybridArcCombinedStateTransitionAndSensitivityMatrixInterface()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface}{Single\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} $>$}]{single\+Arc\+Interface,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface}{Multi\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}} $>$}]{multi\+Arc\+Interface }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em single\+Arc\+Interface} & Object to retrieve state transition/sensitivity matrices for single arc component \\
+\hline
+{\em multi\+Arc\+Interface} & Object to retrieve state transition/sensitivity matrices for multi arc component \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a94f906b95b40f8eb0e85f784528b9bf0}\label{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a94f906b95b40f8eb0e85f784528b9bf0}} 
+\index{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}!getCombinedStateTransitionAndSensitivityMatrix@{getCombinedStateTransitionAndSensitivityMatrix}}
+\index{getCombinedStateTransitionAndSensitivityMatrix@{getCombinedStateTransitionAndSensitivityMatrix}!tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{getCombinedStateTransitionAndSensitivityMatrix()}{getCombinedStateTransitionAndSensitivityMatrix()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix\+Xd tudat\+::propagators\+::\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::get\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix (\begin{DoxyParamCaption}\item[{const double}]{evaluation\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to get the concatenated state transition and sensitivity matrix at a given time. 
+
+Function to get the concatenated state transition and sensitivity matrix at a given time. Only the state transition matrix for the current are is included in the concatenation. 
+\begin{DoxyParams}{Parameters}
+{\em evaluation\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which to evaluate matrix interpolators \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Concatenated state transition and sensitivity matrices. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_ac878b1cd7e3fe120915a55b8da3c5be2}{tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a1f5e5daa169b4a5c277ed2313b3ae126}\label{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_a1f5e5daa169b4a5c277ed2313b3ae126}} 
+\index{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}!getFullCombinedStateTransitionAndSensitivityMatrix@{getFullCombinedStateTransitionAndSensitivityMatrix}}
+\index{getFullCombinedStateTransitionAndSensitivityMatrix@{getFullCombinedStateTransitionAndSensitivityMatrix}!tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{getFullCombinedStateTransitionAndSensitivityMatrix()}{getFullCombinedStateTransitionAndSensitivityMatrix()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix\+Xd tudat\+::propagators\+::\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::get\+Full\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix (\begin{DoxyParamCaption}\item[{const double}]{evaluation\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Function to get the full concatenated state transition and sensitivity matrix at a given time. 
+
+Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
+
+Function to get the full concatenated state transition and sensitivity matrix at a given time. The state transition matrix for each arc is included (which equals zero for each multi-\/arc initial state sensitivity outside of teh current arc) 
+\begin{DoxyParams}{Parameters}
+{\em evaluation\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which to evaluate matrix interpolators \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Full concatenated state transition and sensitivity matrices. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_aa97426509a0575040633ca39345f2bf8}{tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_adcfef42a112a1f70782b95d914c15120}\label{classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_adcfef42a112a1f70782b95d914c15120}} 
+\index{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}!getFullParameterVectorSize@{getFullParameterVectorSize}}
+\index{getFullParameterVectorSize@{getFullParameterVectorSize}!tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface@{tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface}}
+\doxysubsubsection{\texorpdfstring{getFullParameterVectorSize()}{getFullParameterVectorSize()}}
+{\footnotesize\ttfamily int tudat\+::propagators\+::\+Hybrid\+Arc\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface\+::get\+Full\+Parameter\+Vector\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to get the size of the total parameter vector. 
+
+Function to get the size of the total parameter vector. \begin{DoxyReturn}{Returns}
+Size of the total parameter vector. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_af8e2ec2755dfecf36731e372c7828554}{tudat\+::propagators\+::\+Combined\+State\+Transition\+And\+Sensitivity\+Matrix\+Interface}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propagators/state\+Transition\+Matrix\+Interface.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/propagators/state\+Transition\+Matrix\+Interface.\+cpp\end{DoxyCompactItemize}

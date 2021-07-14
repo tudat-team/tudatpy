@@ -1,0 +1,222 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__mathematics_1_1Function" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::basic_mathematics::Function</compoundname>
+    <includes refid="function_8h" local="no">function.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariable</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename DependentVariable</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1Function_1ae438d4c770503bfdf34c812e4f47cf09" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::basic_mathematics::Function&lt; IndependentVariable, DependentVariable &gt;::~Function</definition>
+        <argsstring>()</argsstring>
+        <name>~Function</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" line="34" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" bodystart="34" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1Function_1a69b59769da9784abaaa8a0a309d16de8" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>DependentVariable</type>
+        <definition>virtual DependentVariable tudat::basic_mathematics::Function&lt; IndependentVariable, DependentVariable &gt;::evaluate</definition>
+        <argsstring>(const IndependentVariable inputValue)=0</argsstring>
+        <name>evaluate</name>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1a9fe09f98e8bb360bba7b90d5462150ca">evaluate</reimplementedby>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1a3d0ac0b2d7a09ed14894740fab68a0e6">evaluate</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1abd89b7690138e463bcc52ebd667f7bfa">evaluate</reimplementedby>
+        <reimplementedby refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a4a8459346c133ba644a36df88ada665c">evaluate</reimplementedby>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>inputValue</declname>
+        </param>
+        <briefdescription>
+<para>Compute mathematical function value. This implementation is a pure virtual function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the value of the mathematical function used for the root-finder algorithm being used. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Computed mathematical function value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" line="43" column="31"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1Function_1a4b135236b9531d0329c151afeef8a2d8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>DependentVariable</type>
+        <definition>DependentVariable tudat::basic_mathematics::Function&lt; IndependentVariable, DependentVariable &gt;::operator()</definition>
+        <argsstring>(const double inputValue)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const double</type>
+          <declname>inputValue</declname>
+        </param>
+        <briefdescription>
+<para>Alias for evaluate( double ). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" line="46" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" bodystart="46" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1Function_1a0929cfbeb90a6cbc85d50455fd01d75f" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>DependentVariable</type>
+        <definition>virtual DependentVariable tudat::basic_mathematics::Function&lt; IndependentVariable, DependentVariable &gt;::computeDerivative</definition>
+        <argsstring>(const unsigned int order, const IndependentVariable independentVariable)=0</argsstring>
+        <name>computeDerivative</name>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1aeac28ab0027cf43dbb2e443ddd133d67">computeDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1ab6a7579fe3bed9a3901140f9e58d004c">computeDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1abffe5b7f1fb949b9e1009d0434092ba8">computeDerivative</reimplementedby>
+        <reimplementedby refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1ae0a0844b6c72c55ef059039eb147453b">computeDerivative</reimplementedby>
+        <reimplementedby refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ad9ffdd736006317e21ee414936234f45">computeDerivative</reimplementedby>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate the derivative of the function. This implementation is a pure virtual function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This evaluates the derivative of a given order of this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the derivative to evaluate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Location where to evaluate the derivative. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the derivative of the function </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" line="58" column="31"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1Function_1a74c5639b8c6288471368e65312569e52" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>DependentVariable</type>
+        <definition>virtual DependentVariable tudat::basic_mathematics::Function&lt; IndependentVariable, DependentVariable &gt;::computeDefiniteIntegral</definition>
+        <argsstring>(const unsigned int order, const IndependentVariable lowerBound, const IndependentVariable upperbound)=0</argsstring>
+        <name>computeDefiniteIntegral</name>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1EquilibriumTemperatureFunction_1af80114f81558e28479d8f945a209ac77">computeDefiniteIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_1aafcdb10c4212c31db81a955030719e01">computeDefiniteIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1ac8f56d30994eb778970c8b7d2b9a4568">computeDefiniteIntegral</reimplementedby>
+        <reimplementedby refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a9ff1a3c03832150f34c06c86317c2ac7">computeDefiniteIntegral</reimplementedby>
+        <reimplementedby refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a3efc47b6ff79b80092e35c21e242f557">computeDefiniteIntegral</reimplementedby>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>lowerBound</declname>
+        </param>
+        <param>
+          <type>const IndependentVariable</type>
+          <declname>upperbound</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate the definite integral of the function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This evaluates the definite integral of a given order of this function. This implementation is a pure virtual function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the integral to evaluate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lowerBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integration lower bound (integrate from this point). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>upperbound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integration upper bound (integrate to this point). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the definite numerical integral of this function </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" line="69" column="31"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> interface to allow evaluation of a mathematical function. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class adds the ability to a class to be evaluated as a mathematical function. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mathematical variable for independent input (e.g., x). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>DependentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mathematical variable for dependent output (e.g., y=f(x)). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" line="29" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" bodystart="30" bodyend="73"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a74c5639b8c6288471368e65312569e52" prot="public" virt="pure-virtual"><scope>tudat::basic_mathematics::Function</scope><name>computeDefiniteIntegral</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a0929cfbeb90a6cbc85d50455fd01d75f" prot="public" virt="pure-virtual"><scope>tudat::basic_mathematics::Function</scope><name>computeDerivative</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a69b59769da9784abaaa8a0a309d16de8" prot="public" virt="pure-virtual"><scope>tudat::basic_mathematics::Function</scope><name>evaluate</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a4b135236b9531d0329c151afeef8a2d8" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::Function</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1ae438d4c770503bfdf34c812e4f47cf09" prot="public" virt="virtual"><scope>tudat::basic_mathematics::Function</scope><name>~Function</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1171 @@
+\hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{}\doxysection{tudat\+::numerical\+\_\+integrators\+::Adams\+Bashforth\+Moulton\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ Class Template Reference}
+\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+
+
+Adams-\/\+Bashforth-\/\+Moulton Variable Order and Stepsize integrator.  
+
+
+
+
+{\ttfamily \#include $<$adams\+Bashforth\+Moulton\+Integrator.\+h$>$}
+
+Inheritance diagram for tudat\+::numerical\+\_\+integrators\+::Adams\+Bashforth\+Moulton\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.056304cm]{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator}{Reinitializable\+Numerical\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a84ebef4b3f128797cd760db3215b3ae0}{Reinitializable\+Numerical\+Integrator\+Base}}
+\begin{DoxyCompactList}\small\item\em Typedef for the base class. \end{DoxyCompactList}\item 
+typedef \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_ac4a61ecbab0945f9c899808c95bed0b7}{Reinitializable\+Numerical\+Integrator\+Base\+::\+Numerical\+Integrator\+Base\+::\+State\+Derivative\+Function}} \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}{State\+Derivative\+Function}}
+\begin{DoxyCompactList}\small\item\em Typedef for the state derivative function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a2ed7ecdddf813b407da88d1181d55651}{Adams\+Bashforth\+Moulton\+Integrator}} (const \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}{State\+Derivative\+Function}} \&state\+Derivative\+Function, const Independent\+Variable\+Type interval\+Start, const State\+Type \&initial\+State, const Time\+Step\+Type minimum\+Step\+Size, const Time\+Step\+Type maximum\+Step\+Size, const State\+Type \&relative\+Error\+Tolerance, const State\+Type \&absolute\+Error\+Tolerance, const Time\+Step\+Type bandwidth=200.)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6e1745e831750ed669c51b6f5fee35f4}{Adams\+Bashforth\+Moulton\+Integrator}} (const \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}{State\+Derivative\+Function}} \&state\+Derivative\+Function, const Independent\+Variable\+Type interval\+Start, const State\+Type \&initial\+State, const Time\+Step\+Type minimum\+Step\+Size, const Time\+Step\+Type maximum\+Step\+Size, const typename State\+Type\+::\+Scalar relative\+Error\+Tolerance, const typename State\+Type\+::\+Scalar absolute\+Error\+Tolerance, const Time\+Step\+Type bandwidth=200.)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+virtual Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac3f720d587a9278b66a0e5d8a0046677}{get\+Next\+Step\+Size}} () const
+\begin{DoxyCompactList}\small\item\em Get step size of the next step. \end{DoxyCompactList}\item 
+unsigned int \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1dfbd34c384482550941514c5c8e678f}{get\+Order}} () const
+\begin{DoxyCompactList}\small\item\em Get the order of next step. \end{DoxyCompactList}\item 
+virtual Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3954d43a66d0ff47431fe7569e780975}{get\+Step\+Size}} () const
+\begin{DoxyCompactList}\small\item\em Get step size of the last step. \end{DoxyCompactList}\item 
+virtual State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aee5eef485597f1972fa5e2ee115eba03}{get\+Current\+State}} () const
+\begin{DoxyCompactList}\small\item\em Get current state. \end{DoxyCompactList}\item 
+virtual Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a19d0ae06152a18cfa6e11b13b1a6fea7}{get\+Current\+Independent\+Variable}} () const
+\begin{DoxyCompactList}\small\item\em Returns the current independent variable. \end{DoxyCompactList}\item 
+virtual State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a47e17a813ea5a371338508d329840221}{perform\+Integration\+Step}} (const Time\+Step\+Type step\+Size)
+\begin{DoxyCompactList}\small\item\em Perform a single integration step. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step}} ()
+\begin{DoxyCompactList}\small\item\em Perform a single integration step. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad70afacde7c1898093455e890f14eff2}{rollback\+To\+Previous\+State}} ()
+\begin{DoxyCompactList}\small\item\em Rollback internal state to the last state. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aec342ec556a762808811166b54bd4617}{modify\+Current\+State}} (const State\+Type \&new\+State, const bool allow\+Rollback=false)
+\begin{DoxyCompactList}\small\item\em Replace the state with a new value. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a820620b30be66abce998bb9f2f8e172f}{get\+Maximum\+Error}} ()
+\begin{DoxyCompactList}\small\item\em Return maximum truncation error. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a03c72b240616ff05f31138031959bcbd}{get\+Absolute\+Error}} ()
+\begin{DoxyCompactList}\small\item\em Return absolute truncation error. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aa0874400d0b41490965c1d6ef4f9b874}{get\+Relative\+Error}} ()
+\begin{DoxyCompactList}\small\item\em Return relative truncation error. \end{DoxyCompactList}\item 
+State\+Derivative\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3fa3d1024583352ad2114c530b628380}{get\+Last\+Derivative}} ()
+\begin{DoxyCompactList}\small\item\em Return list derivative . \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0e277ca791d3dd7bba3daf3dc82c6c6b}{set\+Fixed\+Step\+Size}} (bool fixed\+Step\+Size)
+\begin{DoxyCompactList}\small\item\em (Un )set fixed step size. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac1a7a72a6d8cd6c5b0b1306667106f1f}{set\+Fixed\+Order}} (bool fixed\+Order)
+\begin{DoxyCompactList}\small\item\em (Un)set fixed order. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1e0d84ce8e752881e42cde7290b9f09e}{set\+Order}} (unsigned int order)
+\begin{DoxyCompactList}\small\item\em Set order. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a66355f96b87ec16052414330942ffc92}{set\+Strict\+Compare}} (bool strict\+Compare)
+\begin{DoxyCompactList}\small\item\em (Un)set fixed order. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aecf7f43fa51ce1e74975f7746eececa4}{set\+Step\+Size\+Bounds}} (Independent\+Variable\+Type minimum\+Step\+Size, Independent\+Variable\+Type maximum\+Step\+Size)
+\begin{DoxyCompactList}\small\item\em Set the minimum and maximum step size. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a2f439f15d66e1e02ad53c939985e19bb}{set\+Error\+Tolerances}} (State\+Type \&absolute\+Error\+Tolerance, State\+Type \&relative\+Error\+Tolerance)
+\begin{DoxyCompactList}\small\item\em Set the minimum and maximum truncation error. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a82780ed95d797b2456b0e330650c07d1}{set\+Step\+Size}} (Independent\+Variable\+Type step\+Size)
+\begin{DoxyCompactList}\small\item\em Set step size. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a7405df27a904813fa9a2ef6eed827a79}{set\+Minimum\+Order}} (unsigned int minimum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to reset the minimum order of the integrator. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a863af58a36fe95f6bc1d6521b6e8d596}{set\+Maximum\+Order}} (unsigned int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Function to reset the maximum order of the integrator. \end{DoxyCompactList}\item 
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aecba907cbdcedd7f639dcc7b32080f59}{get\+Previous\+Independent\+Variable}} ()
+\begin{DoxyCompactList}\small\item\em Get previous independent variable. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_affcef1fca0cd02fed5e3e2c5c04c1e4c}{get\+Previous\+State}} ()
+\begin{DoxyCompactList}\small\item\em Get previous state value. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aeef8b5bebc52a2067d3582a283e5084b}{perform\+Single\+Step}} ()
+\begin{DoxyCompactList}\small\item\em Perform integration step. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac2be6512a90fc7b6cc07cd6055b0fb68}{perform\+Predictor\+Step}} (unsigned int order, bool double\+Step)
+\begin{DoxyCompactList}\small\item\em Perform predictor step. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af4240e8b9d121478769c3c13dbefd0c9}{perform\+Corrector\+Step}} (State\+Type predicted\+State, unsigned int order, bool double\+Step)
+\begin{DoxyCompactList}\small\item\em Perform correcter step. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a36df81b6fa64322e225ac2266445398b}{estimate\+Absolute\+Error}} (State\+Type predicted\+State, State\+Type corrected\+State, unsigned int order)
+\begin{DoxyCompactList}\small\item\em Estimate the absolute error. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ae9772d4cebe217458dd8652788c8abc0}{estimate\+Relative\+Error}} (State\+Type predicted\+State, State\+Type corrected\+State, State\+Type absolute\+Error)
+\begin{DoxyCompactList}\small\item\em Estimate the relative error. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_adbb5d70be41329155454b9171e85bd8d}{error\+Compare}} (State\+Type absolute\+Error1, State\+Type relative\+Error1, State\+Type absolute\+Error2, State\+Type relative\+Error2)
+\begin{DoxyCompactList}\small\item\em Compare two errors. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6b8de7f6cdb6bf781476fd116b752d24}{error\+Too\+Large}} (State\+Type absolute\+Error, State\+Type relative\+Error)
+\begin{DoxyCompactList}\small\item\em Checks if error is too large. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6365117a96b11186c27d3c06e867d2a3}{error\+Too\+Small}} (State\+Type absolute\+Error, State\+Type relative\+Error)
+\begin{DoxyCompactList}\small\item\em Checks if error is too small. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ab6737fd8f351b8e79752d00eb5776326}{current\+Independent\+Variable\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current independent variable. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ab081077fe086363dd48a0df8b4b25cc2}{current\+State\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current state. \end{DoxyCompactList}\item 
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6fe035c4e27ba613098b7c3b7adb3046}{last\+Independent\+Variable\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Last independent variable. \end{DoxyCompactList}\item 
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0f786a58d02f716debdb68a3470df91b}{minimum\+Step\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Minimum step size. \end{DoxyCompactList}\item 
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a8cc931338d0bb6c2da0d63df5334dd73}{maximum\+Step\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Maximum step size. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af684828c5229bbb1f7f5d0e0e9543c58}{relative\+Error\+Tolerance\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Maximum relative error. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a828cb09f0e29eacc6fe4b5ce8244b5f3}{absolute\+Error\+Tolerance\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Maximum absolute error. \end{DoxyCompactList}\item 
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a50466ff2d5196b45b01846c12b23f9eb}{bandwidth\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Bandwidth. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aaaff349a22bed98865ef6180d5c9f10e}{fixed\+Step\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Fixed step size. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af1c374535d0f4925b886c9eee2941fea}{strict\+Compare\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Strict compare. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a945aa1a98245e2217dcb709e711a747c}{fixed\+Order\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Fixed order. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0f8c07e48c6a96db82617dfd6dda75b5}{absolute\+Error\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Absolute truncation error. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a719159e2d2a79b5b137c7b83fa29d34a}{relative\+Error\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Relative truncation error. \end{DoxyCompactList}\item 
+unsigned int \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a494b41a39c876a5913282a49201dc54c}{minimum\+Order\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Minimum order. \end{DoxyCompactList}\item 
+unsigned int \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a5855c6dc5030eb20e84952e5a1fbc99b}{maximum\+Order\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Maximum order. \end{DoxyCompactList}\item 
+unsigned int \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac1e0e7b76fa9dea5cc66b3f50a7ebc71}{order\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Order. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a66b5435df93ad1b512747fb8998b852d}{fixed\+Single\+Step\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Fixed Single Step Integrator. \end{DoxyCompactList}\item 
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aab39ca9aff34603d44b62fbb2da8d20f}{step\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Last used step size. \end{DoxyCompactList}\item 
+State\+Derivative\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a4c08c7ec3f241800f9250e6603d5c88b}{predicted\+Derivative\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Predicted derivative state. \end{DoxyCompactList}\item 
+std\+::deque$<$ State\+Type $>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1657ceb656ec153ecb4ba691ba80a6f4}{state\+History\+\_\+}}
+\begin{DoxyCompactList}\small\item\em State history. \end{DoxyCompactList}\item 
+std\+::deque$<$ State\+Type $>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_abbcdabf1906f93f84bf6c4b89de290c5}{deriv\+History\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Derivative history. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1107987e2988f5d3e7f3c36cd60c5607}{last\+State\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Last state. \end{DoxyCompactList}\item 
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a5150022e25c5dd148b64afb20a9798b9}{last\+Step\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Last step size. \end{DoxyCompactList}\item 
+State\+Derivative\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad0b126488ec19ce54a92a36e89c7ac28}{last\+Derivative\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Last state derivative. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const double \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3afcb0d2d1e3e67bfb4ff78328114cb8}{truncation\+Error\+Coefficients}} \mbox{[}12\mbox{]}
+\begin{DoxyCompactList}\small\item\em Numerical Single Step Integrator. \end{DoxyCompactList}\item 
+static const double \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aa41f38db835c9d91d7a0f829a27415ea}{extrapolation\+Coefficients}} \mbox{[}24\mbox{]}\mbox{[}12\mbox{]}
+\begin{DoxyCompactList}\small\item\em Extrapolation coefficients. \end{DoxyCompactList}\item 
+static const double \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad7bd08d17efca31dc328fcf6dbc209f9}{interpolation\+Coefficients}} \mbox{[}132\mbox{]}\mbox{[}24\mbox{]}
+\begin{DoxyCompactList}\small\item\em Interpolation coefficients. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type = double, typename State\+Type = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type = Independent\+Variable\+Type$>$\newline
+class tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$}
+
+Adams-\/\+Bashforth-\/\+Moulton Variable Order and Stepsize integrator. 
+
+Class that implements the Adams-\/\+Bashforth-\/\+Moulton integrator, variable order, variable step size integrator. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em State\+Type} & The type of the state. This type should support addition with State\+Derivative\+Type. \\
+\hline
+{\em State\+Derivative\+Type} & The type of the state derivative. This type should support multiplication with Independent\+Variable\+Type and doubles. \\
+\hline
+{\em Independent\+Variable\+Type} & The type of the independent variable. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator}{Numerical\+Integrator}}. 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a84ebef4b3f128797cd760db3215b3ae0}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a84ebef4b3f128797cd760db3215b3ae0}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!ReinitializableNumericalIntegratorBase@{ReinitializableNumericalIntegratorBase}}
+\index{ReinitializableNumericalIntegratorBase@{ReinitializableNumericalIntegratorBase}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{ReinitializableNumericalIntegratorBase}{ReinitializableNumericalIntegratorBase}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+typedef \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator}{Reinitializable\+Numerical\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a84ebef4b3f128797cd760db3215b3ae0}{Reinitializable\+Numerical\+Integrator\+Base}}}
+
+
+
+Typedef for the base class. 
+
+Typedef of the base class with all template parameters filled in. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!StateDerivativeFunction@{StateDerivativeFunction}}
+\index{StateDerivativeFunction@{StateDerivativeFunction}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{StateDerivativeFunction}{StateDerivativeFunction}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+typedef Reinitializable\+Numerical\+Integrator\+Base\+::\+Numerical\+Integrator\+Base\+:: \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}{State\+Derivative\+Function}} \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}{State\+Derivative\+Function}}}
+
+
+
+Typedef for the state derivative function. 
+
+Typedef to the state derivative function inherited from the base class. \begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_ac4a61ecbab0945f9c899808c95bed0b7}{Numerical\+Integrator\+::\+State\+Derivative\+Function}}. 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a2ed7ecdddf813b407da88d1181d55651}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a2ed7ecdddf813b407da88d1181d55651}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!AdamsBashforthMoultonIntegrator@{AdamsBashforthMoultonIntegrator}}
+\index{AdamsBashforthMoultonIntegrator@{AdamsBashforthMoultonIntegrator}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{AdamsBashforthMoultonIntegrator()}{AdamsBashforthMoultonIntegrator()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{Adams\+Bashforth\+Moulton\+Integrator}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}{State\+Derivative\+Function}} \&}]{state\+Derivative\+Function,  }\item[{const Independent\+Variable\+Type}]{interval\+Start,  }\item[{const State\+Type \&}]{initial\+State,  }\item[{const Time\+Step\+Type}]{minimum\+Step\+Size,  }\item[{const Time\+Step\+Type}]{maximum\+Step\+Size,  }\item[{const State\+Type \&}]{relative\+Error\+Tolerance,  }\item[{const State\+Type \&}]{absolute\+Error\+Tolerance,  }\item[{const Time\+Step\+Type}]{bandwidth = {\ttfamily 200.} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor, taking a state derivative function as argument. Note that with the default settings the integrator has no incentive of changing the stepsize. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Derivative\+Function} & State derivative function. \\
+\hline
+{\em interval\+Start} & The start of the integration interval. \\
+\hline
+{\em initial\+State} & The initial state. \\
+\hline
+{\em minimum\+Step\+Size} & The minimum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the minimum value. \\
+\hline
+{\em maximum\+Step\+Size} & The maximum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the maximum value. \\
+\hline
+{\em relative\+Error\+Tolerance} & The relative error tolerance, for each individual state vector element. \\
+\hline
+{\em absolute\+Error\+Tolerance} & The absolute error tolerance, for each individual state vector element. \\
+\hline
+{\em bandwidth} & (optional) bandwidth (between min and max tolerance) (200 default) \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_abc2bd9d5804101036116510ce87be2db}{Numerical\+Integrator\+::\+Numerical\+Integrator}}. 
+\end{DoxySeeAlso}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6e1745e831750ed669c51b6f5fee35f4}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6e1745e831750ed669c51b6f5fee35f4}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!AdamsBashforthMoultonIntegrator@{AdamsBashforthMoultonIntegrator}}
+\index{AdamsBashforthMoultonIntegrator@{AdamsBashforthMoultonIntegrator}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{AdamsBashforthMoultonIntegrator()}{AdamsBashforthMoultonIntegrator()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{Adams\+Bashforth\+Moulton\+Integrator}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1f8d8ed5f296b42a2d9a6c7051ba81a7}{State\+Derivative\+Function}} \&}]{state\+Derivative\+Function,  }\item[{const Independent\+Variable\+Type}]{interval\+Start,  }\item[{const State\+Type \&}]{initial\+State,  }\item[{const Time\+Step\+Type}]{minimum\+Step\+Size,  }\item[{const Time\+Step\+Type}]{maximum\+Step\+Size,  }\item[{const typename State\+Type\+::\+Scalar}]{relative\+Error\+Tolerance,  }\item[{const typename State\+Type\+::\+Scalar}]{absolute\+Error\+Tolerance,  }\item[{const Time\+Step\+Type}]{bandwidth = {\ttfamily 200.} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor, taking a state derivative function as argument. Note that with the default settings the integrator has no incentive of changing the stepsize. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Derivative\+Function} & State derivative function. \\
+\hline
+{\em interval\+Start} & The start of the integration interval. \\
+\hline
+{\em initial\+State} & The initial state. \\
+\hline
+{\em minimum\+Step\+Size} & The minimum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the minimum value. \\
+\hline
+{\em maximum\+Step\+Size} & The maximum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the maximum value. \\
+\hline
+{\em relative\+Error\+Tolerance} & The relative error tolerance, for each individual state vector element. \\
+\hline
+{\em absolute\+Error\+Tolerance} & The absolute error tolerance, for each individual state vector element. \\
+\hline
+{\em bandwidth} & (optional) bandwidth (between min and max tolerance) (200 default) \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_abc2bd9d5804101036116510ce87be2db}{Numerical\+Integrator\+::\+Numerical\+Integrator}}. 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_adbb5d70be41329155454b9171e85bd8d}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_adbb5d70be41329155454b9171e85bd8d}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!errorCompare@{errorCompare}}
+\index{errorCompare@{errorCompare}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{errorCompare()}{errorCompare()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::error\+Compare (\begin{DoxyParamCaption}\item[{State\+Type}]{absolute\+Error1,  }\item[{State\+Type}]{relative\+Error1,  }\item[{State\+Type}]{absolute\+Error2,  }\item[{State\+Type}]{relative\+Error2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Compare two errors. 
+
+Compares two errors (absolute and relative form) and return true if first one is better than second (smaller is better). 
+\begin{DoxyParams}{Parameters}
+{\em absolute\+Error1} & absolute error one. \\
+\hline
+{\em relative\+Error1} & relative error one. \\
+\hline
+{\em absolute\+Error2} & absolute error two. \\
+\hline
+{\em relative\+Error2} & relative error two. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if one is better than two, false otherwise. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6b8de7f6cdb6bf781476fd116b752d24}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6b8de7f6cdb6bf781476fd116b752d24}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!errorTooLarge@{errorTooLarge}}
+\index{errorTooLarge@{errorTooLarge}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{errorTooLarge()}{errorTooLarge()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::error\+Too\+Large (\begin{DoxyParamCaption}\item[{State\+Type}]{absolute\+Error,  }\item[{State\+Type}]{relative\+Error }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Checks if error is too large. 
+
+Checks error (absolute and relative form) and return true if the exceed tolerance limits. 
+\begin{DoxyParams}{Parameters}
+{\em absolute\+Error} & absolute error. \\
+\hline
+{\em relative\+Error} & relative error. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if one error is too big, false if within limits 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6365117a96b11186c27d3c06e867d2a3}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6365117a96b11186c27d3c06e867d2a3}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!errorTooSmall@{errorTooSmall}}
+\index{errorTooSmall@{errorTooSmall}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{errorTooSmall()}{errorTooSmall()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::error\+Too\+Small (\begin{DoxyParamCaption}\item[{State\+Type}]{absolute\+Error,  }\item[{State\+Type}]{relative\+Error }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Checks if error is too small. 
+
+Checks error (absolute and relative form) and return true if the exceed tolerance limits. 
+\begin{DoxyParams}{Parameters}
+{\em absolute\+Error} & absolute error. \\
+\hline
+{\em relative\+Error} & relative error. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if one error is too small, false if within limits 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a36df81b6fa64322e225ac2266445398b}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a36df81b6fa64322e225ac2266445398b}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!estimateAbsoluteError@{estimateAbsoluteError}}
+\index{estimateAbsoluteError@{estimateAbsoluteError}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{estimateAbsoluteError()}{estimateAbsoluteError()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::estimate\+Absolute\+Error (\begin{DoxyParamCaption}\item[{State\+Type}]{predicted\+State,  }\item[{State\+Type}]{corrected\+State,  }\item[{unsigned int}]{order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Estimate the absolute error. 
+
+Based on order, predicted and corrected step find the error. 
+\begin{DoxyParams}{Parameters}
+{\em predicted\+State} & by the predictor. \\
+\hline
+{\em corrected\+State} & by the corrector. \\
+\hline
+{\em order} & of the integration. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+absolute error vector. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ae9772d4cebe217458dd8652788c8abc0}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ae9772d4cebe217458dd8652788c8abc0}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!estimateRelativeError@{estimateRelativeError}}
+\index{estimateRelativeError@{estimateRelativeError}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{estimateRelativeError()}{estimateRelativeError()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::estimate\+Relative\+Error (\begin{DoxyParamCaption}\item[{State\+Type}]{predicted\+State,  }\item[{State\+Type}]{corrected\+State,  }\item[{State\+Type}]{absolute\+Error }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Estimate the relative error. 
+
+Based on order, predicted and corrected step find the error. 
+\begin{DoxyParams}{Parameters}
+{\em predicted\+State} & by the predictor. \\
+\hline
+{\em corrected\+State} & by the corrector. \\
+\hline
+{\em absolute\+Error} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+relative error vector. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a03c72b240616ff05f31138031959bcbd}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a03c72b240616ff05f31138031959bcbd}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getAbsoluteError@{getAbsoluteError}}
+\index{getAbsoluteError@{getAbsoluteError}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getAbsoluteError()}{getAbsoluteError()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Absolute\+Error (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return absolute truncation error. 
+
+\begin{DoxyReturn}{Returns}
+Vector of the absolute truncation error. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a19d0ae06152a18cfa6e11b13b1a6fea7}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a19d0ae06152a18cfa6e11b13b1a6fea7}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getCurrentIndependentVariable@{getCurrentIndependentVariable}}
+\index{getCurrentIndependentVariable@{getCurrentIndependentVariable}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getCurrentIndependentVariable()}{getCurrentIndependentVariable()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Current\+Independent\+Variable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Returns the current independent variable. 
+
+Returns the current value of the independent variable of the integrator. \begin{DoxyReturn}{Returns}
+Current independent variable. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a8ca318a39081842472ccd1a165ec06a4}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aee5eef485597f1972fa5e2ee115eba03}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aee5eef485597f1972fa5e2ee115eba03}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getCurrentState@{getCurrentState}}
+\index{getCurrentState@{getCurrentState}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getCurrentState()}{getCurrentState()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Current\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get current state. 
+
+Returns the current state of the integrator. \begin{DoxyReturn}{Returns}
+Current integrated state, 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a90b09d8d6a9b07d495bfabe9122748a1}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3fa3d1024583352ad2114c530b628380}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3fa3d1024583352ad2114c530b628380}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getLastDerivative@{getLastDerivative}}
+\index{getLastDerivative@{getLastDerivative}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getLastDerivative()}{getLastDerivative()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Derivative\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Last\+Derivative (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return list derivative . 
+
+Return the last value of the derivative \begin{DoxyReturn}{Returns}
+last derivative value 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a820620b30be66abce998bb9f2f8e172f}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a820620b30be66abce998bb9f2f8e172f}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getMaximumError@{getMaximumError}}
+\index{getMaximumError@{getMaximumError}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getMaximumError()}{getMaximumError()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+double \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Maximum\+Error (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return maximum truncation error. 
+
+Return the truncation error to be estimated by comput\+Error( ). \begin{DoxyReturn}{Returns}
+Double value of the truncation error. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac3f720d587a9278b66a0e5d8a0046677}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac3f720d587a9278b66a0e5d8a0046677}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getNextStepSize@{getNextStepSize}}
+\index{getNextStepSize@{getNextStepSize}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getNextStepSize()}{getNextStepSize()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Next\+Step\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get step size of the next step. 
+
+Returns the step size of the next step. If the perform\+Integration\+Step( step\+Size ) function is used during a variable stepsize scheme, this function can be used to find out which step\+Size was deemed best for the next integration step by the integrator. \begin{DoxyReturn}{Returns}
+Step size to be used for the next step. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_ab8b38ad002b10d53adf7b2c2282a86cc}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1dfbd34c384482550941514c5c8e678f}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1dfbd34c384482550941514c5c8e678f}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getOrder@{getOrder}}
+\index{getOrder@{getOrder}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getOrder()}{getOrder()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+unsigned int \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Order (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get the order of next step. 
+
+Returns the order of the next step \begin{DoxyReturn}{Returns}
+Order of the next step 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aecba907cbdcedd7f639dcc7b32080f59}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aecba907cbdcedd7f639dcc7b32080f59}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getPreviousIndependentVariable@{getPreviousIndependentVariable}}
+\index{getPreviousIndependentVariable@{getPreviousIndependentVariable}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getPreviousIndependentVariable()}{getPreviousIndependentVariable()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Previous\+Independent\+Variable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get previous independent variable. 
+
+Returns the previoius value of the independent variable of the integrator. Derived classes should override this and provide the computed independent variable. If not implemented, throws error. \begin{DoxyReturn}{Returns}
+Previous independent variable. 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a5a1c2e20cb6ca8ddcb51bab3b1c5bc39}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_affcef1fca0cd02fed5e3e2c5c04c1e4c}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_affcef1fca0cd02fed5e3e2c5c04c1e4c}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getPreviousState@{getPreviousState}}
+\index{getPreviousState@{getPreviousState}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getPreviousState()}{getPreviousState()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Previous\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get previous state value. 
+
+Returns the previous value of the state. Derived classes should override this and provide the computed state. If not implemented, throws error. \begin{DoxyReturn}{Returns}
+Previous state 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a83ea0ccadf61e7d630ea692b4f8454a8}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aa0874400d0b41490965c1d6ef4f9b874}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aa0874400d0b41490965c1d6ef4f9b874}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getRelativeError@{getRelativeError}}
+\index{getRelativeError@{getRelativeError}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getRelativeError()}{getRelativeError()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Relative\+Error (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return relative truncation error. 
+
+\begin{DoxyReturn}{Returns}
+Vector of the relative truncation error. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3954d43a66d0ff47431fe7569e780975}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3954d43a66d0ff47431fe7569e780975}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getStepSize@{getStepSize}}
+\index{getStepSize@{getStepSize}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getStepSize()}{getStepSize()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Step\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get step size of the last step. 
+
+Returns the step size of the last step. If the step size is not defined by the user, the step size of last step can be retrieved with this function. \begin{DoxyReturn}{Returns}
+Step size to be used for the last step. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aec342ec556a762808811166b54bd4617}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aec342ec556a762808811166b54bd4617}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!modifyCurrentState@{modifyCurrentState}}
+\index{modifyCurrentState@{modifyCurrentState}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{modifyCurrentState()}{modifyCurrentState()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::modify\+Current\+State (\begin{DoxyParamCaption}\item[{const State\+Type \&}]{new\+State,  }\item[{const bool}]{allow\+Rollback = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Replace the state with a new value. 
+
+Replace the state with a new value. This allows for discrete jumps in the state, often used in simulations of discrete events. In astro, this relates to simulations of rocket staging, impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either set the flag to true, or store the state before calling this function the first time, and call it again with the initial state as parameter to revert to the state before the discrete change. 
+\begin{DoxyParams}{Parameters}
+{\em new\+State} & The value of the new state. \\
+\hline
+{\em allow\+Rollback} & Boolean denoting whether roll-\/back should be allowed. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af4240e8b9d121478769c3c13dbefd0c9}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af4240e8b9d121478769c3c13dbefd0c9}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!performCorrectorStep@{performCorrectorStep}}
+\index{performCorrectorStep@{performCorrectorStep}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{performCorrectorStep()}{performCorrectorStep()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::perform\+Corrector\+Step (\begin{DoxyParamCaption}\item[{State\+Type}]{predicted\+State,  }\item[{unsigned int}]{order,  }\item[{bool}]{double\+Step }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Perform correcter step. 
+
+Using the order and predicted state, find corrected estimate using the Adams-\/\+Moulton corrector 
+\begin{DoxyParams}{Parameters}
+{\em predicted\+State} & by the predictor. \\
+\hline
+{\em order} & of the integration. \\
+\hline
+{\em double\+Step} & boolean if stepsize should be considered double, true for estimating doubling error. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+after corrector step 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!performIntegrationStep@{performIntegrationStep}}
+\index{performIntegrationStep@{performIntegrationStep}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{performIntegrationStep()}{performIntegrationStep()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::perform\+Integration\+Step (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Perform a single integration step. 
+
+Perform a single integration step. The step\+Size as computed by integrator during the last stop. \begin{DoxyReturn}{Returns}
+The state at the end of the interval. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a47e17a813ea5a371338508d329840221}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a47e17a813ea5a371338508d329840221}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!performIntegrationStep@{performIntegrationStep}}
+\index{performIntegrationStep@{performIntegrationStep}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{performIntegrationStep()}{performIntegrationStep()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::perform\+Integration\+Step (\begin{DoxyParamCaption}\item[{const Time\+Step\+Type}]{step\+Size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Perform a single integration step. 
+
+Perform a single integration step. 
+\begin{DoxyParams}{Parameters}
+{\em step\+Size} & The step size to take. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The state at the end of the interval, 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac2be6512a90fc7b6cc07cd6055b0fb68}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac2be6512a90fc7b6cc07cd6055b0fb68}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!performPredictorStep@{performPredictorStep}}
+\index{performPredictorStep@{performPredictorStep}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{performPredictorStep()}{performPredictorStep()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::perform\+Predictor\+Step (\begin{DoxyParamCaption}\item[{unsigned int}]{order,  }\item[{bool}]{double\+Step }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Perform predictor step. 
+
+Using the order find predicted estimate using the Adams-\/\+Bashforth predictor 
+\begin{DoxyParams}{Parameters}
+{\em order} & Order of the integration. \\
+\hline
+{\em double\+Step} & Boolean if stepsize should be considered double, true for estimating doubling error. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+state after predictor step 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aeef8b5bebc52a2067d3582a283e5084b}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aeef8b5bebc52a2067d3582a283e5084b}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!performSingleStep@{performSingleStep}}
+\index{performSingleStep@{performSingleStep}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{performSingleStep()}{performSingleStep()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::perform\+Single\+Step (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Perform integration step. 
+
+Perform integration step using built-\/in Runge-\/\+Kutta fourth order method. Ideally this could be replaced by a pointer to single-\/step method of choice by the user. \begin{DoxyReturn}{Returns}
+new integrated state 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad70afacde7c1898093455e890f14eff2}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad70afacde7c1898093455e890f14eff2}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!rollbackToPreviousState@{rollbackToPreviousState}}
+\index{rollbackToPreviousState@{rollbackToPreviousState}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{rollbackToPreviousState()}{rollbackToPreviousState()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::rollback\+To\+Previous\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Rollback internal state to the last state. 
+
+Performs rollback of internal state to the last state. This function can only be called once after calling \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_aed0dfa86d274bd9e71c2fd6428edfd3e}{integrate\+To( )}} or \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}} unless specified otherwise by implementations, and can not be called before any of these functions have been called. Will return true if the rollback was succesful, and false otherwise. \begin{DoxyReturn}{Returns}
+True if the rollback was successful. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a87d34e8535b55d430a511fb7e345dc2b}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a2f439f15d66e1e02ad53c939985e19bb}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a2f439f15d66e1e02ad53c939985e19bb}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setErrorTolerances@{setErrorTolerances}}
+\index{setErrorTolerances@{setErrorTolerances}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setErrorTolerances()}{setErrorTolerances()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Error\+Tolerances (\begin{DoxyParamCaption}\item[{State\+Type \&}]{absolute\+Error\+Tolerance,  }\item[{State\+Type \&}]{relative\+Error\+Tolerance }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set the minimum and maximum truncation error. 
+
+Change the bounds of the error. 
+\begin{DoxyParams}{Parameters}
+{\em absolute\+Error\+Tolerance} & absolute error tolerance. \\
+\hline
+{\em relative\+Error\+Tolerance} & relative error tolerance. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac1a7a72a6d8cd6c5b0b1306667106f1f}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac1a7a72a6d8cd6c5b0b1306667106f1f}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setFixedOrder@{setFixedOrder}}
+\index{setFixedOrder@{setFixedOrder}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setFixedOrder()}{setFixedOrder()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Fixed\+Order (\begin{DoxyParamCaption}\item[{bool}]{fixed\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+(Un)set fixed order. 
+
+Fixes the order if set to true. 
+\begin{DoxyParams}{Parameters}
+{\em fixed\+Order} & false or true to ( un)set fixed order (default false). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0e277ca791d3dd7bba3daf3dc82c6c6b}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0e277ca791d3dd7bba3daf3dc82c6c6b}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setFixedStepSize@{setFixedStepSize}}
+\index{setFixedStepSize@{setFixedStepSize}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setFixedStepSize()}{setFixedStepSize()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Fixed\+Step\+Size (\begin{DoxyParamCaption}\item[{bool}]{fixed\+Step\+Size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+(Un )set fixed step size. 
+
+Fixes the step if set to true. 
+\begin{DoxyParams}{Parameters}
+{\em fixed\+Step\+Size} & false or true to ( un)set fixed step size (default false). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a863af58a36fe95f6bc1d6521b6e8d596}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a863af58a36fe95f6bc1d6521b6e8d596}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setMaximumOrder@{setMaximumOrder}}
+\index{setMaximumOrder@{setMaximumOrder}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setMaximumOrder()}{setMaximumOrder()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Maximum\+Order (\begin{DoxyParamCaption}\item[{unsigned int}]{maximum\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the maximum order of the integrator. 
+
+Function to reset the maximum order of the integrator 
+\begin{DoxyParams}{Parameters}
+{\em maximum\+Order} & New maximum order of the integrator \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a7405df27a904813fa9a2ef6eed827a79}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a7405df27a904813fa9a2ef6eed827a79}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setMinimumOrder@{setMinimumOrder}}
+\index{setMinimumOrder@{setMinimumOrder}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setMinimumOrder()}{setMinimumOrder()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Minimum\+Order (\begin{DoxyParamCaption}\item[{unsigned int}]{minimum\+Order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the minimum order of the integrator. 
+
+Function to reset the minimum order of the integrator 
+\begin{DoxyParams}{Parameters}
+{\em minimum\+Order} & New minimum order of the integrator \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1e0d84ce8e752881e42cde7290b9f09e}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1e0d84ce8e752881e42cde7290b9f09e}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setOrder@{setOrder}}
+\index{setOrder@{setOrder}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setOrder()}{setOrder()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Order (\begin{DoxyParamCaption}\item[{unsigned int}]{order }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set order. 
+
+Sets the order to specified. 
+\begin{DoxyParams}{Parameters}
+{\em order} & desired. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a82780ed95d797b2456b0e330650c07d1}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a82780ed95d797b2456b0e330650c07d1}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setStepSize@{setStepSize}}
+\index{setStepSize@{setStepSize}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setStepSize()}{setStepSize()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Step\+Size (\begin{DoxyParamCaption}\item[{Independent\+Variable\+Type}]{step\+Size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set step size. 
+
+Set step size, to be used with empty \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}. 
+\begin{DoxyParams}{Parameters}
+{\em step\+Size} & of the new integration step. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aecf7f43fa51ce1e74975f7746eececa4}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aecf7f43fa51ce1e74975f7746eececa4}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setStepSizeBounds@{setStepSizeBounds}}
+\index{setStepSizeBounds@{setStepSizeBounds}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setStepSizeBounds()}{setStepSizeBounds()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Step\+Size\+Bounds (\begin{DoxyParamCaption}\item[{Independent\+Variable\+Type}]{minimum\+Step\+Size,  }\item[{Independent\+Variable\+Type}]{maximum\+Step\+Size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set the minimum and maximum step size. 
+
+Change the bounds of the stepsize. 
+\begin{DoxyParams}{Parameters}
+{\em minimum\+Step\+Size} & minimum stepsize \\
+\hline
+{\em maximum\+Step\+Size} & maximum stepsize \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a66355f96b87ec16052414330942ffc92}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a66355f96b87ec16052414330942ffc92}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!setStrictCompare@{setStrictCompare}}
+\index{setStrictCompare@{setStrictCompare}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{setStrictCompare()}{setStrictCompare()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::set\+Strict\+Compare (\begin{DoxyParamCaption}\item[{bool}]{strict\+Compare }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+(Un)set fixed order. 
+
+For a error vector to be better than another all its elements must be equal or small. Not strict compares the norm of the vectors instead. 
+\begin{DoxyParams}{Parameters}
+{\em strict\+Compare} & false or true to ( un)set strict compare (default true). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0f8c07e48c6a96db82617dfd6dda75b5}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0f8c07e48c6a96db82617dfd6dda75b5}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!absoluteError\_@{absoluteError\_}}
+\index{absoluteError\_@{absoluteError\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{absoluteError\_}{absoluteError\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::absolute\+Error\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Absolute truncation error. 
+
+Truncation error to be estimated by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a36df81b6fa64322e225ac2266445398b}{estimate\+Absolute\+Error( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a828cb09f0e29eacc6fe4b5ce8244b5f3}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a828cb09f0e29eacc6fe4b5ce8244b5f3}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!absoluteErrorTolerance\_@{absoluteErrorTolerance\_}}
+\index{absoluteErrorTolerance\_@{absoluteErrorTolerance\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{absoluteErrorTolerance\_}{absoluteErrorTolerance\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::absolute\+Error\+Tolerance\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Maximum absolute error. 
+
+Parameter that limits the truncation error. Which drives stepsize control. Not initialised, constructor does so. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a50466ff2d5196b45b01846c12b23f9eb}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a50466ff2d5196b45b01846c12b23f9eb}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!bandwidth\_@{bandwidth\_}}
+\index{bandwidth\_@{bandwidth\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{bandwidth\_}{bandwidth\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::bandwidth\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Bandwidth. 
+
+Parameter that increases performance. Which drives stepsize control. Advisable to set at least 200 to prevent flutter. Not initialised, constructor does so. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ab6737fd8f351b8e79752d00eb5776326}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ab6737fd8f351b8e79752d00eb5776326}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!currentIndependentVariable\_@{currentIndependentVariable\_}}
+\index{currentIndependentVariable\_@{currentIndependentVariable\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{currentIndependentVariable\_}{currentIndependentVariable\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::current\+Independent\+Variable\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Current independent variable. 
+
+Current independent variable as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ab081077fe086363dd48a0df8b4b25cc2}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ab081077fe086363dd48a0df8b4b25cc2}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!currentState\_@{currentState\_}}
+\index{currentState\_@{currentState\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{currentState\_}{currentState\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::current\+State\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Current state. 
+
+Current state as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_abbcdabf1906f93f84bf6c4b89de290c5}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_abbcdabf1906f93f84bf6c4b89de290c5}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!derivHistory\_@{derivHistory\_}}
+\index{derivHistory\_@{derivHistory\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{derivHistory\_}{derivHistory\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+std\+::deque$<$State\+Type$>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::deriv\+History\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Derivative history. 
+
+History of derivatives, dynamic deque size depends on order. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aa41f38db835c9d91d7a0f829a27415ea}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aa41f38db835c9d91d7a0f829a27415ea}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!extrapolationCoefficients@{extrapolationCoefficients}}
+\index{extrapolationCoefficients@{extrapolationCoefficients}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{extrapolationCoefficients}{extrapolationCoefficients}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename State\+Type , typename State\+Derivative\+Type , typename Time\+Step\+Type $>$ \\
+const double \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::extrapolation\+Coefficients\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [protected]}}
+
+
+
+Extrapolation coefficients. 
+
+Extrapolation coefficients ( size\+: o $\ast$ 2 X o )
+
+Coefficients of predictor and corrector extrapolation polynomials.
+
+extrapolation\+Coefficients( o $\ast$ 2 -\/ 2, i ) $<$--- predictor coefficients extrapolation\+Coefficients( o $\ast$ 2 -\/ 1, i ) $<$--- corrector coefficients \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a945aa1a98245e2217dcb709e711a747c}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a945aa1a98245e2217dcb709e711a747c}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!fixedOrder\_@{fixedOrder\_}}
+\index{fixedOrder\_@{fixedOrder\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{fixedOrder\_}{fixedOrder\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::fixed\+Order\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Fixed order. 
+
+Fixes to order if set to true, can be manipulated through \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac1a7a72a6d8cd6c5b0b1306667106f1f}{set\+Fixed\+Order( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a66b5435df93ad1b512747fb8998b852d}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a66b5435df93ad1b512747fb8998b852d}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!fixedSingleStep\_@{fixedSingleStep\_}}
+\index{fixedSingleStep\_@{fixedSingleStep\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{fixedSingleStep\_}{fixedSingleStep\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::fixed\+Single\+Step\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Fixed Single Step Integrator. 
+
+Boolean value whether to only take fixed steps with the single-\/step integrator or whether to allow stepsize and error control by the integrator. While filling the first entry of then initial state and derivate history this can help to determine an appropriate step-\/size, but is undesirable for subsequent entries. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aaaff349a22bed98865ef6180d5c9f10e}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aaaff349a22bed98865ef6180d5c9f10e}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!fixedStepSize\_@{fixedStepSize\_}}
+\index{fixedStepSize\_@{fixedStepSize\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{fixedStepSize\_}{fixedStepSize\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::fixed\+Step\+Size\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Fixed step size. 
+
+Fixes to step if set to true, can be manipulated through \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0e277ca791d3dd7bba3daf3dc82c6c6b}{set\+Fixed\+Step\+Size( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad7bd08d17efca31dc328fcf6dbc209f9}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad7bd08d17efca31dc328fcf6dbc209f9}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!interpolationCoefficients@{interpolationCoefficients}}
+\index{interpolationCoefficients@{interpolationCoefficients}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{interpolationCoefficients}{interpolationCoefficients}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename State\+Type , typename State\+Derivative\+Type , typename Time\+Step\+Type $>$ \\
+const double \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::interpolation\+Coefficients\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [protected]}}
+
+
+
+Interpolation coefficients. 
+
+Interpolation coefficients ( size\+: o$^\wedge$2-\/o X 2 $\ast$ o )
+
+Coefficients of state and derivative mid-\/points used during halving.
+
+interpolation\+Coefficients( ( o -\/ 1 )$^\wedge$2 -\/ o + 1 + j, i ) $<$--- state coefficients for state history interpolation\+Coefficients( ( o -\/ 1 )$^\wedge$2 -\/ o + 1 + j, o + i ) $<$--- state coefficients for deriv history interpolation\+Coefficients( ( o -\/ 1 )$^\wedge$2 + j, i ) $<$--- deriv coefficients for state history interpolation\+Coefficients( ( o -\/ 1 )$^\wedge$2 + j, o + i ) $<$--- deriv coefficients for deriv history
+
+Order k occupies \+: registers ( k -\/ 1 )$^\wedge$2 -\/ k + 1 to k$^\wedge$2 -\/ k -\/ 1 \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad0b126488ec19ce54a92a36e89c7ac28}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ad0b126488ec19ce54a92a36e89c7ac28}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!lastDerivative\_@{lastDerivative\_}}
+\index{lastDerivative\_@{lastDerivative\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{lastDerivative\_}{lastDerivative\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Derivative\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::last\+Derivative\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Last state derivative. 
+
+Last state derivative as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6fe035c4e27ba613098b7c3b7adb3046}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a6fe035c4e27ba613098b7c3b7adb3046}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!lastIndependentVariable\_@{lastIndependentVariable\_}}
+\index{lastIndependentVariable\_@{lastIndependentVariable\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{lastIndependentVariable\_}{lastIndependentVariable\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::last\+Independent\+Variable\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Last independent variable. 
+
+Last independent variable value as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1107987e2988f5d3e7f3c36cd60c5607}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1107987e2988f5d3e7f3c36cd60c5607}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!lastState\_@{lastState\_}}
+\index{lastState\_@{lastState\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{lastState\_}{lastState\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::last\+State\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Last state. 
+
+Last state as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a5150022e25c5dd148b64afb20a9798b9}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a5150022e25c5dd148b64afb20a9798b9}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!lastStepSize\_@{lastStepSize\_}}
+\index{lastStepSize\_@{lastStepSize\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{lastStepSize\_}{lastStepSize\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::last\+Step\+Size\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Last step size. 
+
+Last step size as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a5855c6dc5030eb20e84952e5a1fbc99b}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a5855c6dc5030eb20e84952e5a1fbc99b}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!maximumOrder\_@{maximumOrder\_}}
+\index{maximumOrder\_@{maximumOrder\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{maximumOrder\_}{maximumOrder\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+unsigned int \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::maximum\+Order\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Maximum order. 
+
+Maximum order allowed. True maximum is 12, based on predetermined coefficients. However, double precision has shown to be incapable of estimation twelfth-\/order errors. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a8cc931338d0bb6c2da0d63df5334dd73}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a8cc931338d0bb6c2da0d63df5334dd73}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!maximumStepSize\_@{maximumStepSize\_}}
+\index{maximumStepSize\_@{maximumStepSize\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{maximumStepSize\_}{maximumStepSize\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::maximum\+Step\+Size\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Maximum step size. 
+
+Parameter that limits the value of the step size. Not really important, can be set pretty high. Not initialised, constructor does so. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a494b41a39c876a5913282a49201dc54c}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a494b41a39c876a5913282a49201dc54c}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!minimumOrder\_@{minimumOrder\_}}
+\index{minimumOrder\_@{minimumOrder\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{minimumOrder\_}{minimumOrder\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+unsigned int \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::minimum\+Order\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Minimum order. 
+
+Minimum order allowed. True mininum is 1, but very imprecise. Advised to be at least three. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0f786a58d02f716debdb68a3470df91b}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a0f786a58d02f716debdb68a3470df91b}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!minimumStepSize\_@{minimumStepSize\_}}
+\index{minimumStepSize\_@{minimumStepSize\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{minimumStepSize\_}{minimumStepSize\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::minimum\+Step\+Size\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Minimum step size. 
+
+Parameter that limits the value of the step size. Important to have to prevent infinite halving. Not initialised, constructor does so. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac1e0e7b76fa9dea5cc66b3f50a7ebc71}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac1e0e7b76fa9dea5cc66b3f50a7ebc71}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!order\_@{order\_}}
+\index{order\_@{order\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{order\_}{order\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+unsigned int \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::order\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Order. 
+
+Dynamic order. Starts at minimum\+Order\+\_\+ and is changed using order-\/control. Advisable to change for fixth-\/order integration runs. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a4c08c7ec3f241800f9250e6603d5c88b}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a4c08c7ec3f241800f9250e6603d5c88b}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!predictedDerivative\_@{predictedDerivative\_}}
+\index{predictedDerivative\_@{predictedDerivative\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{predictedDerivative\_}{predictedDerivative\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Derivative\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::predicted\+Derivative\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Predicted derivative state. 
+
+Current state as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}, after execution of \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ac2be6512a90fc7b6cc07cd6055b0fb68}{perform\+Predictor\+Step( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a719159e2d2a79b5b137c7b83fa29d34a}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a719159e2d2a79b5b137c7b83fa29d34a}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!relativeError\_@{relativeError\_}}
+\index{relativeError\_@{relativeError\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{relativeError\_}{relativeError\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::relative\+Error\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Relative truncation error. 
+
+Truncation error to be estimated by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_ae9772d4cebe217458dd8652788c8abc0}{estimate\+Relative\+Error( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af684828c5229bbb1f7f5d0e0e9543c58}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af684828c5229bbb1f7f5d0e0e9543c58}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!relativeErrorTolerance\_@{relativeErrorTolerance\_}}
+\index{relativeErrorTolerance\_@{relativeErrorTolerance\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{relativeErrorTolerance\_}{relativeErrorTolerance\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::relative\+Error\+Tolerance\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Maximum relative error. 
+
+Parameter that limits the truncation error. Which drives stepsize control. Not initialised, constructor does so. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1657ceb656ec153ecb4ba691ba80a6f4}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a1657ceb656ec153ecb4ba691ba80a6f4}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!stateHistory\_@{stateHistory\_}}
+\index{stateHistory\_@{stateHistory\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{stateHistory\_}{stateHistory\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+std\+::deque$<$State\+Type$>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::state\+History\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+State history. 
+
+History of states, dynamic deque size depends on order. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aab39ca9aff34603d44b62fbb2da8d20f}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_aab39ca9aff34603d44b62fbb2da8d20f}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!stepSize\_@{stepSize\_}}
+\index{stepSize\_@{stepSize\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{stepSize\_}{stepSize\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::step\+Size\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Last used step size. 
+
+Last used step size, passed to either \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_aed0dfa86d274bd9e71c2fd6428edfd3e}{integrate\+To( )}} or \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3a0a750ed0e607774ee157bbbe29c437}{perform\+Integration\+Step( )}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af1c374535d0f4925b886c9eee2941fea}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_af1c374535d0f4925b886c9eee2941fea}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!strictCompare\_@{strictCompare\_}}
+\index{strictCompare\_@{strictCompare\_}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{strictCompare\_}{strictCompare\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::strict\+Compare\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Strict compare. 
+
+For a error vector to be better than another all its elements must be equal or small. Not strict compares the norm of the vectors instead. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3afcb0d2d1e3e67bfb4ff78328114cb8}\label{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_a3afcb0d2d1e3e67bfb4ff78328114cb8}} 
+\index{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!truncationErrorCoefficients@{truncationErrorCoefficients}}
+\index{truncationErrorCoefficients@{truncationErrorCoefficients}!tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::AdamsBashforthMoultonIntegrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{truncationErrorCoefficients}{truncationErrorCoefficients}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename State\+Type , typename State\+Derivative\+Type , typename Time\+Step\+Type $>$ \\
+const double \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator}{tudat\+::numerical\+\_\+integrators\+::\+Adams\+Bashforth\+Moulton\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::truncation\+Error\+Coefficients\hspace{0.3cm}{\ttfamily [static]}, {\ttfamily [protected]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{    +2.00000000000000000e+00, +6.00000000000000000e+00, +1.00000000000000000e+01, +1.42105263157894743e+01,}
+\DoxyCodeLine{    +1.85925925925925917e+01, +2.31170336037079949e+01, +2.77629090909090905e+01, +3.25146526080169664e+01,}
+\DoxyCodeLine{    +3.73602765314851339e+01, +4.22902727113587602e+01, +4.72969156506348156e+01, +5.23738028029830431e+01}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Numerical Single Step Integrator. 
+
+Truncation error coefficients ( size\+: 1 x o )
+
+Single step integrator to perform intitialization of multi-\/step history. Truncation error coefficients.
+
+Coefficients for estimating the truncation error.
+
+truncation\+Error\+Coefficients( o -\/ 1 ) 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/integrators/adams\+Bashforth\+Moulton\+Integrator.\+h\end{DoxyCompactItemize}

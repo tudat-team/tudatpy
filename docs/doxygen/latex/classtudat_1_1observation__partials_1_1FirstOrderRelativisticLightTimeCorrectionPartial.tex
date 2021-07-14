@@ -1,0 +1,128 @@
+\hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial}{}\doxysection{tudat\+::observation\+\_\+partials\+::First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial Class Reference}
+\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial}\index{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}}
+
+
+Class for computing the partial derivatives of 1st-\/order relativistic light-\/time correction.  
+
+
+
+
+{\ttfamily \#include $<$first\+Order\+Relativistic\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_adb44f91e431496a101aedd32229923c8}{First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1FirstOrderLightTimeCorrectionCalculator}{observation\+\_\+models\+::\+First\+Order\+Light\+Time\+Correction\+Calculator}} $>$ correction\+Calculator)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a86540bc2f1b11f3a2841a3eb7183512f}\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a86540bc2f1b11f3a2841a3eb7183512f}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a86540bc2f1b11f3a2841a3eb7183512f}{$\sim$\+First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a7a759098d3629d8d00a83648d81f9e9a}{Single\+One\+Way\+Range\+Partial\+Return\+Type}} \mbox{\hyperlink{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_ae1ccf57015f4dd985a104cbcb085cc84}{wrt\+Body\+Gravitational\+Parameter}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const int body\+Index)
+\begin{DoxyCompactList}\small\item\em Function to compute partial derivative of 1st order relativistic correction w.\+r.\+t. gravitational parameter. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a7a759098d3629d8d00a83648d81f9e9a}{Single\+One\+Way\+Range\+Partial\+Return\+Type}} \mbox{\hyperlink{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a73cc17da73755b275692bd5d489c1e9f}{wrt\+Ppn\+Parameter\+Gamma}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times)
+\begin{DoxyCompactList}\small\item\em Function to compute partial derivative of 1st order relativistic correction w.\+r.\+t. PPN parameter gamma. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a34195f3ac89c3a421da8f77770e3ebb1}{get\+Perturbing\+Bodies}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the names of bodies causing light-\/time correction. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a55dffcf9a1e622e5cd63e531890bed7e}\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a55dffcf9a1e622e5cd63e531890bed7e}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1FirstOrderLightTimeCorrectionCalculator}{observation\+\_\+models\+::\+First\+Order\+Light\+Time\+Correction\+Calculator}} $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a55dffcf9a1e622e5cd63e531890bed7e}{correction\+Calculator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Object used to compute light-\/time correction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_aed84287395bf5c414d59d086cb9c3ac9}\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_aed84287395bf5c414d59d086cb9c3ac9}} 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_aed84287395bf5c414d59d086cb9c3ac9}{perturbing\+Bodies\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Names of bodies causing light-\/time correction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_afb26a745de0f5de8907c29b225b39f35}\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_afb26a745de0f5de8907c29b225b39f35}} 
+std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_afb26a745de0f5de8907c29b225b39f35}{perturbing\+Body\+Gravitational\+Parameter\+Functions\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Set of functions returning the gravitational parameters of the gravitating bodies. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for computing the partial derivatives of 1st-\/order relativistic light-\/time correction. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_adb44f91e431496a101aedd32229923c8}\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_adb44f91e431496a101aedd32229923c8}} 
+\index{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}!FirstOrderRelativisticLightTimeCorrectionPartial@{FirstOrderRelativisticLightTimeCorrectionPartial}}
+\index{FirstOrderRelativisticLightTimeCorrectionPartial@{FirstOrderRelativisticLightTimeCorrectionPartial}!tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}}
+\doxysubsubsection{\texorpdfstring{FirstOrderRelativisticLightTimeCorrectionPartial()}{FirstOrderRelativisticLightTimeCorrectionPartial()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial\+::\+First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1FirstOrderLightTimeCorrectionCalculator}{observation\+\_\+models\+::\+First\+Order\+Light\+Time\+Correction\+Calculator}} $>$}]{correction\+Calculator }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em correction\+Calculator} & Object used to compute light-\/time correction. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a34195f3ac89c3a421da8f77770e3ebb1}\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a34195f3ac89c3a421da8f77770e3ebb1}} 
+\index{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}!getPerturbingBodies@{getPerturbingBodies}}
+\index{getPerturbingBodies@{getPerturbingBodies}!tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}}
+\doxysubsubsection{\texorpdfstring{getPerturbingBodies()}{getPerturbingBodies()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::string $>$ tudat\+::observation\+\_\+partials\+::\+First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial\+::get\+Perturbing\+Bodies (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to get the names of bodies causing light-\/time correction. 
+
+Function to get the names of bodies causing light-\/time correction. \begin{DoxyReturn}{Returns}
+Names of bodies causing light-\/time correction. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_ae1ccf57015f4dd985a104cbcb085cc84}\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_ae1ccf57015f4dd985a104cbcb085cc84}} 
+\index{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}!wrtBodyGravitationalParameter@{wrtBodyGravitationalParameter}}
+\index{wrtBodyGravitationalParameter@{wrtBodyGravitationalParameter}!tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}}
+\doxysubsubsection{\texorpdfstring{wrtBodyGravitationalParameter()}{wrtBodyGravitationalParameter()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a7a759098d3629d8d00a83648d81f9e9a}{Single\+One\+Way\+Range\+Partial\+Return\+Type}} tudat\+::observation\+\_\+partials\+::\+First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial\+::wrt\+Body\+Gravitational\+Parameter (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const int}]{body\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute partial derivative of 1st order relativistic correction w.\+r.\+t. gravitational parameter. 
+
+Function to compute partial derivative of 1st order relativistic correction w.\+r.\+t. gravitational parameter. 
+\begin{DoxyParams}{Parameters}
+{\em states} & States of link ends for observation for which partial is to be computed \\
+\hline
+{\em times} & Times of link ends for observation for which partial is to be computed \\
+\hline
+{\em body\+Index} & Index of body in correction\+Calculator\+\_\+-\/$>$current\+Ligh\+Time\+Correction\+Components\+\_\+ for which partial is to be computed. NOTE\+: this index must be smaller than the number of bodies perturbing the light-\/time. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial derivative of 1st order relativistic correction w.\+r.\+t. gravitational parameter. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a73cc17da73755b275692bd5d489c1e9f}\label{classtudat_1_1observation__partials_1_1FirstOrderRelativisticLightTimeCorrectionPartial_a73cc17da73755b275692bd5d489c1e9f}} 
+\index{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}!wrtPpnParameterGamma@{wrtPpnParameterGamma}}
+\index{wrtPpnParameterGamma@{wrtPpnParameterGamma}!tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial@{tudat::observation\_partials::FirstOrderRelativisticLightTimeCorrectionPartial}}
+\doxysubsubsection{\texorpdfstring{wrtPpnParameterGamma()}{wrtPpnParameterGamma()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a7a759098d3629d8d00a83648d81f9e9a}{Single\+One\+Way\+Range\+Partial\+Return\+Type}} tudat\+::observation\+\_\+partials\+::\+First\+Order\+Relativistic\+Light\+Time\+Correction\+Partial\+::wrt\+Ppn\+Parameter\+Gamma (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute partial derivative of 1st order relativistic correction w.\+r.\+t. PPN parameter gamma. 
+
+Function to compute partial derivative of 1st order relativistic correction w.\+r.\+t. PPN parameter gamma. 
+\begin{DoxyParams}{Parameters}
+{\em states} & States of link ends for observation for which partial is to be computed \\
+\hline
+{\em times} & Times of link ends for observation for which partial is to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial derivative of 1st order relativistic correction w.\+r.\+t. PPN parameter gamma. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/first\+Order\+Relativistic\+Partial.\+h\end{DoxyCompactItemize}

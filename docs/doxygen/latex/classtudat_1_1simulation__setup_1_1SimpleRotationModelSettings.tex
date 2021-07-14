@@ -1,0 +1,105 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Simple\+Rotation\+Model\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings}\index{tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}}
+
+
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings}{Rotation\+Model\+Settings}} derived class for defining settings of a simple rotational ephemeris.  
+
+
+
+
+{\ttfamily \#include $<$create\+Rotation\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Simple\+Rotation\+Model\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_ac8fb3ae21881c731770b2f8d05bcf597}{Simple\+Rotation\+Model\+Settings}} (const std\+::string \&original\+Frame, const std\+::string \&target\+Frame, const Eigen\+::\+Quaterniond \&initial\+Orientation, const double initial\+Time, const double rotation\+Rate)
+\begin{DoxyCompactList}\small\item\em Constructor,. \end{DoxyCompactList}\item 
+Eigen\+::\+Quaterniond \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a31c5840518e55a6ecee234c3bfd89f8b}{get\+Initial\+Orientation}} ()
+\begin{DoxyCompactList}\small\item\em Function to return rotation from base to target frame at initial\+Time. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a2d1a99e19c5dd5b555a9f40ce0d589a1}{get\+Initial\+Time}} ()
+\begin{DoxyCompactList}\small\item\em Function to return time at which initial\+Orientation represents the instantaneous rotation. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a088dd04ba7de4e857144b8c15c59ba6d}{get\+Rotation\+Rate}} ()
+\begin{DoxyCompactList}\small\item\em Function to return rotation rate of body about its local z-\/axis. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1RotationModelSettings}{Rotation\+Model\+Settings}} derived class for defining settings of a simple rotational ephemeris. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_ac8fb3ae21881c731770b2f8d05bcf597}\label{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_ac8fb3ae21881c731770b2f8d05bcf597}} 
+\index{tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}!SimpleRotationModelSettings@{SimpleRotationModelSettings}}
+\index{SimpleRotationModelSettings@{SimpleRotationModelSettings}!tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{SimpleRotationModelSettings()}{SimpleRotationModelSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Simple\+Rotation\+Model\+Settings\+::\+Simple\+Rotation\+Model\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{original\+Frame,  }\item[{const std\+::string \&}]{target\+Frame,  }\item[{const Eigen\+::\+Quaterniond \&}]{initial\+Orientation,  }\item[{const double}]{initial\+Time,  }\item[{const double}]{rotation\+Rate }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor,. 
+
+Constructor, sets simple rotational ephemeris properties. 
+\begin{DoxyParams}{Parameters}
+{\em original\+Frame} & Base frame of rotation model. \\
+\hline
+{\em target\+Frame} & Target frame of rotation model. \\
+\hline
+{\em initial\+Orientation} & Rotation from base to target frame at initial\+Time. \\
+\hline
+{\em initial\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which initial\+Orientation represents the instantaneous rotation. \\
+\hline
+{\em rotation\+Rate} & Rotation rate of body about its local z-\/axis. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a31c5840518e55a6ecee234c3bfd89f8b}\label{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a31c5840518e55a6ecee234c3bfd89f8b}} 
+\index{tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}!getInitialOrientation@{getInitialOrientation}}
+\index{getInitialOrientation@{getInitialOrientation}!tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{getInitialOrientation()}{getInitialOrientation()}}
+{\footnotesize\ttfamily Eigen\+::\+Quaterniond tudat\+::simulation\+\_\+setup\+::\+Simple\+Rotation\+Model\+Settings\+::get\+Initial\+Orientation (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return rotation from base to target frame at initial\+Time. 
+
+Function to return rotation from base to target frame at initial\+Time. \begin{DoxyReturn}{Returns}
+Rotation from base to target frame at initial\+Time. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a2d1a99e19c5dd5b555a9f40ce0d589a1}\label{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a2d1a99e19c5dd5b555a9f40ce0d589a1}} 
+\index{tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}!getInitialTime@{getInitialTime}}
+\index{getInitialTime@{getInitialTime}!tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{getInitialTime()}{getInitialTime()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Simple\+Rotation\+Model\+Settings\+::get\+Initial\+Time (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return time at which initial\+Orientation represents the instantaneous rotation. 
+
+Function to return time at which initial\+Orientation represents the instantaneous rotation. \begin{DoxyReturn}{Returns}
+\mbox{\hyperlink{classtudat_1_1Time}{Time}} at which initial\+Orientation represents the instantaneous rotation. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a088dd04ba7de4e857144b8c15c59ba6d}\label{classtudat_1_1simulation__setup_1_1SimpleRotationModelSettings_a088dd04ba7de4e857144b8c15c59ba6d}} 
+\index{tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}!getRotationRate@{getRotationRate}}
+\index{getRotationRate@{getRotationRate}!tudat::simulation\_setup::SimpleRotationModelSettings@{tudat::simulation\_setup::SimpleRotationModelSettings}}
+\doxysubsubsection{\texorpdfstring{getRotationRate()}{getRotationRate()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Simple\+Rotation\+Model\+Settings\+::get\+Rotation\+Rate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return rotation rate of body about its local z-\/axis. 
+
+Function to return rotation rate of body about its local z-\/axis. \begin{DoxyReturn}{Returns}
+Rotation rate of body about its local z-\/axis. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Rotation\+Model.\+h\end{DoxyCompactItemize}

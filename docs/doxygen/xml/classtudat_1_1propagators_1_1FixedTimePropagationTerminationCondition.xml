@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::FixedTimePropagationTerminationCondition</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1PropagationTerminationCondition" prot="public" virt="non-virtual">tudat::propagators::PropagationTerminationCondition</basecompoundref>
+    <includes refid="propagationTermination_8h" local="no">propagationTermination.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1a6d6dfd1b8f341546b89d48af4af59d4a" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propagators::FixedTimePropagationTerminationCondition::stopTime_</definition>
+        <argsstring></argsstring>
+        <name>stopTime_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the propagation is to stop. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="145" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1ac0b3012a142c78398cffa793f80495e3" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::propagators::FixedTimePropagationTerminationCondition::propagationDirectionIsPositive_</definition>
+        <argsstring></argsstring>
+        <name>propagationDirectionIsPositive_</name>
+        <briefdescription>
+<para>Boolean denoting whether propagation is forward (if true) or backwards (if false) in time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="150" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1a207a77c1164b46c1b1b6cbe6a10d205b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::FixedTimePropagationTerminationCondition::FixedTimePropagationTerminationCondition</definition>
+        <argsstring>(const double stopTime, const bool propagationDirectionIsPositive, const bool checkTerminationToExactCondition=false)</argsstring>
+        <name>FixedTimePropagationTerminationCondition</name>
+        <param>
+          <type>const double</type>
+          <declname>stopTime</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>propagationDirectionIsPositive</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>checkTerminationToExactCondition</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stopTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the propagation is to stop. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagationDirectionIsPositive</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether propagation is forward (if true) or backwards (if false) in time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>checkTerminationToExactCondition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="115" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="115" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1af4d95c083b96f386774ba43437bacfe5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>bool tudat::propagators::FixedTimePropagationTerminationCondition::checkStopCondition</definition>
+        <argsstring>(const double time, const double cpuTime)</argsstring>
+        <name>checkStopCondition</name>
+        <reimplements refid="classtudat_1_1propagators_1_1PropagationTerminationCondition_1a379032acf2619d19bb774bbd83316f60">checkStopCondition</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>cpuTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to check whether the propagation is to be be stopped. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to check whether the propagation is to be be stopped, i.e. whether the stopTime_ has been reached or not. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time in propagation </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cpuTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current CPU time in propagation </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if propagation is to be stopped, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="130" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/propagation_setup/propagationTermination.cpp" bodystart="20" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1a8eee9271f08896e7445d9245a8185dea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::propagators::FixedTimePropagationTerminationCondition::getStopTime</definition>
+        <argsstring>()</argsstring>
+        <name>getStopTime</name>
+        <briefdescription>
+<para>Function to retrieve time at which the propagation is to stop. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve time at which the propagation is to stop. <simplesect kind="return"><para>Type of termination condition </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="137" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="137" bodyend="140"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for stopping the propagation after a fixed amount of time (i.e. for certain independent variable value) </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationCondition</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationCondition"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::FixedTimePropagationTerminationCondition</label>
+        <link refid="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationCondition</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationCondition"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::FixedTimePropagationTerminationCondition</label>
+        <link refid="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" line="102" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTermination.h" bodystart="103" bodyend="152"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1af4d95c083b96f386774ba43437bacfe5" prot="public" virt="virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>checkStopCondition</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationCondition_1a6bc2ee25c1d715aa17ea2c3fe96515f6" prot="protected" virt="non-virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>checkTerminationToExactCondition_</name></member>
+      <member refid="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1a207a77c1164b46c1b1b6cbe6a10d205b" prot="public" virt="non-virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>FixedTimePropagationTerminationCondition</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationCondition_1af42a3ca2352ee49a6213993619392aaa" prot="public" virt="non-virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>getcheckTerminationToExactCondition</name></member>
+      <member refid="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1a8eee9271f08896e7445d9245a8185dea" prot="public" virt="non-virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>getStopTime</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationCondition_1a1f8921a1494ede54640a5e425496cc88" prot="public" virt="virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>getTerminationType</name></member>
+      <member refid="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1ac0b3012a142c78398cffa793f80495e3" prot="private" virt="non-virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>propagationDirectionIsPositive_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationCondition_1a80a086e0b0837ee869debe7976965b5f" prot="public" virt="non-virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>PropagationTerminationCondition</name></member>
+      <member refid="classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_1a6d6dfd1b8f341546b89d48af4af59d4a" prot="private" virt="non-virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>stopTime_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationCondition_1a7ad5f4b9cd14760784984917042444fd" prot="protected" virt="non-virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>terminationType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationCondition_1aa79a5db982d31bff685322320ff0bbf3" prot="public" virt="virtual"><scope>tudat::propagators::FixedTimePropagationTerminationCondition</scope><name>~PropagationTerminationCondition</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

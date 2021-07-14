@@ -1,0 +1,85 @@
+\hypertarget{classtudat_1_1aerodynamics_1_1CustomWindModel}{}\doxysection{tudat\+::aerodynamics\+::Custom\+Wind\+Model Class Reference}
+\label{classtudat_1_1aerodynamics_1_1CustomWindModel}\index{tudat::aerodynamics::CustomWindModel@{tudat::aerodynamics::CustomWindModel}}
+
+
+Class for computing the wind velocity vector from a custom, user-\/defined function.  
+
+
+
+
+{\ttfamily \#include $<$wind\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::aerodynamics\+::Custom\+Wind\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1aerodynamics_1_1CustomWindModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1CustomWindModel_a0d107abe02e9d20bf1d10b4c37ab3ad1}{Custom\+Wind\+Model}} (const std\+::function$<$ Eigen\+::\+Vector3d(const double, const double, const double, const double) $>$ wind\+Function, const reference\+\_\+frames\+::\+Aerodynamics\+Reference\+Frames associated\+Frame=reference\+\_\+frames\+::vertical\+\_\+frame)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1CustomWindModel_ad0719259cf975bb2df109d16b9d6a10b}\label{classtudat_1_1aerodynamics_1_1CustomWindModel_ad0719259cf975bb2df109d16b9d6a10b}} 
+\mbox{\hyperlink{classtudat_1_1aerodynamics_1_1CustomWindModel_ad0719259cf975bb2df109d16b9d6a10b}{$\sim$\+Custom\+Wind\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1CustomWindModel_a5870dafd30f437f6cb615be5dad34b8d}{get\+Current\+Body\+Fixed\+Cartesian\+Wind\+Velocity}} (const double current\+Altitude, const double current\+Longitude, const double current\+Latitude, const double current\+Time)
+\begin{DoxyCompactList}\small\item\em Function to retrieve wind velocity vector in body-\/fixed, body-\/centered frame of body with atmosphere. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for computing the wind velocity vector from a custom, user-\/defined function. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1CustomWindModel_a0d107abe02e9d20bf1d10b4c37ab3ad1}\label{classtudat_1_1aerodynamics_1_1CustomWindModel_a0d107abe02e9d20bf1d10b4c37ab3ad1}} 
+\index{tudat::aerodynamics::CustomWindModel@{tudat::aerodynamics::CustomWindModel}!CustomWindModel@{CustomWindModel}}
+\index{CustomWindModel@{CustomWindModel}!tudat::aerodynamics::CustomWindModel@{tudat::aerodynamics::CustomWindModel}}
+\doxysubsubsection{\texorpdfstring{CustomWindModel()}{CustomWindModel()}}
+{\footnotesize\ttfamily tudat\+::aerodynamics\+::\+Custom\+Wind\+Model\+::\+Custom\+Wind\+Model (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Vector3d(const double, const double, const double, const double) $>$}]{wind\+Function,  }\item[{const reference\+\_\+frames\+::\+Aerodynamics\+Reference\+Frames}]{associated\+Frame = {\ttfamily reference\+\_\+frames\+:\+:vertical\+\_\+frame} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em wind\+Function} & Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1aerodynamics_1_1CustomWindModel_a5870dafd30f437f6cb615be5dad34b8d}\label{classtudat_1_1aerodynamics_1_1CustomWindModel_a5870dafd30f437f6cb615be5dad34b8d}} 
+\index{tudat::aerodynamics::CustomWindModel@{tudat::aerodynamics::CustomWindModel}!getCurrentBodyFixedCartesianWindVelocity@{getCurrentBodyFixedCartesianWindVelocity}}
+\index{getCurrentBodyFixedCartesianWindVelocity@{getCurrentBodyFixedCartesianWindVelocity}!tudat::aerodynamics::CustomWindModel@{tudat::aerodynamics::CustomWindModel}}
+\doxysubsubsection{\texorpdfstring{getCurrentBodyFixedCartesianWindVelocity()}{getCurrentBodyFixedCartesianWindVelocity()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::aerodynamics\+::\+Custom\+Wind\+Model\+::get\+Current\+Body\+Fixed\+Cartesian\+Wind\+Velocity (\begin{DoxyParamCaption}\item[{const double}]{current\+Altitude,  }\item[{const double}]{current\+Longitude,  }\item[{const double}]{current\+Latitude,  }\item[{const double}]{current\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve wind velocity vector in body-\/fixed, body-\/centered frame of body with atmosphere. 
+
+Function to retrieve wind velocity vector in body-\/fixed, body-\/centered frame of body with atmosphere 
+\begin{DoxyParams}{Parameters}
+{\em current\+Altitude} & Altitude at which wind vector is to be retrieved. \\
+\hline
+{\em current\+Longitude} & Longitude at which wind vector is to be retrieved. \\
+\hline
+{\em current\+Latitude} & Latitude at which wind vector is to be retrieved. \\
+\hline
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which wind vector is to be retrieved. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Wind velocity vector in body-\/fixed, body-\/centered frame of body with atmosphere 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1aerodynamics_1_1WindModel_a28eaa8afbc9550ec3502ce11180f4391}{tudat\+::aerodynamics\+::\+Wind\+Model}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/aerodynamics/wind\+Model.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,2848 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1basic__mathematics" kind="namespace" language="C++">
+    <compoundname>tudat::basic_mathematics</compoundname>
+    <innerclass refid="classtudat_1_1basic__mathematics_1_1BasicFunction" prot="public">tudat::basic_mathematics::BasicFunction</innerclass>
+    <innerclass refid="structtudat_1_1basic__mathematics_1_1ConvergenceException" prot="public">tudat::basic_mathematics::ConvergenceException</innerclass>
+    <innerclass refid="classtudat_1_1basic__mathematics_1_1Function" prot="public">tudat::basic_mathematics::Function</innerclass>
+    <innerclass refid="classtudat_1_1basic__mathematics_1_1FunctionProxy" prot="public">tudat::basic_mathematics::FunctionProxy</innerclass>
+    <innerclass refid="classtudat_1_1basic__mathematics_1_1LegendreCache" prot="public">tudat::basic_mathematics::LegendreCache</innerclass>
+    <innerclass refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache" prot="public">tudat::basic_mathematics::SphericalHarmonicsCache</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="sphericalHarmonics_8h_1ada69ad0a09aa8c4f5142fbd0093f0c76" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SphericalCoordinatesIndices</name>
+        <enumvalue id="sphericalHarmonics_8h_1ada69ad0a09aa8c4f5142fbd0093f0c76a77dd6ec8036c506dc0cf28b37467b709" prot="public">
+          <name>radiusIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="sphericalHarmonics_8h_1ada69ad0a09aa8c4f5142fbd0093f0c76acd7db7cb086ae3b57f0d09df9d0f879a" prot="public">
+          <name>latitudeIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="sphericalHarmonics_8h_1ada69ad0a09aa8c4f5142fbd0093f0c76a4f200336fe63cb321957b75b5d89faee" prot="public">
+          <name>longitudeIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Spherical coordinate indices. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="246" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="246" bodyend="246"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="basicFunction_8h_1a3ff0fa94a91a72005dda375c61279be8" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1BasicFunction" kindref="compound">BasicFunction</ref>&lt; double, double &gt; &gt;</type>
+        <definition>typedef std::shared_ptr&lt; BasicFunction&lt; double, double &gt; &gt; tudat::basic_mathematics::BasicFunctionPointer</definition>
+        <argsstring></argsstring>
+        <name>BasicFunctionPointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="135" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="basicMathematicsFunctions_8h_1aa54a4f9d29647e49d4895f78f82e2999" prot="public" static="no">
+        <type>boost::mt19937</type>
+        <definition>typedef boost::mt19937 tudat::basic_mathematics::GlobalRandomNumberGeneratorType</definition>
+        <argsstring></argsstring>
+        <name>GlobalRandomNumberGeneratorType</name>
+        <briefdescription>
+<para>Random number generator typedef. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Random number generator typedef. This can be modified to any other Boost random number generator type (<ulink url="http://www.boost.org/doc/libs/1_47_0/doc/html/boost_random/reference.html">http://www.boost.org/doc/libs/1_47_0/doc/html/boost_random/reference.html</ulink>). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" line="35" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="function_8h_1aac414e3c49b2a1edef8d79cec1d5f0bf" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref>&lt; &gt; &gt;</type>
+        <definition>typedef std::shared_ptr&lt; Function&lt; &gt; &gt; tudat::basic_mathematics::FunctionPointer</definition>
+        <argsstring></argsstring>
+        <name>FunctionPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> object with IndependentVariable=double, DependentVariable=double. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" line="80" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/function.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="functionProxy_8h_1aa6be883dcda552bd4ff86bdf3aba2e25" prot="public" static="no">
+        <type><ref refid="classtudat_1_1basic__mathematics_1_1FunctionProxy" kindref="compound">FunctionProxy</ref>&lt; double, double &gt;</type>
+        <definition>typedef FunctionProxy&lt; double, double &gt; tudat::basic_mathematics::UnivariateProxy</definition>
+        <argsstring></argsstring>
+        <name>UnivariateProxy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" line="143" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="functionProxy_8h_1acf2020c50d6ba1bb16635a7e8274ca56" prot="public" static="no">
+        <type><ref refid="classtudat_1_1basic__mathematics_1_1FunctionProxy_1a8b0f5a82d2a78f050900dd7660d46f95" kindref="member">UnivariateProxy::FunctionSignature</ref></type>
+        <definition>typedef UnivariateProxy::FunctionSignature tudat::basic_mathematics::UnivariateSignature</definition>
+        <argsstring></argsstring>
+        <name>UnivariateSignature</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" line="144" column="44" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="functionProxy_8h_1ae8b6fa42aeadab34835c1b139d22d274" prot="public" static="no">
+        <type><ref refid="classtudat_1_1basic__mathematics_1_1FunctionProxy_1afe0f0f06e605b773c066f5b56c15678b" kindref="member">UnivariateProxy::FunctionProxyPointer</ref></type>
+        <definition>typedef UnivariateProxy::FunctionProxyPointer tudat::basic_mathematics::UnivariateProxyPointer</definition>
+        <argsstring></argsstring>
+        <name>UnivariateProxyPointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" line="145" column="47" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="legendrePolynomials_8h_1a514fd17ae4b3bc45191ece95ca3d8b15" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classtudat_1_1basic__mathematics_1_1LegendreCache_1a2082994daad91c11ed18595f0f734087" kindref="member">LegendreCache::LegendrePolynomialFunction</ref></type>
+        <definition>const LegendreCache::LegendrePolynomialFunction tudat::basic_mathematics::geodesyNormalizedLegendrePolynomialFunction</definition>
+        <argsstring></argsstring>
+        <name>geodesyNormalizedLegendrePolynomialFunction</name>
+        <initializer>=
+        std::bind( &amp;computeGeodesyLegendrePolynomialFromCache, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 )</initializer>
+        <briefdescription>
+<para>Predefine boost function for geodesy-normalized Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" line="623" column="56" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" bodystart="623" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="legendrePolynomials_8h_1a8bbcf01f29c18b310ddeadaaef054859" prot="public" static="no" mutable="no">
+        <type>const <ref refid="classtudat_1_1basic__mathematics_1_1LegendreCache_1a2082994daad91c11ed18595f0f734087" kindref="member">LegendreCache::LegendrePolynomialFunction</ref></type>
+        <definition>const LegendreCache::LegendrePolynomialFunction tudat::basic_mathematics::regularLegendrePolynomialFunction</definition>
+        <argsstring></argsstring>
+        <name>regularLegendrePolynomialFunction</name>
+        <initializer>=
+        std::bind( &amp;computeLegendrePolynomialFromCache, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 )</initializer>
+        <briefdescription>
+<para>Predefine boost function for unnormalized Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" line="639" column="49" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" bodystart="639" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="basicMathematicsFunctions_8h_1a5d8648bd5055681518d25e25d50db424" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>GlobalRandomNumberGeneratorType &amp;</type>
+        <definition>GlobalRandomNumberGeneratorType &amp; tudat::basic_mathematics::getGlobalRandomNumberGenerator</definition>
+        <argsstring>()</argsstring>
+        <name>getGlobalRandomNumberGenerator</name>
+        <briefdescription>
+<para>Get global random number generator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns global random number generator. The default seed is set to the current time. <simplesect kind="return"><para>Global random number generator. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/basicMathematicsFunctions.cpp" line="23" column="33" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/basicMathematicsFunctions.cpp" bodystart="23" bodyend="28" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" declline="42" declcolumn="33"/>
+      </memberdef>
+      <memberdef kind="function" id="basicMathematicsFunctions_8h_1a3c396ee27cf7e4f0562296ebba9526f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>ScalarType</type>
+        <definition>ScalarType tudat::basic_mathematics::computeModulo</definition>
+        <argsstring>(const ScalarType dividend, const ScalarType divisor)</argsstring>
+        <name>computeModulo</name>
+        <param>
+          <type>const ScalarType</type>
+          <declname>dividend</declname>
+        </param>
+        <param>
+          <type>const ScalarType</type>
+          <declname>divisor</declname>
+        </param>
+        <briefdescription>
+<para>Compute modulo of floating-point number (default double). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the remainder of division of one floating-point number by another. The modulo computation is based on the mathematical definition of congruence, which is different from the implementation of std::fmod() in the cmath standard library. For a description of congruence see: <ulink url="http://mathworld.wolfram.com/Congruence.html">http://mathworld.wolfram.com/Congruence.html</ulink>. The remainder is in the range [ 0, divisor ). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dividend</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number to be divided. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>divisor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number that is divided by. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Remainder of division of dividend by divisor. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" line="56" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" bodystart="56" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="basicMathematicsFunctions_8h_1a1f7c9774b7cf65db6bd67a8a4dcc18a9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::basic_mathematics::computeModuloAndRemainder</definition>
+        <argsstring>(const ScalarType dividend, const ScalarType divisor, ScalarType &amp;moduloValue, int &amp;numberOfDivisors)</argsstring>
+        <name>computeModuloAndRemainder</name>
+        <param>
+          <type>const ScalarType</type>
+          <declname>dividend</declname>
+        </param>
+        <param>
+          <type>const ScalarType</type>
+          <declname>divisor</declname>
+        </param>
+        <param>
+          <type>ScalarType &amp;</type>
+          <declname>moduloValue</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>numberOfDivisors</declname>
+        </param>
+        <briefdescription>
+<para>Compute modulo of floating-point number (default double). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the remainder of division of one floating-point number by another. The modulo computation is based on the mathematical definition of congruence, which is different from the implementation of std::fmod() in the cmath standard library. For a description of congruence see: <ulink url="http://mathworld.wolfram.com/Congruence.html">http://mathworld.wolfram.com/Congruence.html</ulink>. The remainder is in the range [ 0, divisor ). This function also returns (by reference) the number of times divisor goes into dividend, i.e. the division from which the moduloValue is the remainder. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dividend</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number to be divided. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>divisor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number that is divided by. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>moduloValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Remainder of division of dividend by divisor (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfDivisors</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of times divisor goes into dividend (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" line="75" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" bodystart="75" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="basicMathematicsFunctions_8h_1adebdb5a53e6f007bcab0900631a06f5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>ScalarType</type>
+        <definition>ScalarType tudat::basic_mathematics::raiseToIntegerPower</definition>
+        <argsstring>(const ScalarType baseValue, const int integerPower)</argsstring>
+        <name>raiseToIntegerPower</name>
+        <param>
+          <type>const ScalarType</type>
+          <declname>baseValue</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>integerPower</declname>
+        </param>
+        <briefdescription>
+<para>Raise floating point variable to integer power. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" line="85" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicMathematicsFunctions.h" bodystart="85" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="functionProxy_8h_1ada554bde7147752798a94b8744c746ba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>UnivariateProxyPointer</type>
+        <definition>UnivariateProxyPointer tudat::basic_mathematics::univariateProxy</definition>
+        <argsstring>(UnivariateSignature function)</argsstring>
+        <name>univariateProxy</name>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function</declname>
+        </param>
+        <briefdescription>
+<para>Factory for creating a UnivariateProxyPointer from a C++ function UnivariateSignature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>function</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>C++ function representing the mathematical function. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" line="151" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" bodystart="151" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="functionProxy_8h_1ae1e8eebb5776ebb6ed7071eff91548d0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>UnivariateProxyPointer</type>
+        <definition>UnivariateProxyPointer tudat::basic_mathematics::univariateProxy</definition>
+        <argsstring>(UnivariateSignature function, const int order1, UnivariateSignature function1)</argsstring>
+        <name>univariateProxy</name>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order1</declname>
+        </param>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Factory for creating a UnivaritateProxyPtr from a C++ function UnivariateSignature, with one additional binding.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>function</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>C++ function representing the mathematical function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the additional derivative or integral function, i.e. order of function1. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>function1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Additional derivative or integral representation to bind. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" line="165" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" bodystart="165" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="functionProxy_8h_1adec64b8b93bc615097ef3eacdf0c9988" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>UnivariateProxyPointer</type>
+        <definition>UnivariateProxyPointer tudat::basic_mathematics::univariateProxy</definition>
+        <argsstring>(UnivariateSignature function, const int order1, UnivariateSignature function1, const int order2, UnivariateSignature function2)</argsstring>
+        <name>univariateProxy</name>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order1</declname>
+        </param>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function1</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order2</declname>
+        </param>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Factory for creating a UnivariateProxyPointer from a C++ function UnivariateSignature, with two additional binding.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>function</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>C++ function representing the mathematical function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the first additional derivative or integral function, i.e. order of function1. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>function1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First additional derivative or integral representation to bind. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the second additional derivative or integral function, i.e. order of function2. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>function2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second additional derivative or integral representation to bind. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" line="189" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" bodystart="189" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="functionProxy_8h_1a5d43423e3ff4de866364b173f0a7b000" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>UnivariateProxyPointer</type>
+        <definition>UnivariateProxyPointer tudat::basic_mathematics::univariateProxy</definition>
+        <argsstring>(UnivariateSignature function, const int order1, UnivariateSignature function1, const int order2, UnivariateSignature function2, const int order3, UnivariateSignature function3)</argsstring>
+        <name>univariateProxy</name>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order1</declname>
+        </param>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function1</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order2</declname>
+        </param>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function2</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order3</declname>
+        </param>
+        <param>
+          <type>UnivariateSignature</type>
+          <declname>function3</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Factory for creating a UnivariateProxyPointer from a C++ function UnivariateSignature, with three additional binding.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>function</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>C++ function representing the mathematical function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the first additional derivative or integral function, i.e. order of function1. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>function1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First additional derivative or integral representation to bind. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the second additional derivative or integral function, i.e. order of function2. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>function2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second additional derivative or integral representation to bind. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the third additional derivative or integral function, i.e. order of function3. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>function3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Third additional derivative or integral representation to bind. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" line="218" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/functionProxy.h" bodystart="218" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a425517e4019a24999ca565085604a6c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeLegendrePolynomialFromCache</definition>
+        <argsstring>(const int degree, const int order, LegendreCache &amp;legendreCache)</argsstring>
+        <name>computeLegendrePolynomialFromCache</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1basic__mathematics_1_1LegendreCache" kindref="compound">LegendreCache</ref> &amp;</type>
+          <declname>legendreCache</declname>
+        </param>
+        <briefdescription>
+<para>Compute unnormalized associated Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns an unnormalized associated Legendre polynomial <formula id="125">$ P _{ n, m }( u ) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula>. <formula id="125">$ P _{ n, m }( u ) $</formula> obeys the definition given by Vallado [2001]: <formula id="127">\[ P _{ n, m } ( u ) = ( 1 - u ^ 2 ) ^ { m / 2 } \frac{ d ^ m }{ du ^ m } \left[ P_n ( u ) \right] \textrm{ for }n \geq 0, 0 \leq m \leq n \]</formula> in which <formula id="128">$ P_{ n, m }( u ) $</formula> is the ordinary Legendre polynomial with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula>.</para>
+<para>For <formula id="129">$ n \geq 0, m \geq n $</formula> the <formula id="125">$ P _{ n, m }( u ) $</formula> has been defined here as follows: <formula id="130">\[ P _{ n, m } ( u ) = 0 \textrm{ for }n \geq 0, m \geq n \]</formula></para>
+<para>This function has been optimized for repeated calls with varying &apos;degree&apos; and &apos;order&apos; arguments (but with identical &apos;polynomialParameter&apos; argument). To this end the function maintains a back-end cache with intermediate results which is automatically carried over between calls. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendreCache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Legendre cache from which to retrieve Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unnormalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="312" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="312" bodyend="381" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="267" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a410e8dd4001c35b34fb1505f78b6fda6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeLegendrePolynomial</definition>
+        <argsstring>(const int degree, const int order, const double legendreParameter)</argsstring>
+        <name>computeLegendrePolynomial</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>legendreParameter</declname>
+        </param>
+        <briefdescription>
+<para>Compute unnormalized associated Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns an unnormalized associated Legendre polynomial <formula id="125">$ P _{ n, m }( u ) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula>. <formula id="125">$ P _{ n, m }( u ) $</formula> obeys the definition given by Vallado [2001]: <formula id="127">\[ P _{ n, m } ( u ) = ( 1 - u ^ 2 ) ^ { m / 2 } \frac{ d ^ m }{ du ^ m } \left[ P_n ( u ) \right] \textrm{ for }n \geq 0, 0 \leq m \leq n \]</formula> in which <formula id="128">$ P_{ n, m }( u ) $</formula> is the ordinary Legendre polynomial with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula>.</para>
+<para>For <formula id="129">$ n \geq 0, m \geq n $</formula> the <formula id="125">$ P _{ n, m }( u ) $</formula> has been defined here as follows: <formula id="130">\[ P _{ n, m } ( u ) = 0 \textrm{ for }n \geq 0, m \geq n \]</formula></para>
+<para>This function has been optimized for repeated calls with varying &apos;degree&apos; and &apos;order&apos; arguments (but with identical &apos;polynomialParameter&apos; argument). To this end the function maintains a back-end cache with intermediate results which is automatically carried over between calls. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendreParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unnormalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="384" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="384" bodyend="391" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="298" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a16c6b72f4a30ea76e48b11f72e3f7f6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeGeodesyLegendrePolynomialFromCache</definition>
+        <argsstring>(const int degree, const int order, LegendreCache &amp;geodesyLegendreCache)</argsstring>
+        <name>computeGeodesyLegendrePolynomialFromCache</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1basic__mathematics_1_1LegendreCache" kindref="compound">LegendreCache</ref> &amp;</type>
+          <declname>geodesyLegendreCache</declname>
+        </param>
+        <briefdescription>
+<para>Compute geodesy-normalized associated Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns a normalized associated Legendre polynomial <formula id="131">$ \bar{ P }_{ n, m }( u ) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula>. The normalization obeys the definition: <formula id="132">\[ \bar{ P }_{ n, m } ( u ) = \Pi_{ n, m } P_{ n, m } ( u ) \]</formula> in which <formula id="62">$ \Pi_{ n, m } $</formula> is the normalization factor which is commonly used in geodesy and is given by Heiskanen &amp; Moritz [1967] as: <formula id="133">\[ \Pi_{ n, m } = \sqrt{ \frac{ ( 2 - \delta_{ 0, m } ) ( 2 n + 1 ) ( n - m )! } { ( n + m )! } } \]</formula> in which <formula id="12">$ n $</formula> is the degree, <formula id="59">$ m $</formula> is the order and <formula id="64">$ \delta_{ 0, m } $</formula> is the Kronecker delta.</para>
+<para><formula id="125">$ P _{ n, m }( u ) $</formula> obeys the definition given by Vallado [2001]: <formula id="134">\[ P _{ n, m } ( u ) = ( 1 - u ^ 2 ) ^ { m / 2 } \frac{ d ^ m }{ du ^ m } \left[ P_n ( u ) \right] \]</formula> in which <formula id="128">$ P_{ n, m }( u ) $</formula> is the ordinary Legendre polynomial with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula>.</para>
+<para>For <formula id="129">$ n \geq 0, m \geq n $</formula> the <formula id="125">$ P _{ n, m }( u ) $</formula> has been defined here as follows: <formula id="130">\[ P _{ n, m } ( u ) = 0 \textrm{ for }n \geq 0, m \geq n \]</formula></para>
+<para>This function has been optimized for repeated calls with varying &apos;degree&apos; and &apos;order&apos; arguments (but with identical &apos;polynomialParameter&apos; argument). To this end the function maintains a back-end cache with intermediate results which is automatically carried over between calls. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>geodesyLegendreCache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Legendre cache from which to retrieve Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodesy-normalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="395" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="395" bodyend="465" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="342" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1aad517ca542d264b6a7d33abbf027798e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeGeodesyLegendrePolynomial</definition>
+        <argsstring>(const int degree, const int order, const double legendreParameter)</argsstring>
+        <name>computeGeodesyLegendrePolynomial</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>legendreParameter</declname>
+        </param>
+        <briefdescription>
+<para>Compute geodesy-normalized associated Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns a normalized associated Legendre polynomial <formula id="131">$ \bar{ P }_{ n, m }( u ) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula>. The normalization obeys the definition: <formula id="132">\[ \bar{ P }_{ n, m } ( u ) = \Pi_{ n, m } P_{ n, m } ( u ) \]</formula> in which <formula id="62">$ \Pi_{ n, m } $</formula> is the normalization factor which is commonly used in geodesy and is given by Heiskanen &amp; Moritz [1967] as: <formula id="133">\[ \Pi_{ n, m } = \sqrt{ \frac{ ( 2 - \delta_{ 0, m } ) ( 2 n + 1 ) ( n - m )! } { ( n + m )! } } \]</formula> in which <formula id="12">$ n $</formula> is the degree, <formula id="59">$ m $</formula> is the order and <formula id="64">$ \delta_{ 0, m } $</formula> is the Kronecker delta.</para>
+<para><formula id="125">$ P _{ n, m }( u ) $</formula> obeys the definition given by Vallado [2001]: <formula id="134">\[ P _{ n, m } ( u ) = ( 1 - u ^ 2 ) ^ { m / 2 } \frac{ d ^ m }{ du ^ m } \left[ P_n ( u ) \right] \]</formula> in which <formula id="128">$ P_{ n, m }( u ) $</formula> is the ordinary Legendre polynomial with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula>.</para>
+<para>For <formula id="129">$ n \geq 0, m \geq n $</formula> the <formula id="125">$ P _{ n, m }( u ) $</formula> has been defined here as follows: <formula id="130">\[ P _{ n, m } ( u ) = 0 \textrm{ for }n \geq 0, m \geq n \]</formula></para>
+<para>This function has been optimized for repeated calls with varying &apos;degree&apos; and &apos;order&apos; arguments (but with identical &apos;polynomialParameter&apos; argument). To this end the function maintains a back-end cache with intermediate results which is automatically carried over between calls. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendreParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodesy-normalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="468" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="468" bodyend="475" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="385" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a28f9ea0c3e6f1c496774db4168111613" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeLegendrePolynomialDerivative</definition>
+        <argsstring>(const int order, const double polynomialParameter, const double currentLegendrePolynomial, const double incrementedLegendrePolynomial)</argsstring>
+        <name>computeLegendrePolynomialDerivative</name>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentLegendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>incrementedLegendrePolynomial</declname>
+        </param>
+        <briefdescription>
+<para>Compute derivative of unnormalized Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The derivative is computed as: <formula id="135">\[ \frac{ \mathrm{ d } P_{ n, m } ( u ) }{ \mathrm{ d } u } = \frac{ \sqrt{ 1 - u ^ 2 } P_{ n, m + 1 }( u ) - m u P_{ n, m }( u ) }{ 1 - u ^ 2 } \]</formula> in which <formula id="12">$ n $</formula> is the degree, <formula id="59">$ m $</formula> is the order, <formula id="126">$ u $</formula> is the polynomial parameter, <formula id="136">$ P_{ n, m } ( u ) $</formula> is an associated Legendre polynomial, and <formula id="137">$ P_{ n, m + 1 } ( u ) $</formula> is an associated Legendre polynomial. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLegendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unnormalized Legendre polynomial with the same degree, order and polynomial parameter as the requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>incrementedLegendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unnormalized Legendre polynomial with the same degree and polynomial parameter as the requested Legendre polynomial derivative, but with an order of one more. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unnormalized Legendre polynomial derivative with respect to the polynomial parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="478" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="478" bodyend="489" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="408" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1ab192c93cfab1232132719a683d6ae688" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeGeodesyLegendrePolynomialDerivative</definition>
+        <argsstring>(const int degree, const int order, const double polynomialParameter, const double currentLegendrePolynomial, const double incrementedLegendrePolynomial, const double normalizationCorrection)</argsstring>
+        <name>computeGeodesyLegendrePolynomialDerivative</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentLegendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>incrementedLegendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>normalizationCorrection</declname>
+        </param>
+        <briefdescription>
+<para>Compute derivative of geodesy-normalized associated Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute derivative of geodesy-normalized Legendre polynomial.</para>
+<para>Compute derivative of geodesy-normalized associated Legendre polynomial. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLegendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same degree, order and polynomial parameter as the requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>incrementedLegendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same degree and polynomial parameter as the requested Legendre polynomial derivative, but with an order of one more. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalizationCorrection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pre-computed scaling term used for part of computations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="492" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="492" bodyend="505" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="427" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a85094d571a57ad3ad94173224aa33b55" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeGeodesyLegendrePolynomialDerivative</definition>
+        <argsstring>(const int degree, const int order, const double polynomialParameter, const double currentLegendrePolynomial, const double incrementedLegendrePolynomial)</argsstring>
+        <name>computeGeodesyLegendrePolynomialDerivative</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentLegendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>incrementedLegendrePolynomial</declname>
+        </param>
+        <briefdescription>
+<para>Compute derivative of geodesy-normalized Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The derivative is computed as: <formula id="138">\[ \frac{ \mathrm{ d } \bar{ P }_{ n, m } ( u ) }{ \mathrm{ d } u } = \sqrt{ \frac{ ( n + m + 1 )( n - m ) }{ ( 1 + \delta_{ 0, m } ) ( 1 - u^2 ) } } \bar{ P }_{ n, m + 1 } - \frac{ m u }{ 1 - u^2 } \bar{ P }_{ n, m } \]</formula> in which <formula id="12">$ n $</formula> is the degree, <formula id="59">$ m $</formula> is the order, <formula id="126">$ u $</formula> is the polynomial parameter, <formula id="64">$ \delta_{ 0, m } $</formula> is the Kronecker delta, <formula id="136">$ P_{ n, m } ( u ) $</formula> is an associated Legendre polynomial, and <formula id="137">$ P_{ n, m + 1 } ( u ) $</formula> is an associated Legendre polynomial. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLegendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same degree, order and polynomial parameter as the requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>incrementedLegendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same degree and polynomial parameter as the requested Legendre polynomial derivative, but with an order of one more. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="508" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="508" bodyend="529" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="456" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a0bdf97455465f9cbf9fdc348c7969f49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeGeodesyLegendrePolynomialSecondDerivative</definition>
+        <argsstring>(const int degree, const int order, const double polynomialParameter, const double currentLegendrePolynomial, const double incrementedLegendrePolynomial, const double currentLegendrePolynomialDerivative, const double incrementedLegendrePolynomialDerivative, const double normalizationCorrection)</argsstring>
+        <name>computeGeodesyLegendrePolynomialSecondDerivative</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentLegendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>incrementedLegendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentLegendrePolynomialDerivative</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>incrementedLegendrePolynomialDerivative</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>normalizationCorrection</declname>
+        </param>
+        <briefdescription>
+<para>Compute second derivative of geodesy-normalized associated Legendre polynomial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute second derivative of geodesy-normalized associated Legendre polynomial. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLegendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same degree, order and polynomial parameter as the requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>incrementedLegendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same degree and polynomial parameter as the requested Legendre polynomial derivative, but with an order of one more. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLegendrePolynomialDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized derivative of Legendre polynomial with the same degree, order and polynomial parameter as the requested Legendre polynomial derivative. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>incrementedLegendrePolynomialDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized derivative of Legendre polynomial with the same degree and polynomial parameter as the requested Legendre polynomial derivative, but with an order of one more. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalizationCorrection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pre-computed scaling term used for part of computations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="532" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="532" bodyend="550" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="481" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a42836ef41e0dd05b2a7f6d9796223a1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeLegendrePolynomialExplicit</definition>
+        <argsstring>(const int degree, const int order, const double polynomialParameter)</argsstring>
+        <name>computeLegendrePolynomialExplicit</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <briefdescription>
+<para>Compute low degree/order unnormalized Legendre polynomial explicitly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The associated Legendre polynomial <formula id="139">$ P_{ n, m }(u) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula> is calculated using explicit formulas given by Eberly [2008]: <formula id="140">\begin{eqnarray*} P_{ 0, 0 }( u ) = 1 \\ P_{ 1, 0 }( u ) = u \\ P_{ 1, 1 }( u ) = \sqrt{ 1 - u^2 } \end{eqnarray*}</formula> Calculation up to <formula id="141">$ n = 1 $</formula> and <formula id="142">$ m = 1 $</formula> is supported by this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unnormalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="554" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="554" bodyend="672" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="506" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1ae2f3dbf703116044abad0da08ca7a870" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeGeodesyLegendrePolynomialExplicit</definition>
+        <argsstring>(const int degree, const int order, const double polynomialParameter)</argsstring>
+        <name>computeGeodesyLegendrePolynomialExplicit</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <briefdescription>
+<para>Compute low degree/order geodesy-normalized Legendre polynomial explicitly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute low degree/order geodesy-normalized Legendre polynomials explicitly.</para>
+<para>The normalized associated Legendre polynomial <formula id="143">$ \bar{ P }_{ n, m }(u) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula> is calculated using explicit formulas: <formula id="144">\begin{eqnarray*} \bar{ P }_{ 0, 0 }( u ) = 1 \\ \bar{ P }_{ 1, 0 }( u ) = \sqrt{ 3 } u \\ \bar{ P }_{ 1, 1 }( u ) = \sqrt{ 3 - 3 u^2 } \end{eqnarray*}</formula> Calculation up to <formula id="141">$ n = 1 $</formula> and <formula id="142">$ m = 1 $</formula> is supported by this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodesy-normalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="675" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="675" bodyend="708" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="526" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a043b86135da3bd5ce68bbd5d3500f4d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeLegendrePolynomialDiagonal</definition>
+        <argsstring>(const int degree, const double degreeOneOrderOnePolynomial, const double priorSectoralPolynomial)</argsstring>
+        <name>computeLegendrePolynomialDiagonal</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>degreeOneOrderOnePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>priorSectoralPolynomial</declname>
+        </param>
+        <briefdescription>
+<para>Compute unnormalized Legendre polynomial through sectoral recursion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The associated Legendre polynomial <formula id="128">$ P_{ n, m }( u ) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula> is calculated through degree recursion as given by Vallado [2001]: <formula id="145">\[ P_{ n, m }( u ) = ( 2 n - 1 ) P_{ 1, 1 }( u ) P_{ n - 1, m - 1 }( u ) \]</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degreeOneOrderOnePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unnormalized Legendre polynomial with the same polynomial parameter as the requested Legendre polynomial, but with a degree and order of one. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>priorSectoralPolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unnormalized Legendre polynomial with the same polynomial parameter as the requested Legendre polynomial, but with a degree and order of one less. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unnormalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="711" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="711" bodyend="719" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="546" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a9c8db058213b11d973862d8d6c2841a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeGeodesyLegendrePolynomialDiagonal</definition>
+        <argsstring>(const int degree, const double degreeOneOrderOnePolynomial, const double priorSectoralPolynomial)</argsstring>
+        <name>computeGeodesyLegendrePolynomialDiagonal</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>degreeOneOrderOnePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>priorSectoralPolynomial</declname>
+        </param>
+        <briefdescription>
+<para>Compute geodesy-normalized Legendre polynomial through sectoral recursion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The associated Legendre polynomial <formula id="128">$ P_{ n, m }( u ) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula> is calculated through degree recursion as given by Holmes &amp; Featherstone [2002]: <formula id="146">\[ \bar{ P }_{ n, m }( u ) = \sqrt{ \frac{ 2 n - 1 }{ 6 n } } \bar{ P }_{ 1, 1 }( u ) \bar{ P }_{ n - 1, m - 1 }( u ) \]</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degreeOneOrderOnePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unnormalized Legendre polynomial with the same polynomial parameter as the requested Legendre polynomial, but with a degree and order of one. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>priorSectoralPolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Legendre polynomial with the same polynomial parameter as the requested Legendre polynomial, but with a degree and order of one less. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodesy-normalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="722" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="722" bodyend="730" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="566" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a6fce33bb9876f706aae0674b399d41ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeLegendrePolynomialVertical</definition>
+        <argsstring>(const int degree, const int order, const double polynomialParameter, const double oneDegreePriorPolynomial, const double twoDegreesPriorPolynomial)</argsstring>
+        <name>computeLegendrePolynomialVertical</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>oneDegreePriorPolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>twoDegreesPriorPolynomial</declname>
+        </param>
+        <briefdescription>
+<para>Compute unnormalized Legendre polynomial through degree recursion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The associated Legendre polynomial <formula id="128">$ P_{ n, m }( u ) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula> is calculated through degree recursion as given by Weisstein [2012]: <formula id="147">\[ P_{ n, m }( u ) = \frac{ ( 2 n - 1 ) u P_{ n - 1, m }( u ) - ( n + m - 1 ) P_{ n - 2, m }( u ) }{ n - m } \]</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>oneDegreePriorPolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unnormalized Legendre polynomial with the same order and polynomial parameter as the requested Legendre polynomial, but with a degree of one less. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>twoDegreesPriorPolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same order and polynomial parameter as the requested Legendre polynomial, but with a degree of two less. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unnormalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="733" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="733" bodyend="743" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="590" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a9d3ab08d7ccfd21e8ca3cc0b92587b59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::computeGeodesyLegendrePolynomialVertical</definition>
+        <argsstring>(const int degree, const int order, const double polynomialParameter, const double oneDegreePriorPolynomial, const double twoDegreesPriorPolynomial)</argsstring>
+        <name>computeGeodesyLegendrePolynomialVertical</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>oneDegreePriorPolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>twoDegreesPriorPolynomial</declname>
+        </param>
+        <briefdescription>
+<para>Compute geodesy-normalized Legendre polynomial through degree recursion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The normalized associated Legendre polynomial <formula id="131">$ \bar{ P }_{ n, m }( u ) $</formula> with degree <formula id="12">$ n $</formula>, order <formula id="59">$ m $</formula> and polynomial parameter <formula id="126">$ u $</formula> is calculated through degree recursion as given by Holmes &amp; Featherstone [2002]: <formula id="148">\[ \bar{ P }_{ n, m }( u ) = \sqrt{ \frac{ ( 2 n - 1 )( 2 n + 1 ) }{ ( n - m ) ( n + m ) } } u \bar{ P }_{ n - 1, m }( u ) - \sqrt{ \frac{ ( 2 n + 1 )( n + m - 1 ) ( n - m - 1 ) } { ( n - m)( n + m )( 2 n - 3 ) } } \bar{ P }_{ n - 2, m }( u ) \]</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free variable of requested Legendre polynomial. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>oneDegreePriorPolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same polynomial parameter as the requested Legendre polynomial, but with a degree of one less. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>twoDegreesPriorPolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodesy-normalized Legendre polynomial with the same polynomial parameter as the requested Legendre polynomial, but with a degree of two less. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodesy-normalized Legendre polynomial. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="746" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="746" bodyend="760" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="615" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a36972723d016b7db39d92ccdc018cc0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor</definition>
+        <argsstring>(const int degree, const int order)</argsstring>
+        <name>calculateLegendreGeodesyNormalizationFactor</name>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to calculate the normalization factor for Legendre polynomials to geodesy-normalized. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to calculate the normalization factor K_nm to convert regular Legendre polynomials P_nm to geodesy-normalized Legendre polynomials bar{P}_nm, so that bar{P}_nm=K_nm*P_nm. Note that the same conversion for spherical harmonic coefficients from regular to geodesy- normalized requires the inverse factor: 1/K_nm: C_nm=K_nm* bar{C}_nm. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of Legendre polynomial </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of Legendre polynomial </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Normalization factor K_nm </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="763" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="763" bodyend="777" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="636" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a29f5a3b0c419de5be2e1f87db94b7019" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients</definition>
+        <argsstring>(const Eigen::MatrixXd &amp;unnormalizedCosineCoefficients, const Eigen::MatrixXd &amp;unnormalizedSineCoefficients, Eigen::MatrixXd &amp;normalizedCosineCoefficients, Eigen::MatrixXd &amp;normalizedSineCoefficients)</argsstring>
+        <name>convertUnnormalizedToGeodesyNormalizedCoefficients</name>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>unnormalizedCosineCoefficients</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>unnormalizedSineCoefficients</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>normalizedCosineCoefficients</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>normalizedSineCoefficients</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>unnormalizedCosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Original, unnormalized, cosine coefficients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>unnormalizedSineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Original, unnormalized, sine coefficients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalizedCosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transformed, normalized, cosine coefficients (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalizedSineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transformed, normalized, sine coefficients (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="780" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="780" bodyend="802" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="650" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a827b6c7a0872424728f058707ad623f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt;</type>
+        <definition>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt; tudat::basic_mathematics::convertUnnormalizedToGeodesyNormalizedCoefficients</definition>
+        <argsstring>(const Eigen::MatrixXd &amp;unnormalizedCosineCoefficients, const Eigen::MatrixXd &amp;unnormalizedSineCoefficients)</argsstring>
+        <name>convertUnnormalizedToGeodesyNormalizedCoefficients</name>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>unnormalizedCosineCoefficients</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>unnormalizedSineCoefficients</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="804" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="804" bodyend="815" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="656" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1aa8dd7f3ca9ef1fc0e044428656e24737" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_mathematics::convertGeodesyNormalizedToUnnormalizedCoefficients</definition>
+        <argsstring>(const Eigen::MatrixXd &amp;normalizedCosineCoefficients, const Eigen::MatrixXd &amp;normalizedSineCoefficients, Eigen::MatrixXd &amp;unnormalizedCosineCoefficients, Eigen::MatrixXd &amp;unnormalizedSineCoefficients)</argsstring>
+        <name>convertGeodesyNormalizedToUnnormalizedCoefficients</name>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>normalizedCosineCoefficients</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>normalizedSineCoefficients</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>unnormalizedCosineCoefficients</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>unnormalizedSineCoefficients</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to convert geodesy-normalized (4-pi normalized) to unnormalized spherical harmonic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to convert geodesy-normalized (4-pi normalized) to unnormalized spherical harmonic coefficients <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>normalizedCosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Original, normalized, cosine coefficients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalizedSineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Original, normalized, sine coefficients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>unnormalizedCosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transformed, unnormalized, cosine coefficients (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>unnormalizedSineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transformed, unnormalized, sine coefficients (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="818" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="818" bodyend="840" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="668" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1a7defff5086163c9b97735611dd1fefc9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt;</type>
+        <definition>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt; tudat::basic_mathematics::convertGeodesyNormalizedToUnnormalizedCoefficients</definition>
+        <argsstring>(const Eigen::MatrixXd &amp;normalizedCosineCoefficients, const Eigen::MatrixXd &amp;normalizedSineCoefficients)</argsstring>
+        <name>convertGeodesyNormalizedToUnnormalizedCoefficients</name>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>normalizedCosineCoefficients</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>normalizedSineCoefficients</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="842" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="842" bodyend="853" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="674" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="legendrePolynomials_8h_1abf5b570f4618b15446469ee6c2d35e70" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_mathematics::geodesyNormalizeUnnormalizedCoefficients</definition>
+        <argsstring>(Eigen::MatrixXd &amp;cosineCoefficients, Eigen::MatrixXd &amp;sineCoefficients)</argsstring>
+        <name>geodesyNormalizeUnnormalizedCoefficients</name>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>cosineCoefficients</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>sineCoefficients</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients, by modifying input coefficients <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Original, unnormalized, cosine coefficients, to be transformed to normalized coefficients (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Original, unnormalized, cosine coefficients, to be transformed to normalized coefficients (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" line="856" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/legendrePolynomials.cpp" bodystart="856" bodyend="871" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/legendrePolynomials.h" declline="687" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="nearestNeighbourSearch_8h_1a0338c727149f283911719894d6ed44c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::computeNearestLeftNeighborUsingBinarySearch</definition>
+        <argsstring>(const Eigen::VectorXd &amp;vectorOfSortedData, const double targetValueInVectorOfSortedData)</argsstring>
+        <name>computeNearestLeftNeighborUsingBinarySearch</name>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>vectorOfSortedData</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>targetValueInVectorOfSortedData</declname>
+        </param>
+        <briefdescription>
+<para>Nearest left neighbor binary search. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Searches for the nearest left neighbor in a vector of sorted data using a binary algorithm (Press W.H., et al., 2002). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vectorOfSortedData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of data sorted in ascending/descending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetValueInVectorOfSortedData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target value in vector of sorted data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Index of nearest left neighbor to target value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/nearestNeighbourSearch.cpp" line="29" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/nearestNeighbourSearch.cpp" bodystart="29" bodyend="77" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" declline="38" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="nearestNeighbourSearch_8h_1a623b22dbb2ba19fb45991c82fd76c9e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::computeNearestNeighborUsingBinarySearch</definition>
+        <argsstring>(const Eigen::VectorXd &amp;vectorOfSortedData, const double targetValueInVectorOfSortedData)</argsstring>
+        <name>computeNearestNeighborUsingBinarySearch</name>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>vectorOfSortedData</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>targetValueInVectorOfSortedData</declname>
+        </param>
+        <briefdescription>
+<para>Nearest neighbor binary search. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Searches for the nearest neighbor in a vector of sorted data using a binary algorithm (Press W.H., et al., 2002). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vectorOfSortedData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of data sorted in ascending/descending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetValueInVectorOfSortedData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target value in vector of sorted data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Index of nearest neighbor to target value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/nearestNeighbourSearch.cpp" line="80" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/nearestNeighbourSearch.cpp" bodystart="80" bodyend="138" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" declline="49" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="nearestNeighbourSearch_8h_1a967e6cb5f0b7b4e05bdf1bd9e8577f05" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::computeNearestLeftNeighborUsingBinarySearch</definition>
+        <argsstring>(const std::map&lt; double, Eigen::VectorXd &gt; &amp;sortedIndepedentAndDependentVariables, const double targetValueInMapOfData)</argsstring>
+        <name>computeNearestLeftNeighborUsingBinarySearch</name>
+        <param>
+          <type>const std::map&lt; double, Eigen::VectorXd &gt; &amp;</type>
+          <declname>sortedIndepedentAndDependentVariables</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>targetValueInMapOfData</declname>
+        </param>
+        <briefdescription>
+<para>Nearest left neighbor binary search. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Searches for the nearest left neighbor in a map of sorted data using a binary algorithm (Press W.H., et al., 2002). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sortedIndepedentAndDependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of independent and dependent data sorted in ascending/descending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetValueInMapOfData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target value in map of sorted data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Index of nearest left neighbor to target value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/nearestNeighbourSearch.cpp" line="141" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/nearestNeighbourSearch.cpp" bodystart="141" bodyend="192" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" declline="61" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="nearestNeighbourSearch_8h_1a3629b671b410d55e7d4346d2b40ed122" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::computeNearestLeftNeighborUsingBinarySearch</definition>
+        <argsstring>(const std::vector&lt; IndependentVariableType &gt; vectorOfSortedData, const IndependentVariableType targetValueInVectorOfSortedData)</argsstring>
+        <name>computeNearestLeftNeighborUsingBinarySearch</name>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt;</type>
+          <declname>vectorOfSortedData</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>targetValueInVectorOfSortedData</declname>
+        </param>
+        <briefdescription>
+<para>Templated nearest left neighbor binary search. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Templated nearest left neighbor binary search. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of independent variables in which search is to be done. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vectorOfSortedData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>STL vector, sorted in ascending order, containing independent variable values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetValueInVectorOfSortedData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable of which the nearest left neighbour is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" line="75" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" bodystart="75" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="nearestNeighbourSearch_8h_1ab485a5660b41a17e0fe33e945d16bda7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>bool</type>
+        <definition>bool tudat::basic_mathematics::isIndependentVariableInInterval</definition>
+        <argsstring>(const int lowerIndex, const IndependentVariableType independentVariableValue, const std::vector&lt; IndependentVariableType &gt; &amp;independentValues)</argsstring>
+        <name>isIndependentVariableInInterval</name>
+        <param>
+          <type>const int</type>
+          <declname>lowerIndex</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>independentVariableValue</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentValues</declname>
+        </param>
+        <briefdescription>
+<para>This function checks whether a value is in a given interval of a sorted vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function checks whether a value is in a given interval of an STL vector, sorted in ascending order of value of the entries. The interval is identified by the lower index of the entries of the vector defining the interval. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of the independent variable values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lowerIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of lower bound of interval under consideration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of which it is to be checked whether it is in the interval. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentValues</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of values, srted in ascending order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if value is in interval, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" line="138" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" bodystart="138" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="nearestNeighbourSearch_8h_1a20a2a1955501e2a3aa7a25768ae5e599" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename IndependentVariableType</type>
+          </param>
+        </templateparamlist>
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::findNearestLeftNeighbourUsingHuntingAlgorithm</definition>
+        <argsstring>(const IndependentVariableType independentVariableValue, const int previousNearestLowerIndex_, const std::vector&lt; IndependentVariableType &gt; &amp;independentValues_)</argsstring>
+        <name>findNearestLeftNeighbourUsingHuntingAlgorithm</name>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>independentVariableValue</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>previousNearestLowerIndex_</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; IndependentVariableType &gt; &amp;</type>
+          <declname>independentValues_</declname>
+        </param>
+        <briefdescription>
+<para>Nearest left leighbour search using hunting algorithm. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Nearest left leighbour search using hunting algorithm, using an initial guess to decrease the look-up time. Especially useful for long data vectors where the value for which the nearest neighbour is to be found changes slowly w.r.t. the data entries. Implementation is taken from (Press W.H., et al., 2002). Algorithm is at worst twice as slow as binary search and can be orders of magnitude faster in suitable cases. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type for entries of vector of in which nearest neighbour is sought. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of which the nearest left neighbour is to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>previousNearestLowerIndex_</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial guess of nearest lft neighbour. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentValues_</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of independent variables, sorted in ascending order, in which the nearest left (lower) neighbour is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Index of independentValues_ that is the nearest left neighbour </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" line="170" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/nearestNeighbourSearch.h" bodystart="170" bodyend="331"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationAboutArbitraryAxis_8h_1a4e01a3523a4a296e577f3e95ae1c2014" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_mathematics::computeRotationOfPointAboutArbitraryAxis</definition>
+        <argsstring>(const Eigen::Vector3d &amp;originOfRotation, const double angleOfRotation, const Eigen::Vector3d &amp;axisOfRotation, const Eigen::Vector3d &amp;initialPositionOfPoint)</argsstring>
+        <name>computeRotationOfPointAboutArbitraryAxis</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>originOfRotation</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleOfRotation</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>axisOfRotation</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>initialPositionOfPoint</declname>
+        </param>
+        <briefdescription>
+<para>Compute rotation of point about arbitrary axis. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the rotation of a point about an arbitrary axis. This function computes the position of the rotated point by computing the displacement vector between the origin of rotation and the initalPosition of point and then applying a matrix as shown in section 6 of <ulink url="http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/ArbitraryAxisRotation.html">http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/ArbitraryAxisRotation.html</ulink>. A visualization of the computation being performed can be found at <ulink url="http://twist-and-shout.appspot.com/">http://twist-and-shout.appspot.com/</ulink>. Units for originOfRotation, and initialPositionOfPoint must be the same. All positions are assumed to be with respect to a common arbitrary origin. Note that this arbitrary origin is not necessarily the origin of rotation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originOfRotation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position of tail of axis of rotation vector with respect to a chosen arbitrary origin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfRotation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle about which the point rotates with respect to the axis of rotation [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisOfRotation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unit vector pointed in the direction of rotation determined by the right-hand rule. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialPositionOfPoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position of point before rotation with respect to the same chosen arbitrary origin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Position of point after rotation about the axis of rotation with respect to the same chosen arbitrary origin. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationAboutArbitraryAxis.cpp" line="27" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationAboutArbitraryAxis.cpp" bodystart="27" bodyend="52" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/rotationAboutArbitraryAxis.h" declline="51" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationAboutArbitraryAxis_8h_1a54c62bb9afe019a4a061b8c40ad1f55d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_mathematics::computeRotationOfVectorAboutArbitraryAxis</definition>
+        <argsstring>(const Eigen::Vector3d &amp;originOfRotation, const double angleOfRotation, const Eigen::Vector3d &amp;axisOfRotation, const Eigen::Vector3d &amp;initialPositionOfVectorTail, const Eigen::Vector3d &amp;initialVector)</argsstring>
+        <name>computeRotationOfVectorAboutArbitraryAxis</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>originOfRotation</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleOfRotation</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>axisOfRotation</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>initialPositionOfVectorTail</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>initialVector</declname>
+        </param>
+        <briefdescription>
+<para>Compute rotation of vector about an arbitrary axis. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute rotation of vector about arbitrary axis.</para>
+<para>Computes rotation of vector about an arbitrary axis. This function uses computeRotationOfPointAboutArbitraryAxis to rotate the position of the head and tail of the vector and compute the resultant vector defined as the difference of the two rotated points. Units for originOfRotation, initialPositionOfVectorTail and initialVector must be the same. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originOfRotation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position of tail of axis of rotation vector with respect to a chosen arbitrary origin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfRotation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle over which the vector is rotated. A positive angle is determined using the right hand rule [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisOfRotation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unit vector pointing in the direction of rotation determined by the right-hand rule. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialPositionOfVectorTail</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial position of tail of vector which will be rotated with respect to this same chosen arbitrary origin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector to be rotated with respect to this same chosen arbitrary origin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector after rotation about the arbitrary axis with respect to this same chosen arbitrary origin. </para>
+</simplesect>
+<simplesect kind="see"><para>computeRotationOfPointAboutArbitraryAxis. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationAboutArbitraryAxis.cpp" line="55" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationAboutArbitraryAxis.cpp" bodystart="55" bodyend="79" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/rotationAboutArbitraryAxis.h" declline="76" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationRepresentations_8h_1a969d0c7332d8a37e2f3a8a496c69c446" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix&lt; double, 3, 4 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 3, 4 &gt; tudat::basic_mathematics::calculateEulerAngle313WrtQuaternionPartial</definition>
+        <argsstring>(const Eigen::Quaterniond &amp;quaternion)</argsstring>
+        <name>calculateEulerAngle313WrtQuaternionPartial</name>
+        <param>
+          <type>const Eigen::Quaterniond &amp;</type>
+          <declname>quaternion</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion, with quaternion as input <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>quaternion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quaternion defining rotation at which partials are to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Partial derivative matrix of 3-1-3 Euler angles w.r.t. entries of associated quaternion </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" line="12" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" bodystart="12" bodyend="38" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/rotationRepresentations.h" declline="32" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationRepresentations_8h_1abf8cc658aa9abeee638c88b24856cdfc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix&lt; double, 3, 4 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 3, 4 &gt; tudat::basic_mathematics::calculateEulerAngle313WrtQuaternionPartialFromEulerAngles</definition>
+        <argsstring>(const Eigen::Vector3d &amp;eulerAngles)</argsstring>
+        <name>calculateEulerAngle313WrtQuaternionPartialFromEulerAngles</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>eulerAngles</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion, with Euler angles as input <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eulerAngles</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Euler angles (3-1-3) defining rotation at which partials are to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Partial derivative matrix of 3-1-3 Euler angles w.r.t. entries of associated quaternion </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" line="41" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" bodystart="41" bodyend="49" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/rotationRepresentations.h" declline="42" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationRepresentations_8h_1a1b2d845b73d6232535e67726e450d856" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::basic_mathematics::getQuaternionFrom313EulerAngles</definition>
+        <argsstring>(const Eigen::Vector3d &amp;eulerAngles)</argsstring>
+        <name>getQuaternionFrom313EulerAngles</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>eulerAngles</declname>
+        </param>
+        <briefdescription>
+<para>Get quaternion from associated 3-1-3 Euler angles. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get quaternion q from 3-1-3 Euler angles set. That is, the Euler angles x, y, z are defined such that the associated rotation matrix R = R_{3}(x)R_{1}(y)R_{3}(z) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>eulerAngles</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Euler angles for which the equivalent quaternion is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Quaternion defining same rotation as Euler angles </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" line="52" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" bodystart="52" bodyend="63" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/rotationRepresentations.h" declline="52" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationRepresentations_8h_1a0dbde138d4c2ab0f7ecb2b613724681f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_mathematics::get132EulerAnglesFromRotationMatrix</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;rotationMatrix)</argsstring>
+        <name>get132EulerAnglesFromRotationMatrix</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Get classical 1-3-2 Euler angles set from rotation matrix. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get classical 1-3-2 Euler angles set from rotation matrix R. That is, the Euler angles x, y, z are returned such that R = R_{1}(x)R_{3}(y)R_{2}(z) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix for which the equivalent Euler angles are to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Euler angles x,y,z (about 1, 3 and 2 axes, respectively). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" line="66" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" bodystart="66" bodyend="74" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/rotationRepresentations.h" declline="62" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationRepresentations_8h_1a97d070bbcd5a37d7d0da36700ca6eaf5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_mathematics::get313EulerAnglesFromQuaternion</definition>
+        <argsstring>(const Eigen::Quaterniond &amp;quaternion)</argsstring>
+        <name>get313EulerAnglesFromQuaternion</name>
+        <param>
+          <type>const Eigen::Quaterniond &amp;</type>
+          <declname>quaternion</declname>
+        </param>
+        <briefdescription>
+<para>Get classical 3-1-3 Euler angles set from quaternion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get classical 3-1-3 Euler angles set from quaternion q. That is, the Euler angles x, y, z are returned such that the associated rotation matrix R = R_{3}(x)R_{1}(y)R_{3}(z) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>quaternion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quaternion for which the equivalent Euler angles are to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Euler angles x,y,z (about 3, 1 and 3 axes, respectively). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" line="77" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" bodystart="77" bodyend="100" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/rotationRepresentations.h" declline="72" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="rotationRepresentations_8h_1a61d029957d27aba67849c1a726de802e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_mathematics::get313EulerAnglesFromRotationMatrix</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;rotationMatrix)</argsstring>
+        <name>get313EulerAnglesFromRotationMatrix</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Get classical 3-1-3 Euler angles set from rotation matrix. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get classical 3-1-3 Euler angles set from rotation matrix R. That is, the Euler angles x, y, z are returned such that R = R_{3}(x)R_{1}(y)R_{3}(z) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix for which the equivalent Euler angles are to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Euler angles x,y,z (about 3, 1 and 3 axes, respectively). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" line="103" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/rotationRepresentations.cpp" bodystart="103" bodyend="111" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/rotationRepresentations.h" declline="82" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonics_8h_1afe7d242d59760af59b348d3ce4064b18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_mathematics::computePotentialGradient</definition>
+        <argsstring>(const double distance, const double radiusPowerTerm, const double cosineOfOrderLongitude, const double sineOfOrderLongitude, const double cosineOfLatitude, const double preMultiplier, const int degree, const int order, const double cosineHarmonicCoefficient, const double sineHarmonicCoefficient, const double legendrePolynomial, const double legendrePolynomialDerivative)</argsstring>
+        <name>computePotentialGradient</name>
+        <param>
+          <type>const double</type>
+          <declname>distance</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>radiusPowerTerm</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>cosineOfOrderLongitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sineOfOrderLongitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>cosineOfLatitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>preMultiplier</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>cosineHarmonicCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sineHarmonicCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>legendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>legendrePolynomialDerivative</declname>
+        </param>
+        <briefdescription>
+<para>Compute the gradient of a single term of a spherical harmonics potential field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns a vector with the derivatives of a generic potential field (defined by spherical harmonics) from pre-computed quatities. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>distance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance to center of body with gravity field at which the potential gradient is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiusPowerTerm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance divided by the reference radius of the gravity field, to the power (degree + 1) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineOfOrderLongitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cosine of order times the longitude at which the potential is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineOfOrderLongitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sine of order times the longitude at which the potential is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineOfLatitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cosine of the latitude at which the potential is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>preMultiplier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Generic multiplication factor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of the harmonic for which the gradient is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the harmonic for which the gradient is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineHarmonicCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficient which characterizes relative strengh of a harmonic term. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineHarmonicCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficient which characterizes relative strengh of a harmonic term. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of associated Legendre polynomial with the same degree and order as the to be computed harmonic, and with the sine of the latitude coordinate as polynomial parameter. Make sure that the Legendre polynomial has the same normalization as the harmonic coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendrePolynomialDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the derivative of parameter &apos;legendrePolynomial&apos; with respect to the sine of the latitude angle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector with derivatives of potential field. The order is important! gradient( 0 ) = derivative with respect to radial distance, gradient( 1 ) = derivative with respect to latitude angle, gradient( 2 ) = derivative with respect to longitude angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/sphericalHarmonics.cpp" line="43" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/sphericalHarmonics.cpp" bodystart="43" bodyend="72" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" declline="276" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonics_8h_1ae93695b85b89b0120ca8b2d63e758e9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_mathematics::computePotentialGradient</definition>
+        <argsstring>(const Eigen::Vector3d &amp;sphericalPosition, const double referenceRadius, const double preMultiplier, const int degree, const int order, const double cosineHarmonicCoefficient, const double sineHarmonicCoefficient, const double legendrePolynomial, const double legendrePolynomialDerivative)</argsstring>
+        <name>computePotentialGradient</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>sphericalPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>preMultiplier</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>cosineHarmonicCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sineHarmonicCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>legendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>legendrePolynomialDerivative</declname>
+        </param>
+        <briefdescription>
+<para>Compute the gradient of a single term of a spherical harmonics potential field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns a vector with the derivatives of a generic potential field (defined by spherical harmonics). * <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with spherical coordinates. The order is important! sphericalPosition( 0 ) = radial coordinate, sphericalPosition( 1 ) = latitude coordinate, sphericalPosition( 2 ) = longitude coordinate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radius of harmonics reference sphere. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>preMultiplier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Generic multiplication factor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of the harmonic for which the gradient is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the harmonic for which the gradient is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineHarmonicCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficient which characterizes relative strengh of a harmonic term. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineHarmonicCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficient which characterizes relative strengh of a harmonic term. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of associated Legendre polynomial with the same degree and order as the to be computed harmonic, and with the sine of the latitude coordinate as polynomial parameter. Make sure that the Legendre polynomial has the same normalization as the harmonic coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendrePolynomialDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the derivative of parameter &apos;legendrePolynomial&apos; with respect to the sine of the latitude angle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector with derivatives of potential field. The order is important! gradient( 0 ) = derivative with respect to radial distance, gradient( 1 ) = derivative with respect to latitude angle, gradient( 2 ) = derivative with respect to longitude angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/sphericalHarmonics.cpp" line="75" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/sphericalHarmonics.cpp" bodystart="75" bodyend="94" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" declline="321" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonics_8h_1a626eab2e519c2dcab43cc3b25684d354" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_mathematics::computePotentialGradient</definition>
+        <argsstring>(const Eigen::Vector3d &amp;sphericalPosition, const double preMultiplier, const int degree, const int order, const double cosineHarmonicCoefficient, const double sineHarmonicCoefficient, const double legendrePolynomial, const double legendrePolynomialDerivative, const std::shared_ptr&lt; SphericalHarmonicsCache &gt; sphericalHarmonicsCache)</argsstring>
+        <name>computePotentialGradient</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>sphericalPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>preMultiplier</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>cosineHarmonicCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sineHarmonicCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>legendrePolynomial</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>legendrePolynomialDerivative</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache" kindref="compound">SphericalHarmonicsCache</ref> &gt;</type>
+          <declname>sphericalHarmonicsCache</declname>
+        </param>
+        <briefdescription>
+<para>Compute the gradient of a single term of a spherical harmonics potential field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns a vector with the derivatives of a generic potential field (defined by spherical harmonics). It is assumed that the potential field of a single harmonic is characterized by: <formula id="150">\[ U = A \left( \frac{ R }{ r} \right) ^{ n + 1} P _{ n, m } ( \sin \phi ) \left[ C _{ n, m } \cos( m \lambda ) + S _{ n, m } \sin( \lambda ) \right] \]</formula> in which <formula id="151">$ A $</formula> is the generic multiplication factor, <formula id="152">$ R $</formula> is the radius of the harmonics reference sphere, <formula id="153">$ P _{ n, m }( \sin \phi ) $</formula> is the associated Legendre polynomial with <formula id="154">$ \sin \phi $</formula> as polynomial parameter, <formula id="67">$ r $</formula> is the radial coordinate, <formula id="84">$ \phi $</formula> is the latitude coordinate, <formula id="120">$ \lambda $</formula> is the longitude coordinate, <formula id="12">$ n $</formula> is the harmonics degree, <formula id="59">$ m $</formula> is the harmonics order, <formula id="155">$ C _{ n, m } $</formula> is the cosine harmonics coefficient, and <formula id="156">$ S _{ n, m } $</formula> is the sine harmonics coefficient.</para>
+<para>The potential derivatives are calculated through: <formula id="157">\begin{eqnarray*} \frac{ \mathrm{ d } U }{ \mathrm{ d } r } = -\frac{ A }{ r } \left( \frac{ R }{ r } \right) ^{ n + 1 } ( n + 1 ) P_{ n, m }( \sin \phi )[ C_{ n, m } \cos( m \lambda ) + S_{ n,m } \sin( m \lambda ) ] \\ \frac{ \mathrm{ d } U }{ \mathrm{ d } \phi } = A \left( \frac{ R }{ r } \right)^{ n + 1 } \frac{ \mathrm{ d } [ P( \sin \phi ) ] }{ \mathrm{ d } [ \sin \phi ] } \cos \phi [ C_{ n, m } \cos( m \lambda ) + S_{ n, m } \sin( m \lambda ) ] \\ \frac{ \mathrm{ d } U }{ \mathrm{ d } \lambda } = A \left( \frac{ R }{ r } \right)^{ n + 1 } m P_{ n, m }( \sin \phi ) [ S_{ n, m } \cos( m \lambda ) - C_{ n, m } \sin( m \lambda ) ] \end{eqnarray*}</formula></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with spherical coordinates. The order is important! sphericalPosition( 0 ) = radial coordinate, sphericalPosition( 1 ) = latitude coordinate, sphericalPosition( 2 ) = longitude coordinate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>preMultiplier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Generic multiplication factor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of the harmonic for which the gradient is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the harmonic for which the gradient is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineHarmonicCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficient which characterizes relative strengh of a harmonic term. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineHarmonicCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficient which characterizes relative strengh of a harmonic term. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendrePolynomial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of associated Legendre polynomial with the same degree and order as the to be computed harmonic, and with the sine of the latitude coordinate as polynomial parameter. Make sure that the Legendre polynomial has the same normalization as the harmonic coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>legendrePolynomialDerivative</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the derivative of parameter &apos;legendrePolynomial&apos; with respect to the sine of the latitude angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sphericalHarmonicsCache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cache object containing current values of trigonometric funtions of latitude anf longitude, as well as legendre polynomials at current state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector with derivatives of potential field. The order is important! gradient( 0 ) = derivative with respect to radial distance, gradient( 1 ) = derivative with respect to latitude angle, gradient( 2 ) = derivative with respect to longitude angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/sphericalHarmonics.cpp" line="97" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/sphericalHarmonics.cpp" bodystart="97" bodyend="115" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" declline="387" declcolumn="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/basicFunction.h" line="33" column="1"/>
+  </compounddef>
+</doxygen>

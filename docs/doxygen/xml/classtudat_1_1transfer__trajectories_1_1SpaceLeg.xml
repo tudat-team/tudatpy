@@ -1,0 +1,269 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1transfer__trajectories_1_1SpaceLeg" kind="class" language="C++" prot="public">
+    <compoundname>tudat::transfer_trajectories::SpaceLeg</compoundname>
+    <basecompoundref refid="classtudat_1_1transfer__trajectories_1_1MissionLeg" prot="public" virt="non-virtual">tudat::transfer_trajectories::MissionLeg</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg" prot="public" virt="non-virtual">tudat::transfer_trajectories::DepartureLeg</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1transfer__trajectories_1_1SwingbyLeg" prot="public" virt="non-virtual">tudat::transfer_trajectories::SwingbyLeg</derivedcompoundref>
+    <includes refid="spaceLeg_8h" local="no">spaceLeg.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1aafd1693ee39624fd12945ab6b1460c14" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::transfer_trajectories::SpaceLeg::arrivalBodyPosition_</definition>
+        <argsstring></argsstring>
+        <name>arrivalBodyPosition_</name>
+        <briefdescription>
+<para>The arrival body position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The position of the arrival body at the arrival time. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" line="87" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1a0c16f186ee5fbbb41b39d57ab5c1dffb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::transfer_trajectories::SpaceLeg::SpaceLeg</definition>
+        <argsstring>(const Eigen::Vector3d &amp;departureBodyPosition, const Eigen::Vector3d &amp;arrivalBodyPosition, const double timeOfFlight, const Eigen::Vector3d &amp;departureBodyVelocity, const double centralBodyGravitationalParameter)</argsstring>
+        <name>SpaceLeg</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>departureBodyPosition</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>arrivalBodyPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>departureBodyVelocity</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with immediate definition of parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets objects and functions from which relevant environment and state variables are retrieved. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>departureBodyPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>location of the departure body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arrivalBodyPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeOfFlight</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of the leg. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>departureBodyVelocity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>velocity of the departure body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>gravitational parameter of the cebtral body (most cases the Sun). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" line="51" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" bodystart="51" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1af2f6928a9819380d67895315fca9e6a9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::transfer_trajectories::SpaceLeg::~SpaceLeg</definition>
+        <argsstring>()</argsstring>
+        <name>~SpaceLeg</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" line="62" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1aadd829e00f099643bcd9c7da262e7ca3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::SpaceLeg::updateEphemeris</definition>
+        <argsstring>(const Eigen::Vector3d &amp;departureBodyPosition, const Eigen::Vector3d &amp;arrivalBodyPosition, const Eigen::Vector3d &amp;departureBodyVelocity)</argsstring>
+        <name>updateEphemeris</name>
+        <reimplements refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a4add9b280b3c70bb22e7dff519400e97">updateEphemeris</reimplements>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>departureBodyPosition</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>arrivalBodyPosition</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>departureBodyVelocity</declname>
+        </param>
+        <briefdescription>
+<para>Update the ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the positions and the velocities to the newly specified values. Required for re-using the class, without re-initializing it. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>departureBodyPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sets the new departure body position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arrivalBodyPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sets the new arrival body position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>departureBodyVelocity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sets the new departure body velocity. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" line="72" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" bodystart="72" bodyend="79"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Space Leg base class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A base class for calculating the required impulses for a high-thrust, patched-conics space leg. It inherits from the mission leg base class. The space leg class is inherited by different trajectory models, for departure legs and swing-by legs. One additional variable is declared here. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="10">
+        <label>tudat::transfer_trajectories::SwingbyLegMga1DsmVelocity</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmVelocity"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::transfer_trajectories::SpaceLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat::transfer_trajectories::SwingbyLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1SwingbyLeg"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::transfer_trajectories::DepartureLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::transfer_trajectories::DepartureLegMga</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat::transfer_trajectories::SwingbyLegMga</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1SwingbyLegMga"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::transfer_trajectories::DepartureLegMga1DsmPosition</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmPosition"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::transfer_trajectories::MissionLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1MissionLeg"/>
+      </node>
+      <node id="9">
+        <label>tudat::transfer_trajectories::SwingbyLegMga1DsmPosition</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1SwingbyLegMga1DsmPosition"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::transfer_trajectories::SpaceLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::transfer_trajectories::MissionLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1MissionLeg"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" line="38" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/spaceLeg.h" bodystart="39" bodyend="92"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1aafd1693ee39624fd12945ab6b1460c14" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>arrivalBodyPosition_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a0bdf10878e59021546b758fdb0a9d24b" prot="public" virt="pure-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>calculateLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1ae977167cc1bc2b5eefe64729ef970d9b" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>centralBodyGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1ae0fa40d4efb56786cb052e0340663c67" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>deltaV_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a1d0f74660ee3b15dd983bf56a9791fff" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>departureBodyPosition_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a3c9e40fc0d71bd2e63c928c7fdc2dca8" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>departureBodyVelocity_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a7f1c4013cb7deb3fdef99a906cf92c58" prot="public" virt="pure-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>intermediatePoints</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1aa7775ea89421bce689fb774837e4cf38" prot="public" virt="pure-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>maneuvers</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1aceb225a36c934cdbf61e007b68a71dae" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>MissionLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a49fde6343f3591a7b80d83a72fbc7219" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>returnDepartureVariables</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1a0c16f186ee5fbbb41b39d57ab5c1dffb" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>SpaceLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a4eead2edc9032dfd4e708013ca95208a" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>timeOfFlight_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1aa507d6e5b1d3107e80d3af25c7c67cf4" prot="public" virt="pure-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>updateDefiningVariables</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1aadd829e00f099643bcd9c7da262e7ca3" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>updateEphemeris</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1acb7414acd191de6b0414df6a4587bbc0" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>velocityAfterDeparture_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a0d45afc18d82a6a7d801bc0c4d7c6a09" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>~MissionLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1af2f6928a9819380d67895315fca9e6a9" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::SpaceLeg</scope><name>~SpaceLeg</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

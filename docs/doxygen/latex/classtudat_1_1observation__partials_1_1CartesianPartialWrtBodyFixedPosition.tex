@@ -1,0 +1,101 @@
+\hypertarget{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition}{}\doxysection{tudat\+::observation\+\_\+partials\+::Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position Class Reference}
+\label{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition}\index{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition@{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition}}
+
+
+{\ttfamily \#include $<$position\+Partials.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_a692da32c5c3a3013d5cc6fa3725da65a}{Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris}{ephemerides\+::\+Rotational\+Ephemeris}} $>$ body\+Rotation\+Model)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_ace0fff8d2effdb72ef2e6d8272d07863}\label{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_ace0fff8d2effdb72ef2e6d8272d07863}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_ace0fff8d2effdb72ef2e6d8272d07863}{$\sim$\+Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_acd28c0b438dba9fd5d03885a4bd935f0}{calculate\+Partial\+Of\+Position}} (const Eigen\+::\+Vector6d \&state, const double time)
+\begin{DoxyCompactList}\small\item\em Function for determining partial of position at current time and body state. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_a7e2c65e5a37b3589a2a125628a173bbf}{calculate\+Partial\+Of\+Velocity}} (const Eigen\+::\+Vector6d \&state, const double time)
+\begin{DoxyCompactList}\small\item\em Function for determining partial of velocity at current time and body state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the partial derivative of the inertial Cartesian state of a point on a body w.\+r.\+t. the constant body-\/fixed position of that point. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_a692da32c5c3a3013d5cc6fa3725da65a}\label{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_a692da32c5c3a3013d5cc6fa3725da65a}} 
+\index{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition@{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition}!CartesianPartialWrtBodyFixedPosition@{CartesianPartialWrtBodyFixedPosition}}
+\index{CartesianPartialWrtBodyFixedPosition@{CartesianPartialWrtBodyFixedPosition}!tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition@{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition}}
+\doxysubsubsection{\texorpdfstring{CartesianPartialWrtBodyFixedPosition()}{CartesianPartialWrtBodyFixedPosition()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position\+::\+Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1RotationalEphemeris}{ephemerides\+::\+Rotational\+Ephemeris}} $>$}]{body\+Rotation\+Model }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em body\+Rotation\+Model} & Rotation model for body. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_acd28c0b438dba9fd5d03885a4bd935f0}\label{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_acd28c0b438dba9fd5d03885a4bd935f0}} 
+\index{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition@{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition}!calculatePartialOfPosition@{calculatePartialOfPosition}}
+\index{calculatePartialOfPosition@{calculatePartialOfPosition}!tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition@{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfPosition()}{calculatePartialOfPosition()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$ tudat\+::observation\+\_\+partials\+::\+Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position\+::calculate\+Partial\+Of\+Position (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector6d \&}]{state,  }\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for determining partial of position at current time and body state. 
+
+Function for determining partial of position at current time and body state wrt three-\/dimensional body-\/fixed state 
+\begin{DoxyParams}{Parameters}
+{\em state} & Current inertial state of point of which partial is to be calculated. \\
+\hline
+{\em time} & Current time \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of point state wrt body-\/fixed position. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial_a8f6fecdf33b3250ee347be93e246f80b}{tudat\+::observation\+\_\+partials\+::\+Cartesian\+State\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_a7e2c65e5a37b3589a2a125628a173bbf}\label{classtudat_1_1observation__partials_1_1CartesianPartialWrtBodyFixedPosition_a7e2c65e5a37b3589a2a125628a173bbf}} 
+\index{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition@{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition}!calculatePartialOfVelocity@{calculatePartialOfVelocity}}
+\index{calculatePartialOfVelocity@{calculatePartialOfVelocity}!tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition@{tudat::observation\_partials::CartesianPartialWrtBodyFixedPosition}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfVelocity()}{calculatePartialOfVelocity()}}
+{\footnotesize\ttfamily Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$ tudat\+::observation\+\_\+partials\+::\+Cartesian\+Partial\+Wrt\+Body\+Fixed\+Position\+::calculate\+Partial\+Of\+Velocity (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector6d \&}]{state,  }\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function for determining partial of velocity at current time and body state. 
+
+Function for determining partial of velocity at current time and body state wrt three-\/dimensional state 
+\begin{DoxyParams}{Parameters}
+{\em state} & Current inertial state of point of which partial is to be calculated. \\
+\hline
+{\em time} & Current time \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Partial of point state wrt body-\/fixed position. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{tudat\+::observation\+\_\+partials\+::\+Cartesian\+State\+Partial}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/position\+Partials.\+h\end{DoxyCompactItemize}

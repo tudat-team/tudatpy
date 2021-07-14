@@ -1,0 +1,297 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction" kind="struct" language="C++" prot="protected">
+    <compoundname>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__mathematics_1_1BasicFunction" prot="public" virt="non-virtual">tudat::basic_mathematics::BasicFunction&lt; double, double &gt;</basecompoundref>
+    <includes refid="sphericalShaping_8h" local="no">sphericalShaping.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ac5310be656e202f878f85fcabe8b7373" prot="private" static="no" mutable="no">
+        <type>std::function&lt; void(const double) &gt;</type>
+        <definition>std::function&lt; void ( const double ) &gt; tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::resetFreeCoefficientFunction_</definition>
+        <argsstring></argsstring>
+        <name>resetFreeCoefficientFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="231" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="231" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a2ee2bc98beda5637799072cf237aaa4a" prot="private" static="no" mutable="no">
+        <type>std::function&lt; void() &gt;</type>
+        <definition>std::function&lt; void ( ) &gt; tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::satisfyBoundaryConditionsFunction_</definition>
+        <argsstring></argsstring>
+        <name>satisfyBoundaryConditionsFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="232" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="232" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1af5117e69bd12aacdb8c8b8105949bef5" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double ( ) &gt; tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::computeTimeOfFlightFunction_</definition>
+        <argsstring></argsstring>
+        <name>computeTimeOfFlightFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="233" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a8c3a4064823eb6ae1eb31ecedcb7a2bb" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double() &gt;</type>
+        <definition>std::function&lt; double ( ) &gt; tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::getRequiredTimeOfFlightfunction_</definition>
+        <argsstring></argsstring>
+        <name>getRequiredTimeOfFlightfunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="234" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="234" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a3ed57e94876ab985bda21412e0e07178" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::TimeOfFlightFunction</definition>
+        <argsstring>(std::function&lt; void(const double) &gt; resetFreeCoefficientFunction, std::function&lt; void() &gt; satisfyBoundaryConditionsFunction, std::function&lt; double() &gt; computeTimeOfFlightFunction, std::function&lt; double() &gt; getRequiredTimeOfFlightfunction)</argsstring>
+        <name>TimeOfFlightFunction</name>
+        <param>
+          <type>std::function&lt; void(const double) &gt;</type>
+          <declname>resetFreeCoefficientFunction</declname>
+        </param>
+        <param>
+          <type>std::function&lt; void() &gt;</type>
+          <declname>satisfyBoundaryConditionsFunction</declname>
+        </param>
+        <param>
+          <type>std::function&lt; double() &gt;</type>
+          <declname>computeTimeOfFlightFunction</declname>
+        </param>
+        <param>
+          <type>std::function&lt; double() &gt;</type>
+          <declname>getRequiredTimeOfFlightfunction</declname>
+        </param>
+        <briefdescription>
+<para>Create a function that returns the time of flight associated with the current trajectory. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="181" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="181" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a4a8459346c133ba644a36df88ada665c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::evaluate</definition>
+        <argsstring>(const double inputValue)</argsstring>
+        <name>evaluate</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a69b59769da9784abaaa8a0a309d16de8">evaluate</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>inputValue</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate the difference between the current and required time of flight values, from the current value of the free coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="191" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="191" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ad9ffdd736006317e21ee414936234f45" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::computeDerivative</definition>
+        <argsstring>(const unsigned int order, const double inputValue)</argsstring>
+        <name>computeDerivative</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1ae0a0844b6c72c55ef059039eb147453b">computeDerivative</reimplements>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>inputValue</declname>
+        </param>
+        <briefdescription>
+<para>Derivative function (not provided). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="201" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="201" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a3efc47b6ff79b80092e35c21e242f557" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::computeDefiniteIntegral</definition>
+        <argsstring>(unsigned int order, double lowerBound, double upperbound)</argsstring>
+        <name>computeDefiniteIntegral</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a9ff1a3c03832150f34c06c86317c2ac7">computeDefiniteIntegral</reimplements>
+        <param>
+          <type>unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>lowerBound</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>upperbound</declname>
+        </param>
+        <briefdescription>
+<para>Integral function (not provided). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="207" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="207" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ac49a56ac72abd5cc2fd4eedebcc774f9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::getTrueRootLocation</definition>
+        <argsstring>()</argsstring>
+        <name>getTrueRootLocation</name>
+        <briefdescription>
+<para>Get the expected true location of the root (not implemented). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="213" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="213" bodyend="213"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ab2ab04309ccdfdae98e8f82fa48627aa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::getTrueRootAccuracy</definition>
+        <argsstring>()</argsstring>
+        <name>getTrueRootAccuracy</name>
+        <briefdescription>
+<para>Get the accuracy of the true location of the root (not implemented). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="216" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="216" bodyend="216"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a257bd752964c74cf3902f39123645c72" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::getInitialGuess</definition>
+        <argsstring>()</argsstring>
+        <name>getInitialGuess</name>
+        <briefdescription>
+<para>Get a reasonable initial guess of the root location (not implemented). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="219" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="219" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a280a1f21501d0d7ba6e83ec271e3fc36" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::getLowerBound</definition>
+        <argsstring>()</argsstring>
+        <name>getLowerBound</name>
+        <briefdescription>
+<para>Get a reasonable lower boundary for the root location (not implemented). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="222" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="222" bodyend="222"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ac3f0ed010410b7133f7320e1061cb5a7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction::getUpperBound</definition>
+        <argsstring>()</argsstring>
+        <name>getUpperBound</name>
+        <briefdescription>
+<para>Get a reasonable upper boundary for the root location (not implemented). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="225" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="225" bodyend="225"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> of flight function for the root-finder. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::basic_mathematics::BasicFunction&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1BasicFunction"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</label>
+        <link refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::basic_mathematics::Function&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::basic_mathematics::BasicFunction&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1BasicFunction"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</label>
+        <link refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::basic_mathematics::Function&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" line="177" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/sphericalShaping.h" bodystart="178" bodyend="235"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a6db9f3a2a2b5be0e10132e2b9b648132" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>BasicFunction</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a3efc47b6ff79b80092e35c21e242f557" prot="public" virt="virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>computeDefiniteIntegral</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a629836ffd0ff73670ea1e3182e1ac717" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>computeDefiniteIntegralMock</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ad9ffdd736006317e21ee414936234f45" prot="public" virt="virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>computeDerivative</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1af5117e69bd12aacdb8c8b8105949bef5" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>computeTimeOfFlightFunction_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a4a8459346c133ba644a36df88ada665c" prot="public" virt="virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>evaluate</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a257bd752964c74cf3902f39123645c72" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>getInitialGuess</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a280a1f21501d0d7ba6e83ec271e3fc36" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>getLowerBound</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a8c3a4064823eb6ae1eb31ecedcb7a2bb" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>getRequiredTimeOfFlightfunction_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ab2ab04309ccdfdae98e8f82fa48627aa" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>getTrueRootAccuracy</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ac49a56ac72abd5cc2fd4eedebcc774f9" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>getTrueRootLocation</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ac3f0ed010410b7133f7320e1061cb5a7" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>getUpperBound</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1ae29d47c0ba66688c59c793805c920386" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>integrationSteps</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a4b135236b9531d0329c151afeef8a2d8" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>operator()</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1ac5310be656e202f878f85fcabe8b7373" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>resetFreeCoefficientFunction_</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a2ee2bc98beda5637799072cf237aaa4a" prot="private" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>satisfyBoundaryConditionsFunction_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a9d9d85a5dd2bb72ec73619c126593f0d" prot="protected" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>sqrt_epsilon_double</name></member>
+      <member refid="structtudat_1_1shape__based__methods_1_1SphericalShaping_1_1TimeOfFlightFunction_1a3ed57e94876ab985bda21412e0e07178" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>TimeOfFlightFunction</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1BasicFunction_1a752b82484f0acb5f8ec1c55ea2dc731b" prot="public" virt="virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>~BasicFunction</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1ae438d4c770503bfdf34c812e4f47cf09" prot="public" virt="virtual"><scope>tudat::shape_based_methods::SphericalShaping::TimeOfFlightFunction</scope><name>~Function</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

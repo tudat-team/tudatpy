@@ -1,0 +1,512 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1MassPropagatorSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::MassPropagatorSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings" prot="public" virt="non-virtual">tudat::propagators::SingleArcPropagatorSettings&lt; StateScalarType &gt;</basecompoundref>
+    <includes refid="propagationSettings_8h" local="no">propagationSettings.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateScalarType</type>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1a0aa96b2683fb7c9486f351e4b0416018" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::bodiesWithMassToPropagate_</definition>
+        <argsstring></argsstring>
+        <name>bodiesWithMassToPropagate_</name>
+        <briefdescription>
+<para>List of bodies for which the mass is to be propagated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1223" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1223" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1ac8aab80b519f67fcc2026aca0c63d29e" prot="private" static="no" mutable="no">
+        <type>simulation_setup::SelectedMassRateModelMap</type>
+        <definition>simulation_setup::SelectedMassRateModelMap tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::massRateSettingsMap_</definition>
+        <argsstring></argsstring>
+        <name>massRateSettingsMap_</name>
+        <briefdescription>
+<para>List of mass rate settings per propagated body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1278" column="48" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1278" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1a261c7e3d59dd391fa0c7870c70c9d6e2" prot="private" static="no" mutable="no">
+        <type>basic_astrodynamics::MassRateModelMap</type>
+        <definition>basic_astrodynamics::MassRateModelMap tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::massRateModels_</definition>
+        <argsstring></argsstring>
+        <name>massRateModels_</name>
+        <briefdescription>
+<para>List of mass rate models per propagated body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1281" column="43" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1281" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1a9f43038e91eaf231eff73614fbeba77e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::MassPropagatorSettings</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; bodiesWithMassToPropagate, const std::map&lt; std::string, std::shared_ptr&lt; basic_astrodynamics::MassRateModel &gt; &gt; &amp;massRateModels, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;initialBodyMasses, const std::shared_ptr&lt; PropagationTerminationSettings &gt; terminationSettings, const std::shared_ptr&lt; DependentVariableSaveSettings &gt; dependentVariablesToSave=std::shared_ptr&lt; DependentVariableSaveSettings &gt;(), const double printInterval=TUDAT_NAN)</argsstring>
+        <name>MassPropagatorSettings</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>bodiesWithMassToPropagate</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel" kindref="compound">basic_astrodynamics::MassRateModel</ref> &gt; &gt; &amp;</type>
+          <declname>massRateModels</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialBodyMasses</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagationTerminationSettings" kindref="compound">PropagationTerminationSettings</ref> &gt;</type>
+          <declname>terminationSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;</type>
+          <declname>dependentVariablesToSave</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>printInterval</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Constructor of mass state propagator settings, with single mass rate model per body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of mass state propagator settings, with single mass rate model per body. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodiesWithMassToPropagate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the mass is to be propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massRateModels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of mass rate models per propagated body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialBodyMasses</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial masses used as input for numerical integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terminationSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for creating the object that checks whether the propagation is finished. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariablesToSave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the dependent variables that are to be saved during propagation (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printInterval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1154" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1154" bodyend="1171"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1a70b679e8a0e99d92efd84baabc0e40c7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::MassPropagatorSettings</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; bodiesWithMassToPropagate, const std::map&lt; std::string, std::vector&lt; std::shared_ptr&lt; basic_astrodynamics::MassRateModel &gt; &gt; &gt; &amp;massRateModels, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;initialBodyMasses, const std::shared_ptr&lt; PropagationTerminationSettings &gt; terminationSettings, const std::shared_ptr&lt; DependentVariableSaveSettings &gt; dependentVariablesToSave=std::shared_ptr&lt; DependentVariableSaveSettings &gt;(), const double printInterval=TUDAT_NAN)</argsstring>
+        <name>MassPropagatorSettings</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>bodiesWithMassToPropagate</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; std::string, std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel" kindref="compound">basic_astrodynamics::MassRateModel</ref> &gt; &gt; &gt; &amp;</type>
+          <declname>massRateModels</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialBodyMasses</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagationTerminationSettings" kindref="compound">PropagationTerminationSettings</ref> &gt;</type>
+          <declname>terminationSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;</type>
+          <declname>dependentVariablesToSave</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>printInterval</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Constructor of mass state propagator settings, with already-created mass rate models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of mass state propagator settings, with already-created mass rate models. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodiesWithMassToPropagate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the mass is to be propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massRateModels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of mass rate models per propagated body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialBodyMasses</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial masses used as input for numerical integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terminationSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for creating the object that checks whether the propagation is finished. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariablesToSave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the dependent variables that are to be saved during propagation (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printInterval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1185" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1185" bodyend="1196"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1aa2a44ae6a8b232bf38417aa901a2449c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::MassPropagatorSettings</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; bodiesWithMassToPropagate, const simulation_setup::SelectedMassRateModelMap &amp;massRateSettings, const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;initialBodyMasses, const std::shared_ptr&lt; PropagationTerminationSettings &gt; terminationSettings, const std::shared_ptr&lt; DependentVariableSaveSettings &gt; dependentVariablesToSave=std::shared_ptr&lt; DependentVariableSaveSettings &gt;(), const double printInterval=TUDAT_NAN)</argsstring>
+        <name>MassPropagatorSettings</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>bodiesWithMassToPropagate</declname>
+        </param>
+        <param>
+          <type>const simulation_setup::SelectedMassRateModelMap &amp;</type>
+          <declname>massRateSettings</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>initialBodyMasses</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1PropagationTerminationSettings" kindref="compound">PropagationTerminationSettings</ref> &gt;</type>
+          <declname>terminationSettings</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;</type>
+          <declname>dependentVariablesToSave</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1DependentVariableSaveSettings" kindref="compound">DependentVariableSaveSettings</ref> &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>printInterval</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Constructor of mass state propagator settings, with settings for mass rate models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of mass state propagator settings, with settings for mass rate models. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodiesWithMassToPropagate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies for which the mass is to be propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massRateSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of settings for mass rate models per propagated body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialBodyMasses</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial masses used as input for numerical integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terminationSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for creating the object that checks whether the propagation is finished. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dependentVariablesToSave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for the dependent variables that are to be saved during propagation (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>printInterval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the current state and time are to be printed to console (default never). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1210" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1210" bodyend="1220"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1ae5b2619ad006029e32c9e09fbb2be038" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::resetIntegratedStateModels</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies, const basic_astrodynamics::AccelerationMap &amp;accelerationMap)</argsstring>
+        <name>resetIntegratedStateModels</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::AccelerationMap &amp;</type>
+          <declname>accelerationMap</declname>
+        </param>
+        <briefdescription>
+<para>Function to create the mass-rate models with support for thrust-acceleration-based mass-rate models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create the mass-rate models, with the possibility to specify an acceleration map for setting up mass-rate models determined from thrust accelerations. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of bodies in the propagation, with keys the names of the bodies. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationMap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of accelerations in the propagation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1232" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1232" bodyend="1237"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1a85a7d20b887db9262bae7dc1dfcba830" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::resetIntegratedStateModels</definition>
+        <argsstring>(const simulation_setup::SystemOfBodies &amp;bodies)</argsstring>
+        <name>resetIntegratedStateModels</name>
+        <reimplements refid="classtudat_1_1propagators_1_1PropagatorSettings_1a18182c016d4f3bfd0229485425f9c395">resetIntegratedStateModels</reimplements>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1SystemOfBodies" kindref="compound">simulation_setup::SystemOfBodies</ref> &amp;</type>
+          <declname>bodies</declname>
+        </param>
+        <briefdescription>
+<para>Function to create the mass-rate models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create the mass-rate models. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of bodies in the propagation, with keys the names of the bodies. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1244" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1244" bodyend="1247"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1a17f3e87d6c329cf0e9d6959823bcba8f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>simulation_setup::SelectedMassRateModelMap</type>
+        <definition>simulation_setup::SelectedMassRateModelMap tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::getMassRateSettingsMap</definition>
+        <argsstring>() const</argsstring>
+        <name>getMassRateSettingsMap</name>
+        <briefdescription>
+<para>Function to get the mass-rate settings map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the mass-rate settings map. <simplesect kind="return"><para>The mass-rate settings map. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1254" column="48" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1254" bodyend="1257"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1MassPropagatorSettings_1ad8e52c54f482a49c49d6b7b3417a6a68" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>basic_astrodynamics::MassRateModelMap</type>
+        <definition>basic_astrodynamics::MassRateModelMap tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;::getMassRateModelsMap</definition>
+        <argsstring>() const</argsstring>
+        <name>getMassRateModelsMap</name>
+        <briefdescription>
+<para>Function to get the mass-rate models map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the mass-rate models map. <simplesect kind="return"><para>The mass-rate models map. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1264" column="43" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1264" bodyend="1272"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for defining settings for propagating the mass of a body. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for defining settings for propagating the mass of a body. The body masses are propagated in their natural form (i.e. no choice of equations of motion as is the case for translational dynamics)l </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::propagators::PropagatorSettings&lt; StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1PropagatorSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1MassPropagatorSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleArcPropagatorSettings&lt; StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::propagators::PropagatorSettings&lt; StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1PropagatorSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::MassPropagatorSettings&lt; StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1MassPropagatorSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::propagators::SingleArcPropagatorSettings&lt; StateScalarType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" line="1138" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationSettings.h" bodystart="1139" bodyend="1283"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1a0aa96b2683fb7c9486f351e4b0416018" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>bodiesWithMassToPropagate_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a9dd65fe2bf4a7c627e579bd72c8f0561" prot="protected" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>dependentVariablesToSave_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a987e539af258fd0548128478ceb1f1b6" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getConventionalStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a7d351d858e2042536fe838c3cd2570f3" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getDependentVariablesToSave</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a6db4b4a3a34bad2ef3b9e9789a2853e4" prot="public" virt="virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getInitialStates</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a446e5dd179a72f27aa5df54e8d491a92" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getIsMultiArc</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1ad8e52c54f482a49c49d6b7b3417a6a68" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getMassRateModelsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1a17f3e87d6c329cf0e9d6959823bcba8f" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getMassRateSettingsMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a134d7c5ef645d93c24eb5207d140b9c3" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getPrintInterval</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a128271c27a3fe5ca34ac1a58634a181b" prot="public" virt="virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getPropagatedStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1adf9a0194f420a4eb6c949ef3400eaf5f" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getStateType</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1ab52769df71f2c289a575df9457c711c7" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>getTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a76fe3605ffe32130c5343601125188b4" prot="protected" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>initialStates_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a571feace38f16b87d7e50e56c3e4425f" prot="protected" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>isMultiArc_</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1a9f43038e91eaf231eff73614fbeba77e" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>MassPropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1a70b679e8a0e99d92efd84baabc0e40c7" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>MassPropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1aa2a44ae6a8b232bf38417aa901a2449c" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>MassPropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1a261c7e3d59dd391fa0c7870c70c9d6e2" prot="private" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>massRateModels_</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1ac8aab80b519f67fcc2026aca0c63d29e" prot="private" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>massRateSettingsMap_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a4a186ce31f706e1d054035dacb8ee2bd" prot="protected" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>printInterval_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a5540555103ae40e91c02a412268c9d67" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>PropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a5aaa9e6eca4fb6ba7650293762df42af" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>resetDependentVariablesToSave</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a372bd085a2032236531536f5d8c46fb3" prot="public" virt="virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>resetInitialStates</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1ae5b2619ad006029e32c9e09fbb2be038" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>resetIntegratedStateModels</name></member>
+      <member refid="classtudat_1_1propagators_1_1MassPropagatorSettings_1a85a7d20b887db9262bae7dc1dfcba830" prot="public" virt="virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>resetIntegratedStateModels</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1ad60d725357ae418dd6c785a371b8213b" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>resetTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a26029ffd00ed5cf58a12f2ad33208211" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>setTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a4c6a35e5406aa71ea132e0a25f179b4d" prot="public" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>SingleArcPropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a7325c41d712d7bbeeb12ef8969b235c3" prot="protected" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>stateSize_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a09efbe053ab9fdd928989c81fd3e7d1d" prot="protected" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>stateType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a4840694cc192b5e09eef2af31cc24185" prot="protected" virt="non-virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>terminationSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagatorSettings_1a65e44fea8537b9cc68d1e3d9b1fee714" prot="public" virt="virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>~PropagatorSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleArcPropagatorSettings_1a9627bc630c195255a9d8e7e55bdd4471" prot="public" virt="virtual"><scope>tudat::propagators::MassPropagatorSettings</scope><name>~SingleArcPropagatorSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

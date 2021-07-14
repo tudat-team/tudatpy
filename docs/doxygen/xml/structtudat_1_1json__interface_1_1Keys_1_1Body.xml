@@ -1,0 +1,250 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Body" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Body</compoundname>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Aerodynamics" prot="public">tudat::json_interface::Keys::Body::Aerodynamics</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Atmosphere" prot="public">tudat::json_interface::Keys::Body::Atmosphere</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1Ephemeris" prot="public">tudat::json_interface::Keys::Body::Ephemeris</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1GravityField" prot="public">tudat::json_interface::Keys::Body::GravityField</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1GravityFieldVariation" prot="public">tudat::json_interface::Keys::Body::GravityFieldVariation</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1GroundStation" prot="public">tudat::json_interface::Keys::Body::GroundStation</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1RadiationPressure" prot="public">tudat::json_interface::Keys::Body::RadiationPressure</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1RotationModel" prot="public">tudat::json_interface::Keys::Body::RotationModel</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1ShapeModel" prot="public">tudat::json_interface::Keys::Body::ShapeModel</innerclass>
+    <innerclass refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1_1State" prot="public">tudat::json_interface::Keys::Body::State</innerclass>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a7662daf6cff9cbcaf7e6e3c3e4b00941" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::useDefaultSettings</definition>
+        <argsstring></argsstring>
+        <name>useDefaultSettings</name>
+        <initializer>= &quot;useDefaultSettings&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="58" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1ad898c99072412b682b721a8f041d5377" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::initialState</definition>
+        <argsstring></argsstring>
+        <name>initialState</name>
+        <initializer>= &quot;initialState&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="59" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1aa550983b0c5985938feb67589a984f18" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::initialStateOrigin</definition>
+        <argsstring></argsstring>
+        <name>initialStateOrigin</name>
+        <initializer>= &quot;initialStateOrigin&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="60" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a94cc413338be5d525a5764b3af9dc8e9" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::mass</definition>
+        <argsstring></argsstring>
+        <name>mass</name>
+        <initializer>= &quot;mass&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="61" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a02b5d26fb1047097a497240b915f7069" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::rotationalState</definition>
+        <argsstring></argsstring>
+        <name>rotationalState</name>
+        <initializer>= &quot;rotationalState&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="62" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a7f9c50dfc82b6faeeeb07b77943211a2" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::referenceArea</definition>
+        <argsstring></argsstring>
+        <name>referenceArea</name>
+        <initializer>= &quot;referenceArea&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="63" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a9bc3e09465b8b0a8a527dff40be3050e" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::aerodynamics</definition>
+        <argsstring></argsstring>
+        <name>aerodynamics</name>
+        <initializer>= &quot;aerodynamics&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="104" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a24a864c0a517bbd1365ffe4386effc0e" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::atmosphere</definition>
+        <argsstring></argsstring>
+        <name>atmosphere</name>
+        <initializer>= &quot;atmosphere&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="129" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a3649aab7466762c711f558d0ca22148c" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::ephemeris</definition>
+        <argsstring></argsstring>
+        <name>ephemeris</name>
+        <initializer>= &quot;ephemeris&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="145" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1ace91d3a56d248075abf5b77db214465e" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::gravityField</definition>
+        <argsstring></argsstring>
+        <name>gravityField</name>
+        <initializer>= &quot;gravityField&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="172" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a89eed74abe52b3033a315990da878f67" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::rotationModel</definition>
+        <argsstring></argsstring>
+        <name>rotationModel</name>
+        <initializer>= &quot;rotationModel&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="189" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1ada200b60857356721bcfcc29ed7d3e0e" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::shapeModel</definition>
+        <argsstring></argsstring>
+        <name>shapeModel</name>
+        <initializer>= &quot;shapeModel&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="202" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1ab2dd50e3b90601e0177454ed550f7cdf" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::radiationPressure</definition>
+        <argsstring></argsstring>
+        <name>radiationPressure</name>
+        <initializer>= &quot;radiationPressure&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="211" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a7d36ef9983b482e5f0effd85f8ddb527" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::gravityFieldVariation</definition>
+        <argsstring></argsstring>
+        <name>gravityFieldVariation</name>
+        <initializer>= &quot;gravityFieldVariation&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="221" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Body_1a7625e6fcc1e330eda6b2464341ccccc5" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Body::groundStation</definition>
+        <argsstring></argsstring>
+        <name>groundStation</name>
+        <initializer>= &quot;groundStation&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="236" column="34" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="236" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="56" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="57" bodyend="243"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a9bc3e09465b8b0a8a527dff40be3050e" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>aerodynamics</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a24a864c0a517bbd1365ffe4386effc0e" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>atmosphere</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a3649aab7466762c711f558d0ca22148c" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>ephemeris</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1ace91d3a56d248075abf5b77db214465e" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>gravityField</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a7d36ef9983b482e5f0effd85f8ddb527" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>gravityFieldVariation</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a7625e6fcc1e330eda6b2464341ccccc5" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>groundStation</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1ad898c99072412b682b721a8f041d5377" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>initialState</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1aa550983b0c5985938feb67589a984f18" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>initialStateOrigin</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a94cc413338be5d525a5764b3af9dc8e9" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>mass</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1ab2dd50e3b90601e0177454ed550f7cdf" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>radiationPressure</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a7f9c50dfc82b6faeeeb07b77943211a2" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>referenceArea</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a02b5d26fb1047097a497240b915f7069" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>rotationalState</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a89eed74abe52b3033a315990da878f67" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>rotationModel</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1ada200b60857356721bcfcc29ed7d3e0e" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>shapeModel</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Body_1a7662daf6cff9cbcaf7e6e3c3e4b00941" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Body</scope><name>useDefaultSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

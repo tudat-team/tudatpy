@@ -1,0 +1,319 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AerodynamicCoefficientSettings</basecompoundref>
+    <includes refid="createAerodynamicCoefficientInterface_8h" local="no">createAerodynamicCoefficientInterface.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a088a370ddd5e12c6838bded24ef269ac" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::ConstantAerodynamicCoefficientSettings::constantForceCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>constantForceCoefficient_</name>
+        <briefdescription>
+<para>Constant moment coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="398" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="398" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a33b1722d4ca7ee0f50c57188f2cf2de6" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::ConstantAerodynamicCoefficientSettings::constantMomentCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>constantMomentCoefficient_</name>
+        <briefdescription>
+<para>Constant force coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="401" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="401" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a6ca3874eaac800b4bd90d737752b3a34" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings::ConstantAerodynamicCoefficientSettings</definition>
+        <argsstring>(const double referenceLength, const double referenceArea, const double lateralReferenceLength, const Eigen::Vector3d &amp;momentReferencePoint, const Eigen::Vector3d &amp;constantForceCoefficient, const Eigen::Vector3d &amp;constantMomentCoefficient=Eigen::Vector3d::Zero(), const bool areCoefficientsInAerodynamicFrame=true, const bool areCoefficientsInNegativeAxisDirection=true, const std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; interpolatorSettings=nullptr)</argsstring>
+        <name>ConstantAerodynamicCoefficientSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>referenceLength</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceArea</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>lateralReferenceLength</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>momentReferencePoint</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>constantForceCoefficient</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>constantMomentCoefficient</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areCoefficientsInAerodynamicFrame</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areCoefficientsInNegativeAxisDirection</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+          <declname>interpolatorSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>constantForceCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant force coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>constantMomentCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant moment coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference length with which aerodynamic moments (about x- and z- axes) are non-dimensionalized. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceArea</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference area with which aerodynamic forces and moments are non-dimensionalized. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lateralReferenceLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference length with which aerodynamic moments (about y-axis) is non-dimensionalized. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>momentReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point w.r.t. aerodynamic moment is calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areCoefficientsInAerodynamicFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areCoefficientsInNegativeAxisDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to define whether the aerodynamic coefficients are positiver along tyhe positive axes of the body or aerodynamic frame (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the coefficients are typically defined in negative direction. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interpolatorSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to an interpolator settings object, where the conditions for interpolation are saved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="329" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="329" bodyend="346"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a0e341c3135c2418c14433c113e59564d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings::ConstantAerodynamicCoefficientSettings</definition>
+        <argsstring>(const double referenceArea, const Eigen::Vector3d &amp;constantForceCoefficient, const bool areCoefficientsInAerodynamicFrame=true, const bool areCoefficientsInNegativeAxisDirection=true)</argsstring>
+        <name>ConstantAerodynamicCoefficientSettings</name>
+        <param>
+          <type>const double</type>
+          <declname>referenceArea</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>constantForceCoefficient</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areCoefficientsInAerodynamicFrame</declname>
+          <defval>true</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>areCoefficientsInNegativeAxisDirection</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, omitting all moment coefficient data. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>constantForceCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant force coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceArea</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference area with which aerodynamic forces and moments are non-dimensionalized. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areCoefficientsInAerodynamicFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areCoefficientsInNegativeAxisDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to define whether the aerodynamic coefficients are positiver along tyhe positive axes of the body or aerodynamic frame (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the coefficients are typically defined in negative direction. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="362" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="362" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a547a9b0db4a387a8c294ed894019c243" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::ConstantAerodynamicCoefficientSettings::getConstantForceCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>getConstantForceCoefficient</name>
+        <briefdescription>
+<para>Function to return constant force coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return constant force coefficients. <simplesect kind="return"><para>Cnstant force coefficients. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="380" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="380" bodyend="383"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1afd82801686ddc02865fa757b35341315" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::ConstantAerodynamicCoefficientSettings::getConstantMomentCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>getConstantMomentCoefficient</name>
+        <briefdescription>
+<para>Function to return constant moment coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return constant moment coefficients. <simplesect kind="return"><para>Cnstant force coefficients. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="390" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="390" bodyend="393"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings" kindref="compound">AerodynamicCoefficientSettings</ref> for defining a constant aerodynamic coefficients. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AerodynamicCoefficientSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AerodynamicCoefficientSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="303" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="304" bodyend="403"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a6f8d194362dc8c73a8391f8781573ab6" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>AerodynamicCoefficientSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a6ca3874eaac800b4bd90d737752b3a34" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>ConstantAerodynamicCoefficientSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a0e341c3135c2418c14433c113e59564d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>ConstantAerodynamicCoefficientSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a088a370ddd5e12c6838bded24ef269ac" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>constantForceCoefficient_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a33b1722d4ca7ee0f50c57188f2cf2de6" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>constantMomentCoefficient_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1ac9cdc44679a42e11702489a3720b1e97" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getAerodynamicCoefficientType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a19ec87d7db67573936c8c60825f56875" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getAreCoefficientsInAerodynamicFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a8446d225c5c7011a81280fe0fa1958c3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getAreCoefficientsInNegativeAxisDirection</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1a547a9b0db4a387a8c294ed894019c243" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getConstantForceCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantAerodynamicCoefficientSettings_1afd82801686ddc02865fa757b35341315" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getConstantMomentCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1aba42847c085870816fe1926ebd4abb54" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getControlSurfaceSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a884a3349c41d023ab72e7566053227aa" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getIndependentVariableNames</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a1e7156947a676bc0d776c109877715ac" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getInterpolatorSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a22915d5cfb8a662caf82b7ac082d7368" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getLateralReferenceLength</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a16b2b67e431df72bc0267189dd0dd4cc" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getMomentReferencePoint</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a435aa9070052b7442625e9ad010e4c57" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getReferenceArea</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a1332da808b8afe7418344d4009904427" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>getReferenceLength</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a32f14b3dab6e7333047e981829be21ba" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>setControlSurfaceSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a2286359e82a186bbfa640447859dffcb" prot="public" virt="virtual"><scope>tudat::simulation_setup::ConstantAerodynamicCoefficientSettings</scope><name>~AerodynamicCoefficientSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
