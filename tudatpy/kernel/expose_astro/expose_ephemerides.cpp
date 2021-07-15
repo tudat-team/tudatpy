@@ -205,5 +205,15 @@ void expose_ephemerides(py::module &m) {
            py::arg("frame_orientation") = "J2000",
            py::arg("tle") = nullptr,
            py::arg("use_sdp") = false);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // tabulatedEphemeris.h
+  //////////////////////////////////////////////////////////////////////////////
+  py::class_<te::TabulatedCartesianEphemeris< double, double >,
+             std::shared_ptr<te::TabulatedCartesianEphemeris< double, double > >,
+             te::Ephemeris>(m, "TabulatedEphemeris")
+             .def("reset_interpolator", &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator,
+                  py::arg("interpolator") );
+
 };
 }// namespace tudatpy
