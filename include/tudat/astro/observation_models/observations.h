@@ -44,7 +44,7 @@ public:
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType > observationTimes,
             const LinkEndType referenceLinkEnd,
-            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsDependentVariables =
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationsDependentVariables =
             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) ):
         observableType_( observableType ),
         linkEnds_( linkEnds ),
