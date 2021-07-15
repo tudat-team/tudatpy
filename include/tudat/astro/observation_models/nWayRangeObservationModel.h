@@ -47,12 +47,13 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     NWayRangeObservationModel(
+            const LinkEnds& linkEnds,
             const std::vector< std::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > > lightTimeCalculators,
             const std::function< std::vector< double >( const double ) > retransmissionDelays =
             std::function< std::vector< double >( const double ) >( ),
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
         lightTimeCalculators_( lightTimeCalculators ), retransmissionDelays_( retransmissionDelays )
     {
         numberOfLinks_ = lightTimeCalculators_.size( );

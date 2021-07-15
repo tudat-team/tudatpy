@@ -39,11 +39,15 @@ class SingleObservationSet
 {
 public:
     SingleObservationSet(
+            const ObservableType observableType,
+            const LinkEnds& linkEnds,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType > observationTimes,
             const LinkEndType referenceLinkEnd,
             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsDependentVariables =
             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) ):
+        observableType_( observableType ),
+        linkEnds_( linkEnds ),
         observations_( observations ),
         observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ),
@@ -63,6 +67,16 @@ public:
                 throw std::runtime_error( "Error when making SingleObservationSet, input observables not of consistent size." );
             }
         }
+    }
+
+    ObservableType getObservableType( )
+    {
+        return observableType_;
+    }
+
+    LinkEnds getLinkEnds( )
+    {
+        return linkEnds_;
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
@@ -105,6 +119,10 @@ public:
     }
 
 private:
+
+    const ObservableType observableType_;
+
+    const LinkEnds linkEnds_;
 
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 

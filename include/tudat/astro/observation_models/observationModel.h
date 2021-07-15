@@ -59,9 +59,11 @@ public:
      * observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     ObservationModel(
-            const ObservableType observableType ,
+            const ObservableType observableType,
+            const LinkEnds linkEnds,
             const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr ):
         observableType_( observableType ),
+        linkEnds_( linkEnds ),
         observationBiasCalculator_( observationBiasCalculator )
     {
         // Check if bias is empty
@@ -90,6 +92,11 @@ public:
     ObservableType getObservableType( )
     {
         return observableType_;
+    }
+
+    LinkEnds getLinkEnds( )
+    {
+        return linkEnds_;
     }
 
     //! Function to compute the observable without any corrections
@@ -255,6 +262,8 @@ protected:
 
     //! Type of observable, used for derived class type identification without explicit casts.
     ObservableType observableType_;
+
+    LinkEnds linkEnds_;
 
     //! Object for calculating system-dependent errors in the observable.
     /*!
