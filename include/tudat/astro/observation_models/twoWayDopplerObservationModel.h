@@ -45,12 +45,13 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     TwoWayDopplerObservationModel(
+            const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
             uplinkDopplerCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
             downlinkDopplerCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, linkEnds, observationBiasCalculator ),
        uplinkDopplerCalculator_( uplinkDopplerCalculator ),
        downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
