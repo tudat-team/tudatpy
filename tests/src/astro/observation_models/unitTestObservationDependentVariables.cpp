@@ -157,21 +157,49 @@ int main( )
     }
 
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariableList;
-    dependentVariableList.push_back(
-                std::make_shared< StationAngleObservationDependentVariableSettings >(
-                    station_elevation_angle, std::make_pair( "Earth", "Station1" ) ) );
+    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings =
+            std::make_shared< StationAngleObservationDependentVariableSettings >(
+                station_elevation_angle, std::make_pair( "Earth", "Station1" ) );
+            dependentVariableList.push_back( elevationAngleSettings );
 
     addDependentVariablesToObservationSimulationSettings(
-            measurementSimulationInput, dependentVariableList, bodies );
+                measurementSimulationInput, dependentVariableList, bodies );
 
 
 
     // Simulate noise-free observations
     std::shared_ptr< ObservationCollection< > > idealObservationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, observationSimulators, bodies );
+//    std::map< ObservableType, std::map< LinkEnds, std::map< double, Eigen::VectorXd > > > variableName
+//    std::vector< std::shared_ptr< ObservationDependentVariableWrapper > > variableName =
+//            idealObservationsAndTimes.getDependentVariables( elevationAngleSettings );
+
+//    std::map< double, Eigen::VectorXd > getDependentVariableList(
+//                elevationAngleSettings
+//                std::vector< std::shared_ptr< ObservationDependentVariableWrapper >,
+//                ObservableType,
+//                LinkEnds );
 
 
 }
+
+//class ObservationDependentVariableWrapper
+//{
+//  ObservableType observableType_;
+
+//  LinkEnds linkEnds;
+
+//  std::map< double, Eigen::VectorXd > dependentVariables_;
+
+//  std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariableList;
+
+//  std::vector< int > sizeIndices_;
+
+//  std::map< double, Eigen::VectorXd > getSingleDependentVariables( std::shared_ptr< ObservationDependentVariableSettings > );
+
+
+
+//};
 
 //BOOST_AUTO_TEST_SUITE_END( )
 
