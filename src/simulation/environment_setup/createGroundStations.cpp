@@ -10,6 +10,7 @@
 
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include <iostream>
 
 namespace tudat
 {
@@ -106,22 +107,30 @@ std::vector< double >  getTargetElevationAngles(
                                   " not found on body " + observingBody->getBodyName( ) );
     }
 
+
     std::function< Eigen::Vector6d( const double& ) > groundStationStateFunction =
             getLinkEndCompleteEphemerisFunction(
                 observingBody, std::make_pair( observingBody->getBodyName( ), groundStationName ) );
 
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
             observingBody->getGroundStationMap( ).at( groundStationName )->getPointingAnglesCalculator( );
-
+    std::cout << "3" << std::endl;
     Eigen::Vector3d relativePosition;
     std::vector< double > elevationAngles;
     for( unsigned int i = 0; i < times.size( ); i++ )
     {
+        std::cout << "Inside: 3.1" << std::endl;
+        targetBody->getStateInBaseFrameFromEphemeris( times.at( i ) );
+        std::cout << "Inside: 3.2" << std::endl;
+        groundStationStateFunction( times.at( i ) );
+        std::cout << "Inside: 3.3" << std::endl;
         relativePosition = ( targetBody->getStateInBaseFrameFromEphemeris( times.at( i ) ) -
                 groundStationStateFunction( times.at( i ) ) ).segment( 0, 3 );
+        std::cout << "Inside: 3.4" << std::endl;
         elevationAngles.push_back( pointingAnglesCalculator->calculateElevationAngle( relativePosition, times.at( i ) ) );
+        std::cout << "Inside: 3.5" << std::endl << std::endl;
     }
-
+    std::cout << "4" << std::endl;
     return elevationAngles;
 }
 
