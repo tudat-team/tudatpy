@@ -340,7 +340,8 @@ std::pair< int, int > ObservationDependentVariableCalculator::getDependentVariab
     std::pair< int, int > startAndSizePair = std::make_pair( 0, 0 );
     for( unsigned int i = 0; i < settingsList_.size( ); i++ )
     {
-        if( settingsList_.at( i )->getIdentifier( ) == dependentVariables->getIdentifier( ) )
+        if( getObservationDependentVariableId( settingsList_.at( i ) ) ==
+                getObservationDependentVariableId( dependentVariables ) )
         {
             if( startAndSizePair.second == 0 )
             {
