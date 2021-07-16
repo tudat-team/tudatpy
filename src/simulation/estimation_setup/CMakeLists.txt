@@ -40,6 +40,7 @@ set(estimation_HEADERS
         observationOutputSettings.h
         observationOutput.h
         observationSimulationSettings.h
+        observations.h
         )
 
 # Add header files.

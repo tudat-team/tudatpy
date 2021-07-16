@@ -22,7 +22,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observations.h"
+#include "tudat/simulation/estimation_setup/observations.h"
 
 namespace tudat
 {
