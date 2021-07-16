@@ -38,7 +38,6 @@ set(observation_models_HEADERS
         "twoWayDopplerObservationModel.h"
         "eulerAngleObservationModel.h"
         "observationViabilityCalculator.h"
-        "observations.h"
         "corrections/lightTimeCorrection.h"
         "corrections/firstOrderRelativisticCorrection.h"
         )
