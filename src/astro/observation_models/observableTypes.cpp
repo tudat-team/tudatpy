@@ -532,6 +532,21 @@ int getNumberOfLinksInObservable(
     return numberOfLinks;
 }
 
+std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
+        const LinkEnds& linkEnds,
+        const LinkEndId linkEndToCheck )
+{
+    std::vector< LinkEndType > linkEndTypeList;
+    for( auto linkEndIterator : linkEnds )
+    {
+        if( linkEndToCheck == linkEndIterator.second )
+        {
+            linkEndTypeList.push_back( linkEndIterator.first );
+        }
+    }
+    return linkEndTypeList;
+}
+
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationResidualBlock,
         const ObservableType observableType )
