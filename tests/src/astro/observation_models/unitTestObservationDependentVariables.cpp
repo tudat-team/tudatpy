@@ -141,10 +141,10 @@ int main( )
     // Define osbervation times.
     std::vector< double > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
-    double observationInterval = 5.0;
-    for( unsigned int i = 0; i < 3; i++ )
+    double observationInterval = 10.0;
+    for( unsigned int i = 0; i < 14; i++ )
     {
-        for( unsigned int j = 0; j < 10000; j++ )
+        for( unsigned int j = 0; j < 4320; j++ )
         {
             baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
                                     static_cast< double >( j ) * observationInterval );
@@ -166,18 +166,31 @@ int main( )
         }
     }
 
+    std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsList;
+    viabilitySettingsList.push_back( elevationAngleViabilitySettings(
+                                         std::make_pair( "Earth", "Station1" ), 25.0 * mathematical_constants::PI / 180.0 ) );
+    viabilitySettingsList.push_back( elevationAngleViabilitySettings(
+                                         std::make_pair( "Earth", "Station2" ), 25.0 * mathematical_constants::PI / 180.0 ) );
+
+    addViabilityToObservationSimulationSettings(
+            measurementSimulationInput, viabilitySettingsList );
+
     // Define settings for dependent variables
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariableList;
 
     std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings1 =
             std::make_shared< StationAngleObservationDependentVariableSettings >(
                 station_elevation_angle, std::make_pair( "Earth", "Station1" ) );
-    dependentVariableList.push_back( elevationAngleSettings1 );
-
-    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings2 =
+    std::shared_ptr< ObservationDependentVariableSettings > azimuthAngleSettings1 =
             std::make_shared< StationAngleObservationDependentVariableSettings >(
-                station_elevation_angle, std::make_pair( "Earth", "Station2" ) );
-    dependentVariableList.push_back( elevationAngleSettings2 );
+                station_azimuth_angle, std::make_pair( "Earth", "Station1" ) );
+
+//    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings2 =
+//            std::make_shared< StationAngleObservationDependentVariableSettings >(
+//                station_elevation_angle, std::make_pair( "Earth", "Station2" ) );
+
+    dependentVariableList.push_back( elevationAngleSettings1 );
+    dependentVariableList.push_back( azimuthAngleSettings1 );
 
     addDependentVariablesToObservationSimulationSettings(
                 measurementSimulationInput, dependentVariableList, bodies );
@@ -190,45 +203,44 @@ int main( )
 
     std::cout<<"Simulated observations "<<std::endl;
     std::map< double, Eigen::VectorXd > elevationAngles;
+    std::map< double, Eigen::VectorXd > azimuthAngles;
 
+    std::cout<<"Getting elevation angle"<<std::endl;
     elevationAngles = getDependentVariableResultList(
                 idealObservationsAndTimes, elevationAngleSettings1,
-                one_way_range, stationReceiverLinkEnds[ 0 ] );
+                one_way_range );
     input_output::writeDataMapToTextFile( elevationAngles,
                                           "elevationAngles1_range.dat",
                                           "/home/dominic/Software/Tudat30Bundle/test-output/" );
 
-    elevationAngles = getDependentVariableResultList(
-                idealObservationsAndTimes, elevationAngleSettings2,
-                one_way_range, stationReceiverLinkEnds[ 1 ] );
-    input_output::writeDataMapToTextFile( elevationAngles,
-                                          "elevationAngles2_range.dat",
+    std::cout<<"Getting azimuth angle"<<std::endl;
+    azimuthAngles = getDependentVariableResultList(
+                idealObservationsAndTimes, azimuthAngleSettings1,
+                one_way_range );
+    input_output::writeDataMapToTextFile( azimuthAngles,
+                                          "azimuthAngles1_range.dat",
                                           "/home/dominic/Software/Tudat30Bundle/test-output/" );
 
-    elevationAngles = getDependentVariableResultList(
-                idealObservationsAndTimes, elevationAngleSettings1,
-                one_way_doppler, stationReceiverLinkEnds[ 0 ] );
-    input_output::writeDataMapToTextFile( elevationAngles,
-                                          "elevationAngles1_doppler.dat",
-                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
+//    elevationAngles = getDependentVariableResultList(
+//                idealObservationsAndTimes, elevationAngleSettings1,
+//                one_way_range, stationReceiverLinkEnds[ 0 ] );
+//    input_output::writeDataMapToTextFile( elevationAngles,
+//                                          "elevationAngles2_range.dat",
+//                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
 
-    elevationAngles = getDependentVariableResultList(
-                idealObservationsAndTimes, elevationAngleSettings2,
-                one_way_doppler, stationReceiverLinkEnds[ 1 ] );
-    input_output::writeDataMapToTextFile( elevationAngles,
-                                          "elevationAngles2_doppler.dat",
-                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
+//    elevationAngles = getDependentVariableResultList(
+//                idealObservationsAndTimes, elevationAngleSettings2,
+//                one_way_doppler );
+//    input_output::writeDataMapToTextFile( elevationAngles,
+//                                          "elevationAngles1_doppler.dat",
+//                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
 
-
-    //    std::map< ObservableType, std::map< LinkEnds, std::map< double, Eigen::VectorXd > > > variableName
-    //    std::vector< std::shared_ptr< ObservationDependentVariableWrapper > > variableName =
-    //            idealObservationsAndTimes.getDependentVariables( elevationAngleSettings );
-
-    //    std::map< double, Eigen::VectorXd > getDependentVariableList(
-    //                elevationAngleSettings
-    //                std::vector< std::shared_ptr< ObservationDependentVariableWrapper >,
-    //                ObservableType,
-    //                LinkEnds );
+//    elevationAngles = getDependentVariableResultList(
+//                idealObservationsAndTimes, elevationAngleSettings2,
+//                one_way_doppler, stationReceiverLinkEnds[ 1 ] );
+//    input_output::writeDataMapToTextFile( elevationAngles,
+//                                          "elevationAngles2_doppler.dat",
+//                                          "/home/dominic/Software/Tudat30Bundle/test-output/" );
 
 
 }
