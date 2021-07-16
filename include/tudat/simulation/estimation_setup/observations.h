@@ -54,9 +54,8 @@ public:
         observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ),
         observationsDependentVariables_( observationsDependentVariables ),
-        numberOfObservations_( observations_.size( ) ),
-        dependentVariableCalculator_( dependentVariableCalculator )
-
+        dependentVariableCalculator_( dependentVariableCalculator ),
+        numberOfObservations_( observations_.size( ) )
     {
         if( observations_.size( ) != observationTimes_.size( ) )
         {
@@ -121,6 +120,32 @@ public:
         return observationsVector;
     }
 
+    std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsHistory( )
+    {
+        return utilities::createMapFromVectors< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >(
+                    observationTimes_, observations_ );
+    }
+
+
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsDependentVariables( )
+    {
+        return observationsDependentVariables_;
+    }
+
+
+    std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > getDependentVariableCalculator( )
+    {
+        return dependentVariableCalculator_;
+    }
+
+    std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getDependentVariableHistory( )
+    {
+        return utilities::createMapFromVectors< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >(
+                    observationTimes_, observationsDependentVariables_ );
+    }
+
+
+
 private:
 
     const ObservableType observableType_;
@@ -152,7 +177,7 @@ public:
 
     ObservationCollection(
             const SortedObservationSets& observationSetList = SortedObservationSets( ) ):
-    observationSetList_( observationSetList )
+        observationSetList_( observationSetList )
     {
         setObservationSetIndices( );
         setConcatenatedObservationsAndTimes( );
@@ -315,13 +340,13 @@ private:
                 for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
                 {
                     std::pair< int, int > startAndSize =
-                        observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
+                            observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
                     Eigen::VectorXd currentObservables = Eigen::VectorXd::Zero( startAndSize.second );
 
                     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > currentObservationSet =
                             linkEndIterator.second.at( i )->getObservations( );
                     std::vector< TimeType > currentObservationTimes =
-                                linkEndIterator.second.at( i )->getObservationTimes( );
+                            linkEndIterator.second.at( i )->getObservationTimes( );
                     for( unsigned int j = 0; j < currentObservationSet.size( ); j++ )
                     {
                         currentObservables.segment( j * observableSize, observableSize ) = currentObservationSet.at( j );
@@ -355,13 +380,101 @@ private:
 
 };
 
+
 template< typename ObservationScalarType = double, typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-std::map< double, Eigen::VectorXd > getDependentVariableList(
+std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getObservationListWithDependentVariables(
         const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::shared_ptr< ObservationDependentVariableSettings > dependentVariableToRetrieve,
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableToRetrieve,
         const ObservableType observableType ,
-        const LinkEnds& linkEnds );
+        const LinkEnds& linkEnds )
+{
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationList;
+    if( observationCollection->getObservations( ).count( observableType ) != 0 )
+    {
+        if( observationCollection->getObservations( ).at( observableType ).count( linkEnds ) != 0 )
+        {
+            std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > fullObservationList =
+                    observationCollection->getObservations( ).at( observableType ).at( linkEnds );
+
+            for( unsigned int i = 0; i < fullObservationList.size( ); i++ )
+            {
+                std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator =
+                        fullObservationList.at( i )->getDependentVariableCalculator( );
+                if( dependentVariableCalculator != nullptr )
+                {
+                    std::pair< int, int > variableIndices = dependentVariableCalculator->getDependentVariableIndices(
+                                dependentVariableToRetrieve );
+
+                    if( variableIndices.second != 0 )
+                    {
+                        observationList.push_back( fullObservationList.at( i ) );
+                    }
+                }
+            }
+        }
+    }
+    return observationList;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::vector< std::map< double, Eigen::VectorXd > > getDependentVariableResultPerObservationSet(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableToRetrieve,
+        const ObservableType observableType ,
+        const LinkEnds& linkEnds )
+{
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationsWithVariable =
+            getObservationListWithDependentVariables(
+                observationCollection, dependentVariableToRetrieve, observableType, linkEnds );
+
+    std::vector< std::map< double, Eigen::VectorXd > > dependentVariableList;
+    for( unsigned int i = 0; i < observationsWithVariable.size( ); i++ )
+    {
+        std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator =
+                observationsWithVariable.at( i )->getDependentVariableCalculator( );
+        std::pair< int, int > variableIndices = dependentVariableCalculator->getDependentVariableIndices(
+                    dependentVariableToRetrieve );
+        dependentVariableList.push_back(
+                    utilities::sliceMatrixHistory(
+                        observationsWithVariable.at( i )->getDependentVariableHistory( ), variableIndices ) );
+    }
+
+    return dependentVariableList;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::map< double, Eigen::VectorXd > getDependentVariableResultList(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableToRetrieve,
+        const ObservableType observableType ,
+        const LinkEnds& linkEnds )
+{
+    std::vector< std::map< double, Eigen::VectorXd > > dependentVariableResultPerObservationSet =
+            getDependentVariableResultPerObservationSet(
+                observationCollection, dependentVariableToRetrieve, observableType, linkEnds );
+    return utilities::concatenateMaps( dependentVariableResultPerObservationSet );
+
+
+}
+
+template< typename TimeType = double, typename... ArgTypes >
+void addViabilityToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
+        ArgTypes... args )
+{
+    std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
+            std::bind( &addViabilityToSingleObservationSimulationSettings< TimeType >,
+                       std::placeholders::_1, viabilitySettingsList );
+    modifyObservationSimulationSettings(
+                observationSimulationSettings,
+                modificationFunction, args ... );
+}
+
+
 
 } // namespace observation_models
 

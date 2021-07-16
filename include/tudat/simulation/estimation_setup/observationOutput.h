@@ -68,7 +68,6 @@ VectorObservationDependentVariableFunction getObservationVectorDependentVariable
         const observation_models::ObservableType observableType,
         const observation_models::LinkEnds linkEnds );
 
-
 class ObservationDependentVariableCalculator
 {
 public:
@@ -92,6 +91,9 @@ public:
     void addDependentVariables(
             const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
             const SystemOfBodies& bodies );
+
+    std::pair< int, int > getDependentVariableIndices(
+            const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables );
 
 private:
 

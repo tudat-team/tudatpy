@@ -167,7 +167,8 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
 
     return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
                 observationModel->getObservableType( ), observationModel->getLinkEnds( ),
-                std::get< 0 >( simulatedObservations ), std::get< 1 >( simulatedObservations ), referenceLinkEnd, std::get< 2 >( simulatedObservations ) );
+                std::get< 0 >( simulatedObservations ), std::get< 1 >( simulatedObservations ), referenceLinkEnd, std::get< 2 >( simulatedObservations ),
+                dependentVariableCalculator );
 }
 
 
