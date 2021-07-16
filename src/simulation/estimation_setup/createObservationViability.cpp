@@ -180,6 +180,7 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
 
     for( unsigned int i = 0; i < relevantObservationViabilitySettings.size( ); i++ )
     {
+
         switch( relevantObservationViabilitySettings.at( i )->observationViabilityType_ )
         {
         case minimum_elevation_angle:
