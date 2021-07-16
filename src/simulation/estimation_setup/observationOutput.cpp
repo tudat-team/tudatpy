@@ -23,12 +23,12 @@ void checkObservationDependentVariableEnvironment(
 {
     if( isObservationDependentVariableGroundStationProperty( variableSettings ) )
     {
-//        if( variableSettings->relevantLinkEnds_.size( ) != 1 )
-//        {
-//            throw std::runtime_error( "Error in observation dependent variables when creating function for " +
-//                                      getObservationDependentVariableName( variableSettings ) +
-//                                      ", only one input link end can be processed" );
-//        }
+        //        if( variableSettings->relevantLinkEnds_.size( ) != 1 )
+        //        {
+        //            throw std::runtime_error( "Error in observation dependent variables when creating function for " +
+        //                                      getObservationDependentVariableId( variableSettings ) +
+        //                                      ", only one input link end can be processed" );
+        //        }
 
         std::string bodyName = variableSettings->relevantLinkEnd_.first;
         std::string stationName = variableSettings->relevantLinkEnd_.second;
@@ -36,14 +36,14 @@ void checkObservationDependentVariableEnvironment(
         if( bodies.count( bodyName ) == 0 )
         {
             throw std::runtime_error( "Error in observation dependent variables when creating function for " +
-                                      getObservationDependentVariableName( variableSettings ) +
+                                      getObservationDependentVariableId( variableSettings ) +
                                       ", could not find body " + bodyName );
         }
 
         if( bodies.at( bodyName )->getGroundStationMap( ).count( stationName ) == 0 )
         {
             throw std::runtime_error( "Error in observation dependent variables when creating function for " +
-                                      getObservationDependentVariableName( variableSettings ) +
+                                      getObservationDependentVariableId( variableSettings ) +
                                       ", could not find station " + stationName + " on body " + bodyName );
         }
     }
@@ -54,7 +54,7 @@ double getLinkEndRange(
         const std::pair< int, int > linkEndIndices )
 {
     return ( linkEndStates.at( linkEndIndices.first ).segment( 0, 3 ) -
-                linkEndStates.at( linkEndIndices.second ).segment( 0, 3 ) ).norm( );
+             linkEndStates.at( linkEndIndices.second ).segment( 0, 3 ) ).norm( );
 }
 
 DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
@@ -68,7 +68,7 @@ DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
     if( isObservableIntegrated == 1 )
     {
         throw std::runtime_error( "Error in body-avoidance observation dependent variables for " +
-                                  getObservationDependentVariableName( variableSettings ) +
+                                  getObservationDependentVariableId( variableSettings ) +
                                   " Interface for integrated observables not yet implemented" );
     }
 
@@ -88,7 +88,7 @@ DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
             const Eigen::VectorXd& observationValue )
     {
         double averageTime = ( linkEndTimes.at( linkEndIndices.first ) +
-                linkEndTimes.at( linkEndIndices.second ) ) / 2.0;
+                               linkEndTimes.at( linkEndIndices.second ) ) / 2.0;
         Eigen::Vector3d bodyToAvoid =
                 bodies.at( variableSettings->bodyAvoidance_ )->getStateInBaseFrameFromEphemeris< double, double >( averageTime ).segment< 3 >( 0 );
         return observation_models::computeCosineBodyAvoidanceAngle( linkEndStates, linkEndIndices, bodyToAvoid );
@@ -106,7 +106,7 @@ DoubleObservationDependentVariableFunction getTargetRangeFunction(
     if( isObservableIntegrated == 1 )
     {
         throw std::runtime_error( "Error in target-range observation dependent variables for " +
-                                  getObservationDependentVariableName( variableSettings ) +
+                                  getObservationDependentVariableId( variableSettings ) +
                                   " Interface for integrated observables not yet implemented" );
     }
 
@@ -144,7 +144,7 @@ DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
     if( isObservableIntegrated == 1 )
     {
         throw std::runtime_error( "Error in station-angle observation dependent variables for " +
-                                  getObservationDependentVariableName( variableSettings ) +
+                                  getObservationDependentVariableId( variableSettings ) +
                                   " Interface for integrated observables not yet implemented" );
     }
 
@@ -155,7 +155,7 @@ DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
     if( stateTimeIndex.size( ) == 0 )
     {
         throw std::runtime_error( "Error in station-angle observation dependent variables for " +
-                                  getObservationDependentVariableName( variableSettings ) +
+                                  getObservationDependentVariableId( variableSettings ) +
                                   " Could not find link end: (" + variableSettings->relevantLinkEnd_.first + ", " +
                                   variableSettings->relevantLinkEnd_.second + ")" );
     }
@@ -168,7 +168,7 @@ DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
     else if( stateTimeIndex.size( ) > 1 )
     {
         throw std::runtime_error( "Error in station-angle observation dependent variables for " +
-                                  getObservationDependentVariableName( variableSettings ) +
+                                  getObservationDependentVariableId( variableSettings ) +
                                   " Interface not yet implemented for multiple viable link indices" );
     }
 
@@ -240,7 +240,7 @@ DoubleObservationDependentVariableFunction getObservationDoubleDependentVariable
     }
     default:
         throw std::runtime_error( "Error when parsing double observation dependent variable, did not recognize variable" +
-                                  getObservationDependentVariableName( variableSettings ) );
+                                  getObservationDependentVariableId( variableSettings ) );
     }
     return outputFunction;
 }
@@ -257,7 +257,7 @@ VectorObservationDependentVariableFunction getObservationVectorDependentVariable
 
     default:
         throw std::runtime_error( "Error when parsing vector observation dependent variable, did not recognize variable" +
-                                  getObservationDependentVariableName( variableSettings ) );
+                                  getObservationDependentVariableId( variableSettings ) );
     }
     return outputFunction;
 }
@@ -266,60 +266,62 @@ void ObservationDependentVariableCalculator::addDependentVariable(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const SystemOfBodies& bodies )
 {
-    ObservationDependentVariableAddFunction dependentVariableAddFunction;
-
-    int currentIndex = totalDependentVariableSize_;
-    int parameterSize = getObservationDependentVariableSize( variableSettings );
-
-    if( parameterSize ==  1 )
+    if( checkObservationDependentVariableForGivenLink(
+                observableType_, linkEnds_, variableSettings ) )
     {
-        DoubleObservationDependentVariableFunction doubleFunction =
-                getObservationDoubleDependentVariableFunction(
-                    bodies, variableSettings, observableType_, linkEnds_ );
-        dependentVariableAddFunction = [=](
-                Eigen::VectorXd& dependentVariables,
-                const std::vector< double >& linkEndTimes,
-                const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-                const Eigen::VectorXd& observable )
+        ObservationDependentVariableAddFunction dependentVariableAddFunction;
+
+        int currentIndex = totalDependentVariableSize_;
+        int parameterSize = getObservationDependentVariableSize( variableSettings );
+
+        if( parameterSize ==  1 )
         {
-            if( dependentVariables( currentIndex ) == dependentVariables( currentIndex ) )
+            DoubleObservationDependentVariableFunction doubleFunction =
+                    getObservationDoubleDependentVariableFunction(
+                        bodies, variableSettings, observableType_, linkEnds_ );
+            dependentVariableAddFunction = [=](
+                    Eigen::VectorXd& dependentVariables,
+                    const std::vector< double >& linkEndTimes,
+                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                    const Eigen::VectorXd& observable )
             {
-                throw std::runtime_error( "Error when saving observation dependent variables; overriding existing value" );
-            }
-            dependentVariables( currentIndex ) = doubleFunction(
-                        linkEndTimes, linkEndStates, observable );
-        };
-    }
-    else
-    {
-        VectorObservationDependentVariableFunction vectorFunction =
-                getObservationVectorDependentVariableFunction(
-                    bodies, variableSettings, observableType_, linkEnds_ );
-        dependentVariableAddFunction = [=](
-                Eigen::VectorXd& dependentVariables,
-                const std::vector< double >& linkEndTimes,
-                const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-                const Eigen::VectorXd& observable )
-        {
-            for( int i = 0; i < parameterSize; i++ )
-            {
-                if( dependentVariables( currentIndex + i ) == dependentVariables( currentIndex + i ) )
+                if( dependentVariables( currentIndex ) == dependentVariables( currentIndex ) )
                 {
                     throw std::runtime_error( "Error when saving observation dependent variables; overriding existing value" );
                 }
-            }
-            dependentVariables.segment( currentIndex, parameterSize ) = vectorFunction(
-                        linkEndTimes, linkEndStates, observable );
-        };
+                dependentVariables( currentIndex ) = doubleFunction(
+                            linkEndTimes, linkEndStates, observable );
+            };
+        }
+        else
+        {
+            VectorObservationDependentVariableFunction vectorFunction =
+                    getObservationVectorDependentVariableFunction(
+                        bodies, variableSettings, observableType_, linkEnds_ );
+            dependentVariableAddFunction = [=](
+                    Eigen::VectorXd& dependentVariables,
+                    const std::vector< double >& linkEndTimes,
+                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                    const Eigen::VectorXd& observable )
+            {
+                for( int i = 0; i < parameterSize; i++ )
+                {
+                    if( dependentVariables( currentIndex + i ) == dependentVariables( currentIndex + i ) )
+                    {
+                        throw std::runtime_error( "Error when saving observation dependent variables; overriding existing value" );
+                    }
+                }
+                dependentVariables.segment( currentIndex, parameterSize ) = vectorFunction(
+                            linkEndTimes, linkEndStates, observable );
+            };
+        }
+
+        dependentVariableAddFunctions_.push_back( dependentVariableAddFunction );
+        dependentVariableStartIndices_.push_back( totalDependentVariableSize_ );
+        dependentVariableSizes_.push_back( parameterSize );
+        settingsList_.push_back( variableSettings );
+        totalDependentVariableSize_ += parameterSize;
     }
-
-    dependentVariableAddFunctions_.push_back( dependentVariableAddFunction );
-
-    dependentVariableStartIndices_.push_back( totalDependentVariableSize_ );
-
-    dependentVariableSizes_.push_back( parameterSize );
-
-    totalDependentVariableSize_ += parameterSize;
 }
 
 void ObservationDependentVariableCalculator::addDependentVariables(
@@ -331,6 +333,29 @@ void ObservationDependentVariableCalculator::addDependentVariables(
         addDependentVariable( settingsList.at( i ), bodies );
     }
 }
+
+std::pair< int, int > ObservationDependentVariableCalculator::getDependentVariableIndices(
+        const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables )
+{
+    std::pair< int, int > startAndSizePair = std::make_pair( 0, 0 );
+    for( unsigned int i = 0; i < settingsList_.size( ); i++ )
+    {
+        if( settingsList_.at( i )->getIdentifier( ) == dependentVariables->getIdentifier( ) )
+        {
+            if( startAndSizePair.second == 0 )
+            {
+                startAndSizePair = std::make_pair(
+                            dependentVariableStartIndices_.at( i ), dependentVariableSizes_.at( i ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when finding observation dependent variable; multiple candidates found" );
+            }
+        }
+    }
+    return startAndSizePair;
+}
+
 
 
 Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariables(
