@@ -26,6 +26,7 @@
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/observationOutput.h"
 
 namespace tudat
 {
@@ -45,14 +46,16 @@ public:
             const std::vector< TimeType > observationTimes,
             const LinkEndType referenceLinkEnd,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationsDependentVariables =
-            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) ):
+            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr ):
         observableType_( observableType ),
         linkEnds_( linkEnds ),
         observations_( observations ),
         observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ),
         observationsDependentVariables_( observationsDependentVariables ),
-        numberOfObservations_( observations_.size( ) )
+        numberOfObservations_( observations_.size( ) ),
+        dependentVariableCalculator_( dependentVariableCalculator )
 
     {
         if( observations_.size( ) != observationTimes_.size( ) )
@@ -131,6 +134,8 @@ private:
     const LinkEndType referenceLinkEnd_;
 
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsDependentVariables_;
+
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator_;
 
     const int numberOfObservations_;
 
@@ -350,6 +355,13 @@ private:
 
 };
 
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::map< double, Eigen::VectorXd > getDependentVariableList(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+        const std::shared_ptr< ObservationDependentVariableSettings > dependentVariableToRetrieve,
+        const ObservableType observableType ,
+        const LinkEnds& linkEnds );
 
 } // namespace observation_models
 
