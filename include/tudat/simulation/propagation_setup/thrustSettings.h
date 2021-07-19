@@ -39,7 +39,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! List of available types of thust direction guidance
+//! List of available types of thrust direction guidance
 enum ThrustDirectionTypes
 {
     colinear_with_state_segment_thrust_direction,
@@ -614,7 +614,7 @@ inline std::shared_ptr< ThrustMagnitudeSettings > constantThrustMagnitudeSetting
                 thrustMagnitude, specificImpulse, bodyFixedThrustDirection );
 }
 
-
+// TODO: EngineModel still to be implemented
 inline std::shared_ptr< ThrustMagnitudeSettings > fromBodyThrustMagnitudeSettings(
         const bool useAllEngines = 1,
         const std::string& thrustOrigin = "" )
