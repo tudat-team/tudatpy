@@ -341,45 +341,45 @@ void expose_acceleration_setup(py::module &m) {
             tss::ConstantThrustMagnitudeSettings,
             std::shared_ptr<tss::ConstantThrustMagnitudeSettings>,
             tss::ThrustMagnitudeSettings>(m, "ConstantThrustMagnitudeSettings")
-            .def(py::init<
-                         const double,
-                         const double,
-                         const Eigen::Vector3d>(),
-                 py::arg("thrust_magnitude"),
-                 py::arg("specific_impulse"),
-                 py::arg("body_fixed_thrust_direction") = Eigen::Vector3d::UnitX())
+//            .def(py::init<
+//                         const double,
+//                         const double,
+//                         const Eigen::Vector3d>(),
+//                 py::arg("thrust_magnitude"),
+//                 py::arg("specific_impulse"),
+//                 py::arg("body_fixed_thrust_direction") = Eigen::Vector3d::UnitX())
             .def_readonly("thrust_magnitude", &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_)
             .def_readonly("specific_impulse", &tss::ConstantThrustMagnitudeSettings::specificImpulse_)
             .def_readonly("body_fixed_thrust_direction", &tss::ConstantThrustMagnitudeSettings::bodyFixedThrustDirection_);
 
-    py::class_<
-            tss::FromBodyThrustMagnitudeSettings,
-            std::shared_ptr<tss::FromBodyThrustMagnitudeSettings>,
-            tss::ThrustMagnitudeSettings>(m, "FromBodyThrustMagnitudeSettings")
-            .def(py::init<
-                         const double,
-                         const std::string &>(),
-                 py::arg("use_all_engines"),
-                 py::arg("thrust_origin"))
-            .def_readonly("use_all_engines", &tss::FromBodyThrustMagnitudeSettings::useAllEngines_);
+//    py::class_<
+//            tss::FromBodyThrustMagnitudeSettings,
+//            std::shared_ptr<tss::FromBodyThrustMagnitudeSettings>,
+//            tss::ThrustMagnitudeSettings>(m, "FromBodyThrustMagnitudeSettings")
+//            .def(py::init<
+//                         const double,
+//                         const std::string &>(),
+//                 py::arg("use_all_engines"),
+//                 py::arg("thrust_origin"))
+//            .def_readonly("use_all_engines", &tss::FromBodyThrustMagnitudeSettings::useAllEngines_);
 
     py::class_<
             tss::FromFunctionThrustMagnitudeSettings,
             std::shared_ptr<tss::FromFunctionThrustMagnitudeSettings>,
             tss::ThrustMagnitudeSettings>(m, "FromFunctionThrustMagnitudeSettings")
-            .def(py::init<
-                         const std::function< double( const double ) >,
-                         const std::function< double( const double ) >,
-                         const std::function< bool( const double ) >,
-                         const std::function< Eigen::Vector3d( ) >,
-                         const std::function< void( const double ) > >(),
-                 py::arg("thrust_magnitude_function"),
-                 py::arg("specific_impulse_function"),
-                 py::arg("is_engine_on_function" ) =
-                         std::function< bool( const double ) >( [ ]( const double ){ return true; } ),
-                 py::arg("body_fixed_thrust_direction" ) =
-                         std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
-                 py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
+//            .def(py::init<
+//                         const std::function< double( const double ) >,
+//                         const std::function< double( const double ) >,
+//                         const std::function< bool( const double ) >,
+//                         const std::function< Eigen::Vector3d( ) >,
+//                         const std::function< void( const double ) > >(),
+//                 py::arg("thrust_magnitude_function"),
+//                 py::arg("specific_impulse_function"),
+//                 py::arg("is_engine_on_function" ) =
+//                         std::function< bool( const double ) >( [ ]( const double ){ return true; } ),
+//                 py::arg("body_fixed_thrust_direction" ) =
+//                         std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
+//                 py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
 
     // Thrust orientation factory functions
 
@@ -419,6 +419,14 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("central_body_name"),
           py::arg("constant_costates"));
 
+    // Thrust orientation factory functions
+
+    m.def("constant_thrust_magnitude", &tss::constantThrustMagnitudeSettings,
+          py::arg("thrust_magnitude"),
+          py::arg("specific_impulse"),
+          py::arg("body_fixed_thrust_direction" ) =
+                  Eigen::Vector3d::UnitX() );
+
     m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettings,
           py::arg("thrust_magnitude_function"),
           py::arg("specific_impulse_function"),
@@ -427,6 +435,12 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("body_fixed_thrust_direction" ) =
                   std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
           py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
+
+    // TODO: EngineModel still to be implemented
+//    m.def("from_body_thrust_magnitude", &tss::fromBodyThrustMagnitudeSettings,
+//          py::arg("use_all_engines") = false,
+//          py::arg("thrust_origin") = "");
+
 }
 
 } // namespace tudat
