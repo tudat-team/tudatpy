@@ -391,11 +391,6 @@ void expose_acceleration_setup(py::module &m) {
     m.def("thrust_from_existing_body_orientation", &tss::thrustFromExistingBodyOrientation );
 
     m.def("custom_thrust_orientation",
-          py::overload_cast< std::function< Eigen::Quaterniond( const double ) > >(
-                  &tss::customThrustOrientationSettings ),
-          py::arg( "thrust_orientation_function" ) );
-
-    m.def("custom_thrust_orientation",
           py::overload_cast< std::function< Eigen::Matrix3d( const double ) > >(
                   &tss::customThrustOrientationSettings ),
           py::arg( "thrust_orientation_function" ) );
