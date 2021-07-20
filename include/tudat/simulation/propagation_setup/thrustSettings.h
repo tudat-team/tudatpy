@@ -74,6 +74,7 @@ std::vector< std::function< double( ) > > getPropulsionInputVariables(
  *  settings of thrust direction that require no information in addition to their type.
  *  Classes defining settings for thrust direction requiring additional information must be derived from this class.
  */
+//! @get_docstring(ThrustDirectionSettings.__docstring__)
 class ThrustDirectionSettings
 {
 public:
@@ -101,6 +102,7 @@ public:
 };
 
 //! Thrust guidance settings for thrust that is colinear with position/velocity vector
+//! @get_docstring(ThrustDirectionFromStateGuidanceSettings.__docstring__)
 class ThrustDirectionFromStateGuidanceSettings: public ThrustDirectionSettings
 {
 public:
@@ -135,6 +137,7 @@ public:
 };
 
 //! Class for defining custom thrust direction (i.e. predefined thrust function of time)
+//! @get_docstring(CustomThrustDirectionSettings.__docstring__)
 class CustomThrustDirectionSettings: public ThrustDirectionSettings
 {
 public:
@@ -162,6 +165,7 @@ public:
  *  Class for defining custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time).
  *  Thrust is then computed from body-fixed direction of thrust (defined in ThrustMagnitudeSettings).
  */
+//! @get_docstring(CustomThrustOrientationSettings.__docstring__)
 class CustomThrustOrientationSettings: public ThrustDirectionSettings
 {
 public:
@@ -197,6 +201,7 @@ public:
  *  Boudestijn (2014). The MEE-costates are provided for the five slow elements, as a function of time. Constructors for
  *  constant costates, and costates from an interpolator, are also provided.
  */
+//! @get_docstring(MeeCostateBasedThrustDirectionSettings.__docstring__)
 class MeeCostateBasedThrustDirectionSettings: public ThrustDirectionSettings
 {
 public:
@@ -259,7 +264,7 @@ public:
 
 };
 
-
+//! @get_docstring(thrustDirectionFromStateGuidanceSettings)
 inline std::shared_ptr< ThrustDirectionSettings > thrustDirectionFromStateGuidanceSettings(
         const std::string& centralBody,
         const bool isColinearWithVelocity,
@@ -269,17 +274,20 @@ inline std::shared_ptr< ThrustDirectionSettings > thrustDirectionFromStateGuidan
                 centralBody, isColinearWithVelocity, directionIsOppositeToVector );
 }
 
+//! @get_docstring(thrustFromExistingBodyOrientation)
 inline std::shared_ptr< ThrustDirectionSettings > thrustFromExistingBodyOrientation(  )
 {
     return std::make_shared< ThrustDirectionSettings >(thrust_direction_from_existing_body_orientation );
 }
 
+//! @get_docstring(customThrustOrientationSettings, 1)
 inline std::shared_ptr< ThrustDirectionSettings > customThrustOrientationSettings(
         const std::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction  )
 {
     return std::make_shared< CustomThrustOrientationSettings >( thrustOrientationFunction );
 }
 
+//! @get_docstring(customThrustOrientationSettings, 2)
 inline std::shared_ptr< ThrustDirectionSettings > customThrustOrientationSettings(
         const std::function< Eigen::Matrix3d( const double ) > thrustOrientationFunction  )
 {
@@ -287,13 +295,14 @@ inline std::shared_ptr< ThrustDirectionSettings > customThrustOrientationSetting
                 [=]( const double time ){ return Eigen::Quaterniond( thrustOrientationFunction( time ) ); } );
 }
 
-
+//! @get_docstring(customThrustDirectionSettings)
 inline std::shared_ptr< ThrustDirectionSettings > customThrustDirectionSettings(
         const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction  )
 {
     return std::make_shared< CustomThrustDirectionSettings >( thrustDirectionFunction );
 }
 
+//! @get_docstring(meeCostateBasedThrustDirectionSettings, 1)
 inline std::shared_ptr< ThrustDirectionSettings > meeCostateBasedThrustDirectionSettings(
         const std::string& vehicleName,
         const std::string& centralBodyName,
@@ -303,6 +312,7 @@ inline std::shared_ptr< ThrustDirectionSettings > meeCostateBasedThrustDirection
                 vehicleName, centralBodyName, costateInterpolator );
 }
 
+//! @get_docstring(meeCostateBasedThrustDirectionSettings, 2)
 inline std::shared_ptr< ThrustDirectionSettings > meeCostateBasedThrustDirectionSettings(
         const std::string& vehicleName,
         const std::string& centralBodyName,
@@ -347,6 +357,7 @@ enum ThrustMagnitudeTypes
  *  settings of thrust magnitude that require no information in addition to their type.
  *  Classes defining settings for thrust magnitude requiring additional information must be derived from this class.
  */
+//! @get_docstring(ThrustMagnitudeSettings.__docstring__)
 class ThrustMagnitudeSettings
 {
 public:
@@ -375,6 +386,7 @@ public:
 };
 
 //! Class to define settigns for constant thrust settings.
+//! @get_docstring(ConstantThrustMagnitudeSettings.__docstring__)
 class ConstantThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
@@ -409,6 +421,7 @@ public:
 };
 
 //! Class to define thrust magnitude  to be taken directly from an engine model
+//! @get_docstring(FromBodyThrustMagnitudeSettings.__docstring__)
 class FromBodyThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
@@ -441,6 +454,7 @@ public:
  * clear physical meaning (e.g. dynamic pressure, Mach number, freestream density, etc.), the
  * ParameterizedThrustMagnitudeSettings settings object can be used.
  */
+//! @get_docstring(FromFunctionThrustMagnitudeSettings.__docstring__)
 class FromFunctionThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
@@ -605,6 +619,7 @@ public:
 };
 
 
+//! @get_docstring(constantThrustMagnitudeSettings)
 inline std::shared_ptr< ThrustMagnitudeSettings > constantThrustMagnitudeSettings(
         const double thrustMagnitude,
         const double specificImpulse,
@@ -615,6 +630,7 @@ inline std::shared_ptr< ThrustMagnitudeSettings > constantThrustMagnitudeSetting
 }
 
 // TODO: EngineModel still to be implemented
+//! @get_docstring(fromBodyThrustMagnitudeSettings)
 inline std::shared_ptr< ThrustMagnitudeSettings > fromBodyThrustMagnitudeSettings(
         const bool useAllEngines = 1,
         const std::string& thrustOrigin = "" )
@@ -623,6 +639,7 @@ inline std::shared_ptr< ThrustMagnitudeSettings > fromBodyThrustMagnitudeSetting
                 useAllEngines, thrustOrigin  );
 }
 
+//! @get_docstring(fromFunctionThrustMagnitudeSettings)
 inline std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings(
         const std::function< double( const double ) > thrustMagnitudeFunction,
         const std::function< double( const double ) > specificImpulseFunction,
