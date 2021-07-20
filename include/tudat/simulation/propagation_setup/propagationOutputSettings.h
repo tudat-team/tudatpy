@@ -27,7 +27,7 @@ namespace tudat
 namespace propagators
 {
 
-//! Enum listing the variables that can be exported or use in termination conditions during the propagation
+// Enum listing the variables that can be exported or use in termination conditions during the propagation
 enum VariableType
 {
     independentVariable,
@@ -38,7 +38,7 @@ enum VariableType
     sensitivityMatrix
 };
 
-//! Functional base class for defining settings for variables
+// Functional base class for defining settings for variables
 /*!
  *  Functional base class for defining settings for variables.
  *  Any variable that requires additional information in addition to what can be provided here, should be
@@ -49,7 +49,7 @@ class VariableSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param variableType Type of variable.
@@ -57,16 +57,16 @@ public:
     VariableSettings( const VariableType variableType ) :
         variableType_( variableType ) { }
 
-    //! Destructor.
+    // Destructor.
     virtual ~VariableSettings( ){ }
 
-    //! Type of dependent variable that is to be saved.
+    // Type of dependent variable that is to be saved.
     VariableType variableType_;
 
 };
 
 
-//! Enum listing the dependent variables that can be saved during the propagation.
+// Enum listing the dependent variables that can be saved during the propagation.
 enum PropagationDependentVariables
 {
     mach_number_dependent_variable = 0,
@@ -118,7 +118,7 @@ enum PropagationDependentVariables
     radiation_pressure_coefficient_dependent_variable = 46
 };
 
-//! Functional base class for defining settings for dependent variables that are to be saved during propagation
+// Functional base class for defining settings for dependent variables that are to be saved during propagation
 /*!
  *  Functional base class for defining settings for dependent variables that are to be saved during propagation.
  *  Any dependent variable that requires additional information in addition to what can be provided here, should be
@@ -129,7 +129,7 @@ class SingleDependentVariableSaveSettings : public VariableSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param dependentVariableType Type of dependent variable that is to be saved.
@@ -150,24 +150,24 @@ public:
         secondaryBody_( secondaryBody ),
         componentIndex_( componentIndex ) { }
 
-    //! Type of dependent variable that is to be saved.
+    // Type of dependent variable that is to be saved.
     PropagationDependentVariables dependentVariableType_;
 
-    //! Body associated with variable.
+    // Body associated with variable.
     std::string associatedBody_;
 
-    //! Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative  position,
-    //! velocity etc. is defined of associatedBody w.r.t. secondaryBody).
+    // Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative  position,
+    // velocity etc. is defined of associatedBody w.r.t. secondaryBody).
     std::string secondaryBody_;
 
-    //! Index of the component to be saved.
-    //! Only applicable to vectorial dependent variables.
-    //! If negative, all the components of the vector are saved.
+    // Index of the component to be saved.
+    // Only applicable to vectorial dependent variables.
+    // If negative, all the components of the vector are saved.
     int componentIndex_;
 
 };
 
-//! Class to define settings for saving a single acceleration (norm or vector) during propagation
+// Class to define settings for saving a single acceleration (norm or vector) during propagation
 /*!
  *  Class to define settings for saving a single acceleration (norm or vector) during propagation. NOTE: This acceleration
  *  is returned in the inertial frame!
@@ -177,7 +177,7 @@ class SingleAccelerationDependentVariableSaveSettings: public SingleDependentVar
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param accelerationModelType Type of acceleration that is to be saved.
@@ -199,17 +199,17 @@ public:
         accelerationModelType_( accelerationModelType )
     { }
 
-    //! Type of acceleration that is to be saved.
+    // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
 
 };
 
-//! Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration.
+// Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration.
 class SphericalHarmonicAccelerationTermsDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
@@ -230,7 +230,7 @@ public:
             bodyUndergoingAcceleration, bodyExertingAcceleration,
             componentIndex ), componentIndices_( componentIndices ){ }
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor. for saving all terms up to a given degree/order.
      *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
@@ -262,16 +262,16 @@ public:
         }
     }
 
-    //! List of degree/order terms that are to be saved
+    // List of degree/order terms that are to be saved
     std::vector< std::pair< int, int > > componentIndices_;
 };
 
-//! Class to define settings for saving a single torque (norm or vector) during propagation.
+// Class to define settings for saving a single torque (norm or vector) during propagation.
 class SingleTorqueDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param torqueModelType Type of torque that is to be saved.
@@ -293,17 +293,17 @@ public:
         torqueModelType_( torqueModelType )
     { }
 
-    //! Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
+    // Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
     basic_astrodynamics::AvailableTorque torqueModelType_;
 
 };
 
-//! Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames.
+// Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames.
 class IntermediateAerodynamicRotationVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param associatedBody Body for which the rotation matrix is to be saved.
@@ -321,20 +321,20 @@ public:
                                              "", componentIndex ),
         baseFrame_( baseFrame ), targetFrame_( targetFrame ){ }
 
-    //! Frame from which rotation is to take place.
+    // Frame from which rotation is to take place.
     reference_frames::AerodynamicsReferenceFrames baseFrame_;
 
-    //! Frame to which the rotation is to take place.
+    // Frame to which the rotation is to take place.
     reference_frames::AerodynamicsReferenceFrames targetFrame_;
 
 };
 
-//! Class to define settings for saving an aerodynamics orientation angle from AerodynamicsReferenceFrameAngles list.
+// Class to define settings for saving an aerodynamics orientation angle from AerodynamicsReferenceFrameAngles list.
 class BodyAerodynamicAngleVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param associatedBody Body for which the orientation angle is to be saved.
@@ -349,17 +349,17 @@ public:
         SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody, centralBody ),
         angle_( angle ){ }
 
-    //! Orientation angle that is to be saved.
+    // Orientation angle that is to be saved.
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
 
 };
 
-//! Class to define variations in spherical harmonic acceleration due to single gravity field variation.
+// Class to define variations in spherical harmonic acceleration due to single gravity field variation.
 class SingleVariationSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
@@ -376,20 +376,20 @@ public:
                                              bodyUndergoingAcceleration, bodyExertingAcceleration ),
         deformationType_( deformationType ), identifier_( identifier ){ }
 
-    //! Type of gravity field variation.
+    // Type of gravity field variation.
     gravitation::BodyDeformationTypes deformationType_;
 
-    //! Identifier for gravity field variation.
+    // Identifier for gravity field variation.
     std::string identifier_;
 
 };
 
-//! Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders.
+// Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders.
 class SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
@@ -408,7 +408,7 @@ public:
                                              bodyUndergoingAcceleration, bodyExertingAcceleration ),
         componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier ){ }
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
@@ -438,23 +438,23 @@ public:
         }
     }
 
-    //! Degrees and orders for which to computed contribution.
+    // Degrees and orders for which to computed contribution.
     std::vector< std::pair< int, int > > componentIndices_;
 
-    //! Type of gravity field variation.
+    // Type of gravity field variation.
     gravitation::BodyDeformationTypes deformationType_;
 
-    //! Identifier for gravity field variation.
+    // Identifier for gravity field variation.
     std::string identifier_;
 
 };
 
-//! Class to define .
+// Class to define .
 class AccelerationPartialWrtStateSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param bodyUndergoingAcceleration Body undergoing acceleration.
@@ -475,23 +475,23 @@ public:
         accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody ),
         thirdBody_( thirdBody ){ }
 
-    //! Type of acceleration that is to be saved.
+    // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
 
-    //! String denoting w.r.t. which body the derivative needs to be taken.
+    // String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
 
-    //! String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
+    // String denoting the third body w.r.t. which the partial needs to be taken (in case of third body acceleration).
     std::string thirdBody_;
 
 };
 
-//! Container class for settings of all dependent variables that are to be saved.
+// Container class for settings of all dependent variables that are to be saved.
 class DependentVariableSaveSettings
 {
 public:
 
-    //! Constructor.
+    // Constructor.
     /*!
      *  Constructor.
      *  \param dependentVariables List of settings for parameters that are to be saved.
@@ -503,14 +503,14 @@ public:
             const bool printDependentVariableTypes = true ):
         dependentVariables_( dependentVariables ), printDependentVariableTypes_( printDependentVariableTypes ){ }
 
-    //! List of settings for parameters that are to be saved.
+    // List of settings for parameters that are to be saved.
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
 
-    //! Variable denoting whether to print the list and vector entries of dependent variables when propagating.
+    // Variable denoting whether to print the list and vector entries of dependent variables when propagating.
     bool printDependentVariableTypes_;
 
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-    //! Map of state derivative partials, to be used when saving state derivative partials as dependent variables
+    // Map of state derivative partials, to be used when saving state derivative partials as dependent variables
     std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
 #endif
 
@@ -525,7 +525,7 @@ inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableS
                 dependentVariables, printDependentVariableTypes );
 }
 
-//! Function to get a string representing a 'named identification' of a variable type.
+// Function to get a string representing a 'named identification' of a variable type.
 /*!
  *  Function to get a string representing a 'named identification' of a variable type.
  *  \param variableType Variable type.
@@ -533,7 +533,7 @@ inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableS
  */
 std::string getVariableName( const VariableType variableType );
 
-//! Function to get a string representing a 'named identification' of a variable.
+// Function to get a string representing a 'named identification' of a variable.
 /*!
  *  Function to get a string representing a 'named identification' of a variable.
  *  \param variableSettings Variable.
@@ -541,7 +541,7 @@ std::string getVariableName( const VariableType variableType );
  */
 std::string getVariableId( const std::shared_ptr< VariableSettings > variableSettings );
 
-//! Function to get a string representing a 'named identification' of a dependent variable type.
+// Function to get a string representing a 'named identification' of a dependent variable type.
 /*!
  *  Function to get a string representing a 'named identification' of a dependent variable type.
  *  \param propagationDependentVariables Dependent variable type.
@@ -549,7 +549,7 @@ std::string getVariableId( const std::shared_ptr< VariableSettings > variableSet
  */
 std::string getDependentVariableName( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
-//! Function to get a string representing a 'named identification' of a dependent variable.
+// Function to get a string representing a 'named identification' of a dependent variable.
 /*!
  *  Function to get a string representing a 'named identification' of a dependent variable.
  *  \param dependentVariableSettings Dependent variable.

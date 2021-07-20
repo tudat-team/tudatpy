@@ -1086,7 +1086,7 @@ createThrustAcceleratioModel(
         {
             throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
         }
-        else if( thrustAccelerationSettings->thrustFrame_ != inertial_thurst_frame )
+        else if(thrustAccelerationSettings->thrustFrame_ != inertial_thrust_frame )
         {
             // Create rotation function from thrust-frame to propagation frame.
             if( thrustAccelerationSettings->thrustFrame_ == lvlh_thrust_frame )
