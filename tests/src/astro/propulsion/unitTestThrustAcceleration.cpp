@@ -1064,8 +1064,8 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         std::shared_ptr< ThrustAccelerationSettings > thrustSettings =
                 std::make_shared< ThrustAccelerationSettings >(
-                    thrustDataInterpolation, [ & ](  const double ){ return 300.0; },
-                    testCase == 0 ? inertial_thurst_frame : lvlh_thrust_frame, "Earth" );
+                        thrustDataInterpolation, [ & ](  const double ){ return 300.0; },
+                    testCase == 0 ? inertial_thrust_frame : lvlh_thrust_frame, "Earth" );
 
         accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;

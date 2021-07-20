@@ -22,7 +22,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Class for providing settings for torque model.
+// Class for providing settings for torque model.
 /*!
  *  Class for providing settings for torque model. This class is a functional (base) class for
  *  settings of torque models that  require no information in addition to their type.
@@ -39,7 +39,7 @@ class TorqueSettings
 {
 public:
 
-    //! Constructor, sets type of torque.
+    // Constructor, sets type of torque.
     /*!
      *  Constructor, sets type of torque.
      *  \param torqueType Type of torque from AvailableTorque enum.
@@ -47,21 +47,21 @@ public:
     TorqueSettings( const basic_astrodynamics::AvailableTorque torqueType ) :
         torqueType_( torqueType ){ }
 
-    //! Destructor
+    // Destructor
     virtual ~TorqueSettings( ){ }
 
-    //! Type of torque that is to be created.
+    // Type of torque that is to be created.
     basic_astrodynamics::AvailableTorque torqueType_;
 
 };
 
-//! Class to define settings for a spherical harmonic gravitational torque exerted by a point mass.
+// Class to define settings for a spherical harmonic gravitational torque exerted by a point mass.
 //! @get_docstring(SphericalHarmonicTorqueSettings.__docstring__)
 class SphericalHarmonicTorqueSettings: public TorqueSettings
 {
 public:
 
-    //! Constructor
+    // Constructor
     /*!
      * Constructor
      * \param maximumDegree Maximum degree to which gravity field of body undergoing torque is to be exerted
@@ -72,10 +72,10 @@ public:
         TorqueSettings( basic_astrodynamics::spherical_harmonic_gravitational_torque ),
         maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
 
-    //! Maximum degree to which gravity field of body undergoing torque is to be exerted
+    // Maximum degree to which gravity field of body undergoing torque is to be exerted
     int maximumDegree_;
 
-    //! Maximum order to which gravity field of body undergoing torque is to be exerted
+    // Maximum order to which gravity field of body undergoing torque is to be exerted
     int maximumOrder_;
 };
 
