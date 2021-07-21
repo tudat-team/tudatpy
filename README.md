@@ -42,14 +42,17 @@ There are two directions you can go from here. CLion or the command line.
 
 ### Build: CLion
 
-5. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
+5. Open CLion, create a new project from `File > New Project` and select the directory that has been cloned under bullet
+   point 1 (named `tudat-bundle`). 
+
+6. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
 > **Note** \
 > The CMake configuration option `CMAKE_BUILD_TYPE` will be determined by the the build profile's `Build type` entry. 
 > A `Release` configuration will suppress a significant amount of harmless warnings during compilation. Currently,
 > with the move to a later version of boost, some warnings have cropped up that have either not been fixed in the 
 > source code, or have not been suppressed via `tudat/cmake_modules/compiler.cmake`.
 
-6. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
+7. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
    
 ```
 -DCMAKE_PREFIX_PATH=<CONDA_PREFIX>
