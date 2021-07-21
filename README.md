@@ -43,7 +43,10 @@ There are two directions you can go from here. CLion or the command line.
 ### Build: CLion
 
 5. Open CLion, create a new project from `File > New Project` and select the directory that has been cloned under bullet
-   point 1 (named `tudat-bundle`). 
+   point 1 (named `tudat-bundle`).
+> **Note** \
+> To avoid issues with CLion, the directory of the project should correspond exactly to the cloned directory named  `tudat-bundle`.
+
 
 6. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
 > **Note** \
