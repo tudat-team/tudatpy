@@ -27,6 +27,8 @@ namespace tni = tudat::numerical_integrators;
 namespace tss = tudat::simulation_setup;
 
 namespace tudatpy {
+namespace simulation {
+namespace shape_based_thrust {
 
 
 void expose_shape_based_thrust(py::module &m)
@@ -193,4 +195,7 @@ void expose_shape_based_thrust(py::module &m)
 
 }
 
+
+}// namespace shape_based_thrust
+}// namespace simulation
 }// namespace tudatpy

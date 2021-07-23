@@ -84,7 +84,15 @@ YACMA_PYTHON_MODULE(kernel
         # kernel/simulation
         kernel/expose_simulation.cpp
         kernel/expose_simulation/expose_environment_setup.cpp
+
         kernel/expose_simulation/expose_propagation_setup.cpp
+        kernel/expose_simulation/expose_propagation_setup/expose_acceleration_setup.cpp
+        kernel/expose_simulation/expose_propagation_setup/expose_dependent_variable_setup.cpp
+        kernel/expose_simulation/expose_propagation_setup/expose_integrator_setup.cpp
+        kernel/expose_simulation/expose_propagation_setup/expose_mass_rate_setup.cpp
+        kernel/expose_simulation/expose_propagation_setup/expose_propagator_setup.cpp
+        kernel/expose_simulation/expose_propagation_setup/expose_torque_setup.cpp
+
         kernel/expose_simulation/expose_estimation_setup.cpp
         kernel/expose_simulation/expose_shape_based_thrust.cpp
 

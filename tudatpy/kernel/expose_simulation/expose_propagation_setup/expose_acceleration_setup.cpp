@@ -28,6 +28,8 @@ namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
 namespace tudatpy {
+namespace simulation {
+namespace propagation_setup {
 
 void expose_acceleration_setup(py::module &m) {
 
@@ -144,13 +146,13 @@ void expose_acceleration_setup(py::module &m) {
 
 
     py::class_<tss::AccelerationSettings,
-            std::shared_ptr<tss::AccelerationSettings>>(m, "AccelerationSettings")
+            std::shared_ptr<tss::AccelerationSettings>>(m, "AccelerationSettings");
 //            .def(py::init<const tudat::basic_astrodynamics::AvailableAcceleration>(),
 //                 py::arg("acceleration_type"));
 
     py::class_<tss::SphericalHarmonicAccelerationSettings,
             std::shared_ptr<tss::SphericalHarmonicAccelerationSettings>,
-            tss::AccelerationSettings>(m, "SphericalHarmonicAccelerationSettings")
+            tss::AccelerationSettings>(m, "SphericalHarmonicAccelerationSettings");
 //            .def(py::init<const int, const int>(), py::arg("maximum_degree"),
 //                 py::arg("maximum_order"));
 
@@ -444,4 +446,6 @@ void expose_acceleration_setup(py::module &m) {
 
 }
 
-} // namespace tudat
+}// namespace propagation_setup
+}// namespace simulation
+}// namespace tudatpy
