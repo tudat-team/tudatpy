@@ -22,9 +22,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace simulation {
+namespace estimation_setup {
 
-void expose_estimation_setup(py::module &m);
+    void expose_estimation_setup(py::module &m);
 
-} // namespace tudatpy
+}// namespace estimation_setup
+}// namespace simulation
+}// namespace tudatpy
 
 #endif // TUDATPY_EXPOSE_ESTIMATION_SETUP_H

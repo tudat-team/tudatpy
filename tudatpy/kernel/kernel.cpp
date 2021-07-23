@@ -43,15 +43,15 @@ PYBIND11_MODULE(kernel, m) {
   auto constants = m.def_submodule("constants");
   tudatpy::constants::expose_constants(constants);
 
-  //   io module
+  // io module
   auto io = m.def_submodule("io");
   tudatpy::expose_io(io);
 
   // simulation module
   auto simulation = m.def_submodule("simulation");
-  tudatpy::expose_simulation(simulation);
+  tudatpy::simulation::expose_simulation(simulation);
 
-//  // example module
+  // example module
   auto example = m.def_submodule("example");
   tudatpy::expose_example(example);
 

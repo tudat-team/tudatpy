@@ -17,7 +17,11 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
+namespace simulation{
+
 void expose_simulation(py::module &m);
+
+}// namespace simulation
 
 }// namespace tudatpy
 #endif//TUDATPY_EXPOSE_SIMULATION_H

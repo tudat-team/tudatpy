@@ -28,6 +28,8 @@ namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
 namespace tudatpy {
+namespace simulation {
+namespace propagation_setup {
 
     void expose_torque_setup(py::module &m) {
 
@@ -64,4 +66,6 @@ namespace tudatpy {
         // NOTE: the only unexposed torque model is dissipativeTorque, but it is probably obsolete
     }
 
-} // namespace tudatpy
+}// namespace propagation_setup
+}// namespace simulation
+}// namespace tudatpy

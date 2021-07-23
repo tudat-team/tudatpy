@@ -20,19 +20,22 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace simulation {
 
 void expose_simulation(py::module &m) {
-  auto environment_setup = m.def_submodule("environment_setup");
-  expose_environment_setup(environment_setup);
 
-  auto propagation_setup = m.def_submodule("propagation_setup");
-  expose_propagation_setup(propagation_setup);
+  auto environment_setup_submodule = m.def_submodule("environment_setup");
+  environment_setup::expose_environment_setup(environment_setup_submodule);
 
-  auto estimation_setup = m.def_submodule("estimation_setup");
-  expose_estimation_setup(estimation_setup);
+  auto propagation_setup_submodule = m.def_submodule("propagation_setup");
+  propagation_setup::expose_propagation_setup(propagation_setup_submodule);
 
-  auto shape_based_thrust = m.def_submodule("shape_based_thrust");
-  expose_shape_based_thrust(shape_based_thrust);
+  auto estimation_setup_submodule = m.def_submodule("estimation_setup");
+  estimation_setup::expose_estimation_setup(estimation_setup_submodule);
+
+  auto shape_based_thrust_submodule = m.def_submodule("shape_based_thrust");
+  shape_based_thrust::expose_shape_based_thrust(shape_based_thrust_submodule);
 };
 
+}// namespace simulation
 }// namespace tudatpy
