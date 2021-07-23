@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATBUNDLE_EXPOSE_DEPENDENT_VARIABLE_SETUP_H
-#define TUDATBUNDLE_EXPOSE_DEPENDENT_VARIABLE_SETUP_H
+#ifndef TUDATBUNDLE_EXPOSE_PROPAGATOR_SETUP_H
+#define TUDATBUNDLE_EXPOSE_PROPAGATOR_SETUP_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -38,16 +38,17 @@
 #include "tudat/simulation/propagation_setup/thrustSettings.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
+
 namespace py = pybind11;
 
 namespace tudatpy {
 namespace simulation {
 namespace propagation_setup {
 
-    void expose_dependent_variable_setup(py::module &m);
+    void expose_propagator_setup(py::module &m);
 
 }// namespace propagation_setup
 }// namespace simulation
 }// namespace tudatpy
 
-#endif //TUDATBUNDLE_EXPOSE_DEPENDENT_VARIABLE_SETUP_H
+#endif //TUDATBUNDLE_EXPOSE_PROPAGATOR_SETUP_H

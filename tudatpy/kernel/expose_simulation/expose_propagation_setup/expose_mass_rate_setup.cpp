@@ -28,6 +28,8 @@ namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
 namespace tudatpy {
+namespace simulation {
+namespace propagation_setup {
 
     void expose_mass_rate_setup(py::module &m) {
 
@@ -67,4 +69,7 @@ namespace tudatpy {
               py::arg("mass_rate_function"));
 
     }
-}
+
+}// namespace propagation_setup
+}// namespace simulation
+}// namespace tudatpy

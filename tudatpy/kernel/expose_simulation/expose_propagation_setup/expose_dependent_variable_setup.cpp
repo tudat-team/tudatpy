@@ -28,6 +28,8 @@ namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
 namespace tudatpy {
+namespace simulation {
+namespace propagation_setup {
 
     void expose_dependent_variable_setup(py::module &m) {
 
@@ -449,4 +451,6 @@ namespace tudatpy {
 
     }
 
-} // namespace tudatpy
+}// namespace propagation_setup
+}// namespace simulation
+}// namespace tudatpy
