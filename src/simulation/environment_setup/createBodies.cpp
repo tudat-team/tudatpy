@@ -21,6 +21,7 @@
 
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 
 namespace tudat
 {
@@ -295,6 +296,8 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( )
     bodies.getBody( "Pluto" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::PLUTO_GRAVITATIONAL_PARAMETER ) );
 
     bodies.getBody( "Earth" )->setShapeModel( std::make_shared< SphericalBodyShapeModel >(celestial_body_constants::EARTH_EQUATORIAL_RADIUS ) );
+    bodies.getBody( "Earth" )->setRotationalEphemeris( std::make_shared< SimpleRotationalEphemeris >(Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
+                                                                                                     7.2921159E-5, 0.0, "ECLIPJ2000", "Earth_Fixed" ) );
 
     return bodies;
 }
