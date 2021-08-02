@@ -67,7 +67,7 @@ namespace propagation_setup {
                 .value("aerodynamic_moment_coefficients_type",
                        tp::PropagationDependentVariables::aerodynamic_moment_coefficients_dependent_variable)
                 .value("rotation_matrix_to_body_fixed_frame_type",
-                       tp::PropagationDependentVariables::rotation_matrix_to_body_fixed_frame_variable)
+                       tp::PropagationDependentVariables::inertial_to_body_fixed_rotation_matrix_variable)
                 .value("intermediate_aerodynamic_rotation_matrix_type",
                        tp::PropagationDependentVariables::intermediate_aerodynamic_rotation_matrix_variable)
                 .value("relative_body_aerodynamic_orientation_angle_type",
