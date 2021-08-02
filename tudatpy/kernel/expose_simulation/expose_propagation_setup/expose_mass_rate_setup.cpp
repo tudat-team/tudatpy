@@ -44,20 +44,20 @@ namespace propagation_setup {
         // Classes
 
         py::class_<tss::MassRateModelSettings,
-                std::shared_ptr<tss::MassRateModelSettings>>(m, "MassRateModelSettings")
+                std::shared_ptr<tss::MassRateModelSettings>>(m, "MassRateModelSettings");
 //                .def(py::init<const tudat::basic_astrodynamics::AvailableMassRateModels>(),
 //                     py::arg("mass_rate_type"));
 
-        py::class_<tss::FromThrustMassModelSettings,
-                std::shared_ptr<tss::FromThrustMassModelSettings>,
-                tss::MassRateModelSettings>(m, "FromThrustMassModelSettings")
+        py::class_<tss::FromThrustMassRateSettings,
+                std::shared_ptr<tss::FromThrustMassRateSettings>,
+                tss::MassRateModelSettings>(m, "FromThrustMassRateSettings");
 //                .def(py::init<const bool, const std::string &>(),
 //                     py::arg("use_all_thrust_models") = 1,
 //                     py::arg("associated_thrust_source") = "");
 
-        py::class_<tss::CustomMassRateModelSettings,
-                std::shared_ptr<tss::CustomMassRateModelSettings>,
-                tss::CustomMassRateModelSettings>(m, "CustomMassRateModelSettings")
+        py::class_<tss::CustomMassRateSettings,
+                std::shared_ptr<tss::CustomMassRateSettings>,
+                tss::MassRateModelSettings>(m, "CustomMassRateSettings");
 
         // Factory functions
 
