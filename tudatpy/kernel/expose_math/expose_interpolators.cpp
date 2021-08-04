@@ -45,7 +45,7 @@ namespace tudatpy {
 
 void expose_interpolators(py::module &m) {
 
-    py::enum_<ti::BoundaryInterpolationType>(m, "BoundaryInterpolationType")
+    py::enum_<ti::BoundaryInterpolationType>(m, "BoundaryInterpolationTypes")
             .value("throw_exception_at_boundary", ti::BoundaryInterpolationType::throw_exception_at_boundary)
             .value("use_boundary_value", ti::BoundaryInterpolationType::use_boundary_value)
             .value("use_boundary_value_with_warning", ti::BoundaryInterpolationType::use_boundary_value_with_warning)
