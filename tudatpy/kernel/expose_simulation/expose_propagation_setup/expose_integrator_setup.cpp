@@ -34,7 +34,7 @@ namespace propagation_setup {
 
     void expose_integrator_setup(py::module &m) {
 
-
+// ENUMS
         py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators")
                 .value("euler_type", tni::AvailableIntegrators::euler)
                 .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4)
@@ -55,24 +55,45 @@ namespace propagation_setup {
                 .value("deufelhard_sequence", tni::ExtrapolationMethodStepSequences::deufelhard_sequence)
                 .export_values();
 
-
+// CLASSES
         py::class_<
         tni::IntegratorSettings<double>,
                 std::shared_ptr<tni::IntegratorSettings<double>>>(m, "IntegratorSettings")
-                .def(py::init<
-                             const tni::AvailableIntegrators,
-                             const double,
-                             const double,
-                             const int,
-                             const bool>(),
-                     py::arg("integrator_type"),
-                     py::arg("initial_time"),
-                     py::arg("initial_time_step"),
-                     py::arg("save_frequency") = 1,
-                        // TODO: Discuss length of this argument: assess_propagation_termination_condition_during_integration_substeps.
-                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
+//                .def(py::init<
+//                             const tni::AvailableIntegrators,
+//                             const double,
+//                             const double,
+//                             const int,
+//                             const bool>(),
+//                     py::arg("integrator_type"),
+//                     py::arg("initial_time"),
+//                     py::arg("initial_time_step"),
+//                     py::arg("save_frequency") = 1,
+//                        // TODO: Discuss length of this argument: assess_propagation_termination_condition_during_integration_substeps.
+//                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
                 .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTime_ );
 
+        py::class_<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>,
+                std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>>,
+                tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m, "RungeKuttaVariableStepSizeSettingsVectorTolerances");
+
+        py::class_<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>,
+                std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>>,
+                tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m, "RungeKuttaVariableStepSizeSettingsScalarTolerances");
+
+        py::class_<tni::BulirschStoerIntegratorSettings<double>,
+                std::shared_ptr<tni::BulirschStoerIntegratorSettings<double>>,
+                tni::IntegratorSettings<double>>(m, "BulirschStoerIntegratorSettings");
+
+        py::class_<tni::BulirschStoerIntegratorSettings<double>,
+                std::shared_ptr<tni::BulirschStoerIntegratorSettings<double>>,
+                tni::IntegratorSettings<double>>(m, "BulirschStoerIntegratorSettings");
+
+        py::class_<tni::AdamsBashforthMoultonSettings<double>,
+                std::shared_ptr<tni::AdamsBashforthMoultonSettings<double>>,
+                tni::IntegratorSettings<double>>(m, "AdamsBashforthMoultonSettings");
+
+// FACTORY FUNCTIONS
         m.def("euler",
               &tni::eulerSettings< double >,
               py::arg("initial_time"),
@@ -128,7 +149,7 @@ namespace propagation_setup {
               py::arg("relative_error_tolerance") = 1.0E-12,
               py::arg("absolute_error_tolerance") = 1.0E-12,
               py::arg("save_frequency") = 1,
-              py::arg("check_termination_on_minor_steps") = 0,
+              py::arg("assess_termination_on_minor_steps") = false,
               py::arg("safety_factor") = 0.7,
               py::arg("maximum_factor_increase") = 10.0,
               py::arg("minimum_factor_increase") = 0.1 );
