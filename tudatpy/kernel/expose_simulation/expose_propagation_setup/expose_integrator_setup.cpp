@@ -73,6 +73,13 @@ namespace propagation_setup {
 //                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
                 .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTime_ );
 
+
+//        py::object RungeKuttaVariableStepSizeBaseSettings = (py::object) py::module_::import("math").attr("RungeKuttaVariableStepSizeBaseSettings");
+
+        py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<double>,
+                std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<double>>,
+                tni::IntegratorSettings<double>>(m, "RungeKuttaVariableStepSizeBaseSettings");
+
         py::class_<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>,
                 std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>>,
                 tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m, "RungeKuttaVariableStepSizeSettingsVectorTolerances");
@@ -80,10 +87,6 @@ namespace propagation_setup {
         py::class_<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>,
                 std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>>,
                 tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m, "RungeKuttaVariableStepSizeSettingsScalarTolerances");
-
-        py::class_<tni::BulirschStoerIntegratorSettings<double>,
-                std::shared_ptr<tni::BulirschStoerIntegratorSettings<double>>,
-                tni::IntegratorSettings<double>>(m, "BulirschStoerIntegratorSettings");
 
         py::class_<tni::BulirschStoerIntegratorSettings<double>,
                 std::shared_ptr<tni::BulirschStoerIntegratorSettings<double>>,
