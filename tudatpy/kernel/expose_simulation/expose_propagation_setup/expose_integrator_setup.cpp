@@ -74,8 +74,6 @@ namespace propagation_setup {
                 .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTime_ );
 
 
-//        py::object RungeKuttaVariableStepSizeBaseSettings = (py::object) py::module_::import("math").attr("RungeKuttaVariableStepSizeBaseSettings");
-
         py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<double>,
                 std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<double>>,
                 tni::IntegratorSettings<double>>(m, "RungeKuttaVariableStepSizeBaseSettings");
