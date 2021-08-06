@@ -8,7 +8,6 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 - [**Windows Users**] Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
   - All procedures, including the following prerequisite, assume the use of WSL. Power users who wish to do otherwise,
     must do so at their own risk, with reduced support from the team.
-  - **Important**: WSL is itself a clean Linux system existing on your Windows, you cannot use your existing Windows conda environments. You will need to carry out the Linux installation process for Miniconda/Anaconda in the WSL terminal.
 - Anaconda/Miniconda installation ([Installing Anaconda](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
 
 ## Setup
@@ -16,7 +15,7 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 1. Clone the repository and enter directory
 
 ````
-git clone --single-branch --branch <branch-name> https://github.com/tudat-team/tudat-bundle
+git clone --single-branch --branch minimal https://github.com/tudat-team/tudat-bundle
 cd tudat-bundle
 ````
 
@@ -43,15 +42,21 @@ There are two directions you can go from here. CLion or the command line.
 
 ### Build: CLion
 
-5. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
+5. Open CLion, create a new project from `File > New Project` and select the directory that has been cloned under bullet
+   point 1 (named `tudat-bundle`).
 > **Note** \
-> The CMake configuration option `CMAKE_BUILD_TYPE` will be determined by the the build profile's `Build type` entry. 
+> To avoid issues with CLion, the directory of the project should correspond exactly to the cloned directory named  `tudat-bundle`.
+
+
+6. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`.
+> **Note** \
+> The CMake configuration option `CMAKE_BUILD_TYPE` will be determined by the the build profile's `Build type` entry.
 > A `Release` configuration will suppress a significant amount of harmless warnings during compilation. Currently,
-> with the move to a later version of boost, some warnings have cropped up that have either not been fixed in the 
+> with the move to a later version of boost, some warnings have cropped up that have either not been fixed in the
 > source code, or have not been suppressed via `tudat/cmake_modules/compiler.cmake`.
 
-6. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
-   
+7. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
+
 ```
 -DCMAKE_PREFIX_PATH=<CONDA_PREFIX>
 -DCMAKE_CXX_STANDARD=14
@@ -65,11 +70,11 @@ There are two directions you can go from here. CLion or the command line.
 > ````
 
 [**Optional**] Add `-j<n>` to `File > Settings > Build, Execution, Deployment > CMake > Build options` to use multiple
- processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
+processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
 recommended to start at `-j2` and work your way up with further builds, ensuring **no unsaved work** in the background.
 
 7. In the source tree on the left, right click the top level `CMakeLists.txt` then `Load/Reload CMake Project`.
-   
+
 8. `Build > Build Project`
 
 ### Build: Command line
@@ -130,7 +135,7 @@ Desired result:
 
 - [**CLion Users**] In CLion, the convention to set CMake arguments
   is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`.
-  
-- [**All Users**] You can increase the number of cores used to compile `tudat` & `tudatpy` using the `-j<n>` 
+
+- [**All Users**] You can increase the number of cores used to compile `tudat` & `tudatpy` using the `-j<n>`
   build argument, but **be aware** that the current complexity of the libraries can often result in your PC freezing indefinitely.
 
