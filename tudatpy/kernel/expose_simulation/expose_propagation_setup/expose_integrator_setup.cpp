@@ -73,7 +73,6 @@ namespace propagation_setup {
 //                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
                 .def_readwrite("initial_time", &tni::IntegratorSettings<double>::initialTime_ );
 
-
         py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<double>,
                 std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<double>>,
                 tni::IntegratorSettings<double>>(m, "RungeKuttaVariableStepSizeBaseSettings");
