@@ -35,6 +35,7 @@ namespace propagation_setup {
 
     void expose_propagator_setup(py::module &m){
 
+        // ENUMS
         py::enum_<tp::TranslationalPropagatorType>(m, "TranslationalPropagatorType")
                 .value("undefined_translational_propagator",
                        tp::TranslationalPropagatorType::undefined_translational_propagator)
@@ -65,18 +66,25 @@ namespace propagation_setup {
                        tp::RotationalPropagatorType::exponential_map)
                 .export_values();
 
+        // CLASSES
         py::class_<tp::DependentVariableSaveSettings,
-                std::shared_ptr<tp::DependentVariableSaveSettings>>(m, "DependentVariableSaveSettings")
-                .def(py::init<
-                             const std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings>>,
-                             const bool>(),
-                     py::arg("dependent_variables"),
-                     py::arg("print_dependent_variable_types") = true);
+                std::shared_ptr<tp::DependentVariableSaveSettings>>(m, "DependentVariableSaveSettings");
+//                .def(py::init<
+//                             const std::vector<std::shared_ptr<tp::SingleDependentVariableSaveSettings>>,
+//                             const bool>(),
+//                     py::arg("dependent_variables"),
+//                     py::arg("print_dependent_variable_types") = true);
 
         py::class_<
         tp::PropagatorSettings<double>,
                 std::shared_ptr<tp::PropagatorSettings<double>>>(m, "PropagatorSettings")
-                .def("reset_initial_states", &tp::PropagatorSettings<double>::resetInitialStates);
+                .def("reset_initial_states", &tp::PropagatorSettings<double>::resetInitialStates,
+                     py::arg("initial_states"));
+
+        py::class_<
+                tp::MultiArcPropagatorSettings<double>,
+                std::shared_ptr<tp::MultiArcPropagatorSettings<double>>,
+                tp::PropagatorSettings<double>>(m, "MultiArcPropagatorSettings");
 
         py::class_<
         tp::SingleArcPropagatorSettings<double>,
@@ -85,79 +93,80 @@ namespace propagation_setup {
                 .def_property("termination_settings",
                               &tp::SingleArcPropagatorSettings<double>::getTerminationSettings,
                               &tp::SingleArcPropagatorSettings<double>::resetTerminationSettings);
+
         py::class_<
         tp::TranslationalStatePropagatorSettings<double>,
                 std::shared_ptr<tp::TranslationalStatePropagatorSettings<double>>,
         tp::SingleArcPropagatorSettings<double>>(m, "TranslationalStatePropagatorSettings")
-                .def(// ctor 1
-                        py::init<
-                                const std::vector<std::string> &,
-                                const tba::AccelerationMap &,
-                                const std::vector<std::string> &,
-                                const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
-                                const std::shared_ptr<tp::PropagationTerminationSettings>,
-                                const tp::TranslationalPropagatorType,
-                                const std::shared_ptr<tp::DependentVariableSaveSettings>,
-                                const double>(),
-                        py::arg("central_bodies"),
-                        py::arg("acceleration_models"),
-                        py::arg("bodies_to_integrate"),
-                        py::arg("initial_states"),
-                        py::arg("termination_settings"),
-                        py::arg("propagator") = tp::TranslationalPropagatorType::cowell,
-                        py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-                        py::arg("print_interval") = TUDAT_NAN)
-                .def(// ctor 2
-                        py::init<const std::vector<std::string> &,
-                                const tss::SelectedAccelerationMap &,
-                                const std::vector<std::string> &,
-                                const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
-                                const std::shared_ptr<tp::PropagationTerminationSettings>,
-                                const tp::TranslationalPropagatorType,
-                                const std::shared_ptr<tp::DependentVariableSaveSettings>,
-                                const double>(),
-                        py::arg("central_bodies"),
-                        py::arg("acceleration_settings"),
-                        py::arg("bodies_to_integrate"),
-                        py::arg("initial_states"),
-                        py::arg("termination_settings"),
-                        py::arg("propagator") = tp::cowell,
-                        py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-                        py::arg("print_interval") = TUDAT_NAN)
-                .def(// ctor 3
-                        py::init<const std::vector<std::string> &,
-                                const tba::AccelerationMap &,
-                                const std::vector<std::string> &,
-                                const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
-                                const double,
-                                const tp::TranslationalPropagatorType,
-                                const std::shared_ptr<tp::DependentVariableSaveSettings>,
-                                const double>(),
-                        py::arg("central_bodies"),
-                        py::arg("acceleration_models"),
-                        py::arg("bodies_to_integrate"),
-                        py::arg("initial_states"),
-                        py::arg("termination_time"),
-                        py::arg("propagator") = tp::cowell,
-                        py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-                        py::arg("print_interval") = TUDAT_NAN)
-                .def(// ctor 4
-                        py::init<const std::vector<std::string> &,
-                                const tss::SelectedAccelerationMap &,
-                                const std::vector<std::string> &,
-                                const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
-                                const double,
-                                const tp::TranslationalPropagatorType,
-                                const std::shared_ptr<tp::DependentVariableSaveSettings>,
-                                const double>(),
-                        py::arg("central_bodies"),
-                        py::arg("acceleration_settings"),
-                        py::arg("bodies_to_integrate"),
-                        py::arg("initial_states"),
-                        py::arg("termination_time"),
-                        py::arg("propagator") = tp::cowell,
-                        py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-                        py::arg("print_interval") = TUDAT_NAN)
+//                .def(// ctor 1
+//                        py::init<
+//                                const std::vector<std::string> &,
+//                                const tba::AccelerationMap &,
+//                                const std::vector<std::string> &,
+//                                const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
+//                                const std::shared_ptr<tp::PropagationTerminationSettings>,
+//                                const tp::TranslationalPropagatorType,
+//                                const std::shared_ptr<tp::DependentVariableSaveSettings>,
+//                                const double>(),
+//                        py::arg("central_bodies"),
+//                        py::arg("acceleration_models"),
+//                        py::arg("bodies_to_integrate"),
+//                        py::arg("initial_states"),
+//                        py::arg("termination_settings"),
+//                        py::arg("propagator") = tp::TranslationalPropagatorType::cowell,
+//                        py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+//                        py::arg("print_interval") = TUDAT_NAN)
+//                .def(// ctor 2
+//                        py::init<const std::vector<std::string> &,
+//                                const tss::SelectedAccelerationMap &,
+//                                const std::vector<std::string> &,
+//                                const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
+//                                const std::shared_ptr<tp::PropagationTerminationSettings>,
+//                                const tp::TranslationalPropagatorType,
+//                                const std::shared_ptr<tp::DependentVariableSaveSettings>,
+//                                const double>(),
+//                        py::arg("central_bodies"),
+//                        py::arg("acceleration_settings"),
+//                        py::arg("bodies_to_integrate"),
+//                        py::arg("initial_states"),
+//                        py::arg("termination_settings"),
+//                        py::arg("propagator") = tp::cowell,
+//                        py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+//                        py::arg("print_interval") = TUDAT_NAN)
+//                .def(// ctor 3
+//                        py::init<const std::vector<std::string> &,
+//                                const tba::AccelerationMap &,
+//                                const std::vector<std::string> &,
+//                                const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
+//                                const double,
+//                                const tp::TranslationalPropagatorType,
+//                                const std::shared_ptr<tp::DependentVariableSaveSettings>,
+//                                const double>(),
+//                        py::arg("central_bodies"),
+//                        py::arg("acceleration_models"),
+//                        py::arg("bodies_to_integrate"),
+//                        py::arg("initial_states"),
+//                        py::arg("termination_time"),
+//                        py::arg("propagator") = tp::cowell,
+//                        py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+//                        py::arg("print_interval") = TUDAT_NAN)
+//                .def(// ctor 4
+//                        py::init<const std::vector<std::string> &,
+//                                const tss::SelectedAccelerationMap &,
+//                                const std::vector<std::string> &,
+//                                const Eigen::Matrix<double, Eigen::Dynamic, 1> &,
+//                                const double,
+//                                const tp::TranslationalPropagatorType,
+//                                const std::shared_ptr<tp::DependentVariableSaveSettings>,
+//                                const double>(),
+//                        py::arg("central_bodies"),
+//                        py::arg("acceleration_settings"),
+//                        py::arg("bodies_to_integrate"),
+//                        py::arg("initial_states"),
+//                        py::arg("termination_time"),
+//                        py::arg("propagator") = tp::cowell,
+//                        py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+//                        py::arg("print_interval") = TUDAT_NAN)
                 .def("recreate_state_derivative_models", &tp::TranslationalStatePropagatorSettings<double>::resetIntegratedStateModels,
                      py::arg("bodies") )
                 .def("get_propagated_state_size", &tp::TranslationalStatePropagatorSettings<double>::getPropagatedStateSize)
@@ -168,25 +177,28 @@ namespace propagation_setup {
 
 
         py::class_<
-        tp::MultiTypePropagatorSettings<double>,
-                std::shared_ptr<tp::MultiTypePropagatorSettings<double>>,
-        tp::SingleArcPropagatorSettings<double>>(m, "MultiTypePropagatorSettings")
-                .def("reset_initial_states", &tp::MultiTypePropagatorSettings<double>::resetInitialStates)
+            tp::MultiTypePropagatorSettings<double>,
+            std::shared_ptr<tp::MultiTypePropagatorSettings<double>>,
+            tp::SingleArcPropagatorSettings<double>>(m, "MultiTypePropagatorSettings")
+                .def("reset_initial_states", &tp::MultiTypePropagatorSettings<double>::resetInitialStates,
+                     py::arg("initial_states"))
                 .def("recreate_state_derivative_models", &tp::MultiTypePropagatorSettings<double>::resetIntegratedStateModels,
                      py::arg("bodies") )
                 .def("single_type_settings", &tp::MultiTypePropagatorSettings<double>::getSingleTypePropagatorSettings,
                      py::arg("state_type") )
                 .def_property_readonly("propagator_settings_per_type", &tp::MultiTypePropagatorSettings<double>::getPropagatorSettingsMap);
 
-
-
+        py::class_<
+                tp::RotationalStatePropagatorSettings<double>,
+                std::shared_ptr<tp::RotationalStatePropagatorSettings<double>>,
+                tp::SingleArcPropagatorSettings<double>>(m, "RotationalStatePropagatorSettings");
 
         py::class_<
         tp::MassPropagatorSettings<double>,
                 std::shared_ptr<tp::MassPropagatorSettings<double>>,
         tp::SingleArcPropagatorSettings<double>>(m, "MassPropagatorSettings");
 
-
+        // FREE FUNCTIONS
         m.def("combine_initial_states",
               &tp::createCombinedInitialState<double>,
               py::arg("propagator_settings_per_type") );
@@ -326,6 +338,41 @@ namespace propagation_setup {
               py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
               py::arg("print_interval") = TUDAT_NAN);
 
+        m.def("rotational",
+              py::overload_cast<
+                      const tba::TorqueModelMap&,
+                      const std::vector< std::string >&,
+                      const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+                      const std::shared_ptr<tp::PropagationTerminationSettings>,
+                      const tp::RotationalPropagatorType,
+                      const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+                      const double>(&tp::rotationalStatePropagatorSettings<double>),
+              py::arg("torque_models"),
+              py::arg("bodies_to_integrate"),
+              py::arg("initial_states"),
+              py::arg("termination_settings"),
+              py::arg("propagator") = tp::quaternions,
+              py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
+              py::arg("print_interval") = TUDAT_NAN);
+
+        m.def("rotational",
+              py::overload_cast<
+                      const tss::SelectedTorqueMap&,
+                      const std::vector< std::string >&,
+                      const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+                      const std::shared_ptr<tp::PropagationTerminationSettings>,
+                      const tp::RotationalPropagatorType,
+                      const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+                      const double>(&tp::rotationalStatePropagatorSettings<double>),
+              py::arg("torque_settings"),
+              py::arg("bodies_to_integrate"),
+              py::arg("initial_states"),
+              py::arg("termination_settings"),
+              py::arg("propagator") = tp::quaternions,
+              py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
+              py::arg("print_interval") = TUDAT_NAN);
+
+
         m.def("mass",
               py::overload_cast<
                       const std::vector< std::string >,
@@ -355,44 +402,6 @@ namespace propagation_setup {
               py::arg("termination_settings"),
               py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
               py::arg("print_interval") = TUDAT_NAN);
-
-        m.def("rotational",
-              py::overload_cast<
-                      const tba::TorqueModelMap&,
-                      const std::vector< std::string >&,
-                      const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
-                      const std::shared_ptr< tp::PropagationTerminationSettings >,
-                      const tp::RotationalPropagatorType,
-                      const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                      const double
-              >(&tp::rotatonalPropagatorSettings<double>),
-              py::arg("torque_models"),
-              py::arg("bodies_to_propagate"),
-              py::arg("initial_states"),
-              py::arg("termination_settings"),
-              py::arg("propagator") = tp::quaternions,
-              py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
-              py::arg("print_interval") = TUDAT_NAN);
-
-
-        m.def("rotational",
-              py::overload_cast<
-                      const tss::SelectedTorqueMap&,
-                      const std::vector< std::string >&,
-                      const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
-                      const std::shared_ptr< tp::PropagationTerminationSettings >,
-                      const tp::RotationalPropagatorType,
-                      const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                      const double
-              >(&tp::rotatonalPropagatorSettings<double>),
-              py::arg("torque_model_settings"),
-              py::arg("bodies_to_propagate"),
-              py::arg("initial_states"),
-              py::arg("termination_settings"),
-              py::arg("propagator") = tp::quaternions,
-              py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
-              py::arg("print_interval") = TUDAT_NAN);
-
 
         m.def("mass",
               py::overload_cast<
@@ -412,21 +421,6 @@ namespace propagation_setup {
         m.def("mass",
               py::overload_cast<
                       const std::vector< std::string >,
-                      const std::map< std::string, std::shared_ptr< tba::MassRateModel > >&,
-                      const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
-                      const std::shared_ptr< tp::PropagationTerminationSettings >,
-                      const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                      const double >(&tp::massPropagatorSettings<double>),
-              py::arg("bodies_with_mass_to_propagate"),
-              py::arg("mass_rate_models"),
-              py::arg("initial_body_masses"),
-              py::arg("termination_settings"),
-              py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
-              py::arg("print_interval") = TUDAT_NAN);
-
-        m.def("mass",
-              py::overload_cast<
-                      const std::vector< std::string >,
                       const std::map< std::string, std::vector< std::shared_ptr< tba::MassRateModel > > >&,
                       const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
                       const std::shared_ptr< tp::PropagationTerminationSettings >,
@@ -438,6 +432,7 @@ namespace propagation_setup {
               py::arg("termination_settings"),
               py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
               py::arg("print_interval") = TUDAT_NAN);
+
 
         m.def("mass",
               py::overload_cast<
@@ -465,7 +460,6 @@ namespace propagation_setup {
                 py::arg("termination_settings"),
                 py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>( ),
                 py::arg("print_interval") = TUDAT_NAN );
-
 
         m.def("multitype",
               py::overload_cast<
@@ -495,18 +489,18 @@ namespace propagation_setup {
         py::class_<
                 tp::PropagationDependentVariableTerminationSettings,
                 std::shared_ptr<tp::PropagationDependentVariableTerminationSettings>,
-                tp::PropagationTerminationSettings>(m, "PropagationDependentVariableTerminationSettings")
-                .def(py::init<
-                             const std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
-                             const double,
-                             const bool,
-                             const bool,
-                             const std::shared_ptr<tudat::root_finders::RootFinderSettings>>(),
-                     py::arg("dependent_variadble_settings"),
-                     py::arg("limit_value"),
-                     py::arg("use_as_lower_limit"),
-                     py::arg("terminate_exactly_on_final_condition") = false,
-                     py::arg("termination_root_finder_settings") = nullptr);
+                tp::PropagationTerminationSettings>(m, "PropagationDependentVariableTerminationSettings");
+//                .def(py::init<
+//                             const std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
+//                             const double,
+//                             const bool,
+//                             const bool,
+//                             const std::shared_ptr<tudat::root_finders::RootFinderSettings>>(),
+//                     py::arg("dependent_variadble_settings"),
+//                     py::arg("limit_value"),
+//                     py::arg("use_as_lower_limit"),
+//                     py::arg("terminate_exactly_on_final_condition") = false,
+//                     py::arg("termination_root_finder_settings") = nullptr);
 
         m.def("time_termination",
               &tp::propagationTimeTerminationSettings,
