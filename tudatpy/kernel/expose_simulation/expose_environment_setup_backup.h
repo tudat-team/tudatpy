@@ -13,8 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include "tudat/simulation/environment_setup.h"
-
 namespace py = pybind11;
 
 namespace tudatpy {

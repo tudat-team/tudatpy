@@ -83,7 +83,17 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/simulation
         kernel/expose_simulation.cpp
+
         kernel/expose_simulation/expose_environment_setup.cpp
+        kernel/expose_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
+        kernel/expose_simulation/expose_environment_setup/expose_atmosphere_setup.cpp
+        kernel/expose_simulation/expose_environment_setup/expose_ephemeris_setup.cpp
+        kernel/expose_simulation/expose_environment_setup/expose_gravity_field_setup.cpp
+        kernel/expose_simulation/expose_environment_setup/expose_gravity_field_variation_setup.cpp
+        kernel/expose_simulation/expose_environment_setup/expose_radiation_pressure_setup.cpp
+        kernel/expose_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
+        kernel/expose_simulation/expose_environment_setup/expose_shape_setup.cpp
+
 
         kernel/expose_simulation/expose_propagation_setup.cpp
         kernel/expose_simulation/expose_propagation_setup/expose_acceleration_setup.cpp
