@@ -53,7 +53,7 @@ namespace low_thrust_trajectories
 //    // Create mass rate models
 //    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
 //    massRateModels[ bodyToPropagate ] = createMassRateModel(
-//                bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+//                bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassRateSettings >( 1 ),
 //                bodies, accelerationMap );
 
 //    // Define mass propagator settings.
