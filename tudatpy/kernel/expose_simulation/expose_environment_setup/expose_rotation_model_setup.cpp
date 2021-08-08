@@ -59,7 +59,7 @@ namespace environment_setup {
 
         py::class_<tss::RotationModelSettings,
                 std::shared_ptr<tss::RotationModelSettings>>(
-                m, "RotationalModelSettings", "<no doc>")
+                m, "RotationModelSettings", get_docstring("RotationModelSettings").c_str())
 //            .def(py::init<const tss::RotationModelType, const std::string &,
 //                 const std::string &>(),
 //                 py::arg("rotation_type"), py::arg("base_frame"),

@@ -10,6 +10,8 @@
 
 #include "expose_dependent_variable_setup.h"
 
+#include "tudatpy/docstrings.h"
+
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -142,13 +144,13 @@ namespace propagation_setup {
 
         py::class_<tp::VariableSettings,
                 std::shared_ptr<tp::VariableSettings>>
-                (m, "VariableSettings", get_docstring("VariableSettings.__docstring__"));
+                (m, "VariableSettings",
+                        get_docstring("VariableSettings").c_str());
 
         py::class_<tp::SingleDependentVariableSaveSettings,
                 std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
-                tp::VariableSettings>(m,
-                                      "SingleDependentVariableSaveSettings",
-                                      get_docstring("SingleDependentVariableSaveSettings.__docstring__"));
+                tp::VariableSettings>(m, "SingleDependentVariableSaveSettings",
+                                      get_docstring("SingleDependentVariableSaveSettings").c_str());
 //            .def(py::init<
 //                 const tp::PropagationDependentVariables,
 //                 const std::string &,
@@ -162,9 +164,8 @@ namespace propagation_setup {
         py::class_<
                 tp::SingleAccelerationDependentVariableSaveSettings,
                 std::shared_ptr<tp::SingleAccelerationDependentVariableSaveSettings>,
-                tp::SingleDependentVariableSaveSettings>(m,
-                                                         "SingleAccelerationDependentVariableSaveSettings",
-                                                         get_docstring("SingleAccelerationDependentVariableSaveSettings.__docstring__"));
+                tp::SingleDependentVariableSaveSettings>(m, "SingleAccelerationDependentVariableSaveSettings",
+                                                         get_docstring("SingleAccelerationDependentVariableSaveSettings").c_str());
 //            .def(py::init<
 //                 const tudat::basic_astrodynamics::AvailableAcceleration,
 //                 const std::string &,
