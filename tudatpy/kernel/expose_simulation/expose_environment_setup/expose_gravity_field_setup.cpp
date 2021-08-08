@@ -51,20 +51,24 @@ namespace environment_setup {
                 .export_values();
 
         py::class_<tss::GravityFieldSettings, std::shared_ptr<tss::GravityFieldSettings>>(
-                m, "GravityFieldSettings", "<no doc>")
+                m, "GravityFieldSettings",
+                get_docstring("GravityFieldSettings").c_str())
 //            .def(py::init<const tss::GravityFieldType>(),
 //                 py::arg("gravity_field_type"))
                 .def_property_readonly("gravity_field_type", &tss::GravityFieldSettings::getGravityFieldType);
 
+
         py::class_<tss::CentralGravityFieldSettings, std::shared_ptr<tss::CentralGravityFieldSettings>,
-                tss::GravityFieldSettings>(m, "CentralGravityFieldSettings", "<no doc>")
+                tss::GravityFieldSettings>(m, "CentralGravityFieldSettings",
+                                           get_docstring("CentralGravityFieldSettings").c_str())
 //            .def(py::init<double>(), py::arg("gravitational_parameter") )
                 .def_property("gravitational_parameter", &tss::CentralGravityFieldSettings::getGravitationalParameter,
                               &tss::CentralGravityFieldSettings::resetGravitationalParameter);
 
 
         py::class_<tss::SphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::SphericalHarmonicsGravityFieldSettings>,
-                tss::GravityFieldSettings>(m, "SphericalHarmonicsGravityFieldSettings", "<no doc>")
+                tss::GravityFieldSettings>(m, "SphericalHarmonicsGravityFieldSettings",
+                                           get_docstring("SphericalHarmonicsGravityFieldSettings").c_str())
 //            .def(py::init<const double, const double, const Eigen::MatrixXd, const Eigen::MatrixXd, const std::string&>(),
 //                 py::arg("gravitational_parameter"), py::arg("reference_radius"), py::arg("cosine_coefficients"),
 //                 py::arg("sine_coefficients"), py::arg("associated_reference_frame"))
@@ -86,19 +90,23 @@ namespace environment_setup {
                 .def_property_readonly("reference_radius",
                                        &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius);
 
+
+
         py::class_<tss::FromFileSphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::FromFileSphericalHarmonicsGravityFieldSettings>,
                 tss::SphericalHarmonicsGravityFieldSettings>(m, "FromFileSphericalHarmonicsGravityFieldSettings",
-                                                             "<no doc>");
+                                                             get_docstring("FromFileSphericalHarmonicsGravityFieldSettings").c_str());
 
 
         m.def("central",
               &tss::centralGravitySettings,
               py::arg("gravitational_parameter"),
-              get_docstring("central").c_str());
+              get_docstring("central").c_str()
+              );
 
         m.def("central_spice",
-              &tss::centralGravityFromSpiceSettings),
-                get_docstring("central_spice").c_str();
+              &tss::centralGravityFromSpiceSettings,
+                get_docstring("central_spice").c_str()
+                );
 
         m.def("spherical_harmonic",
               &tss::sphericalHarmonicsGravitySettings,
@@ -107,7 +115,8 @@ namespace environment_setup {
               py::arg("normalized_cosine_coefficients"),
               py::arg("normalized_sine_coefficients"),
               py::arg("associated_reference_frame"),
-              get_docstring("spherical_harmonic").c_str());
+              get_docstring("spherical_harmonic").c_str()
+              );
 
         m.def("spherical_harmonic_triaxial_body",
               &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
@@ -118,9 +127,9 @@ namespace environment_setup {
               py::arg("maximum_degree"),
               py::arg("maximum_order"),
               py::arg("associated_reference_frame"),
-              get_docstring("spherical_harmonic_triaxial_body").c_str());
+              get_docstring("spherical_harmonic_triaxial_body").c_str()
+              );
     }
-
 
 }// namespace environment_setup
 }// namespace simulation
