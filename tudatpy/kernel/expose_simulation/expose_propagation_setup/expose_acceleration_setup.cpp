@@ -10,6 +10,9 @@
 
 #include "expose_acceleration_setup.h"
 
+#include "tudatpy/docstrings.h"
+#include <tudat/simulation/propagation_setup.h>
+
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -72,15 +75,19 @@ void expose_acceleration_setup(py::module &m) {
 
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration, py::arg("acceleration_type"));
-    m.def("point_mass_gravity", &tss::pointMassGravityAcceleration);
+    m.def("point_mass_gravity", &tss::pointMassGravityAcceleration,
+          get_docstring("point_mass_gravity").c_str());
 
-    m.def("aerodynamic", &tss::aerodynamicAcceleration);
+    m.def("aerodynamic", &tss::aerodynamicAcceleration,
+          get_docstring("aerodynamic").c_str());
 
-    m.def("cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration);
+    m.def("cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration,
+          get_docstring("cannonball_radiation_pressure").c_str());
 
     m.def("spherical_harmonic_gravity", &tss::sphericalHarmonicAcceleration,
           py::arg( "maximum_degree" ),
-          py::arg( "maximum_order" ) );
+          py::arg( "maximum_order" ),
+          get_docstring("spherical_harmonic_gravity").c_str());
 
     m.def("mutual_spherical_harmonic_gravity", &tss::mutualSphericalHarmonicAcceleration,
           py::arg( "maximum_degree_body_exerting" ),
@@ -88,7 +95,8 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "maximum_degree_body_undergoing" ),
           py::arg( "maximum_order_body_undergoing" ),
           py::arg( "maximum_degree_central_body" ) = 0,
-          py::arg( "maximum_order_central_body" ) = 0 );
+          py::arg( "maximum_order_central_body" ) = 0,
+          get_docstring("mutual_spherical_harmonic_gravity").c_str());
 
     // TODO: I replaced zeros with false, is it okay?
     m.def("relativistic_correction", &tss::relativisticAccelerationCorrection,
@@ -96,33 +104,39 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "use_lense_thirring" ) = false,
           py::arg( "use_de_sitter" ) = false,
           py::arg( "de_sitter_central_body" ) = "",
-          py::arg( "lense_thirring_angular_momentum" ) = Eigen::Vector3d::Zero( ) );
+          py::arg( "lense_thirring_angular_momentum" ) = Eigen::Vector3d::Zero( ),
+          get_docstring("relativistic_correction").c_str());
 
     m.def("empirical", &tss::empiricalAcceleration,
           py::arg( "constant_acceleration" ) = Eigen::Vector3d::Zero( ),
           py::arg( "sine_acceleration" ) = Eigen::Vector3d::Zero( ),
-          py::arg( "cosine_acceleration" ) = Eigen::Vector3d::Zero( ) );
+          py::arg( "cosine_acceleration" ) = Eigen::Vector3d::Zero( ),
+          get_docstring("empirical").c_str());
 
     m.def("custom", &tss::customAccelerationSettings,
           py::arg( "acceleration_function" ),
-          py::arg( "scaling_function" ) = nullptr );
+          py::arg( "scaling_function" ) = nullptr,
+          get_docstring("custom").c_str());
 
     m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAcceleration,
           py::arg("k2_love_number"),
           py::arg("time_lag"),
           py::arg("include_direct_radial_component") = true,
-          py::arg("use_tide_raised_on_planet") = true);
+          py::arg("use_tide_raised_on_planet") = true,
+          get_docstring("direct_tidal_dissipation_acceleration").c_str());
 
     m.def("momentum_wheel_desaturation_acceleration", &tss::momentumWheelDesaturationAcceleration,
           py::arg("thrust_mid_times"),
           py::arg("delta_v_values"),
           py::arg("total_maneuver_time"),
-          py::arg("maneuver_rise_time"));
+          py::arg("maneuver_rise_time"),
+          get_docstring("momentum_wheel_desaturation_acceleration").c_str());
 
     m.def("thrust_acceleration", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionSettings>,
                   const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
           py::arg("thrust_direction_settings"),
-          py::arg("thrust_magnitude_settings"));
+          py::arg("thrust_magnitude_settings"),
+          get_docstring("thrust_acceleration", 0).c_str());
 
     m.def("thrust_acceleration", py::overload_cast<
                   const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
@@ -132,7 +146,8 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("data_interpolation_settings"),
           py::arg("specific_impulse_function"),
           py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
-          py::arg("central_body") = "");
+          py::arg("central_body") = "",
+          get_docstring("thrust_acceleration", 1).c_str());
 
     m.def("thrust_acceleration", py::overload_cast<
                   const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
@@ -142,47 +157,61 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("data_interpolation_settings"),
           py::arg("constant_specific_impulse"),
           py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
-          py::arg("central_body") = "");
+          py::arg("central_body") = "",
+          get_docstring("thrust_acceleration", 2).c_str());
 
 
     py::class_<tss::AccelerationSettings,
-            std::shared_ptr<tss::AccelerationSettings>>(m, "AccelerationSettings");
+            std::shared_ptr<tss::AccelerationSettings>>(m, "AccelerationSettings",
+                    get_docstring("AccelerationSettings").c_str());
 //            .def(py::init<const tudat::basic_astrodynamics::AvailableAcceleration>(),
 //                 py::arg("acceleration_type"));
 
     py::class_<tss::SphericalHarmonicAccelerationSettings,
             std::shared_ptr<tss::SphericalHarmonicAccelerationSettings>,
-            tss::AccelerationSettings>(m, "SphericalHarmonicAccelerationSettings");
+            tss::AccelerationSettings>(m, "SphericalHarmonicAccelerationSettings",
+                                       get_docstring("SphericalHarmonicAccelerationSettings").c_str());
 //            .def(py::init<const int, const int>(), py::arg("maximum_degree"),
 //                 py::arg("maximum_order"));
 
     py::class_<tss::MutualSphericalHarmonicAccelerationSettings,
             std::shared_ptr<tss::MutualSphericalHarmonicAccelerationSettings>,
-            tss::AccelerationSettings>(m, "MutualSphericalHarmonicAccelerationSettings");
+            tss::AccelerationSettings>(m, "MutualSphericalHarmonicAccelerationSettings",
+                                       get_docstring("MutualSphericalHarmonicAccelerationSettings").c_str());
+
 
     py::class_<tss::EmpiricalAccelerationSettings,
             std::shared_ptr<tss::EmpiricalAccelerationSettings>,
-            tss::AccelerationSettings>(m, "EmpiricalAccelerationSettings");
+            tss::AccelerationSettings>(m, "EmpiricalAccelerationSettings",
+                                       get_docstring("EmpiricalAccelerationSettings").c_str());
+
 
     py::class_<tss::RelativisticAccelerationCorrectionSettings,
             std::shared_ptr<tss::RelativisticAccelerationCorrectionSettings>,
-            tss::AccelerationSettings>(m, "RelativisticAccelerationCorrectionSettings");
+            tss::AccelerationSettings>(m, "RelativisticAccelerationCorrectionSettings",
+                                       get_docstring("RelativisticAccelerationCorrectionSettings").c_str());
+
 
     py::class_<tss::CustomAccelerationSettings,
             std::shared_ptr<tss::CustomAccelerationSettings>,
-            tss::AccelerationSettings>(m, "customAccelerationSettings");
+            tss::AccelerationSettings>(m, "CustomAccelerationSettings",
+                                       get_docstring("CustomAccelerationSettings").c_str());
+    ;
 
     py::class_<tss::DirectTidalDissipationAccelerationSettings,
             std::shared_ptr<tss::DirectTidalDissipationAccelerationSettings>,
-            tss::AccelerationSettings>(m, "directTidalDissipationAcceleration");
+            tss::AccelerationSettings>(m, "DirectTidalDissipationAcceleration",
+                                       get_docstring("DirectTidalDissipationAcceleration").c_str());
 
     py::class_<tss::MomentumWheelDesaturationAccelerationSettings,
             std::shared_ptr<tss::MomentumWheelDesaturationAccelerationSettings>,
-            tss::AccelerationSettings>(m, "momentumWheelDesaturationAcceleration");
+            tss::AccelerationSettings>(m, "MomentumWheelDesaturationAcceleration",
+                                       get_docstring("MomentumWheelDesaturationAcceleration").c_str());
 
     py::class_<tss::ThrustAccelerationSettings,
             std::shared_ptr<tss::ThrustAccelerationSettings>,
-            tss::AccelerationSettings>(m, "ThrustAccelerationSettings")
+            tss::AccelerationSettings>(m, "ThrustAccelerationSettings",
+                                       get_docstring("ThrustAccelerationSettings").c_str());
 //            .def(py::init<//ctor 1
 //                         const std::shared_ptr<tss::ThrustDirectionSettings>,
 //                         const std::shared_ptr<tss::ThrustMagnitudeSettings>>(),
@@ -259,11 +288,13 @@ void expose_acceleration_setup(py::module &m) {
           &tss::getPropulsionInputVariables,
           py::arg("body_with_guidance") = std::shared_ptr<tss::Body>(),
           py::arg("independent_variables") = std::vector<tudat::propulsion::ThrustIndependentVariables>(),
-          py::arg("guidance_input_functions") = std::vector<std::function<double()>>());
+          py::arg("guidance_input_functions") = std::vector<std::function<double()>>(),
+          get_docstring("get_propulsion_input_variables").c_str());
 
     py::class_<
             tss::ThrustDirectionSettings,
-            std::shared_ptr<tss::ThrustDirectionSettings>>(m, "ThrustDirectionSettings")
+            std::shared_ptr<tss::ThrustDirectionSettings>>(m, "ThrustDirectionSettings",
+                    get_docstring("ThrustDirectionSettings").c_str())
 //            .def(py::init<
 //                         const tss::ThrustDirectionGuidanceTypes,
 //                         const std::string>(),
@@ -274,7 +305,8 @@ void expose_acceleration_setup(py::module &m) {
 
     py::class_<
             tss::ThrustMagnitudeSettings,
-            std::shared_ptr<tss::ThrustMagnitudeSettings>>(m, "ThrustMagnitudeSettings")
+            std::shared_ptr<tss::ThrustMagnitudeSettings>>(m, "ThrustMagnitudeSettings",
+                                                           get_docstring("ThrustMagnitudeSettings").c_str())
 //            .def(py::init<
 //                         const tss::ThrustMagnitudeTypes,
 //                         const std::string &>(),
@@ -286,7 +318,8 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<
             tss::ThrustDirectionFromStateGuidanceSettings,
             std::shared_ptr<tss::ThrustDirectionFromStateGuidanceSettings>,
-            tss::ThrustDirectionSettings>(m, "ThrustDirectionFromStateGuidanceSettings")
+            tss::ThrustDirectionSettings>(m, "ThrustDirectionFromStateGuidanceSettings",
+                                          get_docstring("ThrustDirectionFromStateGuidanceSettings").c_str())
 //            .def(py::init<const std::string &,
 //                         const bool,
 //                         const bool>(),
@@ -299,7 +332,8 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<
             tss::CustomThrustDirectionSettings,
             std::shared_ptr<tss::CustomThrustDirectionSettings>,
-            tss::ThrustDirectionSettings>(m, "CustomThrustDirectionSettings")
+            tss::ThrustDirectionSettings>(m, "CustomThrustDirectionSettings",
+                                          get_docstring("CustomThrustDirectionSettings").c_str())
 //            .def(py::init<const std::function<Eigen::Vector3d(const double)>>(),
 //                 py::arg("thrust_direction_function") );
             .def_readonly("thrust_direction_function", &tss::CustomThrustDirectionSettings::thrustDirectionFunction_);
@@ -307,7 +341,8 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<
             tss::CustomThrustOrientationSettings,
             std::shared_ptr<tss::CustomThrustOrientationSettings>,
-            tss::ThrustDirectionSettings>(m, "CustomThrustOrientationSettings")
+            tss::ThrustDirectionSettings>(m, "CustomThrustOrientationSettings",
+                                          get_docstring("CustomThrustOrientationSettings").c_str())
 //            .def(py::init<const std::function<Eigen::Matrix3d(const double)>>(),
 //                 py::arg("thrust_orientation_function"))
             .def_readonly("thrust_orientation_function", &tss::CustomThrustOrientationSettings::thrustOrientationFunction_);
@@ -315,7 +350,8 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<
             tss::MeeCostateBasedThrustDirectionSettings,
             std::shared_ptr<tss::MeeCostateBasedThrustDirectionSettings>,
-            tss::ThrustDirectionSettings>(m, "MeeCostateBasedThrustDirectionSettings")
+            tss::ThrustDirectionSettings>(m, "MeeCostateBasedThrustDirectionSettings",
+                                          get_docstring("MeeCostateBasedThrustDirectionSettings").c_str())
 //            .def(py::init<const std::string &,//ctor 1
 //                         const std::string &,
 //                         const std::function<Eigen::VectorXd(const double)>>(),
@@ -347,7 +383,8 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<
             tss::ConstantThrustMagnitudeSettings,
             std::shared_ptr<tss::ConstantThrustMagnitudeSettings>,
-            tss::ThrustMagnitudeSettings>(m, "ConstantThrustMagnitudeSettings")
+            tss::ThrustMagnitudeSettings>(m, "ConstantThrustMagnitudeSettings",
+                                          get_docstring("ConstantThrustMagnitudeSettings").c_str())
 //            .def(py::init<
 //                         const double,
 //                         const double,
@@ -373,7 +410,8 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<
             tss::FromFunctionThrustMagnitudeSettings,
             std::shared_ptr<tss::FromFunctionThrustMagnitudeSettings>,
-            tss::ThrustMagnitudeSettings>(m, "FromFunctionThrustMagnitudeSettings");
+            tss::ThrustMagnitudeSettings>(m, "FromFunctionThrustMagnitudeSettings",
+                                          get_docstring("FromFunctionThrustMagnitudeSettings").c_str())
 //            .def(py::init<
 //                         const std::function< double( const double ) >,
 //                         const std::function< double( const double ) >,
@@ -393,17 +431,21 @@ void expose_acceleration_setup(py::module &m) {
     m.def("thrust_direction_from_state_guidance", &tss::thrustDirectionFromStateGuidanceSettings,
           py::arg( "central_body"),
           py::arg("is_colinear_with_velocity"),
-          py::arg("direction_is_opposite_to_vector"));
+          py::arg("direction_is_opposite_to_vector"),
+          get_docstring("thrust_direction_from_state_guidance").c_str());
 
-    m.def("thrust_from_existing_body_orientation", &tss::thrustFromExistingBodyOrientation );
+    m.def("thrust_from_existing_body_orientation", &tss::thrustFromExistingBodyOrientation,
+          get_docstring("thrust_from_existing_body_orientation").c_str());
 
     m.def("custom_thrust_orientation",
           py::overload_cast< std::function< Eigen::Matrix3d( const double ) > >(
                   &tss::customThrustOrientationSettings ),
-          py::arg( "thrust_orientation_function" ) );
+          py::arg( "thrust_orientation_function" ),
+          get_docstring("custom_thrust_orientation").c_str());
 
     m.def("custom_thrust_direction", &tss::customThrustDirectionSettings,
-          py::arg( "thrust_direction_function" ) );
+          py::arg( "thrust_direction_function" ),
+          get_docstring("custom_thrust_direction").c_str());
 
     m.def("mee_costate_based_thrust_direction",
           py::overload_cast<const std::string&, const std::string&,
@@ -411,7 +453,8 @@ void expose_acceleration_setup(py::module &m) {
                   &tss::meeCostateBasedThrustDirectionSettings),
           py::arg("vehicle_name"),
           py::arg("central_body_name"),
-          py::arg("costate_interpolator"));
+          py::arg("costate_interpolator"),
+          get_docstring("mee_costate_based_thrust_direction").c_str());
 
     m.def("mee_costate_based_thrust_direction",
           py::overload_cast<const std::string&, const std::string&,
@@ -419,7 +462,8 @@ void expose_acceleration_setup(py::module &m) {
                   &tss::meeCostateBasedThrustDirectionSettings),
           py::arg("vehicle_name"),
           py::arg("central_body_name"),
-          py::arg("constant_costates"));
+          py::arg("constant_costates"),
+          get_docstring("mee_costate_based_thrust_direction").c_str());
 
     // Thrust orientation factory functions
 
@@ -427,7 +471,8 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("thrust_magnitude"),
           py::arg("specific_impulse"),
           py::arg("body_fixed_thrust_direction" ) =
-                  Eigen::Vector3d::UnitX() );
+                  Eigen::Vector3d::UnitX(),
+          get_docstring("constant_thrust_magnitude").c_str());
 
     m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettings,
           py::arg("thrust_magnitude_function"),
@@ -436,7 +481,8 @@ void expose_acceleration_setup(py::module &m) {
                   std::function< bool( const double ) >( [ ]( const double ){ return true; } ),
           py::arg("body_fixed_thrust_direction" ) =
                   std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
-          py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
+          py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ),
+          get_docstring("custom_thrust_magnitude").c_str());
 
     // TODO: EngineModel still to be implemented
 //    m.def("from_body_thrust_magnitude", &tss::fromBodyThrustMagnitudeSettings,
