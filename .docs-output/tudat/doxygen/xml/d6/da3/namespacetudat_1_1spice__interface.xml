@@ -1,0 +1,852 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="d6/da3/namespacetudat_1_1spice__interface" kind="namespace" language="C++">
+    <compoundname>tudat::spice_interface</compoundname>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a1fec50d8aa608a9fb41d6b7f2a73b4d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::convertJulianDateToEphemerisTime</definition>
+        <argsstring>(const double julianDate)</argsstring>
+        <name>convertJulianDateToEphemerisTime</name>
+        <param>
+          <type>const double</type>
+          <declname>julianDate</declname>
+        </param>
+        <briefdescription>
+<para>Convert a Julian date to ephemeris time (equivalent to TDB in Spice). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The following math is for documentation demonstration purposes</para>
+<para>.. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}</para>
+<para><formula id="103">$ f(x) = a + b $</formula></para>
+<para>Function to convert a Julian date to ephemeris time, which is equivalent to barycentric dynamical time. A leap second kernel must have been loaded to use this function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>julian_date</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Julian date that is to be converted to ephemeris time. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>ephemeris_time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="22" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="22" bodyend="24" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="62" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a413c510d2788e3bcfac3eb8057dc33b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::convertEphemerisTimeToJulianDate</definition>
+        <argsstring>(const double ephemerisTime)</argsstring>
+        <name>convertEphemerisTimeToJulianDate</name>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>Convert ephemeris time (equivalent to TDB) to a Julian date. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert ephemeris time, which is nearly equal to barycentric dynamical time, to the Julian date. A leap second kernel must have been loaded to use this function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemeris_time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ephemeris time that is to be converted to Julian date. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>julian_date </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="27" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="27" bodyend="29" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="73" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1aaf9b3342a125dd76a1c0d9d8daa84a53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::convertDateStringToEphemerisTime</definition>
+        <argsstring>(const std::string &amp;dateString)</argsstring>
+        <name>convertDateStringToEphemerisTime</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>dateString</declname>
+        </param>
+        <briefdescription>
+<para>Converts a date string to ephemeris time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert a date string, for instance 1988 June 13, 3:29:48 to ephemeris time, wrapper for <computeroutput>str2et_c</computeroutput> spice function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>date_string</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String representing the date. See documentation of spice function <computeroutput>str2et_c</computeroutput> for details on supported formats. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>ephemeris_time </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="32" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="32" bodyend="36" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="86" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a9d249e8543c11b4518fc1683cd390b7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Vector6d tudat::spice_interface::getBodyCartesianStateAtEpoch</definition>
+        <argsstring>(const std::string &amp;targetBodyName, const std::string &amp;observerBodyName, const std::string &amp;referenceFrameName, const std::string &amp;aberrationCorrections, const double ephemerisTime)</argsstring>
+        <name>getBodyCartesianStateAtEpoch</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>targetBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>observerBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceFrameName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>aberrationCorrections</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>Get Cartesian state of a body, as observed from another body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns the state of a body, relative to another body, in a frame specified by the user. Corrections for light-time correction and stellar aberration can be applied to obtain the state of one of the bodies, as observed from the other. Wrapper for <computeroutput>spkezr_c</computeroutput> spice function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>target_body_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body of which the state is to be obtained. A kernel with the ephemeris of this body must have been loaded. The string must be a spice-recognized name or ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observer_body_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body relative to which the state is to be obtained. A kernel with the ephemeris of this body must have been loaded. The string must be a spice-recognized name or ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reference_frame_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The spice-recognized name of the reference frame in which the state is to be returned. Spice kernel(s) required to perform the necessary conversion from the states of the target and observer bodies to this frame need to have been loaded. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aberration_corrections</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Setting for correction for setting corrections. See Spice documentation for extended discussion. Short summary:</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<itemizedlist>
+<listitem><para>NONE: none</para>
+</listitem><listitem><para>LT: light time corrected (one iteration for calculation)</para>
+</listitem><listitem><para>CN: light time corrected (multiple iterations, max 3) for calculation</para>
+</listitem><listitem><para>S: Stellar aberration corrected.</para>
+</listitem><listitem><para>XLT and XCN: can be provided to make the ephemeris time input argument the transmission time, instead of reception time. Arguments can be combined (i.e.&quot;LT+S&quot; or &quot;XCN+S&quot;). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemeris_time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observation time (or transmission time of observed light, see description of aberrationCorrections). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>cartesian_state_vector </para>
+</simplesect>
+</para>
+</listitem></itemizedlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="39" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="39" bodyend="62" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="124" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a54e2e5a0086f7fd408ca231afda11220" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::spice_interface::getBodyCartesianPositionAtEpoch</definition>
+        <argsstring>(const std::string &amp;targetBodyName, const std::string &amp;observerBodyName, const std::string &amp;referenceFrameName, const std::string &amp;aberrationCorrections, const double ephemerisTime)</argsstring>
+        <name>getBodyCartesianPositionAtEpoch</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>targetBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>observerBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>referenceFrameName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>aberrationCorrections</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>Get Cartesian position of a body, as observed from another body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function returns the position of a body, relative to another body, in a frame specified by the user. Corrections for light-time correction and stellar aberration can be applied to obtain the state of one of the bodies, as observed from the other. Wrapper for <computeroutput>spkpos_c</computeroutput> spice function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>target_body_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body of which the state is to be obtained. A kernel with the ephemeris of this body must have been loaded. The string must be a spice-recognized name or ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observer_body_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body relative to which the state is to be obtained. A kernel with the ephemeris of this body must have been loaded. The string must be a spice-recognized name or ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reference_frame_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The spice-recognized name of the reference frame in which the state is to be returned. Spice kernel(s) required to perform the necessary conversion from the states of the target and observer bodies to this frame need to have been loaded. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aberration_corrections</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Setting for correction for setting corrections. See Spice documentation for extended discussion. Short summary:</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<itemizedlist>
+<listitem><para>NONE: none</para>
+</listitem><listitem><para>LT: light time corrected (one iteration for calculation)</para>
+</listitem><listitem><para>CN: light time corrected (multiple iterations, max 3) for calculation,</para>
+</listitem><listitem><para>S: Stellar aberration corrected.</para>
+</listitem><listitem><para>XLT and XCN: can be provided to make the ephemeris time input argument the transmission time, instead of reception time. Arguments can be combined (i.e.&quot;LT+S&quot; or &quot;XCN+S&quot;). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ephemeris_time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observation time (or transmission time of observed light, see description of aberrationCorrections). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+</listitem></itemizedlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="65" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="65" bodyend="88" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="164" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a2f09c2b86a5f8890ffc6b3406618520d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Vector6d tudat::spice_interface::getCartesianStateFromTleAtEpoch</definition>
+        <argsstring>(double epoch, std::shared_ptr&lt; ephemerides::Tle &gt; tle)</argsstring>
+        <name>getCartesianStateFromTleAtEpoch</name>
+        <param>
+          <type>double</type>
+          <declname>epoch</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="d7/dd0/classtudat_1_1ephemerides_1_1Tle" kindref="compound">ephemerides::Tle</ref> &gt;</type>
+          <declname>tle</declname>
+        </param>
+        <briefdescription>
+<para>Get Cartesian state of a satellite from its two-line element set at a specified epoch. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function retrieves the state of a satellite at a certain epoch by propagating the SGP or SDP models (near-Earth resp. deep space) with the given two-line elements (TLE). This function serves as a wrapper for the <computeroutput>ev2lin_</computeroutput> function in CSpice.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>epoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d0/d53/classtudat_1_1Time" kindref="compound">Time</ref> in seconds since J2000 at which the state is to be retrieved. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shared pointer to a Tle object containing the SGP/SDP model parameters as derived from the element set. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>cartesian_state_vector </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="91" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="91" bodyend="122" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="181" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a05f9090cdc6ef98d9249eb27071a62ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::spice_interface::computeRotationQuaternionBetweenFrames</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>computeRotationQuaternionBetweenFrames</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>Compute quaternion of rotation between two frames. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function computes the quaternion of rotation between two frames at a given time instant. kernels defining the two frames, as well as any required intermediate frames, at the requested time must have been loaded. Wrapper for <computeroutput>pxform_c</computeroutput> spice function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>original_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference frame from which the rotation is made. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>new_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference frame to which the rotation is made. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ephemeris_time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of ephemeris time at which rotation is to be determined. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>None </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="125" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="125" bodyend="144" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="195" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a2729d12c31ec3959ab035590a80cceda" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::spice_interface::computeRotationMatrixBetweenFrames</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>computeRotationMatrixBetweenFrames</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="146" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="146" bodyend="152" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="199" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a5843c52bdb63b97a12ace57156960837" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::spice_interface::computeRotationMatrixDerivativeBetweenFrames</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>computeRotationMatrixDerivativeBetweenFrames</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>Computes time derivative of rotation matrix between two frames. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function computes the derivative of the rotation matrix between two frames at a given time instant. kernels defining the two frames, as well as any required intermediate frames, at the requested time must have been loaded. Wrapper for (part of) <computeroutput>sxform_c</computeroutput> spice function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>original_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference frame from which the rotation is made. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>new_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference frame to which the rotation is made. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ephemeris_time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of ephemeris time at which rotation is to be determined. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>None </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="155" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="155" bodyend="172" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="215" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a80033dc6bbe5dba746f364a7e844601f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>getAngularVelocityVectorOfFrameInOriginalFrame</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+<para>Computes the angular velocity of one frame w.r.t. to another frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the angular velocity of one frame w.r.t. to another frame. at a given time instant. kernels defining the two frames, as well as any required intermediate frames, at the requested time must have been loaded. Wrapper for <computeroutput>xf2rav_c</computeroutput>_ spice function (utilizing <computeroutput>sxform_c</computeroutput>_).</para>
+<para>.. _<computeroutput>xf2rav_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/xf2rav_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/xf2rav_c.html</ulink> .. _<computeroutput>sxform_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/sxform_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/sxform_c.html</ulink></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>original_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference frame from which the rotation is made. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>new_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference frame to which the rotation is made. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ephemeris_time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of ephemeris time at which rotation is to be determined. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>None </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="175" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="175" bodyend="190" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="234" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1af009ba64eb0f959ace29268ba4645bee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::Quaterniond, Eigen::Matrix3d &gt;</type>
+        <definition>std::pair&lt; Eigen::Quaterniond, Eigen::Matrix3d &gt; tudat::spice_interface::computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames</definition>
+        <argsstring>(const std::string &amp;originalFrame, const std::string &amp;newFrame, const double ephemerisTime)</argsstring>
+        <name>computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>originalFrame</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>newFrame</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ephemerisTime</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="192" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="192" bodyend="208" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="238" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a3de7177393e34c821917f79cc3aca6cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::spice_interface::getBodyProperties</definition>
+        <argsstring>(const std::string &amp;body, const std::string &amp;property, const int maximumNumberOfValues=1)</argsstring>
+        <name>getBodyProperties</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>body</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>property</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumNumberOfValues</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+<para>Get property of a body from Spice. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a property of a body from Spice, wraps the bodvrd_c Spice function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>body_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body of which the property is to be retrieved. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>property</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the property that is to be retrieved. Naming conventions can be found in the <computeroutput>bodvrd_c</computeroutput>_ function documentation.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+.. _<computeroutput>bodvrd_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html</ulink> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximum_number_of_values</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of values by which the property is expressed (i.e. 1 for gravitational parameter, 3 for tri-axial ellipsoid principal axes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>None </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="211" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="211" bodyend="228" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="256" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1ab3f655e8cb62c477dde5b70b7963e64b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::getBodyGravitationalParameter</definition>
+        <argsstring>(const std::string &amp;body)</argsstring>
+        <name>getBodyGravitationalParameter</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>body</declname>
+        </param>
+        <briefdescription>
+<para>Get gravitational parameter of a body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function retrieves the gravitational parameter of a body. Wraps the <computeroutput>bodvrd_c</computeroutput>_ spice function with &quot;GM&quot; as property type.</para>
+<para>.. _<computeroutput>bodvrd_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html</ulink></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>body</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body of which the parameter is to be retrieved. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>None </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="231" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="231" bodyend="244" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="270" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a144484c91f45304e3413dbae56ea8596" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::spice_interface::getAverageRadius</definition>
+        <argsstring>(const std::string &amp;body)</argsstring>
+        <name>getAverageRadius</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>body</declname>
+        </param>
+        <briefdescription>
+<para>Get the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape of the requested body. Uses the <computeroutput>bodvrd_c</computeroutput> spice function with &quot;RADII&quot; as property type.</para>
+<para>.. _<computeroutput>bodvrd_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html</ulink></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>body</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body of which the average radius is to be retrieved. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>None </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="247" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="247" bodyend="259" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="282" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1ac3af303da7cad97ea4dfa459ecdb4f0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::spice_interface::convertBodyNameToNaifId</definition>
+        <argsstring>(const std::string &amp;bodyName)</argsstring>
+        <name>convertBodyNameToNaifId</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+<para>Convert a body name to its NAIF identification number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function converts a body name to its NAIF identification number. The NAIF id number is required for a number of spice functions, whereas the name is easily interpretable by the user. Wrapper for the <computeroutput>bods2c_c</computeroutput> function.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>body_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body for which NAIF id is to be retrieved. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>None </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="262" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="262" bodyend="270" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="294" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a850395d96d1e08b7a648ff679192de08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::spice_interface::checkBodyPropertyInKernelPool</definition>
+        <argsstring>(const std::string &amp;bodyName, const std::string &amp;bodyProperty)</argsstring>
+        <name>checkBodyPropertyInKernelPool</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyProperty</declname>
+        </param>
+        <briefdescription>
+<para>Check if a certain property of a body is in the kernel pool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function checks if a certain property of a body is in the kernel pool. These properties are defined in PCK kernels. Their names are given in the kernel file, typical names can be found in the Spice documentation. Wrapper for the <computeroutput>bodfnd_c</computeroutput>_ function.</para>
+<para>.. _<computeroutput>bodfnd_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodfnd_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodfnd_c.html</ulink></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>body_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the body of which the property is to be checked. *</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>body_property</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the property of which the presence is to be checked, not case-sensitive. * </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>None </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="273" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="273" bodyend="280" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="309" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a193ab04580ac05118453d53d81a2589d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::spice_interface::loadSpiceKernelInTudat</definition>
+        <argsstring>(const std::string &amp;fileName)</argsstring>
+        <name>loadSpiceKernelInTudat</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Loads a Spice kernel into the pool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Load a Spice kernel.</para>
+<para>This function loads a Spice kernel into the kernel pool, from which it can be used by the various internal spice routines. Matters regarding the manner in which Spice handles different kernels containing the same information can be found in the spice required reading documentation, kernel section. Wrapper for the <computeroutput>furnsh_c</computeroutput>_ function.</para>
+<para>.. _<computeroutput>furnsh_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/furnsh_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/furnsh_c.html</ulink></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>file_path</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Path to the spice kernel to be loaded. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="283" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="283" bodyend="285" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="324" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a6ff10381f3e477b54eff970fb8cb338e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::spice_interface::getTotalCountOfKernelsLoaded</definition>
+        <argsstring>()</argsstring>
+        <name>getTotalCountOfKernelsLoaded</name>
+        <briefdescription>
+<para>Get the number of spice kernels currently loaded. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the amount of loaded Spice kernels.</para>
+<para>This function returns the amount of Spice kernels that are loaded into the kernel pool. The same kernel can be loaded multiple times. Wrapper for the <computeroutput>ktotal_c</computeroutput>_ function.</para>
+<para>.. _<computeroutput>ktotal_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/ktotal_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/ktotal_c.html</ulink> <simplesect kind="return"><para>n_kernels </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="288" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="288" bodyend="292" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="335" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a1b085b42088f1bcd650f2dbbb6ff2cb1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::spice_interface::clearSpiceKernels</definition>
+        <argsstring>()</argsstring>
+        <name>clearSpiceKernels</name>
+        <briefdescription>
+<para>Clear all loaded spice kernels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Clear all Spice kernels.</para>
+<para>This function removes all Spice kernels from the kernel pool. Wrapper for the <computeroutput>kclear_c</computeroutput>_ function.</para>
+<para>.. _<computeroutput>kclear_c</computeroutput>: <ulink url="https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/kclear_c.html">https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/kclear_c.html</ulink> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="295" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="295" bodyend="295" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="344" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1adefa151660d7531adb9bdf13da9355c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::spice_interface::getStandardSpiceKernels</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; alternativeEphemerisKernels=std::vector&lt; std::string &gt;())</argsstring>
+        <name>getStandardSpiceKernels</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>alternativeEphemerisKernels</declname>
+          <defval>std::vector&lt; std::string &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Get the paths to the default legacy kernels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get all standard Spice kernels used in tudat. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="298" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="298" bodyend="314" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="349" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="d8/d5a/spiceInterface_8h_1a110087e737e854674f983f1a92524232" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::spice_interface::loadStandardSpiceKernels</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; alternativeEphemerisKernels=std::vector&lt; std::string &gt;())</argsstring>
+        <name>loadStandardSpiceKernels</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt;</type>
+          <declname>alternativeEphemerisKernels</declname>
+          <defval>std::vector&lt; std::string &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Load the default legacy kernels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kernel_paths</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional addition kernels to be loaded. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" line="316" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/src/interface/spice/spiceInterface.cpp" bodystart="316" bodyend="330" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" declline="357" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/interface/spice/spiceInterface.h" line="45" column="1"/>
+  </compounddef>
+</doxygen>

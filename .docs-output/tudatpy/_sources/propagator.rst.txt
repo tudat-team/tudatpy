@@ -1,0 +1,109 @@
+``tudatpy.simulation.propagation_setup.propagator``
+===================================================
+None
+
+
+
+
+
+Functions
+---------
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.combine_initial_states
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.translational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.translational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.translational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.translational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.translational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.translational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.translational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.rotational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.rotational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.mass
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.mass
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.mass
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.mass
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.mass
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.multitype
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.multitype
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.multi_arc
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.hybrid_arc
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.time_termination
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.cpu_time_termination
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.dependent_variable_termination
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.custom_termination
+
+.. autofunction:: tudatpy.simulation.propagation_setup.propagator.hybrid_termination
+
+
+
+
+Classes
+-------
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.DependentVariableSaveSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.PropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.MultiArcPropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.HybridArcPropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.SingleArcPropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.RotationalStatePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.MultiTypePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.PropagationTerminationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.PropagationDependentVariableTerminationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.PropagationTimeTerminationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.PropagationCPUTimeTerminationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.PropagationCustomTerminationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.propagator.PropagationHybridTerminationSettings
+   :members:
+
+
+

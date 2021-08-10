@@ -1,0 +1,1348 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="tudatpy.simulation.propagation_setup.integrator" href="integrator.html" /><link rel="prev" title="tudatpy.simulation.propagation_setup.acceleration" href="acceleration.html" />
+
+    <meta name="generator" content="sphinx-4.0.2, furo 2021.07.05.beta38"/>
+        <title>tudatpy.simulation.propagation_setup.dependent_variable - tudat-api documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">tudat-api  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="acceleration.html"
+                        title="previous chapter"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.propagation_setup.acceleration</span></code></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="integrator.html"
+                        title="next chapter"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.propagation_setup.integrator</span></code></a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <section id="tudatpy-simulation-propagation-setup-dependent-variable">
+<h1><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.propagation_setup.dependent_variable</span></code><a class="headerlink" href="#tudatpy-simulation-propagation-setup-dependent-variable" title="Permalink to this headline">¶</a></h1>
+<p>None</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dependent_variable_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_variable_indices</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="propagator.html#tudatpy.simulation.propagation_setup.propagator.DependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to create settings for a generic dependent variable.</p>
+<p>Function to create settings for a dependent variable. It creates objects that calculate dependent variables
+from the objects that define their settings. It is usually not relevant nor useful for the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dependent_variable_list</strong> (<em>List</em><em>[</em><a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><em>SingleDependentVariableSaveSettings</em></a><em>]</em>) – List of dependent variables to be saved.</p></li>
+<li><p><strong>print_variable_indices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the types of dependent variables to be saved should be printed on the terminal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.mach_number">
+<span class="sig-name descname"><span class="pre">mach_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.mach_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the Mach number to the dependent variables to save.</p>
+<p>Function to add the Mach number to the dependent variables to save. Requires an aerodynamic acceleration to be acting on the vehicle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with atmosphere with respect to which the Mach number is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.altitude">
+<span class="sig-name descname"><span class="pre">altitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.altitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the altitude to the dependent variables to save.</p>
+<p>Function to add the altitude to the dependent variables to save. It requires an aerodynamic acceleration to be acting on the vehicle and it depends on the central body’s shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with atmosphere with respect to which the altitude is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.airspeed">
+<span class="sig-name descname"><span class="pre">airspeed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_with_atmosphere</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.airspeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the airspeed to the dependent variables to save.</p>
+<p>Function to add the airspeed to the dependent variables to save. Requires an aerodynamic acceleration to be acting on the vehicle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with atmosphere with respect to which the airspeed is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.density">
+<span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_with_atmosphere</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the local density to the dependent variables to save.</p>
+<p>Function to add the density (at position of body undergoing acceleration) to the dependent variables to save. Requires an aerodynamic acceleration to be acting on the vehicle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>body_with_atmosphere</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with atmosphere with respect to which the density is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.relative_speed">
+<span class="sig-name descname"><span class="pre">relative_speed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.relative_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the relative speed (norm of the velocity vector) to the dependent variables to save.</p>
+<p>Function to add the relative speed (norm of the velocity vector) with respect to a second body to the dependent variables to save. The relative speed is computed between the bodies’ centers of mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>relative_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the relative speed is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">relative_speed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the relative speed (norm of the velocity vector) to the dependent variables to save.</p>
+<p>Function to add the relative speed (norm of the velocity vector) with respect to a second body to the dependent variables to save. The relative speed is computed between the bodies’ centers of mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>relative_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the relative speed is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.relative_distance">
+<span class="sig-name descname"><span class="pre">relative_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.relative_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the relative distance (norm of the position vector) to the dependent variables to save.</p>
+<p>Function to add the relative distance (norm of the position vector) with respect to a second body to the dependent variables to save. The relative distance is computed between the bodies’ centers of mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>relative_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the relative distance is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.relative_velocity">
+<span class="sig-name descname"><span class="pre">relative_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.relative_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the relative velocity vector to the dependent variables to save.</p>
+<p>Function to add the relative velocity vector with respect to a second body to the dependent variables to save. The relative distance is computed between the bodies’ centers of mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>relative_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the relative velocity is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.keplerian_state">
+<span class="sig-name descname"><span class="pre">keplerian_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.keplerian_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the Keplerian state to the dependent variables to save.</p>
+<p>Function to add the Keplerian state to the dependent variables to save. The Keplerian state is returned in this order: 1: Semi-major Axis. 2: Eccentricity. 3: Inclination. 4: Argument of Periapsis. 5. Right Ascension of the Ascending Node. 6: True Anomaly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the Keplerian state is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.modified_equinoctial_state">
+<span class="sig-name descname"><span class="pre">modified_equinoctial_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.modified_equinoctial_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the modified equinoctial state to the dependent variables to save.</p>
+<p>Function to add the modified equinoctial state to the dependent variables to save. The value of the parameter I is automatically chosen as +1 or -1, depending on whether the inclination is smaller or larger than 90 degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the modified equinoctial state is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.single_acceleration">
+<span class="sig-name descname"><span class="pre">single_acceleration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acceleration_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tudatpy.kernel.simulation.propagation_setup.acceleration.AvailableAcceleration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_undergoing_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_exerting_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.single_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add an acceleration vector to the dependent variables to save.</p>
+<p>Function to add an acceleration vector to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>acceleration_type</strong> (<em>AvailableAcceleration</em>) – Acceleration type to be saved.</p></li>
+<li><p><strong>body_undergoing_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing acceleration.</p></li>
+<li><p><strong>body_exerting_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body exerting acceleration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.single_acceleration_norm">
+<span class="sig-name descname"><span class="pre">single_acceleration_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acceleration_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tudatpy.kernel.simulation.propagation_setup.acceleration.AvailableAcceleration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_undergoing_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_exerting_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.single_acceleration_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add a scalar acceleration (norm of the acceleration vector) to the dependent variables to save.</p>
+<p>Function to add a scalar acceleration (norm of the acceleration vector) to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>acceleration_type</strong> (<em>AvailableAcceleration</em>) – Acceleration type to be saved (see <cite>AvailableAcceleration</cite> enum).</p></li>
+<li><p><strong>body_undergoing_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing acceleration.</p></li>
+<li><p><strong>body_exerting_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body exerting acceleration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.total_acceleration_norm">
+<span class="sig-name descname"><span class="pre">total_acceleration_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.total_acceleration_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the total scalar acceleration (norm of the vector) acting on a body to the dependent variables to save.</p>
+<p>Function to add the total scalar acceleration (norm of the vector) acting on a body to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing acceleration.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.total_acceleration">
+<span class="sig-name descname"><span class="pre">total_acceleration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.total_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the total acceleration vector acting on a body to the dependent variables to save.</p>
+<p>Function to add the total acceleration vector acting on a body to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing acceleration.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.single_torque_norm">
+<span class="sig-name descname"><span class="pre">single_torque_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">torque_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tudatpy.kernel.simulation.propagation_setup.torque.AvailableTorque</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_undergoing_torque</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_exerting_torque</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.single_torque_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add a single torque (norm of the torque vector) to the dependent variables to save.</p>
+<p>Function to add a single torque (norm of the torque vector) to the dependent variables to save. The altitude depends on the shape of the central body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>torque_type</strong> (<em>AvailableTorque</em>) – Torque type to be saved.</p></li>
+<li><p><strong>body_undergoing_torque</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing torque.</p></li>
+<li><p><strong>body_exerting_torque</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body exerting torque.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.single_torque">
+<span class="sig-name descname"><span class="pre">single_torque</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">torque_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tudatpy.kernel.simulation.propagation_setup.torque.AvailableTorque</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_undergoing_torque</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_exerting_torque</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.single_torque" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add a single torque vector to the dependent variables to save.</p>
+<p>Function to add a single torque vector to the dependent variables to save. The altitude depends on the shape of the central body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>torque_type</strong> (<em>AvailableTorque</em>) – Torque type to be saved.</p></li>
+<li><p><strong>body_undergoing_torque</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing torque.</p></li>
+<li><p><strong>body_exerting_torque</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body exerting torque.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.total_torque_norm">
+<span class="sig-name descname"><span class="pre">total_torque_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.total_torque_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the total torque (norm of the torque vector) to the dependent variables to save.</p>
+<p>Function to add the total torque (norm of the torque vector) to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.total_torque">
+<span class="sig-name descname"><span class="pre">total_torque</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.total_torque" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the total torque vector to the dependent variables to save.</p>
+<p>Function to add the total torque vector to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.spherical_harmonic_terms_acceleration">
+<span class="sig-name descname"><span class="pre">spherical_harmonic_terms_acceleration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body_undergoing_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_exerting_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_indices</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.spherical_harmonic_terms_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add a single term of the spherical harmonic acceleration vector to the dependent variables to save.</p>
+<p>Function to add single term of the spherical harmonic acceleration vector to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body_undergoing_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing acceleration.</p></li>
+<li><p><strong>body_exerting_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body exerting acceleration.</p></li>
+<li><p><strong>component_indices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>]</em>) – Tuples of (degree, order) indicating the terms to save.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.spherical_harmonic_terms_acceleration_norm">
+<span class="sig-name descname"><span class="pre">spherical_harmonic_terms_acceleration_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body_undergoing_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_exerting_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_indices</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.spherical_harmonic_terms_acceleration_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add a single term of the spherical harmonic acceleration (norm of the vector) to the dependent variables to save.</p>
+<p>Function to add single term of the spherical harmonic acceleration (norm of the vector) to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body_undergoing_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing acceleration.</p></li>
+<li><p><strong>body_exerting_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body exerting acceleration.</p></li>
+<li><p><strong>component_indices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em>]</em>) – Tuples of (degree, order) indicating the terms to save.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_force_coefficients">
+<span class="sig-name descname"><span class="pre">aerodynamic_force_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_force_coefficients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the aerodynamic force coefficients to the dependent variables to save.</p>
+<p>Function to add the aerodynamic force coefficients to the dependent variables to save. It requires an aerodynamic acceleration acting on the vehicle. The coefficients are returned in the following order: drag force, side force, lift force.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing acceleration.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_moment_coefficients">
+<span class="sig-name descname"><span class="pre">aerodynamic_moment_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_moment_coefficients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the aerodynamic moment coefficients to the dependent variables to save.</p>
+<p>Function to add the aerodynamic force coefficients to the dependent variables to save. It requires an aerodynamic torque acting on the vehicle. The coefficients are returned in the following order: C_l, C_m, C_n (respectively about the X, Y, Z axes of the body-fixed frame, see Mooij 1994).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body undergoing acceleration.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.latitude">
+<span class="sig-name descname"><span class="pre">latitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.latitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the latitude to the dependent variables to save.</p>
+<p>Function to add the latitude to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the latitude is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.geodetic_latitude">
+<span class="sig-name descname"><span class="pre">geodetic_latitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.geodetic_latitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the geodetic latitude to the dependent variables to save.</p>
+<p>Function to add the geodetic latitude to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the geodetic latitude is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.longitude">
+<span class="sig-name descname"><span class="pre">longitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.longitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the longitude to the dependent variables to save.</p>
+<p>Function to add the longitude to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the longitude is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.heading_angle">
+<span class="sig-name descname"><span class="pre">heading_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.heading_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the heading angle to the dependent variables to save.</p>
+<p>Function to add the heading angle to the dependent variables to save. The heading angle is the angle between the X-axis of the vertical frame and the XZ-plane in the groundspeed-based trajectory frame (see Mooij, 1994).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the heading angle is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.flight_path_angle">
+<span class="sig-name descname"><span class="pre">flight_path_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.flight_path_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the flight path angle to the dependent variables to save.</p>
+<p>Function to add the flight path angle to the dependent variables to save. The flight path angle is the angle between the X-axis of the groundspeed-based trajectory frame and the local horizontal plane defined in the vertical reference frame (see Mooij, 1994).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the flight path angle is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.angle_of_attack">
+<span class="sig-name descname"><span class="pre">angle_of_attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.angle_of_attack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the angle of attack to the dependent variables to save.</p>
+<p>Function to add the angle of attack angle to the dependent variables to save. The angle of attack is the angle between the X-axis of the body-fixed reference frame and the XY plane in the groundspeed-based aerodynamic frame (see Mooij, 1994).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the angle of attack is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.sideslip_angle">
+<span class="sig-name descname"><span class="pre">sideslip_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.sideslip_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the sideslip angle to the dependent variables to save.</p>
+<p>Function to add the sideslip angle to the dependent variables to save. The sideslip angle is ???</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the sideslip angle is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.bank_angle">
+<span class="sig-name descname"><span class="pre">bank_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.bank_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the bank angle to the dependent variables to save.</p>
+<p>Function to add the bank angle to the dependent variables to save. The bank angle is ???</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the bank angle is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.radiation_pressure">
+<span class="sig-name descname"><span class="pre">radiation_pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">radiating_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.radiation_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the radiation pressure to the dependent variables to save.</p>
+<p>Function to add the radiation pressure to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>radiating_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Radiating body.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.total_gravity_field_variation_acceleration">
+<span class="sig-name descname"><span class="pre">total_gravity_field_variation_acceleration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body_undergoing_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_exerting_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.total_gravity_field_variation_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the total gravity field variation acceleration to the dependent variables to save.</p>
+<p>Function to add the total gravity field variation acceleration to the dependent variables to save. This function does not distinguish between different sources of variations of the gravity field. To select only one contribution, look for the single gravity field variation acceleration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body_undergoing_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>body_exerting_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body exerting the acceleration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.single_gravity_field_variation_acceleration">
+<span class="sig-name descname"><span class="pre">single_gravity_field_variation_acceleration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body_undergoing_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_exerting_acceleration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">deformation_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tudatpy.kernel.simulation.environment_setup.gravity_field_variation.BodyDeformationTypes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.single_gravity_field_variation_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add a single gravity field variation acceleration to the dependent variables to save.</p>
+<p>Function to add a single gravity field variation acceleration to the dependent variables to save. This function does distinguish between different sources of variations of the gravity field, but not between terms of the spherical harmonic expansion. To select specific combinations of order and degree, look for the single per term gravity field variation acceleration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body_undergoing_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>body_exerting_acceleration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body exerting the acceleration.</p></li>
+<li><p><strong>deformation_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Deformation type (see BodyDeformationTypes).</p></li>
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default=""</em>) – Identifier for the deformation type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.body_fixed_airspeed_velocity">
+<span class="sig-name descname"><span class="pre">body_fixed_airspeed_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.body_fixed_airspeed_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the airspeed velocity vector to the dependent variables to save.</p>
+<p>Function to add the airspeed velocity vector to the dependent variables to save. The airspeed velocity is expressed with respect to a central body and returned in a frame fixed to the same central body. It requires the central body to have an atmosphere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the airspeed is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.body_fixed_groundspeed_velocity">
+<span class="sig-name descname"><span class="pre">body_fixed_groundspeed_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.body_fixed_groundspeed_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the groundspeed velocity vector to the dependent variables to save.</p>
+<p>Function to add the groundspeed velocity vector to the dependent variables to save. The groundspeed velocity is expressed with respect to a central body and returned in a frame fixed to the same central body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the groundspeed is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.inertial_to_body_fixed_rotation_frame">
+<span class="sig-name descname"><span class="pre">inertial_to_body_fixed_rotation_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.inertial_to_body_fixed_rotation_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the rotation matrix from the inertial RF to the body-fixed RF to the dependent variables to save.</p>
+<p>Function to add the rotation matrix from the inertial RF to the body-fixed RF to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body of interest.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.lvlh_to_inertial_rotation_matrix">
+<span class="sig-name descname"><span class="pre">lvlh_to_inertial_rotation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.lvlh_to_inertial_rotation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the rotation matrix from the Local Vertical, Local Horizontal (LVLH) RF to the inertial RF to the dependent variables to save.</p>
+<p>Function to add the rotation matrix from the Local Vertical, Local Horizontal (LVLH) RF to the inertial RF to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the groundspeed is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.inertial_to_body_fixed_313_euler_angles">
+<span class="sig-name descname"><span class="pre">inertial_to_body_fixed_313_euler_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.inertial_to_body_fixed_313_euler_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the rotation matrix from the inertial RF to the body-fixed RF to the dependent variables to save.</p>
+<p>Function to add the rotation matrix from the inertial RF to the body-fixed RF to the dependent variables to save. It uses a 313-Euler angles representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.intermediate_aerodynamic_rotation_matrix_variable">
+<span class="sig-name descname"><span class="pre">intermediate_aerodynamic_rotation_matrix_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tudatpy.kernel.astro.frames.AerodynamicsReferenceFrames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tudatpy.kernel.astro.frames.AerodynamicsReferenceFrames</span></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.intermediate_aerodynamic_rotation_matrix_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the rotation matrix from the a base aerodynamic RF to a target aerodynamic RF to the dependent variables to save.</p>
+<p>Function to add the rotation matrix from the a base aerodynamic RF to a target aerodynamic RF to the dependent variables to save. The aerodynamic RFs are collected in the AerodynamicsReferenceFrames enum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>base_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Base reference frame for the transformation.</p></li>
+<li><p><strong>target_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Target reference frame for the transformation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.periapsis_altitude">
+<span class="sig-name descname"><span class="pre">periapsis_altitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.periapsis_altitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the altitude of periapsis to the dependent variables to save.</p>
+<p>Function to add the altitude of periapsis to the dependent variables to save. The altitude depends on the shape of the central body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the altitude of periapsis is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.control_surface_deflection">
+<span class="sig-name descname"><span class="pre">control_surface_deflection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_surface</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.control_surface_deflection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the altitude of periapsis to the dependent variables to save.</p>
+<p>Function to add the altitude of periapsis to the dependent variables to save. The altitude depends on the shape of the central body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>control_surface</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Control surface whose deflection should be saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.central_body_fixed_spherical_position">
+<span class="sig-name descname"><span class="pre">central_body_fixed_spherical_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.central_body_fixed_spherical_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the spherical, body-fixed position to the dependent variables to save.</p>
+<p>Function to add the spherical position to the dependent variables to save. The spherical position is expressed in the central body’s body-fixed RF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the spherical, body-fixed is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.central_body_fixed_cartesian_position">
+<span class="sig-name descname"><span class="pre">central_body_fixed_cartesian_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.central_body_fixed_cartesian_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the cartesian, body-fixed position to the dependent variables to save.</p>
+<p>Function to add the cartesian position to the dependent variables to save. The cartesian position is expressed in the central body’s body-fixed RF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the cartesian, body-fixed is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.body_mass">
+<span class="sig-name descname"><span class="pre">body_mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.body_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the body mass to the dependent variables to save.</p>
+<p>Function to add the body mass to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.radiation_pressure_coefficient">
+<span class="sig-name descname"><span class="pre">radiation_pressure_coefficient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">emitting_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.radiation_pressure_coefficient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the radiation pressure coefficient to the dependent variables to save.</p>
+<p>Function to add the radiation pressure coefficient to the dependent variables to save.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>emitting_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Emitting body.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.local_temperature">
+<span class="sig-name descname"><span class="pre">local_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.local_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the local temperature to the dependent variables to save.</p>
+<p>Function to add the local temperature to the dependent variables to save (at position of body undergoing acceleration). It requires an aerodynamic acceleration to be acting on the body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.local_dynamic_pressure">
+<span class="sig-name descname"><span class="pre">local_dynamic_pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.local_dynamic_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the local temperature to the dependent variables to save.</p>
+<p>Function to add the local temperature to the dependent variables to save (at position of body undergoing acceleration). It requires an aerodynamic acceleration to be acting on the body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.local_aerodynamic_heat_rate">
+<span class="sig-name descname"><span class="pre">local_aerodynamic_heat_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.local_aerodynamic_heat_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the local aerodynamic heat rate to the dependent variables to save.</p>
+<p>Function to add the local aerodynamic heat rate felt by the vehicle based on the current velocity and atmospheric conditions to the dependent variables to save (at position of body undergoing acceleration). It requires an aerodynamic acceleration to be acting on the body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.local_aerodynamic_g_load">
+<span class="sig-name descname"><span class="pre">local_aerodynamic_g_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.local_aerodynamic_g_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the total aerodynamic G-load to the dependent variables to save.</p>
+<p>Function to add the total aerodynamic G-load induced by the aerodynamic acceleration to the dependent variables to save (at position of body undergoing acceleration). It requires an aerodynamic acceleration to be acting on the body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.stagnation_point_heat_flux">
+<span class="sig-name descname"><span class="pre">stagnation_point_heat_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.stagnation_point_heat_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the heat flux at the stagnation point to the dependent variables to save.</p>
+<p>Function to add the heat flux induced by atmospheric friction at the stagnation point to the dependent variables to save. It requires an aerodynamic acceleration to be acting on the body and a vehicle nose radius to be defined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.total_mass_rate">
+<span class="sig-name descname"><span class="pre">total_mass_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.total_mass_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the total mass rate to the dependent variables to save.</p>
+<p>Function to add the total mass rate to the dependent variables to save. It requires the body mass to be numerically propagated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_g_load">
+<span class="sig-name descname"><span class="pre">aerodynamic_g_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_g_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the aerodynamic g-load to the dependent variables to save.</p>
+<p>Function to add the aerodynamic g-load to the dependent variables to save (at position of body undergoing acceleration). It requires an aerodynamic acceleration to be acting on the body.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the aerodynamic g-load is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.dynamic_pressure">
+<span class="sig-name descname"><span class="pre">dynamic_pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.dynamic_pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the dynamic pressure to the dependent variables to save.</p>
+<p>Function to add the dynamic pressure to the dependent variables to save. It requires the central body to have an atmosphere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the dynamic pressure is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.atmospheric_temperature">
+<span class="sig-name descname"><span class="pre">atmospheric_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.atmospheric_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to add the atmospheric temperature to the dependent variables to save.</p>
+<p>Function to add the atmospheric temperature to the dependent variables to save. It requires the central body to have an atmosphere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body whose dependent variable should be saved.</p></li>
+<li><p><strong>central_body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Body with respect to which the atmospheric temperature is computed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>description</em></p></li>
+<li><p><em>None</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.VariableSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">VariableSettings</span></span><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.VariableSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Functional base class to define settings for variables.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">SingleDependentVariableSaveSettings</span></span><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>VariableSettings</cite>-derived class to define settings for dependent variables that are to be saved during propagation.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.dependent_variable.SingleAccelerationDependentVariableSaveSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">SingleAccelerationDependentVariableSaveSettings</span></span><a class="headerlink" href="#tudatpy.simulation.propagation_setup.dependent_variable.SingleAccelerationDependentVariableSaveSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>SingleDependentVariableSaveSettings</cite>-derived class to save a single acceleration (norm or vector) during propagation.</p>
+</dd></dl>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="integrator.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.propagation_setup.integrator</span></code></div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="acceleration.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.propagation_setup.acceleration</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021, John
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/dependent_variable.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.propagation_setup.dependent_variable</span></code></a><ul>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    </body>
+</html>

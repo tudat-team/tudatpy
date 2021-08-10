@@ -15,12 +15,15 @@ def main(projects, config):
     bash_env.update(env)
     projects = [projects] if type(projects) == str else projects
 
-    for project in projects:
+
+    for project in [projects[1]]: # tudatpy only!
 
         # superimpose project config onto common config.
         project_kwargs = common_configs.copy()
         project_kwargs.update(config[project])
+        output_sphinx = project_kwargs.pop("sphinx_output_directory", f".docs-output/{project}/sphinx")
         documented_output = project_kwargs.pop("documented_output", f".{project}-documented")
+
 
         # if cpp, build doxygen first
         if project_kwargs["project_type"] == "cpp":
@@ -48,16 +51,20 @@ def main(projects, config):
 
         # build sphinx docs
         if project_kwargs["project_type"] == "cpp":
-            project_sphinx_source = os.path.join(cwd, documented_output, project_kwargs.pop("project_sphinx_source", "docs/sphinx/source"))
+            pass
+            #    project_sphinx_source = os.path.join(cwd, documented_output, project_kwargs.pop("project_sphinx_source", "docs/sphinx/source"))
         elif project_kwargs["project_type"] == "py":
             build_directory = project_kwargs.pop("build_directory", "cmake-build-release")
             project_sphinx_source = os.path.join(build_directory, documented_output, project_kwargs.pop("project_sphinx_source", "docs/sphinx/source"))
+            command = f"sphinx-build -b html {project_sphinx_source} {output_sphinx}"
+            process = subprocess.Popen(command.split(), env=bash_env, cwd=cwd)
+            stdout, stderr = process.communicate()
         else:
             raise KeyError("Project type can only be py or cpp")
-        output_sphinx = project_kwargs.pop("sphinx_output_directory", f".docs-output/{project}/sphinx")
+
         if not os.path.exists(output_sphinx):
             os.makedirs(output_sphinx)
-        command = f"sphinx-build -b html {project_sphinx_source} {output_sphinx}"
-
-        process = subprocess.Popen(command.split(), env=bash_env, cwd=cwd)
-        stdout, stderr = process.communicate()
+        #command = f"sphinx-build -b html {project_sphinx_source} {output_sphinx}"
+#
+        #process = subprocess.Popen(command.split(), env=bash_env, cwd=cwd)
+        #stdout, stderr = process.communicate()

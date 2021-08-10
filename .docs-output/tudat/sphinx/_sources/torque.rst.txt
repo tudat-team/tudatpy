@@ -1,0 +1,33 @@
+``tudatpy.simulation.propagation_setup.torque``
+===============================================
+None
+
+
+
+
+
+Functions
+---------
+
+.. autofunction:: tudatpy.simulation.propagation_setup.torque.aerodynamic
+
+.. autofunction:: tudatpy.simulation.propagation_setup.torque.spherical_harmonic_gravitational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.torque.second_degree_gravitational
+
+.. autofunction:: tudatpy.simulation.propagation_setup.torque.custom
+
+
+
+
+Classes
+-------
+
+.. autoclass:: tudatpy.simulation.propagation_setup.torque.TorqueSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.torque.SphericalHarmonicTorqueSettings
+   :members:
+
+
+
