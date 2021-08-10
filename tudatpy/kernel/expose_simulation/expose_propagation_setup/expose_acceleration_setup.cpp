@@ -211,7 +211,7 @@ void expose_acceleration_setup(py::module &m) {
     py::class_<tss::ThrustAccelerationSettings,
             std::shared_ptr<tss::ThrustAccelerationSettings>,
             tss::AccelerationSettings>(m, "ThrustAccelerationSettings",
-                                       get_docstring("ThrustAccelerationSettings").c_str());
+                                       get_docstring("ThrustAccelerationSettings").c_str())
 //            .def(py::init<//ctor 1
 //                         const std::shared_ptr<tss::ThrustDirectionSettings>,
 //                         const std::shared_ptr<tss::ThrustMagnitudeSettings>>(),
@@ -411,7 +411,7 @@ void expose_acceleration_setup(py::module &m) {
             tss::FromFunctionThrustMagnitudeSettings,
             std::shared_ptr<tss::FromFunctionThrustMagnitudeSettings>,
             tss::ThrustMagnitudeSettings>(m, "FromFunctionThrustMagnitudeSettings",
-                                          get_docstring("FromFunctionThrustMagnitudeSettings").c_str())
+                                          get_docstring("FromFunctionThrustMagnitudeSettings").c_str());
 //            .def(py::init<
 //                         const std::function< double( const double ) >,
 //                         const std::function< double( const double ) >,
