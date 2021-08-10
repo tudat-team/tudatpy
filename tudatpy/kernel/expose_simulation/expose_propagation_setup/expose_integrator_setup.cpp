@@ -119,7 +119,7 @@ namespace propagation_setup {
               py::arg("initial_time_step"),
               py::arg("save_frequency") = 1,
               py::arg("assess_termination_on_minor_steps") = false,
-              get_docstring("runge_kutta_4").c_str()););
+              get_docstring("runge_kutta_4").c_str());
 
         m.def("runge_kutta_variable_step_size",
               &tni::rungeKuttaVariableStepSettingsScalarTolerances< double >,
