@@ -139,8 +139,8 @@ gravity field model defined.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>AccelerationSettings</em></p></li>
+<li><p><em>Acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -155,8 +155,8 @@ atmosphere defined.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>AccelerationSettings</em></p></li>
+<li><p><em>Acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -173,8 +173,8 @@ radiation needs to have radiative properties defined (the Sun has default ones).
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>AccelerationSettings</em></p></li>
+<li><p><em>Acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -196,8 +196,8 @@ defined.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>SphericalHarmonicAccelerationSettings</em></p></li>
+<li><p><em>Spherical harmonic acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -225,8 +225,8 @@ additional parameters have to be provided that denote the expansion degree/order
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>MutualSphericalHarmonicAccelerationSettings</em></p></li>
+<li><p><em>Spherical harmonic acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -253,8 +253,8 @@ relevant for Lense-Thirring correction.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>RelativisticAccelerationCorrectionSettings</em></p></li>
+<li><p><em>Relativistic acceleration correction settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -279,8 +279,8 @@ the RSW frame.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>EmpiricalAccelerationSettings</em></p></li>
+<li><p><em>Empirical acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -304,8 +304,8 @@ the RSW frame.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>CustomAccelerationSettings</em></p></li>
+<li><p><em>Custom acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -332,8 +332,8 @@ to be tidally locked to the planet.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>DirectTidalDissipationAccelerationSettings</em></p></li>
+<li><p><em>Direct tidal dissipation acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -363,8 +363,8 @@ the acceleration profile is fully defined.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>MomentumWheelDesaturationAccelerationSettings</em></p></li>
+<li><p><em>Momentum wheel desaturation acceleration settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -386,8 +386,8 @@ supplied in the form of dedicated settings objects (see the API for the respecti
 <dt>thrust_magnitude_settings<span class="classifier">ThrustMagnitudeSettings</span></dt><dd><p>Thrust magnitude settings object.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 <li><p>thrust_acceleration(data_interpolation_settings: tudat::interpolators::DataInterpolationSettings&lt;double, Eigen::Matrix&lt;double, 3, 1, 0, 3, 1&gt; &gt;, specific_impulse_function: Callable[[float], float], thrust_frame: tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustFrames = &lt;ThrustFrames.unspecified_thrust_frame_type: -1&gt;, central_body: str = ‘’) -&gt; tudat::simulation_setup::AccelerationSettings</p>
@@ -406,8 +406,8 @@ the specified frame (it can be local or inertial). The variable thrust magnitude
 <dt>central_body<span class="classifier">str, default=””</span></dt><dd><p>Central body that is the origin of the thrust frame (if different from the vehicle, otherwise empty by default).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 <li><p>thrust_acceleration(data_interpolation_settings: tudat::interpolators::DataInterpolationSettings&lt;double, Eigen::Matrix&lt;double, 3, 1, 0, 3, 1&gt; &gt;, constant_specific_impulse: float, thrust_frame: tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustFrames = &lt;ThrustFrames.unspecified_thrust_frame_type: -1&gt;, central_body: str = ‘’) -&gt; tudat::simulation_setup::AccelerationSettings</p>
@@ -427,8 +427,8 @@ specific impulse.</p>
 <dt>central_body<span class="classifier">str, default=””</span></dt><dd><p>Central body that is the origin of the thrust frame (if different from the vehicle, otherwise empty by default).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -449,8 +449,8 @@ supplied in the form of dedicated settings objects (see the API for the respecti
 <dt>thrust_magnitude_settings<span class="classifier">ThrustMagnitudeSettings</span></dt><dd><p>Thrust magnitude settings object.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 <li><p>thrust_acceleration(data_interpolation_settings: tudat::interpolators::DataInterpolationSettings&lt;double, Eigen::Matrix&lt;double, 3, 1, 0, 3, 1&gt; &gt;, specific_impulse_function: Callable[[float], float], thrust_frame: tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustFrames = &lt;ThrustFrames.unspecified_thrust_frame_type: -1&gt;, central_body: str = ‘’) -&gt; tudat::simulation_setup::AccelerationSettings</p>
@@ -469,8 +469,8 @@ the specified frame (it can be local or inertial). The variable thrust magnitude
 <dt>central_body<span class="classifier">str, default=””</span></dt><dd><p>Central body that is the origin of the thrust frame (if different from the vehicle, otherwise empty by default).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 <li><p>thrust_acceleration(data_interpolation_settings: tudat::interpolators::DataInterpolationSettings&lt;double, Eigen::Matrix&lt;double, 3, 1, 0, 3, 1&gt; &gt;, constant_specific_impulse: float, thrust_frame: tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustFrames = &lt;ThrustFrames.unspecified_thrust_frame_type: -1&gt;, central_body: str = ‘’) -&gt; tudat::simulation_setup::AccelerationSettings</p>
@@ -490,8 +490,8 @@ specific impulse.</p>
 <dt>central_body<span class="classifier">str, default=””</span></dt><dd><p>Central body that is the origin of the thrust frame (if different from the vehicle, otherwise empty by default).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -512,8 +512,8 @@ supplied in the form of dedicated settings objects (see the API for the respecti
 <dt>thrust_magnitude_settings<span class="classifier">ThrustMagnitudeSettings</span></dt><dd><p>Thrust magnitude settings object.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 <li><p>thrust_acceleration(data_interpolation_settings: tudat::interpolators::DataInterpolationSettings&lt;double, Eigen::Matrix&lt;double, 3, 1, 0, 3, 1&gt; &gt;, specific_impulse_function: Callable[[float], float], thrust_frame: tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustFrames = &lt;ThrustFrames.unspecified_thrust_frame_type: -1&gt;, central_body: str = ‘’) -&gt; tudat::simulation_setup::AccelerationSettings</p>
@@ -532,8 +532,8 @@ the specified frame (it can be local or inertial). The variable thrust magnitude
 <dt>central_body<span class="classifier">str, default=””</span></dt><dd><p>Central body that is the origin of the thrust frame (if different from the vehicle, otherwise empty by default).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 <li><p>thrust_acceleration(data_interpolation_settings: tudat::interpolators::DataInterpolationSettings&lt;double, Eigen::Matrix&lt;double, 3, 1, 0, 3, 1&gt; &gt;, constant_specific_impulse: float, thrust_frame: tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustFrames = &lt;ThrustFrames.unspecified_thrust_frame_type: -1&gt;, central_body: str = ‘’) -&gt; tudat::simulation_setup::AccelerationSettings</p>
@@ -553,8 +553,8 @@ specific impulse.</p>
 <dt>central_body<span class="classifier">str, default=””</span></dt><dd><p>Central body that is the origin of the thrust frame (if different from the vehicle, otherwise empty by default).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ThrustAccelerationSettings
+Thrust acceleration settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -594,8 +594,8 @@ with respect to some other body.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>ThrustDirectionFromStateGuidanceSettings</em></p></li>
+<li><p><em>Thrust direction from state guidance settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -626,8 +626,8 @@ from body-fixed thrust direction to the inertial thrust direction.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>CustomThrustOrientationSettings</em></p></li>
+<li><p><em>Custom thrust orientation settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -647,8 +647,8 @@ direction needs to be manually defined).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>CustomThrustDirectionSettings</em></p></li>
+<li><p><em>Custom thrust direction settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -668,8 +668,8 @@ direction needs to be manually defined).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>CustomThrustDirectionSettings</em></p></li>
+<li><p><em>Custom thrust direction settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -689,8 +689,8 @@ direction needs to be manually defined).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>CustomThrustDirectionSettings</em></p></li>
+<li><p><em>Custom thrust direction settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -698,7 +698,7 @@ direction needs to be manually defined).</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.acceleration.custom_thrust_magnitude">
-<span class="sig-name descname"><span class="pre">custom_thrust_magnitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">thrust_magnitude_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">float],</span> <span class="pre">specific_impulse_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">float],</span> <span class="pre">is_engine_on_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">bool]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span>  <span class="pre">of</span> <span class="pre">PyCapsule</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f9a17198f90&gt;,</span> <span class="pre">body_fixed_thrust_direction:</span> <span class="pre">Callable[[],</span> <span class="pre">numpy.ndarray[numpy.float64[3,</span> <span class="pre">1]]]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span>  <span class="pre">of</span> <span class="pre">PyCapsule</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f9a17198f60&gt;,</span> <span class="pre">custom_thrust_reset_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">None]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings" title="tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.acceleration.custom_thrust_magnitude" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">custom_thrust_magnitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">thrust_magnitude_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">float],</span> <span class="pre">specific_impulse_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">float],</span> <span class="pre">is_engine_on_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">bool]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span>  <span class="pre">of</span> <span class="pre">PyCapsule</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fd411254cf0&gt;,</span> <span class="pre">body_fixed_thrust_direction:</span> <span class="pre">Callable[[],</span> <span class="pre">numpy.ndarray[numpy.float64[3,</span> <span class="pre">1]]]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span>  <span class="pre">of</span> <span class="pre">PyCapsule</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fd411254c30&gt;,</span> <span class="pre">custom_thrust_reset_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">None]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings" title="tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings</span></a><a class="headerlink" href="#tudatpy.simulation.propagation_setup.acceleration.custom_thrust_magnitude" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create thrust magnitude settings from a custom thrust magnitude function.</p>
 <p>Factory function that creates constant thrust magnitude settings. The specific impulse to use for the thrust is
 also supplied when applying a mass rate model in the propagation of the vehicle dynamics, relating the thrust
@@ -713,8 +713,8 @@ to the mass decrease of the vehicle.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>ConstantThrustMagnitudeSettings</em></p></li>
+<li><p><em>Constant thrust magnitude settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -722,7 +722,7 @@ to the mass decrease of the vehicle.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">custom_thrust_magnitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">thrust_magnitude_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">float],</span> <span class="pre">specific_impulse_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">float],</span> <span class="pre">is_engine_on_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">bool]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span>  <span class="pre">of</span> <span class="pre">PyCapsule</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f9a17198f90&gt;,</span> <span class="pre">body_fixed_thrust_direction:</span> <span class="pre">Callable[[],</span> <span class="pre">numpy.ndarray[numpy.float64[3,</span> <span class="pre">1]]]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span>  <span class="pre">of</span> <span class="pre">PyCapsule</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f9a17198f60&gt;,</span> <span class="pre">custom_thrust_reset_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">None]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings" title="tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings</span></a><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">custom_thrust_magnitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">thrust_magnitude_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">float],</span> <span class="pre">specific_impulse_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">float],</span> <span class="pre">is_engine_on_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">bool]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span>  <span class="pre">of</span> <span class="pre">PyCapsule</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fd411254cf0&gt;,</span> <span class="pre">body_fixed_thrust_direction:</span> <span class="pre">Callable[[],</span> <span class="pre">numpy.ndarray[numpy.float64[3,</span> <span class="pre">1]]]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span>  <span class="pre">of</span> <span class="pre">PyCapsule</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fd411254c30&gt;,</span> <span class="pre">custom_thrust_reset_function:</span> <span class="pre">Callable[[float],</span> <span class="pre">None]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings" title="tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings"><span class="pre">tudatpy.kernel.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings</span></a><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create thrust magnitude settings from a custom thrust magnitude function.</p>
 <p>Factory function that creates constant thrust magnitude settings. The specific impulse to use for the thrust is
 also supplied when applying a mass rate model in the propagation of the vehicle dynamics, relating the thrust
@@ -737,8 +737,8 @@ to the mass decrease of the vehicle.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>ConstantThrustMagnitudeSettings</em></p></li>
+<li><p><em>Constant thrust magnitude settings object.</em></p></li>
 </ul>
 </p>
 </dd>

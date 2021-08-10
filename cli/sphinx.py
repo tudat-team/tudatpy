@@ -15,15 +15,13 @@ def main(projects, config):
     bash_env.update(env)
     projects = [projects] if type(projects) == str else projects
 
-
-    for project in [projects[1]]: # tudatpy only!
+    for project in [projects[1]]:# tudatpy only!
 
         # superimpose project config onto common config.
         project_kwargs = common_configs.copy()
         project_kwargs.update(config[project])
         output_sphinx = project_kwargs.pop("sphinx_output_directory", f".docs-output/{project}/sphinx")
         documented_output = project_kwargs.pop("documented_output", f".{project}-documented")
-
 
         # if cpp, build doxygen first
         if project_kwargs["project_type"] == "cpp":

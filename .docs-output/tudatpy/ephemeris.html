@@ -148,7 +148,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
+<li><p><em>DirectSpiceEphemerisSettings</em></p></li>
 <li><p><em>None</em></p></li>
 </ul>
 </p>
@@ -157,7 +157,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.interpolated_spice">
-<span class="sig-name descname"><span class="pre">interpolated_spice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">initial_time:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">final_time:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">time_step:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">frame_origin:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'SSB'</span></em>, <em class="sig-param"><span class="pre">frame_orientation:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'ECLIPJ2000'</span></em>, <em class="sig-param"><span class="pre">interpolator_settings:</span> <span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span> <span class="pre">=</span> <span class="pre">&lt;tudatpy.kernel.math.interpolators.LagrangeInterpolatorSettings</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f9a171847f0&gt;</span></em>, <em class="sig-param"><span class="pre">body_name_to_use:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.interpolated_spice" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">interpolated_spice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">initial_time:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">final_time:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">time_step:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">frame_origin:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'SSB'</span></em>, <em class="sig-param"><span class="pre">frame_orientation:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'ECLIPJ2000'</span></em>, <em class="sig-param"><span class="pre">interpolator_settings:</span> <span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span> <span class="pre">=</span> <span class="pre">&lt;tudatpy.kernel.math.interpolators.LagrangeInterpolatorSettings</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fd411240470&gt;</span></em>, <em class="sig-param"><span class="pre">body_name_to_use:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.interpolated_spice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Factory function for creating ephemeris model settings using interpolated Spice data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -174,7 +174,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
+<li><p><em>InterpolatedSpiceEphemerisSettings</em></p></li>
 <li><p><em>None</em></p></li>
 </ul>
 </p>
@@ -197,7 +197,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>body_name_to_use<span class="classifier">str</span></dt><dd><p>String that is attempted to be matched to an identifier for the body that the ephemeris is to be created for.</p>
 </dd>
 </dl>
-<p>description
+<p>ApproximatePlanetPositionSettings
 None</p>
 </div></blockquote>
 </li>
@@ -212,7 +212,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>None</dt><dd><p>None</p>
 </dd>
 </dl>
-<p>description
+<p>ApproximatePlanetPositionSettings
 None</p>
 </div></blockquote>
 </li>
@@ -234,7 +234,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>body_name_to_use<span class="classifier">str</span></dt><dd><p>String that is attempted to be matched to an identifier for the body that the ephemeris is to be created for.</p>
 </dd>
 </dl>
-<p>description
+<p>ApproximatePlanetPositionSettings
 None</p>
 </div></blockquote>
 </li>
@@ -249,7 +249,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>None</dt><dd><p>None</p>
 </dd>
 </dl>
-<p>description
+<p>ApproximatePlanetPositionSettings
 None</p>
 </div></blockquote>
 </li>
@@ -270,11 +270,10 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.ConstantEphemerisSettings" title="tudatpy.simulation.environment_setup.ephemeris.ConstantEphemerisSettings">ConstantEphemerisSettings</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -295,11 +294,10 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.CustomEphemerisSettings" title="tudatpy.simulation.environment_setup.ephemeris.CustomEphemerisSettings">CustomEphemerisSettings</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -324,11 +322,10 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>KeplerEphemerisSettings</p>
 </dd>
 </dl>
 </dd></dl>
@@ -353,11 +350,10 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>KeplerEphemerisSettings</p>
 </dd>
 </dl>
 </dd></dl>
@@ -380,8 +376,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 <li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector: numpy.ndarray[numpy.float64[6, 1]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
@@ -398,8 +393,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 <li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector_function: Callable[[float], numpy.ndarray[numpy.float64[6, 1]]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
@@ -416,8 +410,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 </ol>
@@ -441,8 +434,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 <li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector: numpy.ndarray[numpy.float64[6, 1]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
@@ -459,8 +451,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 <li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector_function: Callable[[float], numpy.ndarray[numpy.float64[6, 1]]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
@@ -477,8 +468,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 </ol>
@@ -502,8 +492,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 <li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector: numpy.ndarray[numpy.float64[6, 1]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
@@ -520,8 +509,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 <li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector_function: Callable[[float], numpy.ndarray[numpy.float64[6, 1]]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
@@ -538,8 +526,7 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 <dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>ScaledEphemerisSettings</p>
 </div></blockquote>
 </li>
 </ol>
@@ -561,11 +548,10 @@ This function creates an instance of an <cite>EphemerisSettings</cite> derived <
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.TabulatedEphemerisSettings" title="tudatpy.simulation.environment_setup.ephemeris.TabulatedEphemerisSettings">TabulatedEphemerisSettings</a></p>
 </dd>
 </dl>
 </dd></dl>
