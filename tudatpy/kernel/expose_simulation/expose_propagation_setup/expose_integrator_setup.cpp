@@ -10,6 +10,9 @@
 
 #include "expose_integrator_setup.h"
 
+#include "tudatpy/docstrings.h"
+#include <tudat/simulation/propagation_setup.h>
+
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -58,7 +61,8 @@ namespace propagation_setup {
 // CLASSES
         py::class_<
         tni::IntegratorSettings<double>,
-                std::shared_ptr<tni::IntegratorSettings<double>>>(m, "IntegratorSettings")
+                std::shared_ptr<tni::IntegratorSettings<double>>>(m, "IntegratorSettings",
+                                                                  get_docstring("IntegratorSettings").c_str())
 //                .def(py::init<
 //                             const tni::AvailableIntegrators,
 //                             const double,
@@ -75,23 +79,30 @@ namespace propagation_setup {
 
         py::class_<tni::RungeKuttaVariableStepSizeBaseSettings<double>,
                 std::shared_ptr<tni::RungeKuttaVariableStepSizeBaseSettings<double>>,
-                tni::IntegratorSettings<double>>(m, "RungeKuttaVariableStepSizeBaseSettings");
+                tni::IntegratorSettings<double>>(m, "RungeKuttaVariableStepSizeBaseSettings",
+                                                 get_docstring("RungeKuttaVariableStepSizeBaseSettings").c_str());
 
         py::class_<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>,
                 std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<double>>,
-                tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m, "RungeKuttaVariableStepSizeSettingsVectorTolerances");
+                tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m, "RungeKuttaVariableStepSizeSettingsVectorTolerances",
+                                                                     get_docstring("RungeKuttaVariableStepSizeSettingsVectorTolerances").c_str());
 
         py::class_<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>,
                 std::shared_ptr<tni::RungeKuttaVariableStepSizeSettingsScalarTolerances<double>>,
-                tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m, "RungeKuttaVariableStepSizeSettingsScalarTolerances");
+                tni::RungeKuttaVariableStepSizeBaseSettings<double>>(m, "RungeKuttaVariableStepSizeSettingsScalarTolerances",
+                                                                     get_docstring("RungeKuttaVariableStepSizeSettingsScalarTolerances").c_str());
 
         py::class_<tni::BulirschStoerIntegratorSettings<double>,
                 std::shared_ptr<tni::BulirschStoerIntegratorSettings<double>>,
-                tni::IntegratorSettings<double>>(m, "BulirschStoerIntegratorSettings");
+                tni::IntegratorSettings<double>>(m, "BulirschStoerIntegratorSettings",
+                                                 get_docstring("BulirschStoerIntegratorSettings").c_str());
+
 
         py::class_<tni::AdamsBashforthMoultonSettings<double>,
                 std::shared_ptr<tni::AdamsBashforthMoultonSettings<double>>,
-                tni::IntegratorSettings<double>>(m, "AdamsBashforthMoultonSettings");
+                tni::IntegratorSettings<double>>(m, "AdamsBashforthMoultonSettings",
+                                                 get_docstring("AdamsBashforthMoultonSettings").c_str());
+
 
 // FACTORY FUNCTIONS
         m.def("euler",
@@ -99,14 +110,16 @@ namespace propagation_setup {
               py::arg("initial_time"),
               py::arg("initial_time_step"),
               py::arg("save_frequency") = 1,
-              py::arg("assess_termination_on_minor_steps") = false);
+              py::arg("assess_termination_on_minor_steps") = false,
+              get_docstring("euler").c_str());
 
         m.def("runge_kutta_4",
               &tni::rungeKutta4Settings< double >,
               py::arg("initial_time"),
               py::arg("initial_time_step"),
               py::arg("save_frequency") = 1,
-              py::arg("assess_termination_on_minor_steps") = false);
+              py::arg("assess_termination_on_minor_steps") = false,
+              get_docstring("runge_kutta_4").c_str()););
 
         m.def("runge_kutta_variable_step_size",
               &tni::rungeKuttaVariableStepSettingsScalarTolerances< double >,
@@ -121,7 +134,8 @@ namespace propagation_setup {
               py::arg("assess_termination_on_minor_steps") = false,
               py::arg("safety_factor") = 0.8,
               py::arg("maximum_factor_increase") = 4.0,
-              py::arg("minimum_factor_increase") = 0.1 );
+              py::arg("minimum_factor_increase") = 0.1,
+              get_docstring("runge_kutta_variable_step_size", 0).c_str());
 
         m.def("runge_kutta_variable_step_size",
               &tni::rungeKuttaVariableStepSettingsVectorTolerances< double >,
@@ -136,7 +150,8 @@ namespace propagation_setup {
               py::arg("assess_termination_on_minor_steps") = false,
               py::arg("safety_factor") = 0.8,
               py::arg("maximum_factor_increase") = 4.0,
-              py::arg("minimum_factor_increase") = 0.1);
+              py::arg("minimum_factor_increase") = 0.1,
+              get_docstring("runge_kutta_variable_step_size", 1).c_str());
 
         m.def("bulirsch_stoer",
               &tni::bulirschStoerIntegratorSettings< double >,
@@ -152,7 +167,8 @@ namespace propagation_setup {
               py::arg("assess_termination_on_minor_steps") = false,
               py::arg("safety_factor") = 0.7,
               py::arg("maximum_factor_increase") = 10.0,
-              py::arg("minimum_factor_increase") = 0.1 );
+              py::arg("minimum_factor_increase") = 0.1,
+              get_docstring("bulirsch_stoer").c_str());
 
         m.def("adams_bashforth_moulton",
               &tni::adamsBashforthMoultonSettings< double >,
@@ -166,7 +182,8 @@ namespace propagation_setup {
               py::arg("maximum_order") = 11,
               py::arg("save_frequency") = 1,
               py::arg("assess_termination_on_minor_steps") = false,
-              py::arg("bandwidth") = 200.0 );
+              py::arg("bandwidth") = 200.0,
+              get_docstring("adams_bashforth_moulton").c_str());
     }
 
 
