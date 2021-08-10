@@ -1,0 +1,67 @@
+``tudatpy.simulation.environment_setup.ephemeris``
+==================================================
+None
+
+
+
+
+
+Functions
+---------
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.direct_spice
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.interpolated_spice
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.approximate_planet_positions
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.approximate_planet_positions
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.constant
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.custom
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.keplerian
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.keplerian_from_spice
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.scaled
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.scaled
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.scaled
+
+.. autofunction:: tudatpy.simulation.environment_setup.ephemeris.tabulated
+
+
+
+
+Classes
+-------
+
+.. autoclass:: tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.ephemeris.ScaledEphemerisSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.ephemeris.InterpolatedSpiceEphemerisSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.ephemeris.ApproximatePlanetPositionSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.ephemeris.ConstantEphemerisSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.ephemeris.CustomEphemerisSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.ephemeris.TabulatedEphemerisSettings
+   :members:
+
+
+

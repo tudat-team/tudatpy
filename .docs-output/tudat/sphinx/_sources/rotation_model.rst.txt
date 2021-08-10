@@ -1,0 +1,34 @@
+``tudatpy.simulation.environment_setup.rotation_model``
+=======================================================
+None
+
+
+
+
+
+Functions
+---------
+
+.. autofunction:: tudatpy.simulation.environment_setup.rotation_model.simple
+
+.. autofunction:: tudatpy.simulation.environment_setup.rotation_model.simple_from_spice
+
+.. autofunction:: tudatpy.simulation.environment_setup.rotation_model.synchronous
+
+.. autofunction:: tudatpy.simulation.environment_setup.rotation_model.spice
+
+.. autofunction:: tudatpy.simulation.environment_setup.rotation_model.gcrs_to_itrs
+
+.. autofunction:: tudatpy.simulation.environment_setup.rotation_model.constant
+
+
+
+
+Classes
+-------
+
+.. autoclass:: tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings
+   :members:
+
+
+

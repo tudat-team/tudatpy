@@ -1,0 +1,140 @@
+``tudatpy.simulation.propagation_setup.dependent_variable``
+===========================================================
+None
+
+
+
+
+
+Functions
+---------
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.create
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.mach_number
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.altitude
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.airspeed
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.density
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.relative_speed
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.relative_speed
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.relative_distance
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.relative_velocity
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.keplerian_state
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.modified_equinoctial_state
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.single_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.single_acceleration_norm
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.total_acceleration_norm
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.total_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.single_torque_norm
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.single_torque
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.total_torque_norm
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.total_torque
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.spherical_harmonic_terms_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.spherical_harmonic_terms_acceleration_norm
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_force_coefficients
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_moment_coefficients
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.latitude
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.geodetic_latitude
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.longitude
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.heading_angle
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.flight_path_angle
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.angle_of_attack
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.sideslip_angle
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.bank_angle
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.radiation_pressure
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.total_gravity_field_variation_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.single_gravity_field_variation_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.single_per_terms_gravity_field_variation_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.body_fixed_airspeed_velocity
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.body_fixed_groundspeed_velocity
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.inertial_to_body_fixed_rotation_frame
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.lvlh_to_inertial_rotation_matrix
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.inertial_to_body_fixed_313_euler_angles
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.intermediate_aerodynamic_rotation_matrix_variable
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.periapsis_altitude
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.control_surface_deflection
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.central_body_fixed_spherical_position
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.central_body_fixed_cartesian_position
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.body_mass
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.radiation_pressure_coefficient
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.local_temperature
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.local_dynamic_pressure
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.local_aerodynamic_heat_rate
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.local_aerodynamic_g_load
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.stagnation_point_heat_flux
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.total_mass_rate
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.aerodynamic_g_load
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.dynamic_pressure
+
+.. autofunction:: tudatpy.simulation.propagation_setup.dependent_variable.atmospheric_temperature
+
+
+
+
+Classes
+-------
+
+.. autoclass:: tudatpy.simulation.propagation_setup.dependent_variable.VariableSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.dependent_variable.SingleAccelerationDependentVariableSaveSettings
+   :members:
+
+
+

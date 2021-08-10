@@ -1,0 +1,36 @@
+``tudatpy.simulation.environment_setup.gravity_field``
+======================================================
+None
+
+
+
+
+
+Functions
+---------
+
+.. autofunction:: tudatpy.simulation.environment_setup.gravity_field.central
+
+.. autofunction:: tudatpy.simulation.environment_setup.gravity_field.central_spice
+
+.. autofunction:: tudatpy.simulation.environment_setup.gravity_field.spherical_harmonic
+
+.. autofunction:: tudatpy.simulation.environment_setup.gravity_field.spherical_harmonic_triaxial_body
+
+
+
+
+Classes
+-------
+
+.. autoclass:: tudatpy.simulation.environment_setup.gravity_field.GravityFieldSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.gravity_field.CentralGravityFieldSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings
+   :members:
+
+
+
