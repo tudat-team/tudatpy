@@ -357,7 +357,7 @@ namespace propagation_setup {
               py::arg("termination_settings"),
               py::arg("propagator") = tp::cowell,
               py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
-              py::arg("print_interval") = TUDAT_NAN),
+              py::arg("print_interval") = TUDAT_NAN,
               get_docstring("translational", 6).c_str());
 
         m.def("rotational",
