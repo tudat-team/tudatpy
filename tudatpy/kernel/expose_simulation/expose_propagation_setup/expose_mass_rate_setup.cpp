@@ -10,6 +10,9 @@
 
 #include "expose_mass_rate_setup.h"
 
+#include "tudatpy/docstrings.h"
+#include <tudat/simulation/propagation_setup.h>
+
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -44,29 +47,36 @@ namespace propagation_setup {
         // Classes
 
         py::class_<tss::MassRateModelSettings,
-                std::shared_ptr<tss::MassRateModelSettings>>(m, "MassRateModelSettings");
+                std::shared_ptr<tss::MassRateModelSettings>>(m, "MassRateModelSettings",
+                        get_docstring("MassRateModelSettings").c_str());
 //                .def(py::init<const tudat::basic_astrodynamics::AvailableMassRateModels>(),
 //                     py::arg("mass_rate_type"));
 
         py::class_<tss::FromThrustMassRateSettings,
                 std::shared_ptr<tss::FromThrustMassRateSettings>,
-                tss::MassRateModelSettings>(m, "FromThrustMassRateSettings");
+                tss::MassRateModelSettings>(m, "FromThrustMassRateSettings",
+                                            get_docstring("FromThrustMassRateSettings").c_str());
 //                .def(py::init<const bool, const std::string &>(),
 //                     py::arg("use_all_thrust_models") = 1,
 //                     py::arg("associated_thrust_source") = "");
 
         py::class_<tss::CustomMassRateSettings,
                 std::shared_ptr<tss::CustomMassRateSettings>,
-                tss::MassRateModelSettings>(m, "CustomMassRateSettings");
+                tss::MassRateModelSettings>(m, "CustomMassRateSettings",
+                                            get_docstring("CustomMassRateSettings").c_str());
+
 
         // Factory functions
 
         m.def("from_thrust", &tss::fromThrustMassRate,
               py::arg("use_all_thrust_models") = 1,
-              py::arg("associated_thrust_source") = "");
+              py::arg("associated_thrust_source") = "",
+              get_docstring("from_thrust").c_str());
 
         m.def("custom", &tss::customMassRate,
-              py::arg("mass_rate_function"));
+              py::arg("mass_rate_function"),
+              get_docstring("custom").c_str());
+
 
     }
 

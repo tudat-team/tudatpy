@@ -11,6 +11,7 @@
 #include "expose_dependent_variable_setup.h"
 
 #include "tudatpy/docstrings.h"
+#include <tudat/simulation/propagation_setup.h>
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>

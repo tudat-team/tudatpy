@@ -10,6 +10,9 @@
 
 #include "expose_torque_setup.h"
 
+#include "tudatpy/docstrings.h"
+#include <tudat/simulation/propagation_setup.h>
+
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -45,23 +48,34 @@ namespace propagation_setup {
                 .export_values();
 
         py::class_<tss::TorqueSettings,
-                std::shared_ptr<tss::TorqueSettings>>(m, "AccelerationSettings");
+                std::shared_ptr<tss::TorqueSettings>>(m, "AccelerationSettings",
+                                                      get_docstring("AccelerationSettings").c_str());
 
         py::class_<tss::SphericalHarmonicTorqueSettings,
                 std::shared_ptr<tss::SphericalHarmonicTorqueSettings>,
-                tss::TorqueSettings>(m, "SphericalHarmonicTorqueSettings");
+                tss::TorqueSettings>(m, "SphericalHarmonicTorqueSettings",
+                                     get_docstring("SphericalHarmonicTorqueSettings").c_str());
 
-        m.def("aerodynamic", &tss::aerodynamicTorque);
 
-        m.def("second_degree_gravitational", &tss::secondDegreeGravitationalTorque);
+        m.def("aerodynamic", &tss::aerodynamicTorque,
+              get_docstring("aerodynamic").c_str());
+
+
+        m.def("second_degree_gravitational", &tss::secondDegreeGravitationalTorque,
+              get_docstring("second_degree_gravitational").c_str());
+
 
         m.def("spherical_harmonic_gravitational", &tss::sphericalHarmonicGravitationalTorque,
               py::arg("maximum_degree"),
-              py::arg("maximum_order"));
+              py::arg("maximum_order"),
+              get_docstring("spherical_harmonic_gravitational").c_str());
+
 
         m.def("custom", &tss::customTorqueSettings,
               py::arg("torque_function"),
-              py::arg("scaling_function") = nullptr);
+              py::arg("scaling_function") = nullptr,
+              get_docstring("custom").c_str());
+
 
         // NOTE: the only unexposed torque model is dissipativeTorque, but it is probably obsolete
     }

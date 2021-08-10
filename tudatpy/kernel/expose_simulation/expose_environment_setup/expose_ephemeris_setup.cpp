@@ -119,9 +119,8 @@ namespace environment_setup {
 //                 const bool>(),
 //                 py::arg("body_identifier"),
 //                 py::arg("use_circular_coplanar_approximation"))
-                .def("get_body_identifier",
-                     &tss::ApproximatePlanetPositionSettings::getBodyIdentifier)
-                .def("get_use_circular_coplanar_approximation",
+                .def_property_readonly("body_identifier", &tss::ApproximatePlanetPositionSettings::getBodyIdentifier)
+                .def_property_readonly("use_circular_coplanar_approximation",
                      &tss::ApproximatePlanetPositionSettings::getUseCircularCoplanarApproximation);
 
 
@@ -220,11 +219,11 @@ namespace environment_setup {
         m.def("approximate_planet_positions",
               py::overload_cast<const std::string>(&tss::approximatePlanetPositionsSettings),
               py::arg("body_name_to_use"),
-              get_docstring("approximate_planet_positions").c_str());
+              get_docstring("approximate_planet_positions", 0).c_str());
 
         m.def("approximate_planet_positions",
               py::overload_cast<>(&tss::approximatePlanetPositionsSettings),
-              get_docstring("approximate_planet_positions").c_str());
+              get_docstring("approximate_planet_positions", 1).c_str());
 
         m.def("direct_spice",
               py::overload_cast<const std::string, const std::string, const std::string>(
@@ -265,7 +264,7 @@ namespace environment_setup {
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_constant"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled").c_str());
+              get_docstring("scaled", 0).c_str());
 
         m.def("scaled",
               py::overload_cast<const std::shared_ptr<tss::EphemerisSettings>,
@@ -273,7 +272,7 @@ namespace environment_setup {
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_vector"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled").c_str());
+              get_docstring("scaled", 1).c_str());
 
         m.def("scaled",
               py::overload_cast<const std::shared_ptr<tss::EphemerisSettings>,
@@ -281,7 +280,7 @@ namespace environment_setup {
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_vector_function"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled").c_str());
+              get_docstring("scaled", 2).c_str());
 
         m.def("custom",
               &tss::customEphemerisSettings,
