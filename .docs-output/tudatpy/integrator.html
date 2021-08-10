@@ -147,8 +147,8 @@ constant.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>IntegratorSettings</em></p></li>
+<li><p><em>Integrator settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -171,8 +171,8 @@ constant.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>IntegratorSettings</em></p></li>
+<li><p><em>Integrator settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -216,13 +216,13 @@ Different coefficient sets (Butcher’s tableau) can be used (see the <cite>Rung
 <dt>minimum_factor_increase<span class="classifier">float, default=0.1</span></dt><dd><p>Minimum increase between consecutive time steps, expressed as the factor between new and old step size.</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>RungeKuttaVariableStepSizeSettingsScalarTolerances or RungeKuttaVariableStepSizeSettingsVectorTolerances
+RungeKuttaVariableStepSizeSettingsScalarTolerances or RungeKuttaVariableStepSizeSettingsVectorTolerances object.</p>
 </div></blockquote>
 </li>
 <li><p>runge_kutta_variable_step_size(initial_time: float, initial_time_step: float, coefficient_set: tudatpy.kernel.simulation.propagation_setup.integrator.RKCoefficientSets, minimum_step_size: float, maximum_step_size: float, relative_error_tolerance: numpy.ndarray[numpy.float64[m, n]], absolute_error_tolerance: numpy.ndarray[numpy.float64[m, n]], save_frequency: int = 1, assess_termination_on_minor_steps: bool = False, safety_factor: float = 0.8, maximum_factor_increase: float = 4.0, minimum_factor_increase: float = 0.1) -&gt; tudatpy.kernel.simulation.propagation_setup.integrator.IntegratorSettings</p></li>
 </ol>
-<p>No documentation found (propagation_setup)</p>
+<p>No documentation found.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="tudatpy.simulation.propagation_setup.integrator.bulirsch_stoer">
@@ -276,8 +276,8 @@ description: Minimum increase between consecutive time steps, expressed as the f
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>BulirschStoerIntegratorSettings</em></p></li>
+<li><p><em>BulirschStoerIntegratorSettings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -327,8 +327,8 @@ description: Maximum error factor for doubling the stepsize.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>AdamsBashforthMoultonSettings</em></p></li>
+<li><p><em>AdamsBashforthMoultonSettings object.</em></p></li>
 </ul>
 </p>
 </dd>

@@ -143,8 +143,8 @@ organized in a single container.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>numpy.ndarray</em></p></li>
+<li><p><em>Vector of initial states, sorted in order of IntegratedStateType, and then in the order of the vector of SingleArcPropagatorSettings of given type.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -183,8 +183,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -247,8 +247,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -279,8 +279,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -311,8 +311,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -343,8 +343,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -375,8 +375,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -414,8 +414,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -478,8 +478,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -510,8 +510,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -542,8 +542,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -574,8 +574,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -606,8 +606,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -645,8 +645,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -709,8 +709,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -741,8 +741,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -773,8 +773,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -805,8 +805,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -837,8 +837,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -876,8 +876,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -940,8 +940,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -972,8 +972,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1004,8 +1004,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1036,8 +1036,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1068,8 +1068,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -1107,8 +1107,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1171,8 +1171,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1203,8 +1203,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1235,8 +1235,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1267,8 +1267,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1299,8 +1299,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -1338,8 +1338,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1402,8 +1402,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1434,8 +1434,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1466,8 +1466,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1498,8 +1498,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1530,8 +1530,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -1569,8 +1569,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1633,8 +1633,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_models: Dict[str, Dict[str, List[tudatpy.kernel.astro.fundamentals.AccelerationModel]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1665,8 +1665,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_time: float, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1697,8 +1697,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1729,8 +1729,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>translational(central_bodies: List[str], acceleration_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.acceleration.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalPropagatorType = &lt;TranslationalPropagatorType.cowell: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.TranslationalStatePropagatorSettings</p>
@@ -1761,8 +1761,8 @@ through the final time provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>TranslationalStatePropagatorSettings
+Translational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -1798,8 +1798,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>RotationalStatePropagatorSettings
+Rotational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>rotational(torque_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.torque.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.RotationalPropagatorType = &lt;RotationalPropagatorType.quaternions: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.RotationalStatePropagatorSettings</p>
@@ -1828,8 +1828,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>RotationalStatePropagatorSettings
+Rotational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -1865,8 +1865,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>RotationalStatePropagatorSettings
+Rotational state propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>rotational(torque_settings: Dict[str, Dict[str, List[tudatpy.kernel.simulation.propagation_setup.torque.AccelerationSettings]]], bodies_to_integrate: List[str], initial_states: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, propagator: tudatpy.kernel.simulation.propagation_setup.propagator.RotationalPropagatorType = &lt;RotationalPropagatorType.quaternions: 0&gt;, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.RotationalStatePropagatorSettings</p>
@@ -1895,8 +1895,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>RotationalStatePropagatorSettings
+Rotational state propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -1928,8 +1928,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -1954,8 +1954,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -1980,8 +1980,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2006,8 +2006,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2032,8 +2032,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -2065,8 +2065,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2091,8 +2091,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2117,8 +2117,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2143,8 +2143,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2169,8 +2169,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -2202,8 +2202,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2228,8 +2228,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2254,8 +2254,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2280,8 +2280,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2306,8 +2306,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -2339,8 +2339,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2365,8 +2365,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2391,8 +2391,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2417,8 +2417,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2443,8 +2443,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -2476,8 +2476,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2502,8 +2502,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: tudatpy.kernel.simulation.propagation_setup.propagator.DependentVariableSaveSettings = None, print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2528,8 +2528,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_models: Dict[str, List[tudat::basic_astrodynamics::MassRateModel]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2554,8 +2554,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>mass(bodies_with_mass_to_propagate: List[str], mass_rate_settings: Dict[str, List[tudat::simulation_setup::MassRateModelSettings]], initial_body_masses: numpy.ndarray[numpy.float64[m, 1]], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MassPropagatorSettings</p>
@@ -2580,8 +2580,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -2608,8 +2608,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>multitype(propagator_settings_list: List[tudatpy.kernel.simulation.propagation_setup.propagator.SingleArcPropagatorSettings], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MultiTypePropagatorSettings</p>
@@ -2629,8 +2629,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -2657,8 +2657,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 <li><p>multitype(propagator_settings_list: List[tudatpy.kernel.simulation.propagation_setup.propagator.SingleArcPropagatorSettings], termination_settings: tudat::propagators::PropagationTerminationSettings, output_variables: List[tudat::propagators::SingleDependentVariableSaveSettings] = [], print_interval: float = nan) -&gt; tudatpy.kernel.simulation.propagation_setup.propagator.MultiTypePropagatorSettings</p>
@@ -2678,8 +2678,8 @@ through the termination settings object provided.</p>
 <dt>print_interval<span class="classifier">float, default=TUDAT_NAN</span></dt><dd><p>Variable indicating how often (in seconds or in the unit of the independent variable) the current state and time are to be printed to the console (by default, they are never printed).</p>
 </dd>
 </dl>
-<p>description
-None</p>
+<p>MassPropagatorSettings
+Mass propagator settings object.</p>
 </div></blockquote>
 </li>
 </ol>
@@ -2699,8 +2699,8 @@ each arc in a list.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>MultiArcPropagatorSettings</em></p></li>
+<li><p><em>Multi-arc propagator settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -2720,8 +2720,8 @@ each arc in a list.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>HybridArcPropagatorSettings</em></p></li>
+<li><p><em>Hybrid-arc propagator settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -2742,8 +2742,8 @@ The propagation is stopped when the final time provided is reached.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>PropagationTimeTerminationSettings</em></p></li>
+<li><p><em>Time termination settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -2761,8 +2761,8 @@ The propagation is stopped when the final CPU time provided is reached.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>PropagationCPUTimeTerminationSettings</em></p></li>
+<li><p><em>CPU time termination settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -2786,8 +2786,8 @@ The propagation is stopped when the final CPU time provided is reached.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>PropagationDependentVariableTerminationSettings</em></p></li>
+<li><p><em>Dependent variable termination settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -2805,8 +2805,8 @@ The propagation is stopped when the condition provided is verified.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>PropagationCustomTerminationSettings</em></p></li>
+<li><p><em>Custom termination settings object.</em></p></li>
 </ul>
 </p>
 </dd>
@@ -2828,8 +2828,8 @@ stop the propagation.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><em>description</em></p></li>
-<li><p><em>None</em></p></li>
+<li><p><em>PropagationHybridTerminationSettings</em></p></li>
+<li><p><em>Hybrid termination settings object.</em></p></li>
 </ul>
 </p>
 </dd>

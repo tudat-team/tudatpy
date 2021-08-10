@@ -21,7 +21,9 @@ class ProjectDocstringsMissing(Exception):
 def main(projects, config):
     projects_found, common_configs, _ = process_config(config)
     projects = [projects] if type(projects) == str else projects
-    for project in projects:
+
+
+    for project in [projects[1]]:# tudatpy only!
         # confirm project exists in .multidoc.cfg
         if project not in projects_found:
             raise KeyError(f"{project} key not found in config file.")
@@ -60,8 +62,8 @@ def main(projects, config):
                 api_prefix=project_api,
                 target_src=project_src,
                 dest=dest)
-        # elif project_type == "cpp":
-        #     generate_cpp_documented(
-        #         api_prefix=project_api,
-        #         target_src=project_src,
-        #         dest=dest)
+        elif project_type == "cpp":
+            generate_cpp_documented(
+                api_prefix=project_api,
+                target_src=project_src,
+                dest=dest)
