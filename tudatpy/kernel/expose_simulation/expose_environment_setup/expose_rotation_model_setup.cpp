@@ -29,7 +29,7 @@ namespace tba = tudat::basic_astrodynamics;
 namespace tudatpy {
 namespace simulation {
 namespace environment_setup {
-
+namespace rotation_model {
 
     void expose_rotation_model_setup(py::module &m) {
         /////////////////////////////////////////////////////////////////////////////
@@ -123,7 +123,7 @@ namespace environment_setup {
 
     }
 
-
+}// namespace rotation_model
 }// namespace environment_setup
 }// namespace simulation
 }// namespace tudatpy

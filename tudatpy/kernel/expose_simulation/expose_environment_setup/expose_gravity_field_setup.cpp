@@ -28,7 +28,7 @@ namespace tss = tudat::simulation_setup;
 namespace tudatpy {
 namespace simulation {
 namespace environment_setup {
-
+namespace gravity_field {
 
     void expose_gravity_field_setup(py::module &m) {
         /////////////////////////////////////////////////////////////////////////////
@@ -91,22 +91,22 @@ namespace environment_setup {
                                        &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius);
 
 
-
         py::class_<tss::FromFileSphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::FromFileSphericalHarmonicsGravityFieldSettings>,
                 tss::SphericalHarmonicsGravityFieldSettings>(m, "FromFileSphericalHarmonicsGravityFieldSettings",
-                                                             get_docstring("FromFileSphericalHarmonicsGravityFieldSettings").c_str());
+                                                             get_docstring(
+                                                                     "FromFileSphericalHarmonicsGravityFieldSettings").c_str());
 
 
         m.def("central",
               &tss::centralGravitySettings,
               py::arg("gravitational_parameter"),
               get_docstring("central").c_str()
-              );
+        );
 
         m.def("central_spice",
               &tss::centralGravityFromSpiceSettings,
-                get_docstring("central_spice").c_str()
-                );
+              get_docstring("central_spice").c_str()
+        );
 
         m.def("spherical_harmonic",
               &tss::sphericalHarmonicsGravitySettings,
@@ -116,7 +116,7 @@ namespace environment_setup {
               py::arg("normalized_sine_coefficients"),
               py::arg("associated_reference_frame"),
               get_docstring("spherical_harmonic").c_str()
-              );
+        );
 
         m.def("spherical_harmonic_triaxial_body",
               &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
@@ -128,9 +128,10 @@ namespace environment_setup {
               py::arg("maximum_order"),
               py::arg("associated_reference_frame"),
               get_docstring("spherical_harmonic_triaxial_body").c_str()
-              );
+        );
     }
 
+}// namespace gravity_field
 }// namespace environment_setup
 }// namespace simulation
 }// namespace tudatpy
