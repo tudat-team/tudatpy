@@ -31,7 +31,7 @@ namespace ti = tudat::interpolators;
 namespace tudatpy {
 namespace simulation {
 namespace environment_setup {
-
+namespace ephemeris {
 
     void expose_ephemeris_setup(py::module &m) {
 
@@ -57,7 +57,7 @@ namespace environment_setup {
         /////////////////////////////////////////////////////////////////////////////
         py::class_<tss::EphemerisSettings,
                 std::shared_ptr<tss::EphemerisSettings>>(m, "EphemerisSettings",
-                        get_docstring("EphemerisSettings").c_str())
+                                                         get_docstring("EphemerisSettings").c_str())
 //            .def(py::init<const tss::EphemerisType,
 //                 const std::string &,
 //                 const std::string &>(),
@@ -121,7 +121,7 @@ namespace environment_setup {
 //                 py::arg("use_circular_coplanar_approximation"))
                 .def_property_readonly("body_identifier", &tss::ApproximatePlanetPositionSettings::getBodyIdentifier)
                 .def_property_readonly("use_circular_coplanar_approximation",
-                     &tss::ApproximatePlanetPositionSettings::getUseCircularCoplanarApproximation);
+                                       &tss::ApproximatePlanetPositionSettings::getUseCircularCoplanarApproximation);
 
 
         py::class_<tss::ConstantEphemerisSettings,
@@ -146,7 +146,7 @@ namespace environment_setup {
 //                py::arg("frame_origin") = "SSB",
 //                py::arg("frame_orientation") = "ECLIPJ2000")
                 .def_property_readonly("get_custom_state_function",
-                     &tss::CustomEphemerisSettings::getCustomStateFunction);
+                                       &tss::CustomEphemerisSettings::getCustomStateFunction);
 
 
         py::class_<tss::KeplerEphemerisSettings,
@@ -291,7 +291,7 @@ namespace environment_setup {
     }
 
 
-
+}// namespace ephemeris
 }// namespace environment_setup
 }// namespace simulation
 }// namespace tudatpy
