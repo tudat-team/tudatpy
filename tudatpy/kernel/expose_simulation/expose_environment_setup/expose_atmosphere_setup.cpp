@@ -30,7 +30,7 @@ namespace trf = tudat::reference_frames;
 namespace tudatpy {
 namespace simulation {
 namespace environment_setup {
-
+namespace atmosphere {
 
     void expose_atmosphere_setup(py::module &m) {
 
@@ -118,8 +118,7 @@ namespace environment_setup {
 
     }
 
-
-
+}// namespace atmosphere
 }// namespace environment_setup
 }// namespace simulation
 }// namespace tudatpy

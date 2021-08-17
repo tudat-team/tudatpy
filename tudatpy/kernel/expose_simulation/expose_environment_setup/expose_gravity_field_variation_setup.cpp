@@ -29,7 +29,7 @@ namespace tg = tudat::gravitation;
 namespace tudatpy {
 namespace simulation {
 namespace environment_setup {
-
+namespace gravity_field_variation {
 
     void expose_gravity_field_variation_setup(py::module &m) {
         py::enum_<tg::BodyDeformationTypes>(
@@ -121,7 +121,7 @@ namespace environment_setup {
               py::arg("interpolation_settings"));
     }
 
-
+}// namespace gravity_field_variation
 }// namespace environment_setup
 }// namespace simulation
 }// namespace tudatpy

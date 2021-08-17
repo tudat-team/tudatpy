@@ -339,28 +339,28 @@ namespace environment_setup {
 
 
         auto aerodynamic_coefficient_setup = m.def_submodule("aerodynamic_coefficients");
-        expose_aerodynamic_coefficient_setup(aerodynamic_coefficient_setup);
+        aerodynamic_coefficients::expose_aerodynamic_coefficient_setup(aerodynamic_coefficient_setup);
 
         auto radiation_pressure_setup = m.def_submodule("radiation_pressure");
-        expose_radiation_pressure_setup(radiation_pressure_setup);
+        radiation_pressure::expose_radiation_pressure_setup(radiation_pressure_setup);
 
         auto rotation_model_setup = m.def_submodule("rotation_model");
-        expose_rotation_model_setup(rotation_model_setup);
+        rotation_model::expose_rotation_model_setup(rotation_model_setup);
 
         auto gravity_field_setup = m.def_submodule("gravity_field");
-        expose_gravity_field_setup(gravity_field_setup);
+        gravity_field::expose_gravity_field_setup(gravity_field_setup);
 
         auto ephemeris_setup = m.def_submodule("ephemeris");
-        expose_ephemeris_setup(ephemeris_setup);
+        ephemeris::expose_ephemeris_setup(ephemeris_setup);
 
         auto atmosphere_setup = m.def_submodule("atmosphere");
-        expose_atmosphere_setup(atmosphere_setup);
+        atmosphere::expose_atmosphere_setup(atmosphere_setup);
 
         auto shape_setup = m.def_submodule("shape");
-        expose_shape_setup(shape_setup);
+        shape::expose_shape_setup(shape_setup);
 
         auto gravity_variation_setup = m.def_submodule("gravity_field_variation");
-        expose_gravity_field_variation_setup(gravity_variation_setup);
+        gravity_field_variation::expose_gravity_field_variation_setup(gravity_variation_setup);
 
 
     }

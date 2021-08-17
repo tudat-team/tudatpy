@@ -18,9 +18,11 @@ namespace py = pybind11;
 namespace tudatpy {
 namespace simulation {
 namespace environment_setup {
+namespace shape {
 
     void expose_shape_setup(py::module &m);
 
+}// namespace shape
 }// namespace environment_setup
 }// namespace simulation
 }// namespace tudatpy

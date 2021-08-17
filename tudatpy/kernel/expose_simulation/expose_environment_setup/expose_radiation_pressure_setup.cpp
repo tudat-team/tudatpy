@@ -28,7 +28,7 @@ namespace tss = tudat::simulation_setup;
 namespace tudatpy {
 namespace simulation {
 namespace environment_setup {
-
+namespace radiation_pressure {
 
     void expose_radiation_pressure_setup(py::module &m) {
 
@@ -83,7 +83,7 @@ namespace environment_setup {
 
     }
 
-
+}// namespace radiation_pressure
 }// namespace environment_setup
 }// namespace simulation
 }// namespace tudatpy
