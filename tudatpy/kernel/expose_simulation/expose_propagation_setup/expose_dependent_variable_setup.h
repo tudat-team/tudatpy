@@ -43,9 +43,11 @@ namespace py = pybind11;
 namespace tudatpy {
 namespace simulation {
 namespace propagation_setup {
+namespace dependent_variable {
 
     void expose_dependent_variable_setup(py::module &m);
 
+}// namespace dependent_variable
 }// namespace propagation_setup
 }// namespace simulation
 }// namespace tudatpy

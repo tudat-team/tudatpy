@@ -275,22 +275,22 @@ namespace tudatpy {
 
 
                 auto acceleration_setup = m.def_submodule("acceleration");
-                expose_acceleration_setup(acceleration_setup);
+                acceleration::expose_acceleration_setup(acceleration_setup);
 
                 auto torque_setup = m.def_submodule("torque");
-                expose_torque_setup(torque_setup);
+                torque::expose_torque_setup(torque_setup);
 
                 auto integrator_setup = m.def_submodule("integrator");
-                expose_integrator_setup(integrator_setup);
+                integrator::expose_integrator_setup(integrator_setup);
 
                 auto propagator_setup = m.def_submodule("propagator");
-                expose_propagator_setup(propagator_setup);
+                propagator::expose_propagator_setup(propagator_setup);
 
                 auto mass_setup = m.def_submodule("mass");
-                expose_mass_rate_setup(mass_setup);
+                mass::expose_mass_rate_setup(mass_setup);
 
                 auto dependent_variable_setup = m.def_submodule("dependent_variable");
-                expose_dependent_variable_setup(dependent_variable_setup);
+                dependent_variable::expose_dependent_variable_setup(dependent_variable_setup);
             }
         }// namespace propagation_setup
     }// namespace simulation

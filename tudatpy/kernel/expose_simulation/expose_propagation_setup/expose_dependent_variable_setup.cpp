@@ -33,12 +33,13 @@ namespace tmrf = tudat::root_finders;
 namespace tudatpy {
 namespace simulation {
 namespace propagation_setup {
+namespace dependent_variable {
 
     void expose_dependent_variable_setup(py::module &m) {
 
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// ENUMS ////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////
+        /// ENUMS ////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////
 
         py::enum_<tp::PropagationDependentVariables>(m, "PropagationDependentVariables")
                 // C++ legacy variable names.
@@ -146,7 +147,7 @@ namespace propagation_setup {
         py::class_<tp::VariableSettings,
                 std::shared_ptr<tp::VariableSettings>>
                 (m, "VariableSettings",
-                        get_docstring("VariableSettings").c_str());
+                 get_docstring("VariableSettings").c_str());
 
         py::class_<tp::SingleDependentVariableSaveSettings,
                 std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
@@ -166,7 +167,8 @@ namespace propagation_setup {
                 tp::SingleAccelerationDependentVariableSaveSettings,
                 std::shared_ptr<tp::SingleAccelerationDependentVariableSaveSettings>,
                 tp::SingleDependentVariableSaveSettings>(m, "SingleAccelerationDependentVariableSaveSettings",
-                                                         get_docstring("SingleAccelerationDependentVariableSaveSettings").c_str());
+                                                         get_docstring(
+                                                                 "SingleAccelerationDependentVariableSaveSettings").c_str());
 //            .def(py::init<
 //                 const tudat::basic_astrodynamics::AvailableAcceleration,
 //                 const std::string &,
@@ -522,6 +524,7 @@ namespace propagation_setup {
 
     }
 
+}// namespace dependent_variable
 }// namespace propagation_setup
 }// namespace simulation
 }// namespace tudatpy

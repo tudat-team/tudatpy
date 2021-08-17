@@ -33,6 +33,7 @@ namespace tmrf = tudat::root_finders;
 namespace tudatpy {
 namespace simulation {
 namespace propagation_setup {
+namespace torque {
 
     void expose_torque_setup(py::module &m) {
 
@@ -48,8 +49,8 @@ namespace propagation_setup {
                 .export_values();
 
         py::class_<tss::TorqueSettings,
-                std::shared_ptr<tss::TorqueSettings>>(m, "AccelerationSettings",
-                                                      get_docstring("AccelerationSettings").c_str());
+                std::shared_ptr<tss::TorqueSettings>>(m, "TorqueSettings",
+                                                      get_docstring("TorqueSettings").c_str());
 
         py::class_<tss::SphericalHarmonicTorqueSettings,
                 std::shared_ptr<tss::SphericalHarmonicTorqueSettings>,
@@ -80,6 +81,7 @@ namespace propagation_setup {
         // NOTE: the only unexposed torque model is dissipativeTorque, but it is probably obsolete
     }
 
+}// namespace torque
 }// namespace propagation_setup
 }// namespace simulation
 }// namespace tudatpy
