@@ -43,9 +43,11 @@ namespace py = pybind11;
 namespace tudatpy {
 namespace simulation {
 namespace propagation_setup {
+namespace mass {
 
     void expose_mass_rate_setup(py::module &m);
 
+}// namespace mass
 }// namespace propagation_setup
 }// namespace simulation
 }// namespace tudatpy

@@ -44,9 +44,11 @@ namespace py = pybind11;
 namespace tudatpy {
 namespace simulation {
 namespace propagation_setup {
+namespace propagator {
 
     void expose_propagator_setup(py::module &m);
 
+}// namespace propagator
 }// namespace propagation_setup
 }// namespace simulation
 }// namespace tudatpy
