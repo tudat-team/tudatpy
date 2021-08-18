@@ -1,0 +1,114 @@
+``tudatpy.simulation.propagation_setup.acceleration``
+=====================================================
+None
+
+
+
+
+
+Functions
+---------
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.point_mass_gravity
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.aerodynamic
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.cannonball_radiation_pressure
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.spherical_harmonic_gravity
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.mutual_spherical_harmonic_gravity
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.relativistic_correction
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.empirical
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.custom
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.direct_tidal_dissipation_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.momentum_wheel_desaturation_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.thrust_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.thrust_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.thrust_acceleration
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.get_propulsion_input_variables
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.thrust_direction_from_state_guidance
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.thrust_from_existing_body_orientation
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.custom_thrust_orientation
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.custom_thrust_direction
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.custom_thrust_direction
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.custom_thrust_direction
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.custom_thrust_magnitude
+
+.. autofunction:: tudatpy.simulation.propagation_setup.acceleration.custom_thrust_magnitude
+
+
+
+
+Classes
+-------
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.AccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.SphericalHarmonicAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.MutualSphericalHarmonicAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.RelativisticAccelerationCorrectionSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.EmpiricalAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.CustomAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.DirectTidalDissipationAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.ThrustAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.MomentumWheelDesaturationAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.ThrustDirectionSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.ThrustDirectionFromStateGuidanceSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.CustomThrustDirectionSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.CustomThrustOrientationSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.MeeCostateBasedThrustDirectionSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.ThrustMagnitudeSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.ConstantThrustMagnitudeSettings
+   :members:
+
+.. autoclass:: tudatpy.simulation.propagation_setup.acceleration.FromFunctionThrustMagnitudeSettings
+   :members:
+
+
+

@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</compoundname>
+    <basecompoundref refid="da/d43/classtudat_1_1simulation__setup_1_1AccelerationSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AccelerationSettings</basecompoundref>
+    <includes refid="da/dc7/accelerationSettings_8h" local="no">accelerationSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings_1aa6862878fa2d620eb2ef8057ea36b7c5" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::SphericalHarmonicAccelerationSettings::maximumDegree_</definition>
+        <argsstring></argsstring>
+        <name>maximumDegree_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="111" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings_1aca67e705de784fd8bd54a3bba24f91c0" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::SphericalHarmonicAccelerationSettings::maximumOrder_</definition>
+        <argsstring></argsstring>
+        <name>maximumOrder_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="114" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings_1ae66b96974a61810c238a4953cc03e376" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::SphericalHarmonicAccelerationSettings::SphericalHarmonicAccelerationSettings</definition>
+        <argsstring>(const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>SphericalHarmonicAccelerationSettings</name>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor to set maximum degree and order that is to be taken into account. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="104" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="104" bodyend="107"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>@get_docstring(SphericalHarmonicAccelerationSettings.__docstring__) </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for providing settings for spherical harmonics acceleration model, specifically the maximum degree and order up to which the field is to be expanded. Note that the minimum degree and order are currently always set to zero. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="da/d43/classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</label>
+        <link refid="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationSettings</label>
+        <link refid="da/d43/classtudat_1_1simulation__setup_1_1AccelerationSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</label>
+        <link refid="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="95" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="96" bodyend="115"/>
+    <listofallmembers>
+      <member refid="da/d43/classtudat_1_1simulation__setup_1_1AccelerationSettings_1a61a6c91bf73a293adb523ebe2b71f379" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</scope><name>AccelerationSettings</name></member>
+      <member refid="da/d43/classtudat_1_1simulation__setup_1_1AccelerationSettings_1aaf1f7742077003cf7055c96ec934e4d8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</scope><name>accelerationType_</name></member>
+      <member refid="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings_1aa6862878fa2d620eb2ef8057ea36b7c5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</scope><name>maximumDegree_</name></member>
+      <member refid="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings_1aca67e705de784fd8bd54a3bba24f91c0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</scope><name>maximumOrder_</name></member>
+      <member refid="d1/da9/classtudat_1_1simulation__setup_1_1SphericalHarmonicAccelerationSettings_1ae66b96974a61810c238a4953cc03e376" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</scope><name>SphericalHarmonicAccelerationSettings</name></member>
+      <member refid="da/d43/classtudat_1_1simulation__setup_1_1AccelerationSettings_1a66bf9df8526ebaf6ed16a1100811a3ef" prot="public" virt="virtual"><scope>tudat::simulation_setup::SphericalHarmonicAccelerationSettings</scope><name>~AccelerationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

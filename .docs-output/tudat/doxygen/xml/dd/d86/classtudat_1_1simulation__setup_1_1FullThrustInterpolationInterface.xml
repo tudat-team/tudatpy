@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::FullThrustInterpolationInterface</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a1e0c0c6272a54c8c185cef3147ea6598" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="d6/d99/classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector3d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, Eigen::Vector3d &gt; &gt; tudat::simulation_setup::FullThrustInterpolationInterface::thrustInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>thrustInterpolator_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="406" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="406" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a372615a39010d5c4f41c1560f2db9917" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Matrix3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Matrix3d( ) &gt; tudat::simulation_setup::FullThrustInterpolationInterface::rotationFunction_</definition>
+        <argsstring></argsstring>
+        <name>rotationFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="409" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="409" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a21c2fa06d9991d97fcddd6c9ba967b33" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::FullThrustInterpolationInterface::currentThrust_</definition>
+        <argsstring></argsstring>
+        <name>currentThrust_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="412" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="412" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1ad4ea178aeebb75f43b374cc5eb01383a" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::FullThrustInterpolationInterface::currentTime_</definition>
+        <argsstring></argsstring>
+        <name>currentTime_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="415" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="415" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a0560c9a46c3772380cb8296ed1bfbfdf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::FullThrustInterpolationInterface::FullThrustInterpolationInterface</definition>
+        <argsstring>(const std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, Eigen::Vector3d &gt; &gt; thrustInterpolator, const std::function&lt; Eigen::Matrix3d() &gt; rotationFunction=[](){ return Eigen::Matrix3d::Identity();})</argsstring>
+        <name>FullThrustInterpolationInterface</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="d6/d99/classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector3d &gt; &gt;</type>
+          <declname>thrustInterpolator</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix3d() &gt;</type>
+          <declname>rotationFunction</declname>
+          <defval>[](){ return Eigen::Matrix3d::Identity();}</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>thrustInterpolator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object that returns the total thrust vector, expressed in some reference frame B </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns the rotation matrix from the frame B to the frame in which the propagation is performed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="330" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="330" bodyend="336"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a864be539796a1546e8a3dd7c5bfb62ee" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::FullThrustInterpolationInterface::getThrustMagnitude</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>getThrustMagnitude</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current thrust magnitude, updates thrust to current time if needed. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d0/d53/classtudat_1_1Time" kindref="compound">Time</ref> at which thrust must be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current thrust magnitude. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="344" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="344" bodyend="349"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1aa8525ab07094c5c9998f7c787f4043a4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::simulation_setup::FullThrustInterpolationInterface::getThrustDirection</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>getThrustDirection</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current thrust direction (in the propagation frame)., updates thrust to current time if needed. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d0/d53/classtudat_1_1Time" kindref="compound">Time</ref> at which thrust must be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current thrust direction in propagation frame.. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="358" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="358" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1ab666f33b1fa39745bbe201f670a1434b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::FullThrustInterpolationInterface::resetRotationFunction</definition>
+        <argsstring>(const std::function&lt; Eigen::Matrix3d() &gt; rotationFunction)</argsstring>
+        <name>resetRotationFunction</name>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix3d() &gt;</type>
+          <declname>rotationFunction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the function to rotate to propation frame <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New function that returns the rotation matrix from the frame B to the frame in which the propagation is performed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="370" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="370" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a5faebff09753455845a5d783808940e5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::FullThrustInterpolationInterface::resetTime</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>resetTime</name>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="375" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="375" bodyend="378"/>
+      </memberdef>
+      <memberdef kind="function" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1af8a6eada1d0bfc6d142f2da21ca19fba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="d6/d99/classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::Vector3d &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, Eigen::Vector3d &gt; &gt; tudat::simulation_setup::FullThrustInterpolationInterface::getThrustInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>getThrustInterpolator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the thrust interpolator. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="384" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="384" bodyend="387"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1af5e09dd57d63da8974dd7f791df9ff4a" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::FullThrustInterpolationInterface::updateThrust</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>updateThrust</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the thrust vector to the current time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d0/d53/classtudat_1_1Time" kindref="compound">Time</ref> at which thrust must be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="396" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="396" bodyend="403"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" line="319" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/accelerationSettings.h" bodystart="320" bodyend="417"/>
+    <listofallmembers>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a21c2fa06d9991d97fcddd6c9ba967b33" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>currentThrust_</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1ad4ea178aeebb75f43b374cc5eb01383a" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>currentTime_</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a0560c9a46c3772380cb8296ed1bfbfdf" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>FullThrustInterpolationInterface</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1aa8525ab07094c5c9998f7c787f4043a4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>getThrustDirection</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1af8a6eada1d0bfc6d142f2da21ca19fba" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>getThrustInterpolator</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a864be539796a1546e8a3dd7c5bfb62ee" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>getThrustMagnitude</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1ab666f33b1fa39745bbe201f670a1434b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>resetRotationFunction</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a5faebff09753455845a5d783808940e5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>resetTime</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a372615a39010d5c4f41c1560f2db9917" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>rotationFunction_</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1a1e0c0c6272a54c8c185cef3147ea6598" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>thrustInterpolator_</name></member>
+      <member refid="dd/d86/classtudat_1_1simulation__setup_1_1FullThrustInterpolationInterface_1af5e09dd57d63da8974dd7f791df9ff4a" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::FullThrustInterpolationInterface</scope><name>updateThrust</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
