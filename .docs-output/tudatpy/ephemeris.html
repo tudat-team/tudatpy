@@ -1,0 +1,730 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="tudatpy.simulation.environment_setup.gravity_field" href="gravity_field.html" /><link rel="prev" title="tudatpy.simulation.environment_setup" href="environment_setup.html" />
+
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.07.28.beta40"/>
+        <title>tudatpy.simulation.environment_setup.ephemeris - tudat-api documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">tudat-api  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="environment_setup.html"
+                        title="previous chapter"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup</span></code></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gravity_field.html"
+                        title="next chapter"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup.gravity_field</span></code></a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <section id="tudatpy-simulation-environment-setup-ephemeris">
+<h1><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup.ephemeris</span></code><a class="headerlink" href="#tudatpy-simulation-environment-setup-ephemeris" title="Permalink to this headline">¶</a></h1>
+<p>None</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.direct_spice">
+<span class="sig-name descname"><span class="pre">direct_spice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_origin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'SSB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_orientation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ECLIPJ2000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_name_to_use</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.direct_spice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating ephemeris model settings entirely from Spice.</p>
+<p>Factory function for settings object, defining ephemeris model directly and entirely from Spice.
+Requires an appropriate Spice kernel to be loaded.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>DirectSpiceEphemerisSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_origin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='SSB'</em>) – Origin of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>frame_orientation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='ECLIPJ2000'</em>) – Orientation of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>body_name_to_use</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default = ""</em>) – <p>?</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings" title="tudatpy.simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings">DirectSpiceEphemerisSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.interpolated_spice">
+<span class="sig-name descname"><span class="pre">interpolated_spice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">initial_time:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">final_time:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">time_step:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">frame_origin:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'SSB'</span></em>, <em class="sig-param"><span class="pre">frame_orientation:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'ECLIPJ2000'</span></em>, <em class="sig-param"><span class="pre">interpolator_settings:</span> <span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span> <span class="pre">=</span> <span class="pre">&lt;tudatpy.kernel.math.interpolators.LagrangeInterpolatorSettings</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fbfdaf4b8b0&gt;</span></em>, <em class="sig-param"><span class="pre">body_name_to_use:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.interpolated_spice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating ephemeris model settings using interpolated Spice data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Initial time from which interpolated data from Spice should be created.</p></li>
+<li><p><strong>final_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Final time from which interpolated data from Spice should be created.</p></li>
+<li><p><strong>time_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Time step with which interpolated data from Spice should be created.</p></li>
+<li><p><strong>frame_origin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='SSB'</em>) – Origin of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>frame_orientation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='ECLIPJ2000'</em>) – Orientation of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>interpolator_settings</strong> (<em>std::make_shared&lt; interpolators::InterpolatorSettings &gt;</em><em>, </em><em>default=std::make_shared&lt; interpolators::LagrangeInterpolatorSettings &gt;</em><em>( </em><em>6</em><em> )</em>) – Settings to be used for the state interpolation.</p></li>
+<li><p><strong>body_name_to_use</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default = ""</em>) – <p>?</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.InterpolatedSpiceEphemerisSettings" title="tudatpy.simulation.environment_setup.ephemeris.InterpolatedSpiceEphemerisSettings">InterpolatedSpiceEphemerisSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.approximate_planet_positions">
+<span class="sig-name descname"><span class="pre">approximate_planet_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.approximate_planet_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>approximate_planet_positions(body_name_to_use: str) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating approximate ephemeris model settings for major planets.</p>
+<p>Factory function for settings object, defining approximate ephemeris model for major planets.
+In this highly simplified ephemeris model, Keplerian elements of the major solar system bodies are modelled as linear functions of time and several sinusoidal variations (described on <a class="reference external" href="http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf">http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf</a>).
+#(%! only given in ctor, not FF) Three-dimensional and circular-coplanar approximation may be used.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ApproximatePlanetPositionsSettings</cite> object.</p>
+<dl class="simple">
+<dt>body_name_to_use<span class="classifier">str</span></dt><dd><p>String that is attempted to be matched to an identifier for the body that the ephemeris is to be created for.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>ApproximatePlanetPositionSettings</dt><dd><p>None</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><p>approximate_planet_positions() -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating approximate ephemeris model settings for major planets.</p>
+<p>Factory function for settings object, defining approximate ephemeris model for major planets.
+In this highly simplified ephemeris model, Keplerian elements of the major solar system bodies are modelled as linear functions of time and several sinusoidal variations (described on <a class="reference external" href="http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf">http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf</a>).
+#(%! only given in ctor, not FF) Three-dimensional and circular-coplanar approximation may be used.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ApproximatePlanetPositionsSettings</cite> object.</p>
+<dl class="simple">
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>ApproximatePlanetPositionSettings</dt><dd><p>None</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">approximate_planet_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>approximate_planet_positions(body_name_to_use: str) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating approximate ephemeris model settings for major planets.</p>
+<p>Factory function for settings object, defining approximate ephemeris model for major planets.
+In this highly simplified ephemeris model, Keplerian elements of the major solar system bodies are modelled as linear functions of time and several sinusoidal variations (described on <a class="reference external" href="http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf">http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf</a>).
+#(%! only given in ctor, not FF) Three-dimensional and circular-coplanar approximation may be used.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ApproximatePlanetPositionsSettings</cite> object.</p>
+<dl class="simple">
+<dt>body_name_to_use<span class="classifier">str</span></dt><dd><p>String that is attempted to be matched to an identifier for the body that the ephemeris is to be created for.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>ApproximatePlanetPositionSettings</dt><dd><p>None</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><p>approximate_planet_positions() -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating approximate ephemeris model settings for major planets.</p>
+<p>Factory function for settings object, defining approximate ephemeris model for major planets.
+In this highly simplified ephemeris model, Keplerian elements of the major solar system bodies are modelled as linear functions of time and several sinusoidal variations (described on <a class="reference external" href="http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf">http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf</a>).
+#(%! only given in ctor, not FF) Three-dimensional and circular-coplanar approximation may be used.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ApproximatePlanetPositionsSettings</cite> object.</p>
+<dl class="simple">
+<dt>None</dt><dd><p>None</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>ApproximatePlanetPositionSettings</dt><dd><p>None</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.constant">
+<span class="sig-name descname"><span class="pre">constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constant_state</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">6</span><span class="p"><span class="pre">,</span> </span><span class="pre">1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_origin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'SSB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_orientation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ECLIPJ2000'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating constant ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model with a constant, time-independent state.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>constantEphemerisSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>constant_state</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Constant state that will be provided as output of the ephemeris at all times.</p></li>
+<li><p><strong>frame_origin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='SSB'</em>) – Origin of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>frame_orientation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='ECLIPJ2000'</em>) – Orientation of frame in which ephemeris data is defined.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.ConstantEphemerisSettings" title="tudatpy.simulation.environment_setup.ephemeris.ConstantEphemerisSettings">ConstantEphemerisSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.custom">
+<span class="sig-name descname"><span class="pre">custom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_state_function</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">6</span><span class="p"><span class="pre">,</span> </span><span class="pre">1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_origin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'SSB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_orientation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ECLIPJ2000'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.custom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating custom ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model with a custom state.
+This allows the user to provide an custom state function as ephemeris model.
+The state function (pointer) must be taking a time (float) as input and returning the Cartesian state (numpy.ndarray).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>customEphemerisSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>custom_state_function</strong> – Function returning the state as a function of time.</p></li>
+<li><p><strong>frame_origin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='SSB'</em>) – Origin of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>frame_orientation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='ECLIPJ2000'</em>) – Orientation of frame in which ephemeris data is defined.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.CustomEphemerisSettings" title="tudatpy.simulation.environment_setup.ephemeris.CustomEphemerisSettings">CustomEphemerisSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.keplerian">
+<span class="sig-name descname"><span class="pre">keplerian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_keplerian_state</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">6</span><span class="p"><span class="pre">,</span> </span><span class="pre">1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_state_epoch</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body_gravitational_parameter</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_origin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'SSB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_orientation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ECLIPJ2000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_finder_absolute_tolerance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">4.440892098500626e-14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_finder_maximum_iterations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.keplerian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating Keplerian ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model which represents an ideal Kepler orbit from the given Kepler elements.
+These are taken as the elements at the <code class="docutils literal notranslate"><span class="pre">initial_state_epoch</span></code> and propagated to any other time using the provided <code class="docutils literal notranslate"><span class="pre">central_body_gravitational_parameter</span></code>.
+See Frame/State Transformations (<cite>link</cite>) for more details on orbital elements in Tudat.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>KeplerEphemerisSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_state_in_keplerian_elements</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Kepler elements at time epochOfInitialState.</p></li>
+<li><p><strong>initial_state_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Time at which initialStateInKeplerianElements represents the Keplerian state.</p></li>
+<li><p><strong>central_body_gravitational_parameter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Gravitational parameter of the central body that is used in the computations.</p></li>
+<li><p><strong>frame_origin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='SSB'</em>) – Origin of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>frame_orientation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='ECLIPJ2000'</em>) – Orientation of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>root_finder_absolute_tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Convergence tolerance for root finder used to convert mean to eccentric anomaly on each call to getCartesianState.</p></li>
+<li><p><strong>root_finder_maximum_number_of_iterations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Maximum iteration for root finder used to convert mean to eccentric anomaly on each call to getCartesianState.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>KeplerEphemerisSettings</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.keplerian_from_spice">
+<span class="sig-name descname"><span class="pre">keplerian_from_spice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_state_epoch</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_body_gravitational_parameter</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_origin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'SSB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_orientation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ECLIPJ2000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_finder_absolute_tolerance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">4.440892098500626e-14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_finder_maximum_iterations</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.keplerian_from_spice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating Keplerian ephemeris model settings with initial state from Spice.</p>
+<p>Factory function for settings object, defining ephemeris model which represents an ideal Kepler orbit from an initial state from Spice.
+The Kepler elements inferred from the initial state are propagated to any other time using the provided <code class="docutils literal notranslate"><span class="pre">central_body_gravitational_parameter</span></code>.
+See Frame/State Transformations (<cite>link</cite>) for more details on orbital elements in Tudat.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>KeplerEphemerisSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of body for which to create ephemeris settings and infer initial state from Spice.</p></li>
+<li><p><strong>initial_state_epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Time at which initialStateInKeplerianElements represents the Keplerian state.</p></li>
+<li><p><strong>central_body_gravitational_parameter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Gravitational parameter of the central body that is used in the computations.</p></li>
+<li><p><strong>frame_origin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='SSB'</em>) – Origin of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>frame_orientation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='ECLIPJ2000'</em>) – Orientation of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>root_finder_absolute_tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Convergence tolerance for root finder used to convert mean to eccentric anomaly on each call to getCartesianState.</p></li>
+<li><p><strong>root_finder_maximum_number_of_iterations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Maximum iteration for root finder used to convert mean to eccentric anomaly on each call to getCartesianState.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>KeplerEphemerisSettings</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.scaled">
+<span class="sig-name descname"><span class="pre">scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.scaled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_constant: float, is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_constant<span class="classifier">float</span></dt><dd><p>Constant scaling factor to be applied to all elements of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector: numpy.ndarray[numpy.float64[6, 1]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_vector<span class="classifier">numpy.ndarray</span></dt><dd><p>Vector containing scaling factors to be applied to each element of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector_function: Callable[[float], numpy.ndarray[numpy.float64[6, 1]]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_vector_function<span class="classifier">function &lt; numpy.ndarray &gt;</span></dt><dd><p>Function returning a vector with the scaling factors to be applied to each element of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_constant: float, is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_constant<span class="classifier">float</span></dt><dd><p>Constant scaling factor to be applied to all elements of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector: numpy.ndarray[numpy.float64[6, 1]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_vector<span class="classifier">numpy.ndarray</span></dt><dd><p>Vector containing scaling factors to be applied to each element of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector_function: Callable[[float], numpy.ndarray[numpy.float64[6, 1]]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_vector_function<span class="classifier">function &lt; numpy.ndarray &gt;</span></dt><dd><p>Function returning a vector with the scaling factors to be applied to each element of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_constant: float, is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_constant<span class="classifier">float</span></dt><dd><p>Constant scaling factor to be applied to all elements of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector: numpy.ndarray[numpy.float64[6, 1]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_vector<span class="classifier">numpy.ndarray</span></dt><dd><p>Vector containing scaling factors to be applied to each element of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+<li><p>scaled(unscaled_ephemeris_settings: tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings, scaling_vector_function: Callable[[float], numpy.ndarray[numpy.float64[6, 1]]], is_scaling_absolute: bool = False) -&gt; tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</p>
+<blockquote>
+<div><p>Factory function for creating scaled ephemeris model settings.</p>
+<p>Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>ScaledEphemerisSettings</cite> object.</p>
+<dl class="simple">
+<dt>unscaled_ephemeris_settings<span class="classifier">EphemerisSettings</span></dt><dd><p>Sets base settings of ephemeris to be scaled.</p>
+</dd>
+<dt>scaling_vector_function<span class="classifier">function &lt; numpy.ndarray &gt;</span></dt><dd><p>Function returning a vector with the scaling factors to be applied to each element of the Cartesian state.</p>
+</dd>
+<dt>is_scaling_absolute<span class="classifier">bool, default=false</span></dt><dd><p>Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.</p>
+</dd>
+</dl>
+<p>ScaledEphemerisSettings</p>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.tabulated">
+<span class="sig-name descname"><span class="pre">tabulated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body_state_history</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">6</span><span class="p"><span class="pre">,</span> </span><span class="pre">1</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_origin</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'SSB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_orientation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'ECLIPJ2000'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.ephemeris.EphemerisSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.tabulated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating ephemeris model settings from tabulated data.</p>
+<p>Factory function for settings object, defining ephemeris model to be created from tabulated data.
+Currently the data that is provided gets interpolated by a 6th order Lagrange interpolator (hardcoded).
+At the edges of the interpolation interval a cubic spline interpolator is used to suppres the influence of Runge’s phenomenon.
+This function creates an instance of an <cite>EphemerisSettings</cite> derived <cite>TabulatedEphemerisSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body_state_history</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary of the discrete state history data from which ephemeris is to be created. Keys representing the time (float) and values representing Cartesian states (numpy.ndarray).</p></li>
+<li><p><strong>frame_origin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='SSB'</em>) – Origin of frame in which ephemeris data is defined.</p></li>
+<li><p><strong>frame_orientation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='ECLIPJ2000'</em>) – Orientation of frame in which ephemeris data is defined.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.ephemeris.TabulatedEphemerisSettings" title="tudatpy.simulation.environment_setup.ephemeris.TabulatedEphemerisSettings">TabulatedEphemerisSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EphemerisSettings</span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.EphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for providing settings for ephemeris model.</p>
+<p>Functional (base) class for settings of ephemeris models that require no information in addition to their type (and frame origin and orientation).
+Ephemeris model classes requiring additional information must be created using an object derived from this class.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">DirectSpiceEphemerisSettings</span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for defining settings of an ephemeris linked directly to Spice.</p>
+<p><cite>EphemerisSettings</cite> derived class for ephemeris which are directly linked to Spice.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.InterpolatedSpiceEphemerisSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">InterpolatedSpiceEphemerisSettings</span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.InterpolatedSpiceEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for defining settings of an ephemeris interpolated from Spice data.</p>
+<p><cite>DirectSpiceEphemerisSettings</cite> derived class for setting ephemerides to be created from interpolated Spice ephemeris data.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.ApproximatePlanetPositionSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">ApproximatePlanetPositionSettings</span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.ApproximatePlanetPositionSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for creating settings of approximate ephemeris for major planets.</p>
+<p><cite>EphemerisSettings</cite> derived class for approximate ephemeris for major planets as inplemented in ApproximatePlanetPositions class and derived class (described on <a class="reference external" href="http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf">http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf</a>).</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.ConstantEphemerisSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">ConstantEphemerisSettings</span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.ConstantEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for defining settings of constant ephemerides.</p>
+<p><cite>EphemerisSettings</cite> derived class for ephemerides producing a constant (time-independent) state.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.CustomEphemerisSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CustomEphemerisSettings</span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.CustomEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for defining settings of a custom ephemeris.</p>
+<p><cite>EphemerisSettings</cite> derived class for ephemerides which represent an ideal Kepler orbit.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.ephemeris.TabulatedEphemerisSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">TabulatedEphemerisSettings</span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.ephemeris.TabulatedEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for defining settings of ephemeris to be created from tabulated data.</p>
+<p><cite>EphemerisSettings</cite> derived class for ephemeris created from tabulated data. The provided data is interpolated into ephemerides.</p>
+</dd></dl>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="gravity_field.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup.gravity_field</span></code></div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="environment_setup.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021, John
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/ephemeris.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup.ephemeris</span></code></a><ul>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    </body>
+</html>

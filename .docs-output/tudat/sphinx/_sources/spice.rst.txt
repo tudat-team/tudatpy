@@ -1,0 +1,60 @@
+``tudat::interface::spice``
+===========================
+None
+
+
+
+
+
+Functions
+---------
+
+.. doxygenfunction:: tudat::interface::spice::convertJulianDateToEphemerisTime
+
+.. doxygenfunction:: tudat::interface::spice::convertEphemerisTimeToJulianDate
+
+.. doxygenfunction:: tudat::interface::spice::convertDateStringToEphemerisTime
+
+.. doxygenfunction:: tudat::interface::spice::getBodyCartesianStateAtEpoch
+
+.. doxygenfunction:: tudat::interface::spice::getBodyCartesianPositionAtEpoch
+
+.. doxygenfunction:: tudat::interface::spice::getCartesianStateFromTleAtEpoch
+
+.. doxygenfunction:: tudat::interface::spice::computeRotationQuaternionBetweenFrames
+
+.. doxygenfunction:: tudat::interface::spice::computeRotationMatrixDerivativeBetweenFrames
+
+.. doxygenfunction:: tudat::interface::spice::getAngularVelocityVectorOfFrameInOriginalFrame
+
+.. doxygenfunction:: tudat::interface::spice::getBodyProperties
+
+.. doxygenfunction:: tudat::interface::spice::getBodyGravitationalParameter
+
+.. doxygenfunction:: tudat::interface::spice::getAverageRadius
+
+.. doxygenfunction:: tudat::interface::spice::convertBodyNameToNaifId
+
+.. doxygenfunction:: tudat::interface::spice::checkBodyPropertyInKernelPool
+
+.. doxygenfunction:: tudat::interface::spice::getStandardKernels
+
+.. doxygenfunction:: tudat::interface::spice::loadStandardKernels
+
+.. doxygenfunction:: tudat::interface::spice::getTotalCountOfKernelsLoaded
+
+.. doxygenfunction:: tudat::interface::spice::loadKernel
+
+.. doxygenfunction:: tudat::interface::spice::clearKernels
+
+
+
+
+Classes
+-------
+
+.. doxygenclass:: tudat::interface::spice::SpiceEphemeris
+    :members:
+
+
+

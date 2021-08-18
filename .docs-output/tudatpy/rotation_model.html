@@ -1,0 +1,417 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="tudatpy.simulation.propagation_setup" href="propagation_setup.html" /><link rel="prev" title="tudatpy.simulation.environment_setup.gravity_field" href="gravity_field.html" />
+
+    <meta name="generator" content="sphinx-4.1.2, furo 2021.07.28.beta40"/>
+        <title>tudatpy.simulation.environment_setup.rotation_model - tudat-api documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">tudat-api  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gravity_field.html"
+                        title="previous chapter"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup.gravity_field</span></code></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="propagation_setup.html"
+                        title="next chapter"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.propagation_setup</span></code></a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <section id="tudatpy-simulation-environment-setup-rotation-model">
+<h1><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup.rotation_model</span></code><a class="headerlink" href="#tudatpy-simulation-environment-setup-rotation-model" title="Permalink to this headline">¶</a></h1>
+<p>None</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.rotation_model.simple">
+<span class="sig-name descname"><span class="pre">simple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_orientation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">3</span><span class="p"><span class="pre">,</span> </span><span class="pre">3</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings" title="tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.rotation_model.simple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating simple rotation model settings.</p>
+<p>Factory function for settings object, defining a basic rotation model with constant orientation of the rotation axis and constant rotation rate about this axis.
+Rotation from original (inertial) to target (body-fixed) frame at some reference time <code class="docutils literal notranslate"><span class="pre">initial_time</span></code> is defined by the <code class="docutils literal notranslate"><span class="pre">initial_orientation</span></code> rotation matrix.
+Rotation about the body-fixed z-axis is defined by the <code class="docutils literal notranslate"><span class="pre">rotation_rate</span></code> float variable (in rad/s).
+This function creates an instance of a <cite>RotationModelSettings</cite> derived <cite>simpleRotationModelSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Base frame of rotation model.</p></li>
+<li><p><strong>target_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Target frame of rotation model.</p></li>
+<li><p><strong>initial_orientation</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Orientation of target frame in base frame at initial time.</p></li>
+<li><p><strong>initial_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Initial time (reference epoch for rotation matrices).</p></li>
+<li><p><strong>rotation_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Constant rotation rate [rad/s] about rotational axis.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Simple rotation model settings object (derived from <cite>RotationModelSettings</cite> base class).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>SimpleRotationModelSettings</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.rotation_model.simple_from_spice">
+<span class="sig-name descname"><span class="pre">simple_from_spice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_frame_spice</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings" title="tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.rotation_model.simple_from_spice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating simple rotation model settings using initial orientation and rotaton rates from Spice.</p>
+<p>Factory function for settings object, defining a simple rotation model with the added functionality that the initial orientation and rotation rate are extracted from Spice, as opposed to provided manually.
+Note that <em>only</em> the initial orientation and rotation rate ( at the time defined by <cite>initial_time</cite> ) are extracted from Spice.
+The distinction between the two target frame inputs is the following</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">target_frame</span></code> parameter is the name of frame that Tudat assigns to the body-fixed frame</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">target_frame_spice</span></code> is the name of the frame in Spice for which the initial orientation and rotation rate are extracted.</p></li>
+</ul>
+</div></blockquote>
+<p>This function creates an instance of a <cite>RotationModelSettings</cite> derived <cite>simpleRotationModelSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Base frame of rotation model.</p></li>
+<li><p><strong>target_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Target frame of rotation model.</p></li>
+<li><p><strong>target_frame_spice</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Spice reference of target frame.</p></li>
+<li><p><strong>initial_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Initial time (reference epoch for rotation matrices).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Simple rotation model settings object (derived from RotationModelSettings base class) with target frame info inferred from Spice.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>SimpleRotationModelSettings</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.rotation_model.synchronous">
+<span class="sig-name descname"><span class="pre">synchronous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">central_body_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings" title="tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.rotation_model.synchronous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating synchronous rotational ephemeris settings.</p>
+<p>Factory function for settings object, defining a synchronous rotation model where rotation of a body is defined from its relative orbit w.r.t. some central body. Specifically
+- the body-fixed x-axis is <em>always</em> pointing towards the central body
+- the body-fixed z-axis is <em>always</em> perpendicular to the orbital plane (along the direction of
+.. math:: mathbf{x} cross mathbf{v} )
+- the body-fixed y-axis completes the right-handed reference frame</p>
+<p>Such a model can be useful for, for instance, approximate rotation of tidally locked natural satellites or nadir-pointing spacraft.
+This function creates an instance of a <cite>RotationModelSettings</cite> derived <cite>SynchronousRotationModelSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>central_body_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Base frame of rotation model.</p></li>
+<li><p><strong>base_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Base frame of rotation model.</p></li>
+<li><p><strong>target_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Spice reference of target frame.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Synchonous rotation model settings object (derived from RotationModelSettings base class).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>SynchronousRotationModelSettings</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.rotation_model.spice">
+<span class="sig-name descname"><span class="pre">spice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings" title="tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.rotation_model.spice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating rotation model settings from the Spice interface.</p>
+<p>Factory function for settings object, defining a rotation model directly (and entirely) from Spice interface.
+This function creates an instance of a <cite>RotationModelSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Base frame of rotation model.</p></li>
+<li><p><strong>target_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Target frame of rotation model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rotation model settings object inferred from Spice rotational model.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings" title="tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings">RotationModelSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.rotation_model.gcrs_to_itrs">
+<span class="sig-name descname"><span class="pre">gcrs_to_itrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">precession_nutation_theory:</span> <span class="pre">tudatpy.kernel.simulation.environment_setup.rotation_model.IAUConventions</span> <span class="pre">=</span> <span class="pre">&lt;IAUConventions.iau_2006:</span> <span class="pre">2&gt;</span></em>, <em class="sig-param"><span class="pre">base_frame:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GCRS'</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings" title="tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.rotation_model.gcrs_to_itrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating high-accuracy Earth rotation model settings.</p>
+<p>Factory function for settings object, defining high-accuracy Earth rotation model according to the IERS 2010 Conventions.
+This settings class has various options to deviate from the default settings, typical applications will use default.
+Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
+The precession-nutation theory may be <cite>iau_2000a</cite> / <cite>iau_2000b</cite> or <cite>iau_2006</cite>, as implemented in the SOFA toolbox. Alternative options to modify the input (not shown above) include the EOP correction file, input time scale, short period UT1 and polar motion variations.
+The target frame (e.g. body-fixed frame) name is ITRS.
+This function creates an instance of a <cite>RotationModelSettings</cite> derived <cite>gcrsToItrsRotationModelSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>precession_nutation_theory</strong> (<em>default=tba::iau_2006</em>) – Setting theory for modelling Earth nutation.</p></li>
+<li><p><strong>base_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>default='GCRS'</em>) – Base frame of rotation model</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>High-accuracy Earth rotation model settings object (derived from RotationModelSettings base class).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>GcrsToItrsRotationModelSettings</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.rotation_model.constant">
+<span class="sig-name descname"><span class="pre">constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_orientation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">3</span><span class="p"><span class="pre">,</span> </span><span class="pre">3</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings" title="tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings"><span class="pre">tudatpy.kernel.simulation.environment_setup.rotation_model.RotationModelSettings</span></a></span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.rotation_model.constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for creating simple rotation model settings for target-frames with constant orientation.</p>
+<p>Factory function for settings object, defining simple rotation model setting objects with constant rotation matrix.
+These model settings are for target frames which do not have a rotational rate in the base frame and are fully defined by their initial orientation.
+This function creates an instance of a <cite>RotationModelSettings</cite> derived <cite>SimpleRotationModelSettings</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Base frame of rotation model.</p></li>
+<li><p><strong>target_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Target frame of rotation model.</p></li>
+<li><p><strong>initial_orientation</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – Orientation of target frame in base frame at initial time (constant throughout).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Simple rotation model settings object (derived from RotationModelSettings base class) with constant orientation of target in base frame.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>SimpleRotationModelSettings</p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">RotationModelSettings</span></span><a class="headerlink" href="#tudatpy.simulation.environment_setup.rotation_model.RotationModelSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for providing settings for automatic rotation model creation.</p>
+<p>This class is a functional base class for settings of rotation models that require no information in addition to their type.
+Basic rotation model has constant orientation of the rotation axis (body-fixed z-axis) and constant rotation rate about this axis.
+Rotation models requiring additional information must be created using the factory functions which create the specific object derived from this base class.</p>
+</dd></dl>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="propagation_setup.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.propagation_setup</span></code></div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="gravity_field.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup.gravity_field</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021, John
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/rotation_model.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">tudatpy.simulation.environment_setup.rotation_model</span></code></a><ul>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    </body>
+</html>

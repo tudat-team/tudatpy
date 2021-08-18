@@ -1,0 +1,15 @@
+``tudatpy.util``
+================
+
+
+
+
+Functions
+---------
+
+.. autofunction:: tudatpy.util.result2array
+
+
+
+
+
