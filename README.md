@@ -30,7 +30,7 @@ is not tracked by Git. If the API is also built, more untracked directories will
 1. Clone the repository and enter directory
 
 ````
-git clone --single-branch --branch minimal https://github.com/tudat-team/tudat-bundle
+git clone https://github.com/tudat-team/tudat-bundle
 cd tudat-bundle
 ````
 
