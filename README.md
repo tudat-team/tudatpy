@@ -4,6 +4,20 @@ This repository facilitates parallel development between the `tudat` (C++) and t
 `tudatpy` (Python) library. 
 Specific indications for documenting `tudat` or `tudapy` are reported in the `tudat-multidoc/README.md` file.
 
+
+## Structure of the `tudat-bundle`
+
+The `tudat-bundle` comprises the following repositories:
+
+- `tudat`, where the tudat source code is located (this is a separate git repository);
+- `tudatpy`, where the tudatpy binding code is located (this is a separate git repository);
+- `tudat-multidoc`, where the documentation and the system to build the API is located (this is a separate git repository);
+- `cli`, where the Python Command Line Interface scripts to build the API are located;
+
+In addition, once the project is built, all the build output will be dumped in the `cmake-build-debug` directory, which
+is not tracked by Git. If the API is also built, more untracked directories will appear, but this is explained in the
+`tudat-multidoc/README.md` file.
+
 ## Prerequisites
 
 - [**Windows Users**] Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
