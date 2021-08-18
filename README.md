@@ -1,7 +1,8 @@
 # tudat-bundle
 
-This repository facillitates parallel development between the `tudat` (C++) and the
-`tudatpy` (Python) library.
+This repository facilitates parallel development between the `tudat` (C++) and the
+`tudatpy` (Python) library. 
+Specific indications for documenting `tudat` or `tudapy` are reported in the `tudat-multidoc/README.md` file.
 
 ## Prerequisites
 
@@ -18,6 +19,13 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 git clone --single-branch --branch minimal https://github.com/tudat-team/tudat-bundle
 cd tudat-bundle
 ````
+
+> **Note** \
+> The `tudat-bundle` repository uses git submodules, which "allow you to keep a Git repository as a subdirectory of 
+> another Git repository" (from [the Git guide](https://git-scm.com/book/en/v2/Git-Tools-Submodules)). In particular,
+> in the `tudat-bundle` there are four different subdirectories that are separate repositories: `tudat`, `tudatpy`,
+> `tudat-multidoc` and `tudat-multidoc/multidoc`. Each repository has its own branches and functions separately from 
+> the others. This is the reason why the following two steps are needed.
 
 2. Clone the `tudat` & `tudatpy` submodules
 
