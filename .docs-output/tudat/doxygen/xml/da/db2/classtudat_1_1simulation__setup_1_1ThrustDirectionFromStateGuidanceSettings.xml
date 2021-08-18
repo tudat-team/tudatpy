@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</compoundname>
+    <basecompoundref refid="dd/d1a/classtudat_1_1simulation__setup_1_1ThrustDirectionSettings" prot="public" virt="non-virtual">tudat::simulation_setup::ThrustDirectionSettings</basecompoundref>
+    <includes refid="df/dab/thrustSettings_8h" local="no">thrustSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings_1aac0340ce4fb0bad38cb9bfa73a923ad9" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings::isColinearWithVelocity_</definition>
+        <argsstring></argsstring>
+        <name>isColinearWithVelocity_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" line="132" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings_1ac81da37321b679aeb9347a7f6b9f3d17" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings::directionIsOppositeToVector_</definition>
+        <argsstring></argsstring>
+        <name>directionIsOppositeToVector_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" line="135" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings_1a1b2c8d43b9b9a16e3df9b07430a0edd1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings::ThrustDirectionFromStateGuidanceSettings</definition>
+        <argsstring>(const std::string &amp;centralBody, const bool isColinearWithVelocity, const bool directionIsOppositeToVector)</argsstring>
+        <name>ThrustDirectionFromStateGuidanceSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBody</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isColinearWithVelocity</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>directionIsOppositeToVector</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>centralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="d8/d9b/classtudat_1_1simulation__setup_1_1Body" kindref="compound">Body</ref> w.r.t. which the state of the body undergoing thust is computed. This state is then used to directly set the thrust direction. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isColinearWithVelocity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether thrust is colinear with velocity (if true) or position (if false) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>directionIsOppositeToVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the thrust is in the direction of position/velocity of x_{thrusting body}-x_{central body}, or opposite this direction </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" line="120" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="120" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings_1a8f6a0eec5f3ad99d5b12c8585886abf8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings::~ThrustDirectionFromStateGuidanceSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~ThrustDirectionFromStateGuidanceSettings</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" line="129" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="129" bodyend="129"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>@get_docstring(ThrustDirectionFromStateGuidanceSettings.__docstring__) </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</label>
+        <link refid="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::ThrustDirectionSettings</label>
+        <link refid="dd/d1a/classtudat_1_1simulation__setup_1_1ThrustDirectionSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</label>
+        <link refid="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::ThrustDirectionSettings</label>
+        <link refid="dd/d1a/classtudat_1_1simulation__setup_1_1ThrustDirectionSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>relativeBody_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" line="106" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/.tudat-documented/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="107" bodyend="137"/>
+    <listofallmembers>
+      <member refid="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings_1ac81da37321b679aeb9347a7f6b9f3d17" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</scope><name>directionIsOppositeToVector_</name></member>
+      <member refid="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings_1aac0340ce4fb0bad38cb9bfa73a923ad9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</scope><name>isColinearWithVelocity_</name></member>
+      <member refid="dd/d1a/classtudat_1_1simulation__setup_1_1ThrustDirectionSettings_1a6c8347338bc2b8a35a7aa9692ba5951e" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</scope><name>relativeBody_</name></member>
+      <member refid="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings_1a1b2c8d43b9b9a16e3df9b07430a0edd1" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</scope><name>ThrustDirectionFromStateGuidanceSettings</name></member>
+      <member refid="dd/d1a/classtudat_1_1simulation__setup_1_1ThrustDirectionSettings_1af894ad33a1362575d0ac58e4cdc77df1" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</scope><name>ThrustDirectionSettings</name></member>
+      <member refid="dd/d1a/classtudat_1_1simulation__setup_1_1ThrustDirectionSettings_1a2f5fd574a85c1fba47bcf65fa47d08c4" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</scope><name>thrustDirectionType_</name></member>
+      <member refid="da/db2/classtudat_1_1simulation__setup_1_1ThrustDirectionFromStateGuidanceSettings_1a8f6a0eec5f3ad99d5b12c8585886abf8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</scope><name>~ThrustDirectionFromStateGuidanceSettings</name></member>
+      <member refid="dd/d1a/classtudat_1_1simulation__setup_1_1ThrustDirectionSettings_1a84b3f9cfc7413f24d062376a34eed3b4" prot="public" virt="virtual"><scope>tudat::simulation_setup::ThrustDirectionFromStateGuidanceSettings</scope><name>~ThrustDirectionSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
