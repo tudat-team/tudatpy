@@ -38,3 +38,6 @@ rever/
 /.tudat-documented/
 /.tudatpy-documented/
 /.docs-output
+
+# Cache
+*.pyc
