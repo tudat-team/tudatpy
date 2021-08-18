@@ -1,0 +1,110 @@
+``tudat::simulation::environment_setup``
+========================================
+None
+
+
+
+
+
+Functions
+---------
+
+.. doxygenfunction:: tudat::simulation::environment_setup::simplerotationmodelsettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::simplerotationmodelsettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::simplerotationmodelfromspicesettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::synchronousrotationmodelsettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::spicerotationmodelsettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::gcrstoitrsrotationmodelsettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::constantrotationmodelsettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::constantrotationmodelsettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::centralgravitysettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::centralgravityfromspicesettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::sphericalharmonicsgravitysettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::createhomogeneoustriaxialellipsoidgravitysettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::directspiceephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::directspiceephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::interpolatedspiceephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::approximateplanetpositionssettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::approximateplanetpositionssettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::approximateplanetpositionssettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::constantephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::customephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::keplerephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::keplerephemerisfromspicesettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::scaledephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::scaledephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::scaledephemerissettings
+
+.. doxygenfunction:: tudat::simulation::environment_setup::tabulatedephemerissettings
+
+
+
+
+Classes
+-------
+
+.. doxygenclass:: tudat::simulation::environment_setup::RotationModelSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::GravityFieldSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::CentralGravityFieldSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::SphericalHarmonicsGravityFieldSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::EphemerisSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::ScaledEphemerisSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::DirectSpiceEphemerisSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::InterpolatedSpiceEphemerisSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::ApproximatePlanetPositionSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::ConstantEphemerisSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::CustomEphemerisSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::KeplerEphemerisSettings
+    :members:
+
+.. doxygenclass:: tudat::simulation::environment_setup::TabulatedEphemerisSettings
+    :members:
+
+
+
