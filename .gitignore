@@ -41,3 +41,6 @@ rever/
 
 # Cache
 *.pyc
+
+# JSON
+json.json
